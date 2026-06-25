@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSplitter,
     QStatusBar,
+    QToolBar,
 )
 
 from tbh_desktop import config_io, scraper
@@ -19,13 +20,14 @@ from tbh_desktop.ui.box_loot_picker import BoxLootPicker
 from tbh_desktop.ui.config_editor import ConfigEditor
 from tbh_desktop.ui.gear_picker import GearPicker
 from tbh_desktop.ui.log_panel import LogPanel
+from tbh_desktop.ui.theme import status_dot_style
 
 
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("TBH Reward Proxy")
-        self.resize(1000, 700)
+        self.resize(1100, 750)
 
         self.runner = ProxyRunner()
         self.runner.log_line.connect(self._on_log)
@@ -39,6 +41,7 @@ class MainWindow(QMainWindow):
         splitter.addWidget(self.log_panel)
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 2)
+        splitter.setHandleWidth(2)
         self.setCentralWidget(splitter)
 
         self._build_toolbar()
@@ -59,27 +62,51 @@ class MainWindow(QMainWindow):
             lambda: self._pick_gear(self.editor.add_ids_to_range)
         )
 
+    # ------------------------------------------------------------------ build
     def _build_toolbar(self) -> None:
         bar = self.addToolBar("main")
-        self.btn_start = QPushButton("Start")
-        self.btn_stop = QPushButton("Stop")
+        bar.setMovable(False)
+        bar.setFloatable(False)
+
+        self.btn_start = QPushButton("▶  Start")
+        self.btn_start.setObjectName("btn_start")
+        self.btn_start.setToolTip("Start the mitmproxy subprocess (Ctrl+S to save first)")
+
+        self.btn_stop = QPushButton("■  Stop")
+        self.btn_stop.setObjectName("btn_stop")
+        self.btn_stop.setToolTip("Terminate the running proxy subprocess")
+
         self.btn_refresh_gear = QPushButton("Scrape gear")
+        self.btn_refresh_gear.setToolTip(
+            "Scrape full Legendary+ gear from the wiki using CloakBrowser.\n"
+            "Slow — launches a headless browser. Cache files are kept locally."
+        )
+
         self.btn_save = QPushButton("Save config")
+        self.btn_save.setToolTip("Validate and atomically write config.json")
+
         self.port_edit = QLineEdit()
         self.port_edit.setFixedWidth(70)
         self.port_edit.setPlaceholderText("port")
-        self.status_dot = QLabel("●")
-        self.status_dot.setStyleSheet("color: red;")
+        self.port_edit.setToolTip("Proxy listen port (requires restart after change)")
 
-        for w in (
-            self.btn_start,
-            self.btn_stop,
-            self.btn_refresh_gear,
-            self.btn_save,
-            self.port_edit,
-            self.status_dot,
-        ):
-            bar.addWidget(w)
+        self.status_dot = QLabel("●")
+        self.status_dot.setToolTip("Proxy status: stopped")
+        self.status_dot.setStyleSheet(status_dot_style(False))
+
+        # Group: proxy controls
+        bar.addWidget(self.btn_start)
+        bar.addWidget(self.btn_stop)
+        bar.addSeparator()
+        # Group: config / scrape
+        bar.addWidget(self.btn_refresh_gear)
+        bar.addWidget(self.btn_save)
+        bar.addSeparator()
+        # Group: port + status
+        bar.addWidget(QLabel("Port:"))
+        bar.addWidget(self.port_edit)
+        bar.addSeparator()
+        bar.addWidget(self.status_dot)
 
         self.btn_start.clicked.connect(self._start)
         self.btn_stop.clicked.connect(self.runner.stop)
@@ -94,11 +121,14 @@ class MainWindow(QMainWindow):
         help_menu = menubar.addMenu("Help")
         help_menu.addAction("About", self._about)
 
+    # ------------------------------------------------------------------ misc
     def _about(self) -> None:
         QMessageBox.about(
             self,
             "About TBH Reward Proxy",
-            "TBH Reward Proxy desktop GUI.\nEdit config, pick reward IDs, run/stop proxy.",
+            "TBH Reward Proxy desktop GUI.\n"
+            "Edit config, pick reward IDs, run/stop proxy.\n\n"
+            "Scraping powered by CloakBrowser (stealth Chromium).",
         )
 
     def _reload_config(self) -> None:
@@ -119,11 +149,13 @@ class MainWindow(QMainWindow):
     def _on_running(self, running: bool) -> None:
         self.btn_start.setEnabled(not running)
         self.btn_stop.setEnabled(running)
-        self.status_dot.setStyleSheet(
-            "color: green;" if running else "color: red;"
+        self.status_dot.setStyleSheet(status_dot_style(running))
+        self.status_dot.setToolTip(
+            "Proxy status: running" if running else "Proxy status: stopped"
         )
 
     def _refresh_gear(self) -> None:
+        self._on_log("Scraping gear… (this may take a minute)")
         try:
             results = scraper.refresh_gear_full(GEAR_CACHE_DIR)
             total = sum(len(v) for v in results.values())

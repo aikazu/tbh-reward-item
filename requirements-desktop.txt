@@ -3,3 +3,4 @@ requests>=2.31
 beautifulsoup4>=4.12
 pytest-qt>=4.3
 playwright>=1.40
+cloakbrowser>=0.4

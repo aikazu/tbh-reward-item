@@ -6,10 +6,12 @@ import sys
 from PySide6.QtWidgets import QApplication
 
 from tbh_desktop.ui.main_window import MainWindow
+from tbh_desktop.ui.theme import apply_theme
 
 
 def main() -> int:
     app = QApplication(sys.argv)
+    apply_theme(app)
     window = MainWindow()
     window.show()
     return app.exec()

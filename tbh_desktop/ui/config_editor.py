@@ -8,6 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QFormLayout,
+    QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -41,26 +42,37 @@ class ConfigEditor(QWidget):
         self._data: dict[str, Any] = {}
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(12)
 
-        # Specific Queue Rules
-        layout.addWidget(QLabel("Specific Queue Rules"))
+        # ── Specific Queue Rules ──────────────────────────────────────────
+        rules_group = QGroupBox("Specific Queue Rules")
+        rules_layout = QVBoxLayout(rules_group)
+        rules_layout.setSpacing(8)
+
         self.rules_table = QTableWidget(0, 4)
         self.rules_table.setHorizontalHeaderLabels(
             ["Enabled", "Name", "Item ID", "Replacement IDs"]
         )
+        self.rules_table.setAlternatingRowColors(True)
+        self.rules_table.verticalHeader().setVisible(False)
         header = self.rules_table.horizontalHeader()
+        header.setSectionResizeMode(COL_ENABLED, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(COL_NAME, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(COL_ITEM_ID, QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(COL_REPLACEMENT, QHeaderView.ResizeMode.Stretch)
-        layout.addWidget(self.rules_table)
+        rules_layout.addWidget(self.rules_table)
 
         rules_buttons = QHBoxLayout()
-        btn_add = QPushButton("Add rule")
-        self.btn_remove = QPushButton("Remove rule")
+        rules_buttons.setSpacing(6)
+        btn_add = QPushButton("＋  Add rule")
+        self.btn_remove = QPushButton("－  Remove rule")
         self.btn_pick_box = QPushButton("Pick from box loot")
         self.btn_pick_gear_rule = QPushButton("Pick gear")
         for b in (btn_add, self.btn_remove, self.btn_pick_box, self.btn_pick_gear_rule):
             rules_buttons.addWidget(b)
         rules_buttons.addStretch()
-        layout.addLayout(rules_buttons)
+        rules_layout.addLayout(rules_buttons)
         btn_add.clicked.connect(self._add_rule)
         self.btn_remove.clicked.connect(self._remove_rule)
 
@@ -72,20 +84,27 @@ class ConfigEditor(QWidget):
         self.btn_pick_box.setToolTip(TOOLTIP_PICK_BOX_DISABLED)
         self.rules_table.itemSelectionChanged.connect(self._update_action_button_states)
 
-        # Range Replacement
-        layout.addWidget(QLabel("Range Replacement"))
-        range_form = QFormLayout()
+        layout.addWidget(rules_group)
+
+        # ── Range Replacement ─────────────────────────────────────────────
+        range_group = QGroupBox("Range Replacement")
+        range_form = QFormLayout(range_group)
+        range_form.setSpacing(8)
+        range_form.setContentsMargins(14, 18, 14, 14)
         self.range_enabled = QCheckBox("enabled")
         self.range_min = QLineEdit()
+        self.range_min.setPlaceholderText("e.g. 500000")
         self.range_max = QLineEdit()
+        self.range_max.setPlaceholderText("e.g. 950000")
         self.range_ids = QLineEdit()
+        self.range_ids.setPlaceholderText("529191, 419191, 409191")
         self.btn_pick_gear_range = QPushButton("Pick gear")
         range_form.addRow("Enabled", self.range_enabled)
         range_form.addRow("match_min_item_id", self.range_min)
         range_form.addRow("match_max_item_id", self.range_max)
         range_form.addRow("replacement IDs", self.range_ids)
         range_form.addRow("", self.btn_pick_gear_range)
-        layout.addLayout(range_form)
+        layout.addWidget(range_group)
 
         layout.addStretch()
 

@@ -9,6 +9,11 @@ from typing import Any
 
 import requests
 from bs4 import BeautifulSoup
+
+try:
+    from cloakbrowser import launch as _stealth_launch
+except ImportError:
+    _stealth_launch = None  # type: ignore[assignment]
 from playwright.sync_api import sync_playwright
 
 from tbh_desktop.paths import DESKTOP_DIR
@@ -365,29 +370,33 @@ def refresh_gear_full(
         return items
 
     try:
-        with sync_playwright() as pw:
-            browser = pw.chromium.launch(headless=True)
-            try:
-                context = browser.new_context()
-                page = context.new_page()
-                for cat in cats:
-                    for grade in grads:
-                        key = f"{cat}_{grade}"
-                        try:
-                            page.goto(GEAR_URL)
-                            _select_gear_filters(page, cat, grade, obtainable_only=True)
-                            items = scrape_gear_batch(page)
-                            write_gear_cache(_cache_path(cat, grade), items)
-                            result[key] = items
-                            log.info("gear %s/%s scraped %d items", cat, grade, len(items))
-                        except Exception as exc:
-                            log.warning("gear %s/%s scrape failed: %s", cat, grade, exc)
-                            result[key] = _fallback(cat, grade)
-            finally:
-                browser.close()
+        if _stealth_launch is not None:
+            # CloakBrowser: stealth Chromium with human-like input, anti-detect.
+            browser = _stealth_launch(headless=True, humanize=True)
+        else:
+            # Fallback to stock Playwright if cloakbrowser not installed.
+            browser = sync_playwright().start().chromium.launch(headless=True)
+        try:
+            context = browser.new_context()
+            page = context.new_page()
+            for cat in cats:
+                for grade in grads:
+                    key = f"{cat}_{grade}"
+                    try:
+                        page.goto(GEAR_URL)
+                        _select_gear_filters(page, cat, grade, obtainable_only=True)
+                        items = scrape_gear_batch(page)
+                        write_gear_cache(_cache_path(cat, grade), items)
+                        result[key] = items
+                        log.info("gear %s/%s scraped %d items", cat, grade, len(items))
+                    except Exception as exc:
+                        log.warning("gear %s/%s scrape failed: %s", cat, grade, exc)
+                        result[key] = _fallback(cat, grade)
+        finally:
+            browser.close()
     except Exception as exc:
-        # playwright launch / browser-level failure: fall back every combo.
-        log.warning("playwright launch failed (%s); falling back to caches", exc)
+        # browser launch / browser-level failure: fall back every combo.
+        log.warning("browser launch failed (%s); falling back to caches", exc)
         for cat in cats:
             for grade in grads:
                 key = f"{cat}_{grade}"

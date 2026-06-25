@@ -317,7 +317,7 @@ def test_refresh_gear_full_writes_per_category_grade(tmp_path: Path) -> None:
     returns a dict keyed by '{cat}_{grade}'."""
     out_dir = tmp_path / "gear_cache"
 
-    # Fake playwright: patch sync_playwright so launch returns a context with
+    # Fake browser: patch _stealth_launch so launch returns a context with
     # a page whose content() returns GEAR_HTML and selectors behave.
     page = MagicMock(name="page")
     page.content.return_value = GEAR_HTML
@@ -334,17 +334,7 @@ def test_refresh_gear_full_writes_per_category_grade(tmp_path: Path) -> None:
     browser.new_context.return_value = context
     browser.close = MagicMock(name="close")
 
-    pw = MagicMock(name="playwright")
-    pw.chromium.launch.return_value = browser
-
-    class _CM:
-        def __enter__(self):
-            return pw
-
-        def __exit__(self, *a):
-            return False
-
-    with patch("tbh_desktop.scraper.sync_playwright", return_value=_CM()):
+    with patch("tbh_desktop.scraper._stealth_launch", return_value=browser):
         result = scraper.refresh_gear_full(
             out_dir,
             categories=["weapon", "offhand"],
@@ -368,21 +358,17 @@ def test_refresh_gear_full_writes_per_category_grade(tmp_path: Path) -> None:
 
 
 def test_refresh_gear_full_falls_back_to_cache_on_error(tmp_path: Path) -> None:
-    """If playwright launch raises, existing cache files are preserved and
+    """If browser launch raises, existing cache files are preserved and
     their items returned (per-combo fallback)."""
     out_dir = tmp_path / "gear_cache"
     out_dir.mkdir(parents=True)
     cached = [{"id": 777, "name": "Cached Legendary", "rarity": "Legendary", "type": "Sword"}]
     scraper.write_gear_cache(out_dir / "gear_weapon_legendary.json", cached)
 
-    class _CM:
-        def __enter__(self):
-            raise RuntimeError("playwright launch failed")
+    def _boom(*_a, **_k):
+        raise RuntimeError("browser launch failed")
 
-        def __exit__(self, *a):
-            return False
-
-    with patch("tbh_desktop.scraper.sync_playwright", return_value=_CM()):
+    with patch("tbh_desktop.scraper._stealth_launch", side_effect=_boom):
         result = scraper.refresh_gear_full(
             out_dir,
             categories=["weapon"],

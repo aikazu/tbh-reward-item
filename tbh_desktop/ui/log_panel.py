@@ -15,9 +15,8 @@ class LogPanel(QPlainTextEdit):
         self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         # Built-in FIFO cap — oldest blocks dropped automatically. No manual trim.
         self.setMaximumBlockCount(self.MAX_LINES)
-        self.setStyleSheet(
-            "QPlainTextEdit { background: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 12px; }"
-        )
+        from tbh_desktop.ui.theme import log_panel_style
+        self.setStyleSheet(log_panel_style())
 
     def append_log(self, line: str) -> None:
         # ensureCursorVisible guarantees auto-scroll even on overflow trim.

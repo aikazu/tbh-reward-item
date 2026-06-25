@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
     QDialogButtonBox,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -20,6 +21,7 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QSpinBox,
     QVBoxLayout,
+    QWidget,
 )
 
 from tbh_desktop.scraper import read_gear_cache
@@ -49,27 +51,35 @@ class GearPicker(QDialog):
     def __init__(self, cache_dir: Path, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Pick gear")
-        self.resize(500, 600)
+        self.resize(540, 640)
         self._cache_dir = Path(cache_dir)
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(10)
 
-        # --- Filter row: Category + Grade ---
+        # ── Filters group ─────────────────────────────────────────────────
+        filters_group = QGroupBox("Filters")
+        filters_layout = QVBoxLayout(filters_group)
+        filters_layout.setSpacing(8)
+
+        # Category + Grade row
         filter_row = QHBoxLayout()
         filter_row.addWidget(QLabel("Category:"))
         self.category = QComboBox()
         self.category.addItems(_CATEGORY_DISPLAY.keys())
         self.category.currentTextChanged.connect(self._rebuild)
         filter_row.addWidget(self.category)
-
+        filter_row.addSpacing(12)
         filter_row.addWidget(QLabel("Grade:"))
         self.grade = QComboBox()
         self.grade.addItems(_GRADE_DISPLAY.keys())
         self.grade.currentTextChanged.connect(self._rebuild)
         filter_row.addWidget(self.grade)
-        layout.addLayout(filter_row)
+        filter_row.addStretch()
+        filters_layout.addLayout(filter_row)
 
-        # --- Level range row ---
+        # Level range row
         level_row = QHBoxLayout()
         level_row.addWidget(QLabel("Level:"))
         self.level_min = QSpinBox()
@@ -77,28 +87,35 @@ class GearPicker(QDialog):
         self.level_min.setValue(1)
         self.level_min.valueChanged.connect(self._rebuild)
         level_row.addWidget(self.level_min)
-
-        level_row.addWidget(QLabel("-"))
+        level_row.addWidget(QLabel("–"))
         self.level_max = QSpinBox()
         self.level_max.setRange(0, 100)
         self.level_max.setValue(100)
         self.level_max.valueChanged.connect(self._rebuild)
         level_row.addWidget(self.level_max)
         level_row.addStretch()
-        layout.addLayout(level_row)
+        filters_layout.addLayout(level_row)
 
-        # --- Search box ---
+        layout.addWidget(filters_group)
+
+        # ── Search ────────────────────────────────────────────────────────
         self.search = QLineEdit()
-        self.search.setPlaceholderText("Filter by name or id...")
+        self.search.setPlaceholderText("Filter by name or id…")
+        self.search.setClearButtonEnabled(True)
         self.search.textChanged.connect(self._apply_search)
         layout.addWidget(self.search)
 
-        # --- List ---
+        # ── List + count ───────────────────────────────────────────────────
         self.list_widget = QListWidget()
+        self.list_widget.setAlternatingRowColors(True)
         self.list_widget.setSelectionMode(QListWidget.SelectionMode.MultiSelection)
         layout.addWidget(self.list_widget)
 
-        # --- Buttons ---
+        self.count_label = QLabel()
+        self.count_label.setStyleSheet("color: #7f849c; font-size: 11px;")
+        layout.addWidget(self.count_label)
+
+        # ── Buttons ───────────────────────────────────────────────────────
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok
             | QDialogButtonBox.StandardButton.Cancel
@@ -160,6 +177,16 @@ class GearPicker(QDialog):
             list_item.setData(Qt.ItemDataRole.UserRole, item.get("id"))
             self.list_widget.addItem(list_item)
         self._apply_search(self.search.text())
+        self._update_count()
+
+    def _update_count(self) -> None:
+        visible = sum(1 for i in range(self.list_widget.count())
+                      if not self.list_widget.item(i).isHidden())
+        total = self.list_widget.count()
+        if visible == total:
+            self.count_label.setText(f"{total} items")
+        else:
+            self.count_label.setText(f"{visible} of {total} items")
 
     @staticmethod
     def _parse_level(meta_level: str) -> int:
@@ -184,6 +211,7 @@ class GearPicker(QDialog):
             name = label.split(" · ", 1)[1] if " · " in label else ""
             match = text in name.lower() or text in str(item_id)
             list_item.setHidden(not match if text else False)
+        self._update_count()
 
     def selected_ids(self) -> list[int]:
         return [

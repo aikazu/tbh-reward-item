@@ -220,40 +220,94 @@ It does **not** replace the proxy addon — the GUI spawns `src/run_proxy.py` as
 
 ### Install <a id="desktop-install"></a>
 
-Desktop deps are intentionally separate from `requirements.txt` (mitmproxy) so the proxy install stays light. Arch Linux (PEP 668 blocks pip):
+Desktop deps are intentionally separate from `requirements.txt` (mitmproxy) so the proxy install stays light. The desktop app needs: PySide6 (GUI), requests + beautifulsoup4 (wiki scraping), playwright + cloakbrowser (stealth browser for gear scrape), pytest-qt (tests).
+
+#### Linux (Arch / CachyOS / any distro with venv)
+
+**Step 1 — Create a virtual environment:**
 
 ```bash
-sudo pacman -S pyside6 python-requests python-beautifulsoup4 python-pytest-qt
-```
-
-Or via pip into a venv:
-
-```bash
+cd /path/to/TBH
 python -m venv .venv
-.venv/bin/pip install -r requirements-desktop.txt
 ```
 
-`playwright` (used by Scrape gear) is pip-only — there is no pacman package. Install it plus a browser engine separately:
+**Step 2 — Install desktop dependencies:**
 
 ```bash
 .venv/bin/pip install -r requirements-desktop.txt
+```
+
+This installs PySide6, requests, bs4, pytest-qt, playwright, and cloakbrowser in one shot.
+
+**Step 3 — (Optional) Install Playwright browser engine for fallback:**
+
+CloakBrowser downloads its own stealth Chromium binary on first launch (~200 MB, cached locally). You only need `playwright install chromium` if you want the stock-Playwright fallback (used when CloakBrowser is not installed):
+
+```bash
 .venv/bin/playwright install chromium
 ```
 
-`chromium` is the default tested path; per the playwright docs you may install a different engine (chromium / chrome / camoufox / cloakbrowser) instead.
+> **Note for Arch users:** PySide6, python-requests, and python-beautifulsoup4 are also available via pacman (`sudo pacman -S pyside6 python-requests python-beautifulsoup4`), but using the venv is simpler and avoids PEP 668 issues. `playwright` and `cloakbrowser` are pip-only — no pacman package exists.
 
-The proxy addon itself (`requirements.txt`) is still required if you want Start/Stop to work.
-
-### Launch <a id="desktop-launch"></a>
+**Step 4 — Launch:**
 
 ```bash
 .venv/bin/python -m tbh_desktop.main
 ```
 
-The main window has a toolbar (Start / Stop / Scrape gear / Save config / port / status dot) and a two-pane layout: editor on the left, live log on the right.
+#### Windows
+
+**Step 1 — Create a virtual environment:**
+
+```bat
+cd C:\path\to\TBH
+python -m venv .venv
+```
+
+> If `python` is not found, try `py -3 -m venv .venv` (uses the py launcher).
+
+**Step 2 — Install desktop dependencies:**
+
+```bat
+.venv\Scripts\pip install -r requirements-desktop.txt
+```
+
+**Step 3 — (Optional) Install Playwright browser engine for fallback:**
+
+```bat
+.venv\Scripts\playwright install chromium
+```
+
+Same as Linux — only needed for the stock-Playwright fallback. CloakBrowser manages its own binary.
+
+**Step 4 — Launch:**
+
+```bat
+.venv\Scripts\python -m tbh_desktop.main
+```
+
+#### CloakBrowser (stealth scraping engine)
+
+Starting with v0.4+, the gear scraper uses [CloakBrowser](https://github.com/CloakHQ/CloakBrowser) — a stealth Chromium build with 58 C++ source-level anti-detection patches — as the scraping engine. It is a drop-in replacement for Playwright's `chromium.launch()` and downloads its own patched binary on first use (~200 MB, cached locally, Ed25519-verified). No separate `playwright install` step is needed for CloakBrowser, but the `playwright` Python package must still be installed (CloakBrowser depends on it for its Playwright-compatible API).
+
+CloakBrowser benefits over stock Playwright for scraping:
+
+- Passes Cloudflare Turnstile, reCAPTCHA v3 (0.9 score), FingerprintJS, BrowserScan
+- `humanize=True` — human-like Bézier mouse curves, per-character keyboard timing, realistic scroll
+- `navigator.webdriver` patched to `false` at the C++ source level
+- TLS fingerprint identical to real Chrome (ja3n/ja4/akamai match)
+
+If CloakBrowser is not installed (`pip install cloakbrowser`), the scraper falls back to stock Playwright `chromium.launch()` automatically. The `playwright install chromium` step is only needed in that fallback case.
+
+The proxy addon itself (`requirements.txt` / `mitmproxy`) is still required if you want Start/Stop to work — see [Installation](#installation) above.
+
+### Launch <a id="desktop-launch"></a>
+
+The launch command is shown in Step 4 of each platform's install section above. After launch, the main window has a toolbar (Start / Stop / Scrape gear / Save config / port / status dot) and a two-pane layout: editor on the left, live log on the right.
 
 ### Features <a id="desktop-features"></a>
 
+- **Dark theme** — Catppuccin Mocha palette applied app-wide. Consistent colors for buttons, tables, lists, inputs, log panel, and pickers. The log panel uses a FiraCode/JetBrainsMono monospace font on a darker crust background for terminal-like readability.
 - **Edit `src/config.json` visually**
   - `specific_queue_rules` table — enabled / name / item_id / replacement IDs columns. Add / Remove rows.
   - `range_replacement` — enabled, min/max item_id, replacement IDs.
@@ -263,7 +317,7 @@ The main window has a toolbar (Start / Stop / Scrape gear / Save config / port /
 - **Pick reward IDs** — every `Replacement IDs` cell supports manual typing, plus:
   - **Pick from box loot** — resolves the box's slug by looking up the `box_id` in the wiki's items page (`https://taskbarhero.org/en/items` "Stage chests" table), fetches the per-box loot table from `https://taskbarhero.org/en/items/chests/<id>-<slug>/`, parses it, and lets you multi-select items. The id→slug map is cached at `tbh_desktop/box_slug_cache.json`; loot is cached per-box at `tbh_desktop/box_loot_cache/<box_id>.json`. Resolving the slug by id (rather than deriving it from the rule's `name`) fixes 404s when the heuristic slug didn't match the wiki's real slug.
   - **Pick gear** — reads from per-category×grade cache files under `tbh_desktop/gear_cache/` (files named `gear_{category}_{grade}.json`, e.g. `gear_weapon_legendary.json`). The picker has three filters: **Category** (Weapon / Off-hand / Armor / Accessory / All), **Grade** (Legendary / Immortal / Arcana / Beyond / Celestial / Divine / Cosmic / All — Legendary-and-above only), and **Level range** (min/max 1-100). Multi-select list and search box preserved.
-- **Scrape gear** (was "Refresh gear") — triggers a full playwright-based scrape: opens the wiki headless, clicks the rarity chip for each Legendary+ grade and the type chip for each category, ticks "Obtainable only", and clicks "LOAD MORE" until exhausted, then writes one cache file per category×grade. Slow (launches a browser). Logs the total count on completion. Falls back to existing cache files on per-combo or launch error.
+- **Scrape gear** (was "Refresh gear") — triggers a full CloakBrowser-based scrape: opens the wiki headless, clicks the rarity chip for each Legendary+ grade and the type chip for each category, ticks "Obtainable only", and clicks "LOAD MORE" until exhausted, then writes one cache file per category×grade. Slow (launches a stealth browser). Logs the total count on completion. Falls back to existing cache files on per-combo or launch error. If CloakBrowser is not installed, falls back to stock Playwright.
 - **Start / Stop proxy** — spawns `src/run_proxy.py` as a subprocess (cwd = repo root). Status dot turns green while running. Streamed stdout (with stderr merged) flows into the log panel via Qt signals — real-time, FIFO capped at 10k lines. Stop sends SIGTERM, escalates to SIGKILL after 3s. If the toolbar port field differs from the saved `listen_port` when Start is clicked, the app prompts "Port changed. Save config first?" — Yes saves then starts, No aborts. This prevents the silent desync where the proxy ran on the old port while the UI showed the new one.
 - **Save config** — atomic, validated (see above). Same mtime-based hot-reload as a manual edit.
 - **Close confirm** — if the proxy is running, closing the window asks before stopping it.
@@ -278,7 +332,7 @@ Exception: `listen_port`. The toolbar field writes into `config.json` but mitmpr
 ### Known Limitations <a id="desktop-limitations"></a>
 
 - **Box loot requires a valid `item_id`** in the selected rule row, and the box must exist in the wiki's "Stage chests" table on `https://taskbarhero.org/en/items`. The slug is resolved by `box_id` lookup against that table (cached at `tbh_desktop/box_slug_cache.json`), so a matching `name` is no longer needed. Rare or new boxes not yet on the wiki will fail the lookup — fall back to typing IDs directly into the cell.
-- **Scrape gear requires playwright + a browser engine** installed (`playwright install chromium`). Without it, Scrape gear logs an error; the picker still reads existing cache files.
+- **Scrape gear requires CloakBrowser + a browser engine** installed (`pip install cloakbrowser`). CloakBrowser downloads its ~200 MB patched Chromium binary on first launch (cached locally). Without it, the scraper falls back to stock Playwright (`playwright install chromium` needed).
 - **Gear scrape covers Legendary-and-above grades only** (Legendary / Immortal / Arcana / Beyond / Celestial / Divine / Cosmic) across the four categories (Weapon / Off-hand / Armor / Accessory). Lower grades (Common / Uncommon / Rare) are not scraped by the GUI — type their IDs directly if needed.
 - **Pickers need network** to fetch fresh data; they fall back to the cache on fetch failure (silent — see log panel for the warning).
 - The GUI is read-only against the on-disk config; concurrent edits from another tool are not detected. If you edit the file outside the GUI while it is open, restart the app to re-read.
@@ -438,11 +492,11 @@ TBH/
 │   ├── scraper.py          # gear wiki + box loot scrape, cache
 │   ├── proxy_runner.py     # subprocess + stdout stream
 │   ├── paths.py            # path resolution
-│   └── ui/                 # main_window, config_editor, gear_picker, box_loot_picker, log_panel
+│   └── ui/                 # main_window, config_editor, gear_picker, box_loot_picker, log_panel, theme
 ├── tests/                  # pytest (config_io, scraper, proxy_runner)
 ├── docs/                   # specs + plans
 ├── requirements.txt            # mitmproxy
-├── requirements-desktop.txt    # PySide6, requests, bs4, pytest-qt
+├── requirements-desktop.txt    # PySide6, requests, bs4, pytest-qt, playwright, cloakbrowser
 ├── README.md
 └── README.id.md
 ```

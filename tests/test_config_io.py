@@ -89,3 +89,20 @@ def test_save_config_restores_backup_when_revalidation_fails(
     assert result.ok is False
     # restore branch ran: file content restored from backup
     assert json.loads(target.read_text(encoding="utf-8")) == {"original": True}
+
+
+def test_save_config_deletes_invalid_when_no_backup(
+    tmp_path: Path, sample_config_dict: dict, monkeypatch
+) -> None:
+    target = tmp_path / "config.json"  # does not exist yet — no backup
+    call_count = {"n": 0}
+    real_validate = config_io.validate_config
+
+    def flaky(data):
+        call_count["n"] += 1
+        return False if call_count["n"] == 2 else real_validate(data)
+
+    monkeypatch.setattr(config_io, "validate_config", flaky)
+    result = config_io.save_config(target, sample_config_dict)
+    assert result.ok is False
+    assert not target.exists()  # invalid written file deleted, no backup to restore

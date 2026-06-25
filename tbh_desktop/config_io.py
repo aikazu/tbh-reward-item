@@ -5,6 +5,7 @@ import json
 import logging
 import shutil
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -39,8 +40,6 @@ class SaveResult:
 
 def validate_config(data: dict[str, Any]) -> bool:
     """Return True if data parses as a valid ProxyConfig."""
-    import tempfile
-
     try:
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
             tf.write(json.dumps(data).encode("utf-8"))
@@ -50,7 +49,8 @@ def validate_config(data: dict[str, Any]) -> bool:
         finally:
             tmp_path.unlink(missing_ok=True)
         return True
-    except Exception:
+    except Exception as exc:
+        log.warning("validate_config failed: %s", exc)
         return False
 
 
@@ -72,9 +72,19 @@ def save_config(path: Path, data: dict[str, Any]) -> SaveResult:
     # Validate the written file round-trips.
     reloaded = load_config(path)
     if not validate_config(reloaded):
-        # Restore from backup if it exists.
+        # Restore from backup if it exists, otherwise delete the invalid write.
         backup = path.with_suffix(".json.bak")
         if backup.exists():
-            shutil.copy2(backup, path)
+            try:
+                shutil.copy2(backup, path)
+            except OSError as exc:
+                log.warning("restore-from-backup failed: %s", exc)
+                return SaveResult(ok=False, error=f"re-validation failed; restore failed: {exc}")
+        else:
+            try:
+                path.unlink()
+            except OSError as exc:
+                log.warning("delete-invalid-write failed: %s", exc)
+                return SaveResult(ok=False, error=f"re-validation failed; delete failed: {exc}")
         return SaveResult(ok=False, error="written config failed re-validation; restored backup")
     return SaveResult(ok=True)

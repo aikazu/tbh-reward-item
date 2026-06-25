@@ -352,7 +352,7 @@ TBH/
 │   └── remove_cert.sh          # hapus CA system trust Linux
 ├── windows/
 │   ├── run_proxy.bat           # wrapper Windows
-│   ├── install_requirements.bat# install dep Windows
+│   ├── install_requirements.bat # install dep Windows
 │   └── self_test.bat           # tes rewrite Windows
 ├── requirements.txt        # mitmproxy
 ├── README.md               # dokumentasi English

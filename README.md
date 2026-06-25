@@ -351,9 +351,9 @@ TBH/
 │   ├── install_cert.sh         # Linux CA system trust installer
 │   └── remove_cert.sh          # Linux CA system trust remover
 ├── windows/
-│   ├── windows\run_proxy.bat           # Windows wrapper
-│   ├── install_requirements.bat# Windows dep installer
-│   └── windows\self_test.bat           # Windows rewrite test
+│   ├── run_proxy.bat           # Windows wrapper
+│   ├── install_requirements.bat # Windows dep installer
+│   └── self_test.bat           # Windows rewrite test
 ├── requirements.txt        # mitmproxy
 ├── README.md               # English docs
 └── README.id.md            # Indonesian docs

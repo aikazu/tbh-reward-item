@@ -1,0 +1,179 @@
+# tbh_desktop/ui/config_editor.py
+"""Editor for specific_queue_rules + range_replacement, operating on raw dict."""
+from __future__ import annotations
+
+from typing import Any
+
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QFormLayout,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
+
+
+COL_ENABLED = 0
+COL_NAME = 1
+COL_ITEM_ID = 2
+COL_REPLACEMENT = 3
+
+
+class ConfigEditor(QWidget):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self._data: dict[str, Any] = {}
+
+        layout = QVBoxLayout(self)
+
+        # Specific Queue Rules
+        layout.addWidget(QLabel("Specific Queue Rules"))
+        self.rules_table = QTableWidget(0, 4)
+        self.rules_table.setHorizontalHeaderLabels(
+            ["Enabled", "Name", "Item ID", "Replacement IDs"]
+        )
+        header = self.rules_table.horizontalHeader()
+        header.setSectionResizeMode(COL_REPLACEMENT, QHeaderView.ResizeMode.Stretch)
+        layout.addWidget(self.rules_table)
+
+        rules_buttons = QHBoxLayout()
+        btn_add = QPushButton("Add rule")
+        btn_remove = QPushButton("Remove rule")
+        self.btn_pick_box = QPushButton("Pick from box loot")
+        self.btn_pick_gear_rule = QPushButton("Pick gear")
+        for b in (btn_add, btn_remove, self.btn_pick_box, self.btn_pick_gear_rule):
+            rules_buttons.addWidget(b)
+        rules_buttons.addStretch()
+        layout.addLayout(rules_buttons)
+        btn_add.clicked.connect(self._add_rule)
+        btn_remove.clicked.connect(self._remove_rule)
+
+        # Range Replacement
+        layout.addWidget(QLabel("Range Replacement"))
+        range_form = QFormLayout()
+        self.range_enabled = QCheckBox("enabled")
+        self.range_min = QLineEdit()
+        self.range_max = QLineEdit()
+        self.range_ids = QLineEdit()
+        self.btn_pick_gear_range = QPushButton("Pick gear")
+        range_form.addRow("Enabled", self.range_enabled)
+        range_form.addRow("match_min_item_id", self.range_min)
+        range_form.addRow("match_max_item_id", self.range_max)
+        range_form.addRow("replacement IDs", self.range_ids)
+        range_form.addRow("", self.btn_pick_gear_range)
+        layout.addLayout(range_form)
+
+        layout.addStretch()
+
+    def load(self, data: dict[str, Any]) -> None:
+        self._data = data
+        rules = data.get("specific_queue_rules", []) or []
+        self.rules_table.setRowCount(len(rules))
+        for row, rule in enumerate(rules):
+            self._set_rule_row(row, rule)
+        rng = data.get("range_replacement", {}) or {}
+        self.range_enabled.setChecked(bool(rng.get("enabled", False)))
+        self.range_min.setText(str(rng.get("match_min_item_id", "")))
+        self.range_max.setText(str(rng.get("match_max_item_id", "")))
+        self.range_ids.setText(self._ids_to_text(rng.get("replacement_reward_item_ids", [])))
+
+    def _set_rule_row(self, row: int, rule: dict[str, Any]) -> None:
+        enabled_item = QTableWidgetItem()
+        enabled_item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+        enabled_item.setCheckState(
+            Qt.CheckState.Checked if rule.get("enabled") else Qt.CheckState.Unchecked
+        )
+        self.rules_table.setItem(row, COL_ENABLED, enabled_item)
+        self.rules_table.setItem(row, COL_NAME, QTableWidgetItem(str(rule.get("name", ""))))
+        self.rules_table.setItem(row, COL_ITEM_ID, QTableWidgetItem(str(rule.get("item_id", ""))))
+        self.rules_table.setItem(
+            row, COL_REPLACEMENT,
+            QTableWidgetItem(self._ids_to_text(rule.get("replacement_reward_item_ids", []))),
+        )
+
+    def _add_rule(self) -> None:
+        row = self.rules_table.rowCount()
+        self.rules_table.insertRow(row)
+        self._set_rule_row(row, {"enabled": False, "name": "", "item_id": "", "replacement_reward_item_ids": []})
+
+    def _remove_rule(self) -> None:
+        row = self.rules_table.currentRow()
+        if row >= 0:
+            self.rules_table.removeRow(row)
+
+    def selected_rule_item_id(self) -> int | None:
+        row = self.rules_table.currentRow()
+        if row < 0:
+            return None
+        item = self.rules_table.item(row, COL_ITEM_ID)
+        if item is None:
+            return None
+        text = item.text().strip()
+        try:
+            return int(text)
+        except ValueError:
+            return None
+
+    def add_ids_to_selected_rule(self, ids: list[int]) -> None:
+        row = self.rules_table.currentRow()
+        if row < 0:
+            return
+        cell = self.rules_table.item(row, COL_REPLACEMENT)
+        if cell is None:
+            return
+        existing = self._text_to_ids(cell.text())
+        merged = existing + [i for i in ids if i not in existing]
+        cell.setText(self._ids_to_text(merged))
+
+    def add_ids_to_range(self, ids: list[int]) -> None:
+        existing = self._text_to_ids(self.range_ids.text())
+        merged = existing + [i for i in ids if i not in existing]
+        self.range_ids.setText(self._ids_to_text(merged))
+
+    def dump(self) -> dict[str, Any]:
+        """Return updated raw dict preserving advanced fields."""
+        data = dict(self._data)
+        rules = []
+        for row in range(self.rules_table.rowCount()):
+            rules.append(
+                {
+                    "enabled": self.rules_table.item(row, COL_ENABLED).checkState()
+                    == Qt.CheckState.Checked,
+                    "name": self.rules_table.item(row, COL_NAME).text(),
+                    "item_id": int(self.rules_table.item(row, COL_ITEM_ID).text() or 0),
+                    "replacement_reward_item_ids": self._text_to_ids(
+                        self.rules_table.item(row, COL_REPLACEMENT).text()
+                    ),
+                }
+            )
+        data["specific_queue_rules"] = rules
+        prev_range = data.get("range_replacement") or {}
+        data["range_replacement"] = {
+            "enabled": self.range_enabled.isChecked(),
+            "name": prev_range.get("name", "Range replacement"),
+            "match_min_item_id": int(self.range_min.text() or 0),
+            "match_max_item_id": int(self.range_max.text() or 0),
+            "replacement_reward_item_ids": self._text_to_ids(self.range_ids.text()),
+        }
+        return data
+
+    @staticmethod
+    def _ids_to_text(ids: list[Any]) -> str:
+        return ", ".join(str(i) for i in (ids or []))
+
+    @staticmethod
+    def _text_to_ids(text: str) -> list[int]:
+        out: list[int] = []
+        for part in (text or "").replace(",", " ").split():
+            try:
+                out.append(int(part))
+            except ValueError:
+                continue
+        return out

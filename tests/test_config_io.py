@@ -65,3 +65,27 @@ def test_validate_config_returns_true_for_valid(sample_config_dict: dict) -> Non
 def test_validate_config_returns_false_for_invalid() -> None:
     # ProxyConfig.load rejects non-int listen_port.
     assert config_io.validate_config({"listen_port": "not-an-int"}) is False
+
+
+def test_save_config_restores_backup_when_revalidation_fails(
+    tmp_path: Path, sample_config_dict: dict, monkeypatch
+) -> None:
+    target = tmp_path / "config.json"
+    target.write_text('{"original": true}', encoding="utf-8")
+
+    call_count = {"n": 0}
+    real_validate = config_io.validate_config
+
+    def flaky_validate(data: dict) -> bool:
+        call_count["n"] += 1
+        # First call (pre-write validation) passes; second (re-validation) fails.
+        if call_count["n"] == 2:
+            return False
+        return real_validate(data)
+
+    monkeypatch.setattr(config_io, "validate_config", flaky_validate)
+
+    result = config_io.save_config(target, sample_config_dict)
+    assert result.ok is False
+    # restore branch ran: file content restored from backup
+    assert json.loads(target.read_text(encoding="utf-8")) == {"original": True}

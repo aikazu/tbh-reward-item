@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import json
 import logging
+import shutil
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -27,3 +29,52 @@ def load_config(path: Path) -> dict[str, Any]:
     except (json.JSONDecodeError, OSError) as exc:
         log.warning("config invalid (%s): %s", path, exc)
         return {}
+
+
+@dataclass
+class SaveResult:
+    ok: bool
+    error: str | None = None
+
+
+def validate_config(data: dict[str, Any]) -> bool:
+    """Return True if data parses as a valid ProxyConfig."""
+    import tempfile
+
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+            tf.write(json.dumps(data).encode("utf-8"))
+            tmp_path = Path(tf.name)
+        try:
+            ProxyConfig.load(tmp_path)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+        return True
+    except Exception:
+        return False
+
+
+def save_config(path: Path, data: dict[str, Any]) -> SaveResult:
+    """Validate, backup, atomic-write config. Restore from backup if validation fails post-write."""
+    if not validate_config(data):
+        return SaveResult(ok=False, error="config failed ProxyConfig validation")
+
+    # Backup existing file before overwrite.
+    if path.exists():
+        backup = path.with_suffix(".json.bak")
+        shutil.copy2(path, backup)
+
+    # Atomic write: temp file + rename.
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, indent=4, ensure_ascii=False), encoding="utf-8")
+    tmp.replace(path)
+
+    # Validate the written file round-trips.
+    reloaded = load_config(path)
+    if not validate_config(reloaded):
+        # Restore from backup if it exists.
+        backup = path.with_suffix(".json.bak")
+        if backup.exists():
+            shutil.copy2(backup, path)
+        return SaveResult(ok=False, error="written config failed re-validation; restored backup")
+    return SaveResult(ok=True)

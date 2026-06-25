@@ -236,7 +236,7 @@ Desktop deps are intentionally separate from `requirements.txt` (mitmproxy) so t
 **Step 1 — Create a virtual environment + install deps:**
 
 ```bash
-cd /path/to/TBH
+cd tbh-reward-item
 python -m venv .venv
 .venv/bin/pip install -r requirements-desktop.txt
 ```
@@ -273,7 +273,7 @@ CloakBrowser downloads its own stealth Chromium binary on first launch (~200 MB,
 **Step 1 — Create a virtual environment + install deps:**
 
 ```bat
-cd C:\path\to\TBH
+cd tbh-reward-item
 python -m venv .venv
 .venv\Scripts\pip install -r requirements-desktop.txt
 ```
@@ -495,7 +495,7 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 --set block_global=false -
 ## File Structure
 
 ```
-TBH/
+tbh-reward-item/
 ├── src/                    # mitmproxy addon (tbh_reward_hook.py, run_proxy.py, config.json)
 ├── scripts/                # Linux wrappers (run_proxy, install_reqs, self_test, launch_desktop)
 ├── windows/                # Windows wrappers (run_proxy, install_reqs, self_test, launch_desktop)

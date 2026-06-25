@@ -234,7 +234,7 @@ Dependensi desktop sengaja dipisah dari `requirements.txt` (mitmproxy) agar inst
 **Langkah 1 — Buat virtual environment + install deps:**
 
 ```bash
-cd /path/to/TBH
+cd tbh-reward-item
 python -m venv .venv
 .venv/bin/pip install -r requirements-desktop.txt
 ```
@@ -271,7 +271,7 @@ CloakBrowser mengunduh binary Chromium stealth-nya sendiri saat first launch (~2
 **Langkah 1 — Buat virtual environment + install deps:**
 
 ```bat
-cd C:\path\to\TBH
+cd tbh-reward-item
 python -m venv .venv
 .venv\Scripts\pip install -r requirements-desktop.txt
 ```
@@ -493,11 +493,11 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 --set block_global=false -
 ## Struktur File
 
 ```
-TBH/
-├── src/                    # addon mitmproxy (tbh_reward_hook.py, run_proxy.py, config.json)
-├── scripts/                # wrapper Linux
-├── windows/                # wrapper Windows
-├── tbh_desktop/            # GUI PySide6 desktop (opsional)
+tbh-reward-item/
+├── src/                    # mitmproxy addon (tbh_reward_hook.py, run_proxy.py, config.json)
+├── scripts/                # Linux wrappers (run_proxy, install_reqs, self_test, launch_desktop)
+├── windows/                # Windows wrappers (run_proxy, install_reqs, self_test, launch_desktop)
+├── tbh_desktop/            # PySide6 desktop GUI (opsional)
 │   ├── main.py             # entry point
 │   ├── config_io.py        # load/save config (atomic + validate)
 │   ├── scraper.py          # gear wiki + box loot scrape, cache

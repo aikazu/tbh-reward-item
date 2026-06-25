@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -341,6 +342,8 @@ def refresh_gear_full(
     out_dir: Path,
     categories: list[str] | None = None,
     grades: list[str] | None = None,
+    cancel_event: threading.Event | None = None,
+    browser_ref: Any = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Scrape full Legendary+ obtainable gear per (category, grade) using
     playwright (headless chromium) and write one cache file per combo.
@@ -354,6 +357,11 @@ def refresh_gear_full(
     On per-combo error (or playwright launch failure) falls back to the
     existing cache file for that combo, preserving it. Returns a dict keyed by
     ``"{category}_{grade}"`` -> items.
+
+    If *cancel_event* is set (e.g. by ``GearScraperRunner.stop()``), the loop
+    bails early and the browser is closed. *browser_ref* (the
+    ``GearScraperRunner``) gets a reference to the live browser so it can be
+    force-closed from outside the thread.
     """
     cats = list(categories) if categories is not None else list(GEAR_CATEGORIES)
     grads = list(grades) if grades is not None else list(LEGENDARY_UP_GRADES)
@@ -376,11 +384,16 @@ def refresh_gear_full(
         else:
             # Fallback to stock Playwright if cloakbrowser not installed.
             browser = sync_playwright().start().chromium.launch(headless=True)
+        # Share browser ref with caller so stop() can force-close it.
+        if browser_ref is not None:
+            browser_ref._browser = browser
         try:
             context = browser.new_context()
             page = context.new_page()
             for cat in cats:
                 for grade in grads:
+                    if cancel_event is not None and cancel_event.is_set():
+                        break
                     key = f"{cat}_{grade}"
                     try:
                         page.goto(GEAR_URL)
@@ -392,6 +405,8 @@ def refresh_gear_full(
                     except Exception as exc:
                         log.warning("gear %s/%s scrape failed: %s", cat, grade, exc)
                         result[key] = _fallback(cat, grade)
+                if cancel_event is not None and cancel_event.is_set():
+                    break
         finally:
             browser.close()
     except Exception as exc:

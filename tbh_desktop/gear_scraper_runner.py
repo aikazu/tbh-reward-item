@@ -25,13 +25,29 @@ class GearScraperRunner(QObject):
     def __init__(self) -> None:
         super().__init__()
         self._thread: threading.Thread | None = None
+        self._cancel = threading.Event()
+        # Reference to the live browser (CloakBrowser/Playwright) so stop()
+        # can force-close it from outside the scrape thread.
+        self._browser: Any = None
 
     def is_running(self) -> bool:
         return self._thread is not None and self._thread.is_alive()
 
+    def stop(self) -> None:
+        """Force-stop a running scrape: set cancel flag + close browser."""
+        self._cancel.set()
+        browser = self._browser
+        if browser is not None:
+            try:
+                browser.close()
+            except Exception:
+                pass
+
     def start(self) -> None:
         if self.is_running():
             return
+        self._cancel.clear()
+        self._browser = None
         self.scraping.emit(True)
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._thread.start()
@@ -64,7 +80,7 @@ class GearScraperRunner(QObject):
             scraper.log.warning = _warn_interceptor     # type: ignore[method-assign]
             try:
                 from tbh_desktop.paths import GEAR_CACHE_DIR
-                results = scraper.refresh_gear_full(GEAR_CACHE_DIR)
+                results = scraper.refresh_gear_full(GEAR_CACHE_DIR, cancel_event=self._cancel, browser_ref=self)
             finally:
                 scraper.log.info = orig_info             # type: ignore[method-assign]
                 scraper.log.warning = orig_warning       # type: ignore[method-assign]

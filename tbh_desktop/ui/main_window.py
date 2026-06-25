@@ -321,3 +321,12 @@ class MainWindow(QMainWindow):
                 return
             self.runner.stop()
         super().closeEvent(event)
+
+    def _cleanup(self) -> None:
+        """Force-stop all background activities without prompts.
+
+        Called from ``aboutToQuit`` (SIGINT / app.quit()) — must be fast and
+        non-interactive so the process exits cleanly.
+        """
+        self.gear_scraper.stop()
+        self.runner.stop()

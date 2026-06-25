@@ -80,9 +80,9 @@ class ConfigEditor(QWidget):
             self._set_rule_row(row, rule)
         rng = data.get("range_replacement", {}) or {}
         self.range_enabled.setChecked(bool(rng.get("enabled", False)))
-        self.range_min.setText(str(rng.get("match_min_item_id", "")))
-        self.range_max.setText(str(rng.get("match_max_item_id", "")))
-        self.range_ids.setText(self._ids_to_text(rng.get("replacement_reward_item_ids", [])))
+        self.range_min.setText(str(rng.get("match_min_item_id") or ""))
+        self.range_max.setText(str(rng.get("match_max_item_id") or ""))
+        self.range_ids.setText(self._ids_to_text(rng.get("replacement_reward_item_ids") or []))
 
     def _set_rule_row(self, row: int, rule: dict[str, Any]) -> None:
         enabled_item = QTableWidgetItem()
@@ -91,11 +91,11 @@ class ConfigEditor(QWidget):
             Qt.CheckState.Checked if rule.get("enabled") else Qt.CheckState.Unchecked
         )
         self.rules_table.setItem(row, COL_ENABLED, enabled_item)
-        self.rules_table.setItem(row, COL_NAME, QTableWidgetItem(str(rule.get("name", ""))))
-        self.rules_table.setItem(row, COL_ITEM_ID, QTableWidgetItem(str(rule.get("item_id", ""))))
+        self.rules_table.setItem(row, COL_NAME, QTableWidgetItem(str(rule.get("name") or "")))
+        self.rules_table.setItem(row, COL_ITEM_ID, QTableWidgetItem(str(rule.get("item_id") or "")))
         self.rules_table.setItem(
             row, COL_REPLACEMENT,
-            QTableWidgetItem(self._ids_to_text(rule.get("replacement_reward_item_ids", []))),
+            QTableWidgetItem(self._ids_to_text(rule.get("replacement_reward_item_ids") or [])),
         )
 
     def _add_rule(self) -> None:
@@ -141,28 +141,33 @@ class ConfigEditor(QWidget):
         """Return updated raw dict preserving advanced fields."""
         data = dict(self._data)
         rules = []
+        original_rules = self._data.get("specific_queue_rules") or []
         for row in range(self.rules_table.rowCount()):
-            rules.append(
-                {
-                    "enabled": self.rules_table.item(row, COL_ENABLED).checkState()
-                    == Qt.CheckState.Checked,
-                    "name": self.rules_table.item(row, COL_NAME).text(),
-                    "item_id": int(self.rules_table.item(row, COL_ITEM_ID).text() or 0),
-                    "replacement_reward_item_ids": self._text_to_ids(
-                        self.rules_table.item(row, COL_REPLACEMENT).text()
-                    ),
-                }
+            base = dict(original_rules[row]) if row < len(original_rules) else {}
+            base["enabled"] = self.rules_table.item(row, COL_ENABLED).checkState() == Qt.CheckState.Checked
+            base["name"] = self.rules_table.item(row, COL_NAME).text()
+            base["item_id"] = self._parse_int(self.rules_table.item(row, COL_ITEM_ID).text())
+            base["replacement_reward_item_ids"] = self._text_to_ids(
+                self.rules_table.item(row, COL_REPLACEMENT).text()
             )
+            rules.append(base)
         data["specific_queue_rules"] = rules
         prev_range = data.get("range_replacement") or {}
         data["range_replacement"] = {
             "enabled": self.range_enabled.isChecked(),
             "name": prev_range.get("name", "Range replacement"),
-            "match_min_item_id": int(self.range_min.text() or 0),
-            "match_max_item_id": int(self.range_max.text() or 0),
+            "match_min_item_id": self._parse_int(self.range_min.text()),
+            "match_max_item_id": self._parse_int(self.range_max.text()),
             "replacement_reward_item_ids": self._text_to_ids(self.range_ids.text()),
         }
         return data
+
+    @staticmethod
+    def _parse_int(text: str) -> int:
+        try:
+            return int((text or "").strip())
+        except ValueError:
+            return 0
 
     @staticmethod
     def _ids_to_text(ids: list[Any]) -> str:

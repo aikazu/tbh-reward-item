@@ -1,8 +1,13 @@
 # TBH Reward Proxy
 
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![mitmproxy](https://img.shields.io/badge/mitmproxy-12%2B-E66733?logo=mitmproxy&logoColor=white)
+![PySide6](https://img.shields.io/badge/PySide6-6.6%2B-41CD52?logo=qt&logoColor=white)
+![platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-blue)
+
 [Bahasa Indonesia](README.id.md) · [English](README.md)
 
-Man-in-the-middle proxy yang me-rewrite field `rewardItemId` pada response backend game TBH. Berjalan di atas [mitmproxy](https://mitmproxy.org/).
+Man-in-the-middle proxy yang me-rewrite field `rewardItemId` pada response backend game TBH. Berjalan di atas [mitmproxy](https://mitmproxy.org/), dengan opsi GUI desktop [PySide6](https://www.qt.io/) untuk edit config visual dan pemilihan reward-ID.
 
 Mengintercept response POST ke endpoint tertentu, mengganti reward item sesuai aturan pada `config.json`, lalu meneruskan hasil modifikasi ke klien.
 

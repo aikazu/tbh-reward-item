@@ -1,8 +1,13 @@
 # TBH Reward Proxy
 
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![mitmproxy](https://img.shields.io/badge/mitmproxy-12%2B-E66733?logo=mitmproxy&logoColor=white)
+![PySide6](https://img.shields.io/badge/PySide6-6.6%2B-41CD52?logo=qt&logoColor=white)
+![platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-blue)
+
 [English](README.md) · [Bahasa Indonesia](README.id.md)
 
-A man-in-the-middle proxy that rewrites the `rewardItemId` field in TBH game backend responses. Built on top of [mitmproxy](https://mitmproxy.org/).
+A man-in-the-middle proxy that rewrites the `rewardItemId` field in TBH game backend responses. Built on top of [mitmproxy](https://mitmproxy.org/), with an optional [PySide6](https://www.qt.io/) desktop GUI for visual config editing and reward-ID picking.
 
 It intercepts responses to POST requests at specific endpoints, swaps reward items per the rules in `config.json`, and forwards the modified result to the client.
 

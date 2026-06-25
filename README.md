@@ -58,6 +58,8 @@ It intercepts responses to POST requests at specific endpoints, swaps reward ite
 | `self_test.sh` / `.bat` | Run offline rewrite tests (without proxy running). |
 | `install_cert.sh` | Install mitmproxy CA into system trust store (Linux). |
 | `remove_cert.sh` | Remove mitmproxy CA from system trust store (Linux). |
+| `scripts/launch_desktop.sh` | Readiness-check launcher for the desktop app (Linux). |
+| `windows/launch_desktop.bat` | Readiness-check launcher for the desktop app (Windows). |
 | `requirements.txt` | Dependency: `mitmproxy`. |
 | `requirements-desktop.txt` | Optional desktop deps: `PySide6`, `requests`, `beautifulsoup4`, `pytest-qt`. |
 | `tbh_desktop/` | Optional PySide6 GUI: edit `config.json`, pick reward IDs, run/stop proxy, stream logs. See [Desktop App](#desktop-app). |
@@ -303,7 +305,19 @@ The proxy addon itself (`requirements.txt` / `mitmproxy`) is still required if y
 
 ### Launch <a id="desktop-launch"></a>
 
-The launch command is shown in Step 4 of each platform's install section above. After launch, the main window has a toolbar (Start / Stop / Scrape gear / Save config / port / status dot) and a two-pane layout: editor on the left, live log on the right.
+Instead of running `python -m tbh_desktop.main` manually, use the readiness-check launchers — they verify venv, deps, mitmproxy, config.json, and CloakBrowser binary before starting the app, and print fix instructions if anything is missing:
+
+```bash
+./scripts/launch_desktop.sh          # Linux: checks + launch
+./scripts/launch_desktop.sh --check  # Linux: checks only, no launch
+```
+
+```bat
+windows\launch_desktop.bat            : Windows: checks + launch
+windows\launch_desktop.bat --check   : Windows: checks only, no launch
+```
+
+After launch, the main window has a toolbar (Start / Stop / Scrape gear / Save config / port / status dot) and a two-pane layout: editor on the left, live log on the right.
 
 ### Features <a id="desktop-features"></a>
 
@@ -484,8 +498,8 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 --set block_global=false -
 ```
 TBH/
 ├── src/                    # mitmproxy addon (tbh_reward_hook.py, run_proxy.py, config.json)
-├── scripts/                # Linux wrappers
-├── windows/                # Windows wrappers
+├── scripts/                # Linux wrappers (run_proxy, install_reqs, self_test, launch_desktop)
+├── windows/                # Windows wrappers (run_proxy, install_reqs, self_test, launch_desktop)
 ├── tbh_desktop/            # PySide6 desktop GUI (optional)
 │   ├── main.py             # entry point
 │   ├── config_io.py        # load/save config (atomic + validate)

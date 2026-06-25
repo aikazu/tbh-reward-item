@@ -303,7 +303,19 @@ Addon proxy (`requirements.txt` / `mitmproxy`) tetap dibutuhkan agar Start/Stop 
 
 ### Menjalankan <a id="desktop-launch-id"></a>
 
-Perintah jalankan ditampilkan di Langkah 4 setiap platform di section instalasi di atas. Setelah diluncurkan, main window punya toolbar (Start / Stop / Scrape gear / Save config / port / status dot) dan layout dua panel: editor di kiri, log live di kanan.
+Daripada menjalankan `python -m tbh_desktop.main` manual, pakai launcher readiness-check — mereka memverifikasi venv, dependensi, mitmproxy, config.json, dan binary CloakBrowser sebelum memulai app, dan menampilkan instruksi fix bila ada yang kurang:
+
+```bash
+./scripts/launch_desktop.sh          # Linux: cek + jalankan
+./scripts/launch_desktop.sh --check  # Linux: cek saja, tidak menjalankan
+```
+
+```bat
+windows\launch_desktop.bat            : Windows: cek + jalankan
+windows\launch_desktop.bat --check   : Windows: cek saja, tidak menjalankan
+```
+
+Setelah diluncurkan, main window punya toolbar (Start / Stop / Scrape gear / Save config / port / status dot) dan layout dua panel: editor di kiri, log live di kanan.
 
 ### Fitur <a id="desktop-features-id"></a>
 

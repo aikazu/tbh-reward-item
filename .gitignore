@@ -29,3 +29,6 @@ tbh_desktop/box_slug_cache.json
 # config_io atomic-write artifacts (backup + temp)
 src/config.json.bak
 src/config.json.tmp
+
+# User config — auto-generated from src/config.default.json on first run
+src/config.json

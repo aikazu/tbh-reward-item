@@ -8,6 +8,15 @@ from typing import Any, Iterable
 
  
 CONFIG_PATH = Path(__file__).with_name("config.json")
+DEFAULT_CONFIG_PATH = Path(__file__).with_name("config.default.json")
+
+
+def _ensure_config() -> None:
+    """Generate config.json from config.default.json if it doesn't exist."""
+    if not CONFIG_PATH.exists() and DEFAULT_CONFIG_PATH.exists():
+        import shutil
+        shutil.copy2(DEFAULT_CONFIG_PATH, CONFIG_PATH)
+        log_info(f"generated {CONFIG_PATH.name} from {DEFAULT_CONFIG_PATH.name}")
  
 ITEM_FIELD_RE = re.compile(r'\\?"itemId\\?"\s*:\s*(?P<item_id>\d+)(?!\d)')
 REWARD_FIELD_RE = re.compile(r'(\\?"rewardItemId\\?"\s*:\s*)(?P<reward_id>\d+)(?!\d)')
@@ -288,6 +297,7 @@ class TBHRewardHook:
     def __init__(self) -> None:
         self._config_path = CONFIG_PATH
         self._config_mtime = 0
+        _ensure_config()
         loaded = _safe_load_config(self._config_path)
         if loaded is None:
             self.config = _empty_config()

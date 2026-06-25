@@ -7,11 +7,16 @@ import sys
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
+from tbh_desktop import config_io
+from tbh_desktop.paths import CONFIG_PATH
 from tbh_desktop.ui.main_window import MainWindow
 from tbh_desktop.ui.theme import apply_theme
 
 
 def main() -> int:
+    # Auto-generate config.json from config.default.json on first run.
+    config_io.ensure_config(CONFIG_PATH)
+
     app = QApplication(sys.argv)
     apply_theme(app)
     window = MainWindow()

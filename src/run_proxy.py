@@ -9,6 +9,7 @@ from pathlib import Path
  
 ROOT = Path(__file__).resolve().parent
 CONFIG_PATH = ROOT / "config.json"
+DEFAULT_CONFIG_PATH = ROOT / "config.default.json"
 ADDON_PATH = ROOT / "tbh_reward_hook.py"
  
  
@@ -18,9 +19,18 @@ def load_port() -> int:
     except Exception:
         return 8877
     return int(data.get("listen_port", data.get("ListenPort", 8877)))
- 
- 
+
+
+def _ensure_config() -> None:
+    """Generate config.json from config.default.json if it doesn't exist."""
+    if not CONFIG_PATH.exists() and DEFAULT_CONFIG_PATH.exists():
+        import shutil
+        shutil.copy2(DEFAULT_CONFIG_PATH, CONFIG_PATH)
+        print(f"Generated {CONFIG_PATH.name} from {DEFAULT_CONFIG_PATH.name}.")
+
+
 def main() -> int:
+    _ensure_config()
     port = load_port()
     common_args = [
         "-q",

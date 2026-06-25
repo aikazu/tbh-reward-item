@@ -126,6 +126,8 @@ class MainWindow(QMainWindow):
         menubar = self.menuBar()
         file_menu = menubar.addMenu("File")
         file_menu.addAction("Save config", self._save)
+        file_menu.addAction("Reset config to default", self._reset_config)
+        file_menu.addSeparator()
         file_menu.addAction("Exit", self.close)
         help_menu = menubar.addMenu("Help")
         help_menu.addAction("About", self._about)
@@ -206,6 +208,36 @@ class MainWindow(QMainWindow):
             self._on_log("Config saved.")
         else:
             self._on_log(f"Config save FAILED: {result.error}")
+
+    def _reset_config(self) -> None:
+        """Reset config.json to default template, reload editor + port field."""
+        if self.runner.is_running():
+            reply = QMessageBox.question(
+                self,
+                "Reset config?",
+                "Proxy is running. Stop it and reset config to default?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+            self.runner.stop()
+        else:
+            reply = QMessageBox.question(
+                self,
+                "Reset config?",
+                "Reset config.json back to the default template?\n"
+                "Your current rules will be lost.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+        if config_io.reset_config(CONFIG_PATH):
+            self._reload_config()
+            self._on_log("Config reset to default.")
+        else:
+            self._on_log("Config reset FAILED: default template not found.")
 
     def _parse_port(self) -> int:
         try:

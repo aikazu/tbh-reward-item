@@ -19,6 +19,37 @@ from tbh_reward_hook import ProxyConfig  # type: ignore[import-not-found]
 
 log = logging.getLogger(__name__)
 
+DEFAULT_CONFIG_PATH = SRC_DIR / "config.default.json"
+
+
+def ensure_config(path: Path) -> bool:
+    """Create config.json from config.default.json if it doesn't exist.
+
+    Returns True if the file was created, False if it already existed.
+    """
+    if path.exists():
+        return False
+    if not DEFAULT_CONFIG_PATH.exists():
+        log.warning("default config not found: %s", DEFAULT_CONFIG_PATH)
+        return False
+    shutil.copy2(DEFAULT_CONFIG_PATH, path)
+    log.info("generated %s from default", path)
+    return True
+
+
+def reset_config(path: Path) -> bool:
+    """Reset config.json back to the default template (config.default.json).
+
+    Overwrites the existing config.json with the default. Returns True on
+    success, False if the default template is missing.
+    """
+    if not DEFAULT_CONFIG_PATH.exists():
+        log.warning("cannot reset — default config not found: %s", DEFAULT_CONFIG_PATH)
+        return False
+    shutil.copy2(DEFAULT_CONFIG_PATH, path)
+    log.info("reset %s to default", path)
+    return True
+
 
 def load_config(path: Path) -> dict[str, Any]:
     """Load config JSON as raw dict. Return {} if missing or invalid."""

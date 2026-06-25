@@ -999,7 +999,7 @@ git commit -m "feat(desktop): proxy_runner subprocess + stdout stream"
 from __future__ import annotations
 
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QMenu, QPlainTextEdit
+from PySide6.QtWidgets import QPlainTextEdit
 
 
 class LogPanel(QPlainTextEdit):
@@ -1009,27 +1009,14 @@ class LogPanel(QPlainTextEdit):
         super().__init__()
         self.setReadOnly(True)
         self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+        # Built-in FIFO cap — oldest blocks dropped automatically. No manual trim.
+        self.setMaximumBlockCount(self.MAX_LINES)
         self.setStyleSheet(
             "QPlainTextEdit { background: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 12px; }"
         )
 
     def append_log(self, line: str) -> None:
         self.appendPlainText(line)
-        self._trim()
-
-    def _trim(self) -> None:
-        doc = self.document()
-        if doc.blockCount() > self.MAX_LINES:
-            cursor = self.textCursor()
-            cursor.movePosition(cursor.MovePosition.Start)
-            cursor.movePosition(
-                cursor.MovePosition.Down,
-                cursor.MoveMode.KeepAnchor,
-                doc.blockCount() - self.MAX_LINES,
-            )
-            cursor.removeSelectedText()
-            cursor.deleteChar()
-        self.ensureCursorVisible()
 
     def contextMenuEvent(self, event) -> None:  # type: ignore[override]
         menu = self.createStandardContextMenu()
@@ -1039,7 +1026,7 @@ class LogPanel(QPlainTextEdit):
         menu.exec(event.globalPos())
 ```
 
-Note: `MovePosition` / `MoveMode` are enums on `QTextCursor`; exact access path (`cursor.MovePosition` vs `QTextCursor.MovePosition`) depends on PySide6 version. Verify by importing `QTextCursor` and using `QTextCursor.MovePosition` / `QTextCursor.MoveMode` if the attribute-on-instance form fails. Adjust the implementation to the form that compiles.
+Note: `setMaximumBlockCount` is QPlainTextEdit's built-in FIFO — when block count exceeds the limit, the oldest blocks are discarded automatically. This replaces any manual cursor-based trimming.
 
 - [ ] **Step 3: Smoke test**
 
@@ -1129,8 +1116,7 @@ class GearPicker(QDialog):
 
     def selected_ids(self) -> list[int]:
         return [
-            self.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
-            for i in self.list_widget.selectedIndexes()
+            item.data(Qt.ItemDataRole.UserRole) for item in self.list_widget.selectedItems()
         ]
 ```
 
@@ -1233,8 +1219,7 @@ class BoxLootPicker(QDialog):
 
     def selected_ids(self) -> list[int]:
         return [
-            self.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
-            for i in self.list_widget.selectedIndexes()
+            item.data(Qt.ItemDataRole.UserRole) for item in self.list_widget.selectedItems()
         ]
 ```
 
@@ -1731,5 +1716,6 @@ git commit -m "test(desktop): verify e2e scrape + app launch"
 
 - **Spec coverage**: config_io (Tasks 1-2), scraper gear (3), box loot (4), cache+slug (5), live fetch (6), proxy_runner (7), log_panel (8), gear_picker (9), box_loot_picker (10), config_editor (11), main_window+entry (12), e2e (13). All spec components covered.
 - **Placeholder scan**: Two `# type: ignore[override]` and explicit verify-notes (PySide6 enum paths) are flagged in-place with concrete fallbacks, not "TBD".
-- **Type consistency**: `selected_ids()` returns `list[int]` in both pickers; `add_ids_to_selected_rule`/`add_ids_to_range` consume `list[int]`; `refresh_*` returns `list[dict[str,Any]]`; cache functions consistent. `SaveResult` used in config_io + main_window.
-- **Known verification points**: PySide6 enum access paths (`Qt.ItemFlag.*`, `QTextCursor.MovePosition`), gear wiki static-HTML assumption (Task 13 step 2 gates this), box slug pattern (Task 13 step 3).
+- **Type consistency**: `selected_ids()` returns `list[int]` in both pickers (uses `selectedItems()` — returns QListWidgetItem list, `.data(UserRole)` yields int); `add_ids_to_selected_rule`/`add_ids_to_range` consume `list[int]`; `refresh_*` returns `list[dict[str,Any]]`; cache functions consistent. `SaveResult` used in config_io + main_window.
+- **Pre-exec fixes applied**: (a) picker `selected_ids` switched from buggy `selectedIndexes()`+`item(i)` to `selectedItems()`; (b) log_panel `_trim` removed — replaced with built-in `setMaximumBlockCount` FIFO (no manual cursor/enum manipulation).
+- **Known verification points**: PySide6 enum access paths (`Qt.ItemFlag.*`, `Qt.CheckState.*`, `QHeaderView.ResizeMode.*`), gear wiki static-HTML assumption (Task 13 step 2 gates this), box slug pattern (Task 13 step 3), `ProxyConfig.load` strictness on invalid `specific_queue_rules` (Task 2 step 4 note).

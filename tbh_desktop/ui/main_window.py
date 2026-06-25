@@ -43,15 +43,18 @@ class MainWindow(QMainWindow):
         self._build_toolbar()
         self.setStatusBar(QStatusBar())
 
+        # Initialize button/dot state to "not running".
+        self._on_running(False)
+
         self._reload_config()
 
         # Wire editor pick buttons
         self.editor.btn_pick_box.clicked.connect(self._pick_box_loot)
         self.editor.btn_pick_gear_rule.clicked.connect(
-            lambda: self._pick_gear(target="rule")
+            lambda: self._pick_gear(self.editor.add_ids_to_selected_rule)
         )
         self.editor.btn_pick_gear_range.clicked.connect(
-            lambda: self._pick_gear(target="range")
+            lambda: self._pick_gear(self.editor.add_ids_to_range)
         )
 
     def _build_toolbar(self) -> None:
@@ -76,15 +79,15 @@ class MainWindow(QMainWindow):
         ):
             bar.addWidget(w)
 
-        self.btn_start.clicked.connect(self._start)
-        self.btn_stop.clicked.connect(self._stop)
+        self.btn_start.clicked.connect(self.runner.start)
+        self.btn_stop.clicked.connect(self.runner.stop)
         self.btn_refresh_gear.clicked.connect(self._refresh_gear)
         self.btn_save.clicked.connect(self._save)
 
     def _reload_config(self) -> None:
-        self._data = config_io.load_config(CONFIG_PATH)
-        self.editor.load(self._data)
-        self.port_edit.setText(str(self._data.get("listen_port", 8877)))
+        data = config_io.load_config(CONFIG_PATH)
+        self.editor.load(data)
+        self.port_edit.setText(str(data.get("listen_port", 8877)))
 
     def _on_log(self, line: str) -> None:
         self.log_panel.append_log(line)
@@ -96,18 +99,8 @@ class MainWindow(QMainWindow):
             "color: green;" if running else "color: red;"
         )
 
-    def _start(self) -> None:
-        self.runner.start()
-
-    def _stop(self) -> None:
-        self.runner.stop()
-
     def _refresh_gear(self) -> None:
-        try:
-            items = scraper.refresh_gear(GEAR_CACHE)
-        except Exception as exc:
-            self._on_log(f"Gear refresh failed: {exc}")
-            return
+        items = scraper.refresh_gear(GEAR_CACHE)
         self._on_log(f"Gear refreshed: {len(items)} items")
 
     def _save(self) -> None:
@@ -116,7 +109,6 @@ class MainWindow(QMainWindow):
         result = config_io.save_config(CONFIG_PATH, data)
         if result.ok:
             self._on_log("Config saved.")
-            self._data = data
         else:
             self._on_log(f"Config save FAILED: {result.error}")
 
@@ -124,21 +116,16 @@ class MainWindow(QMainWindow):
         try:
             return int(self.port_edit.text().strip() or 8877)
         except ValueError:
-            self._on_log("Invalid port, defaulting to 8877.")
             return 8877
 
-    def _pick_gear(self, target: str) -> None:
+    def _pick_gear(self, add_callback) -> None:
         items = scraper.read_gear_cache(GEAR_CACHE)
         if not items:
             self._on_log("No gear cache. Click 'Refresh gear' first.")
             return
         dlg = GearPicker(items, self)
         if dlg.exec():
-            ids = dlg.selected_ids()
-            if target == "rule":
-                self.editor.add_ids_to_selected_rule(ids)
-            else:
-                self.editor.add_ids_to_range(ids)
+            add_callback(dlg.selected_ids())
 
     def _pick_box_loot(self) -> None:
         box_id = self.editor.selected_rule_item_id()
@@ -149,11 +136,7 @@ class MainWindow(QMainWindow):
         name_item = self.editor.rules_table.item(row, 1) if row >= 0 else None
         name = name_item.text() if name_item is not None else ""
         slug = scraper.resolve_box_slug(name) if name else str(box_id)
-        try:
-            loot = scraper.refresh_box_loot(BOX_LOOT_CACHE_DIR, box_id, slug)
-        except Exception as exc:
-            self._on_log(f"Box loot fetch failed for {box_id}: {exc}")
-            return
+        loot = scraper.refresh_box_loot(BOX_LOOT_CACHE_DIR, box_id, slug)
         if not loot:
             self._on_log(f"No loot for box {box_id} (slug={slug}). Check box_id/name.")
             return

@@ -21,6 +21,12 @@ Mengintercept response POST ke endpoint tertentu, mengganti reward item sesuai a
   - [Rule Range (range_replacement)](#rule-range-range_replacement)
 - [Menjalankan Proxy](#menjalankan-proxy)
   - [Reload config](#reload-config)
+- [Aplikasi Desktop](#aplikasi-desktop)
+  - [Instalasi](#desktop-install-id)
+  - [Menjalankan](#desktop-launch-id)
+  - [Fitur](#desktop-features-id)
+  - [Interaksi Hot-Reload](#desktop-hot-reload-id)
+  - [Keterbatasan](#desktop-limitations-id)
 - [Setup Klien Steam (TaskBarHero via Proton)](#setup-klien-steam-taskbarhero-via-proton)
 - [Sertifikat CA](#sertifikat-ca)
   - [Linux (system trust)](#linux-system-trust)
@@ -47,6 +53,10 @@ Mengintercept response POST ke endpoint tertentu, mengganti reward item sesuai a
 | `install_cert.sh` | Install CA mitmproxy ke system trust store (Linux). |
 | `remove_cert.sh` | Hapus CA mitmproxy dari system trust store (Linux). |
 | `requirements.txt` | Dependensi: `mitmproxy`. |
+| `requirements-desktop.txt` | Dep opsional desktop: `PySide6`, `requests`, `beautifulsoup4`, `pytest-qt`. |
+| `tbh_desktop/` | GUI PySide6 opsional: edit `config.json`, pilih reward ID, jalankan/stop proxy, stream log. Lihat [Aplikasi Desktop](#aplikasi-desktop). |
+| `tests/` | Suite pytest untuk aplikasi desktop (`config_io`, `scraper`, `proxy_runner`). |
+| `docs/` | Specs + implementation plans. |
 
 ---
 
@@ -196,6 +206,69 @@ Restart proxy hanya perlu untuk mengganti `listen_port` (mitmproxy bind port saa
 
 ---
 
+## Aplikasi Desktop
+
+GUI PySide6 opsional yang membungkus `config.json` dan `run_proxy.py` yang sama dengan CLI. Memungkinkan mengedit rule secara visual, memilih reward ID dari wiki/loot table TBH, dan menjalankan proxy tanpa meninggalkan window.
+
+GUI **tidak** menggantikan addon proxy — ia menjalankan `src/run_proxy.py` sebagai subprocess dan me-stream stdout-nya. Aturan hot-reload yang sama tetap berlaku.
+
+### Instalasi <a id="desktop-install-id"></a>
+
+Dependensi desktop sengaja dipisah dari `requirements.txt` (mitmproxy) agar install proxy tetap ringan. Arch Linux (PEP 668 memblokir pip):
+
+```bash
+sudo pacman -S python-pyside6 python-requests python-beautifulsoup4 python-pytest-qt
+```
+
+Atau via pip di venv:
+
+```bash
+python -m venv .venv
+.venv/bin/pip install -r requirements-desktop.txt
+```
+
+Addon proxy (`requirements.txt`) sendiri tetap dibutuhkan agar Start/Stop berfungsi.
+
+### Menjalankan <a id="desktop-launch-id"></a>
+
+```bash
+.venv/bin/python -m tbh_desktop.main
+```
+
+Main window punya toolbar (Start / Stop / Refresh gear / Save config / port / status dot) dan layout dua panel: editor di kiri, log live di kanan.
+
+### Fitur <a id="desktop-features-id"></a>
+
+- **Edit `src/config.json` secara visual**
+  - Tabel `specific_queue_rules` — kolom enabled / name / item_id / replacement IDs. Tambah / Hapus baris.
+  - `range_replacement` — enabled, min/max item_id, replacement IDs.
+  - `listen_port` — field toolbar.
+  - Field advanced (`only_post`, `require_boxes_marker`, `url_contains`) **tidak** diekspos di GUI tapi **dipertahankan** saat save: editor membaca file sebagai raw dict dan hanya menyentuh field yang ia miliki.
+- **Save atomic** — memvalidasi dengan `ProxyConfig.load` sebelum dan sesudah tulis. Backup file sebelumnya sebagai `config.json.bak`, tulis via temp + rename, restore dari backup bila re-validasi gagal. Save yang gagal tidak pernah mematikan intercept aktif.
+- **Pilih reward ID** — setiap cell `Replacement IDs` mendukung input manual, ditambah:
+  - **Pick from box loot** — fetch loot table per-box dari `https://taskbarhero.org/en/items/chests/<id>-<slug>/`, parse, dan izinkan multi-select. Cache per-box di `tbh_desktop/box_loot_cache/<box_id>.json`.
+  - **Pick gear** — fetch `https://taskbarhero.wiki/gear`, cache ke `tbh_desktop/gear_cache.json`. Multi-grade gear (rarity + type ditampilkan).
+- **Refresh gear** — scrape ulang wiki, timpa cache. Bisa kapan saja, bahkan sebelum membuka picker.
+- **Start / Stop proxy** — jalankan `src/run_proxy.py` sebagai subprocess (cwd = repo root). Status dot berubah hijau saat berjalan. Stdout ter-stream (stderr digabung) ke log panel via Qt signal — real-time, FIFO capped di 10k baris. Stop kirim SIGTERM, escalate ke SIGKILL setelah 3 detik.
+- **Save config** — atomic, tervalidasi (lihat di atas). mtime-based hot-reload yang sama seperti edit manual.
+- **Close confirm** — bila proxy berjalan, menutup window akan konfirmasi sebelum menghentikannya.
+- **Menu** — File (Save config, Exit). Help (About).
+
+### Interaksi Hot-Reload <a id="desktop-hot-reload-id"></a>
+
+GUI mengedit **`config.json` yang sama** yang dibaca addon. Save dari GUI mengubah mtime file, sehingga cek mtime per-response addon langsung mengambil rule baru pada request berikutnya — tanpa restart proxy.
+
+Pengecualian: `listen_port`. Field toolbar menulis ke `config.json`, tapi mitmproxy bind port saat startup, jadi menggantinya perlu restart proxy (Stop → Start).
+
+### Keterbatasan <a id="desktop-limitations-id"></a>
+
+- **Picker gear hanya menampilkan batch pertama.** Halaman wiki me-render ~60 kartu pada paint pertama (~21 obtainable setelah filter kartu `is-deleted`, total ~5760 item obtainable). Daftar lengkap butuh infinite-scroll / pagination yang **belum diimplementasikan** di sini — lihat docstring `parse_gear_page()` di `tbh_desktop/scraper.py`. Bila reward yang kamu mau tidak ada di cache, ketik ID-nya langsung di cell; akan diterima.
+- **Box loot butuh `item_id` + `name` valid** di baris rule yang dipilih. Dialog memakai `name` rule untuk menurunkan URL slug (`"Normal Monster Box Lv80"` → `normal-monster-box-lv80`) — bila penamaan kamu berbeda dari konvensi wiki TBH, fetch loot akan 404 dan picker akan laporkan `No loot for box ...`.
+- **Picker butuh network** untuk fetch data segar; fallback ke cache bila fetch gagal (silent — lihat log panel untuk warning-nya).
+- GUI hanya-baca terhadap config di disk; edit bersamaan dari tool lain tidak terdeteksi. Bila kamu edit file di luar GUI saat ia terbuka, restart app untuk membaca ulang.
+
+---
+
 ## Setup Klien Steam (TaskBarHero via Proton)
 
 TaskBarHero adalah game Unity Windows (Steam AppId 3678970) yang berjalan via Proton + SteamLinuxRuntime_4 + pressure-vessel di Linux. Sandbox mengisolasi network namespace dan tidak meneruskan env proxy host secara default.
@@ -340,23 +413,24 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 --set block_global=false -
 
 ```
 TBH/
-├── src/
-│   ├── tbh_reward_hook.py  # addon mitmproxy (logika rewrite)
-│   ├── run_proxy.py        # launcher (cari mitmdump / fallback modul)
-│   └── config.json         # aturan rewrite
-├── scripts/
-│   ├── run_proxy.sh            # wrapper Linux
-│   ├── install_requirements.sh # install dep Linux
-│   ├── self_test.sh            # tes rewrite Linux
-│   ├── install_cert.sh         # install CA system trust Linux
-│   └── remove_cert.sh          # hapus CA system trust Linux
-├── windows/
-│   ├── run_proxy.bat           # wrapper Windows
-│   ├── install_requirements.bat # install dep Windows
-│   └── self_test.bat           # tes rewrite Windows
-├── requirements.txt        # mitmproxy
-├── README.md               # dokumentasi English
-└── README.id.md            # dokumentasi Indonesia
+├── src/                    # addon mitmproxy (tbh_reward_hook.py, run_proxy.py, config.json)
+├── scripts/                # wrapper Linux
+├── windows/                # wrapper Windows
+├── tbh_desktop/            # GUI PySide6 desktop (opsional)
+│   ├── main.py             # entry point
+│   ├── config_io.py        # load/save config (atomic + validate)
+│   ├── scraper.py          # gear wiki + box loot scrape, cache
+│   ├── proxy_runner.py     # subprocess + stdout stream
+│   ├── paths.py            # path resolution
+│   └── ui/                 # main_window, config_editor, gear_picker, box_loot_picker, log_panel
+├── tests/                  # pytest (config_io, scraper, proxy_runner)
+├── docs/                   # specs + plans
+├── requirements.txt            # mitmproxy
+├── requirements-desktop.txt    # PySide6, requests, bs4, pytest-qt
+├── README.md
+└── README.id.md
 ```
 
 Skrip memakai path absolut (`REPO_ROOT` di shell, `%~dp0..` di bat) sehingga jalan dari cwd mana pun. File source (`src/`) saling mereferensikan via `Path(__file__).resolve().parent`, jadi `tbh_reward_hook.py`, `run_proxy.py`, dan `config.json` harus tetap satu direktori.
+
+Cache `tbh_desktop/gear_cache.json` dan `tbh_desktop/box_loot_cache/` pada aplikasi desktop bersifat generated dan masuk `.gitignore` — hapus untuk memaksa re-fetch dari wiki.

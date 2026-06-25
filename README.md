@@ -21,6 +21,12 @@ It intercepts responses to POST requests at specific endpoints, swaps reward ite
   - [Range Rules (range_replacement)](#range-rules-range_replacement)
 - [Running the Proxy](#running-the-proxy)
   - [Reloading config](#reloading-config)
+- [Desktop App](#desktop-app)
+  - [Install](#desktop-install)
+  - [Launch](#desktop-launch)
+  - [Features](#desktop-features)
+  - [Hot-Reload Interaction](#desktop-hot-reload)
+  - [Known Limitations](#desktop-limitations)
 - [Steam Client Setup (TaskBarHero via Proton)](#steam-client-setup-taskbarhero-via-proton)
 - [CA Certificate](#ca-certificate)
   - [Linux (system trust)](#linux-system-trust)
@@ -47,6 +53,10 @@ It intercepts responses to POST requests at specific endpoints, swaps reward ite
 | `install_cert.sh` | Install mitmproxy CA into system trust store (Linux). |
 | `remove_cert.sh` | Remove mitmproxy CA from system trust store (Linux). |
 | `requirements.txt` | Dependency: `mitmproxy`. |
+| `requirements-desktop.txt` | Optional desktop deps: `PySide6`, `requests`, `beautifulsoup4`, `pytest-qt`. |
+| `tbh_desktop/` | Optional PySide6 GUI: edit `config.json`, pick reward IDs, run/stop proxy, stream logs. See [Desktop App](#desktop-app). |
+| `tests/` | Pytest suite for the desktop app (`config_io`, `scraper`, `proxy_runner`). |
+| `docs/` | Specs + implementation plans. |
 
 ---
 
@@ -196,6 +206,69 @@ You only need to restart the proxy to change `listen_port` (mitmproxy binds the 
 
 ---
 
+## Desktop App
+
+An optional PySide6 GUI that wraps the same `config.json` and `run_proxy.py` the CLI uses. Lets you edit rules visually, pick reward IDs from the TBH wiki/loot tables, and run the proxy without leaving the window.
+
+It does **not** replace the proxy addon — the GUI spawns `src/run_proxy.py` as a subprocess and streams its stdout. The same hot-reload rules apply.
+
+### Install <a id="desktop-install"></a>
+
+Desktop deps are intentionally separate from `requirements.txt` (mitmproxy) so the proxy install stays light. Arch Linux (PEP 668 blocks pip):
+
+```bash
+sudo pacman -S python-pyside6 python-requests python-beautifulsoup4 python-pytest-qt
+```
+
+Or via pip into a venv:
+
+```bash
+python -m venv .venv
+.venv/bin/pip install -r requirements-desktop.txt
+```
+
+The proxy addon itself (`requirements.txt`) is still required if you want Start/Stop to work.
+
+### Launch <a id="desktop-launch"></a>
+
+```bash
+.venv/bin/python -m tbh_desktop.main
+```
+
+The main window has a toolbar (Start / Stop / Refresh gear / Save config / port / status dot) and a two-pane layout: editor on the left, live log on the right.
+
+### Features <a id="desktop-features"></a>
+
+- **Edit `src/config.json` visually**
+  - `specific_queue_rules` table — enabled / name / item_id / replacement IDs columns. Add / Remove rows.
+  - `range_replacement` — enabled, min/max item_id, replacement IDs.
+  - `listen_port` — toolbar field.
+  - Advanced fields (`only_post`, `require_boxes_marker`, `url_contains`) are **not** exposed in the GUI but are **preserved** on save: the editor reads the file as a raw dict and only touches the fields it owns.
+- **Atomic save** — validates against `ProxyConfig.load` before and after writing. Backups the previous file as `config.json.bak`, writes via temp + rename, restores from backup on re-validation failure. A bad save never breaks active interception.
+- **Pick reward IDs** — every `Replacement IDs` cell supports manual typing, plus:
+  - **Pick from box loot** — fetches the per-box loot table from `https://taskbarhero.org/en/items/chests/<id>-<slug>/`, parses it, and lets you multi-select items. Cached per-box at `tbh_desktop/box_loot_cache/<box_id>.json`.
+  - **Pick gear** — fetches `https://taskbarhero.wiki/gear`, caches to `tbh_desktop/gear_cache.json`. Multi-grade gear (rarity + type shown).
+- **Refresh gear** — re-scrapes the wiki, overwrites the cache. Available any time, even before opening the picker.
+- **Start / Stop proxy** — spawns `src/run_proxy.py` as a subprocess (cwd = repo root). Status dot turns green while running. Streamed stdout (with stderr merged) flows into the log panel via Qt signals — real-time, FIFO capped at 10k lines. Stop sends SIGTERM, escalates to SIGKILL after 3s.
+- **Save config** — atomic, validated (see above). Same mtime-based hot-reload as a manual edit.
+- **Close confirm** — if the proxy is running, closing the window asks before stopping it.
+- **Menu** — File (Save config, Exit). Help (About).
+
+### Hot-Reload Interaction <a id="desktop-hot-reload"></a>
+
+The GUI edits the **same** `config.json` the addon reads. Saving from the GUI bumps the file's mtime, so the addon's per-response mtime check picks up the new rules on the very next intercepted request — no proxy restart needed.
+
+Exception: `listen_port`. The toolbar field writes into `config.json` but mitmproxy binds the port at startup, so changing it requires a proxy restart (Stop → Start).
+
+### Known Limitations <a id="desktop-limitations"></a>
+
+- **Gear picker only shows the first batch.** The wiki page renders ~60 cards on first paint (~21 obtainable after filtering `is-deleted` cards, ~5760 total obtainable items). The full list requires infinite-scroll / pagination which is **not implemented** here — see `parse_gear_page()` docstring in `tbh_desktop/scraper.py`. If the reward you want is not in the cache, type its ID directly into the cell; it will be accepted.
+- **Box loot requires a valid `item_id` + `name`** in the selected rule row. The dialog uses the rule's `name` to derive a URL slug (`"Normal Monster Box Lv80"` → `normal-monster-box-lv80`) — if your naming differs from the TBH wiki convention, the loot fetch will 404 and the picker will report `No loot for box ...`.
+- **Pickers need network** to fetch fresh data; they fall back to the cache on fetch failure (silent — see log panel for the warning).
+- The GUI is read-only against the on-disk config; concurrent edits from another tool are not detected. If you edit the file outside the GUI while it is open, restart the app to re-read.
+
+---
+
 ## Steam Client Setup (TaskBarHero via Proton)
 
 TaskBarHero is a Windows Unity game (Steam AppId 3678970) running through Proton + SteamLinuxRuntime_4 + pressure-vessel on Linux. The sandbox isolates the network namespace and does not forward host proxy env vars by default.
@@ -340,23 +413,24 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 --set block_global=false -
 
 ```
 TBH/
-├── src/
-│   ├── tbh_reward_hook.py  # mitmproxy addon (rewrite logic)
-│   ├── run_proxy.py        # launcher (find mitmdump / fallback module)
-│   └── config.json         # rewrite rules
-├── scripts/
-│   ├── run_proxy.sh            # Linux wrapper
-│   ├── install_requirements.sh # Linux dep installer
-│   ├── self_test.sh            # Linux rewrite test
-│   ├── install_cert.sh         # Linux CA system trust installer
-│   └── remove_cert.sh          # Linux CA system trust remover
-├── windows/
-│   ├── run_proxy.bat           # Windows wrapper
-│   ├── install_requirements.bat # Windows dep installer
-│   └── self_test.bat           # Windows rewrite test
-├── requirements.txt        # mitmproxy
-├── README.md               # English docs
-└── README.id.md            # Indonesian docs
+├── src/                    # mitmproxy addon (tbh_reward_hook.py, run_proxy.py, config.json)
+├── scripts/                # Linux wrappers
+├── windows/                # Windows wrappers
+├── tbh_desktop/            # PySide6 desktop GUI (optional)
+│   ├── main.py             # entry point
+│   ├── config_io.py        # load/save config (atomic + validate)
+│   ├── scraper.py          # gear wiki + box loot scrape, cache
+│   ├── proxy_runner.py     # subprocess + stdout stream
+│   ├── paths.py            # path resolution
+│   └── ui/                 # main_window, config_editor, gear_picker, box_loot_picker, log_panel
+├── tests/                  # pytest (config_io, scraper, proxy_runner)
+├── docs/                   # specs + plans
+├── requirements.txt            # mitmproxy
+├── requirements-desktop.txt    # PySide6, requests, bs4, pytest-qt
+├── README.md
+└── README.id.md
 ```
 
 Scripts use absolute paths (`REPO_ROOT` in shell, `%~dp0..` in bat) so they work from any cwd. Source files (`src/`) reference siblings via `Path(__file__).resolve().parent`, so keep `tbh_reward_hook.py`, `run_proxy.py`, and `config.json` together.
+
+The desktop app's `tbh_desktop/gear_cache.json` and `tbh_desktop/box_loot_cache/` are generated and gitignored — delete them to force a re-fetch from the wiki.

@@ -1,62 +1,43 @@
 {
-  "listen_port": 8877,
-  "only_post": true,
-  "require_boxes_marker": true,
-  "url_contains": [
-    "/backend-function/base/v1"
-  ],
-  "specific_queue_rules": [
-    {
-      "enabled": false,
-      "name": "White box",
-      "item_id": 910801,
-      "replacement_reward_item_ids": [
-        406171
-      ]
-    },
-    {
-      "enabled": false,
-      "name": "Blue box",
-      "item_id": 920801,
-      "replacement_reward_item_ids": [
-        406171
-      ]
+    "listen_port": 8877,
+    "only_post": true,
+    "require_boxes_marker": true,
+    "url_contains": [
+        "/backend-function/base/v1"
+    ],
+    "specific_queue_rules": [
+        {
+            "enabled": false,
+            "name": "Normal Box",
+            "item_id": 910901,
+            "replacement_reward_item_ids": [
+                114004
+            ]
+        },
+        {
+            "enabled": false,
+            "name": "Stage Boss Box",
+            "item_id": 920901,
+            "replacement_reward_item_ids": [
+                110005
+            ]
+        },
+        {
+            "enabled": false,
+            "name": "Act Boss Box",
+            "item_id": 930901,
+            "replacement_reward_item_ids": [
+                160006
+            ]
+        }
+    ],
+    "range_replacement": {
+        "enabled": true,
+        "name": "Range replacement",
+        "match_min_item_id": 500000,
+        "match_max_item_id": 950000,
+        "replacement_reward_item_ids": [
+            135001
+        ]
     }
-  ],
-  "range_replacement": {
-    "enabled": true,
-    "name": "Range replacement",
-    "match_min_item_id": 500000,
-    "match_max_item_id": 950000,
-    "replacement_reward_item_ids": [
-      605041,
-      605041,
-      605041,
-      615041,
-      615041,
-      615041,
-      625041,
-      625041,
-      625041,
-      635041,
-      635041,
-      635041,
-      505041,
-      505041,
-      505041,
-      515041,
-      515041,
-      515041,
-      525041,
-      525041,
-      525041,
-      535041,
-      535041,
-      535041,
-      190002,
-      190003,
-      190004
-      
-    ]
-  }
 }

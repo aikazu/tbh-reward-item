@@ -30,10 +30,18 @@ COL_REPLACEMENT = 3
 # ItemDataRole used to mark a row as a locked default rule (cannot be removed).
 LOCK_ROLE = Qt.ItemDataRole.UserRole + 1
 
+# Indonesian hint shown when the pick-box-id button is disabled.
+TOOLTIP_PICK_BOX_ID_DISABLED = "Pilih rule dulu untuk memilih box ID"
 # Indonesian hint shown when the pick-box button is disabled.
-TOOLTIP_PICK_BOX_DISABLED = "Pilih rule dulu untuk memilih loot box"
+TOOLTIP_PICK_BOX_DISABLED = "Pilih rule dengan box ID valid dulu untuk memilih loot"
+# Indonesian hint shown when the pick-gear button is disabled.
+TOOLTIP_PICK_GEAR_DISABLED = "Pilih rule dulu untuk memilih gear"
 # Indonesian hint shown when the remove button is disabled on a locked rule.
 TOOLTIP_REMOVE_LOCKED = "Default rule tidak bisa dihapus"
+
+# ItemDataRole used to store the parsed box level on a rule row (int | None).
+# Used to auto-filter the gear picker to the matching level.
+LEVEL_ROLE = Qt.ItemDataRole.UserRole + 2
 
 
 class ConfigEditor(QWidget):
@@ -52,7 +60,7 @@ class ConfigEditor(QWidget):
 
         self.rules_table = QTableWidget(0, 4)
         self.rules_table.setHorizontalHeaderLabels(
-            ["Enabled", "Name", "Item ID", "Replacement IDs"]
+            ["Enabled", "Name", "Box ID", "Replacement IDs"]
         )
         self.rules_table.setAlternatingRowColors(True)
         self.rules_table.verticalHeader().setVisible(False)
@@ -67,9 +75,16 @@ class ConfigEditor(QWidget):
         rules_buttons.setSpacing(6)
         btn_add = QPushButton("＋  Add rule")
         self.btn_remove = QPushButton("－  Remove rule")
+        self.btn_pick_box_id = QPushButton("Pick box ID")
         self.btn_pick_box = QPushButton("Pick from box loot")
         self.btn_pick_gear_rule = QPushButton("Pick gear")
-        for b in (btn_add, self.btn_remove, self.btn_pick_box, self.btn_pick_gear_rule):
+        for b in (
+            btn_add,
+            self.btn_remove,
+            self.btn_pick_box_id,
+            self.btn_pick_box,
+            self.btn_pick_gear_rule,
+        ):
             rules_buttons.addWidget(b)
         rules_buttons.addStretch()
         rules_layout.addLayout(rules_buttons)
@@ -80,8 +95,12 @@ class ConfigEditor(QWidget):
         self._loading = False
         self.btn_remove.setEnabled(False)
         self.btn_remove.setToolTip(TOOLTIP_REMOVE_LOCKED)
+        self.btn_pick_box_id.setEnabled(False)
+        self.btn_pick_box_id.setToolTip(TOOLTIP_PICK_BOX_ID_DISABLED)
         self.btn_pick_box.setEnabled(False)
         self.btn_pick_box.setToolTip(TOOLTIP_PICK_BOX_DISABLED)
+        self.btn_pick_gear_rule.setEnabled(False)
+        self.btn_pick_gear_rule.setToolTip(TOOLTIP_PICK_GEAR_DISABLED)
         self.rules_table.itemSelectionChanged.connect(self._update_action_button_states)
 
         layout.addWidget(rules_group)
@@ -99,11 +118,20 @@ class ConfigEditor(QWidget):
         self.range_ids = QLineEdit()
         self.range_ids.setPlaceholderText("529191, 419191, 409191")
         self.btn_pick_gear_range = QPushButton("Pick gear")
+        self.btn_pick_loot_range = QPushButton("Pick from box")
+        self.btn_pick_loot_range.setToolTip(
+            "Pilih box, lalu pilih loot (item/material) dari box tersebut."
+        )
         range_form.addRow("Enabled", self.range_enabled)
         range_form.addRow("match_min_item_id", self.range_min)
         range_form.addRow("match_max_item_id", self.range_max)
         range_form.addRow("replacement IDs", self.range_ids)
-        range_form.addRow("", self.btn_pick_gear_range)
+        range_buttons = QHBoxLayout()
+        range_buttons.setSpacing(6)
+        range_buttons.addWidget(self.btn_pick_gear_range)
+        range_buttons.addWidget(self.btn_pick_loot_range)
+        range_buttons.addStretch()
+        range_form.addRow("", range_buttons)
         layout.addWidget(range_group)
 
         layout.addStretch()
@@ -165,7 +193,7 @@ class ConfigEditor(QWidget):
         self.rules_table.removeRow(row)
 
     def _update_action_button_states(self) -> None:
-        """Sync remove/pick-box button enabled state + tooltips to the selection.
+        """Sync remove/pick button enabled state + tooltips to the selection.
 
         Called on itemSelectionChanged. No-op while loading to avoid spurious
         updates during table population.
@@ -176,16 +204,26 @@ class ConfigEditor(QWidget):
         if row < 0:
             self.btn_remove.setEnabled(False)
             self.btn_remove.setToolTip(TOOLTIP_REMOVE_LOCKED)
+            self.btn_pick_box_id.setEnabled(False)
+            self.btn_pick_box_id.setToolTip(TOOLTIP_PICK_BOX_ID_DISABLED)
             self.btn_pick_box.setEnabled(False)
             self.btn_pick_box.setToolTip(TOOLTIP_PICK_BOX_DISABLED)
+            self.btn_pick_gear_rule.setEnabled(False)
+            self.btn_pick_gear_rule.setToolTip(TOOLTIP_PICK_GEAR_DISABLED)
             return
         enabled_item = self.rules_table.item(row, COL_ENABLED)
         locked = bool(enabled_item.data(LOCK_ROLE)) if enabled_item is not None else False
         self.btn_remove.setEnabled(not locked)
         self.btn_remove.setToolTip(TOOLTIP_REMOVE_LOCKED if locked else "")
+        # Pick box ID always available when a row is selected.
+        self.btn_pick_box_id.setEnabled(True)
+        self.btn_pick_box_id.setToolTip("")
+        # Pick from box loot + pick gear need a valid item_id on the row.
         valid = self.selected_rule_item_id() is not None
         self.btn_pick_box.setEnabled(valid)
         self.btn_pick_box.setToolTip("" if valid else TOOLTIP_PICK_BOX_DISABLED)
+        self.btn_pick_gear_rule.setEnabled(True)
+        self.btn_pick_gear_rule.setToolTip("")
 
     def selected_rule_item_id(self) -> int | None:
         row = self.rules_table.currentRow()
@@ -199,6 +237,33 @@ class ConfigEditor(QWidget):
             return int(text)
         except ValueError:
             return None
+
+    def set_selected_rule_item_id(self, box_id: int, level: int | None) -> None:
+        """Set the Item ID cell of the selected rule row and store the box
+        level on the row (via ``LEVEL_ROLE``) so the gear picker can auto-filter.
+        """
+        row = self.rules_table.currentRow()
+        if row < 0:
+            return
+        item = self.rules_table.item(row, COL_ITEM_ID)
+        if item is None:
+            return
+        item.setText(str(box_id))
+        enabled_item = self.rules_table.item(row, COL_ENABLED)
+        if enabled_item is not None:
+            enabled_item.setData(LEVEL_ROLE, level)
+        # Re-evaluate button states (pick-box / pick-gear now valid).
+        self._update_action_button_states()
+
+    def selected_rule_level(self) -> int | None:
+        """Return the box level stored on the selected rule row, or ``None``."""
+        row = self.rules_table.currentRow()
+        if row < 0:
+            return None
+        enabled_item = self.rules_table.item(row, COL_ENABLED)
+        if enabled_item is None:
+            return None
+        return enabled_item.data(LEVEL_ROLE)
 
     def add_ids_to_selected_rule(self, ids: list[int]) -> None:
         row = self.rules_table.currentRow()

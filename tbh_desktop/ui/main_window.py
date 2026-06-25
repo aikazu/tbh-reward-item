@@ -17,7 +17,9 @@ from tbh_desktop import config_io, scraper
 from tbh_desktop.gear_scraper_runner import GearScraperRunner
 from tbh_desktop.paths import BOX_LOOT_CACHE_DIR, CONFIG_PATH, GEAR_CACHE_DIR
 from tbh_desktop.proxy_runner import ProxyRunner
+from tbh_desktop.scraper import BOX_SLUG_CACHE, read_box_cache
 from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+from tbh_desktop.ui.box_picker import BoxPicker
 from tbh_desktop.ui.config_editor import ConfigEditor
 from tbh_desktop.ui.gear_picker import GearPicker
 from tbh_desktop.ui.log_panel import LogPanel
@@ -60,14 +62,14 @@ class MainWindow(QMainWindow):
 
         self._reload_config()
 
-        # Wire editor pick buttons
-        self.editor.btn_pick_box.clicked.connect(self._pick_box_loot)
-        self.editor.btn_pick_gear_rule.clicked.connect(
-            lambda: self._pick_gear(self.editor.add_ids_to_selected_rule)
-        )
-        self.editor.btn_pick_gear_range.clicked.connect(
-            lambda: self._pick_gear(self.editor.add_ids_to_range)
-        )
+        # Wire editor pick buttons — Specific Queue Rules
+        self.editor.btn_pick_box_id.clicked.connect(self._pick_box_id_for_rule)
+        self.editor.btn_pick_box.clicked.connect(self._pick_box_loot_for_rule)
+        self.editor.btn_pick_gear_rule.clicked.connect(self._pick_gear_for_rule)
+
+        # Wire editor pick buttons — Range Replacement
+        self.editor.btn_pick_gear_range.clicked.connect(self._pick_gear_for_range)
+        self.editor.btn_pick_loot_range.clicked.connect(self._pick_box_loot_for_range)
 
     # ------------------------------------------------------------------ build
     def _build_toolbar(self) -> None:
@@ -211,26 +213,88 @@ class MainWindow(QMainWindow):
         except ValueError:
             return 8877
 
-    def _pick_gear(self, add_callback) -> None:
+    # ------------------------------------------------------------------ pickers
+    def _pick_box_id_for_rule(self) -> None:
+        """Open BoxPicker, set the selected rule's Item ID + store its level."""
+        dlg = BoxPicker(BOX_SLUG_CACHE, self)
+        if not dlg.exec():
+            return
+        box_id = dlg.selected_box_id()
+        if box_id is None:
+            return
+        level = dlg.selected_box_level()
+        self.editor.set_selected_rule_item_id(box_id, level)
+        if level is not None:
+            self._on_log(f"Box {box_id} (Lv{level}) set as item_id.")
+        else:
+            self._on_log(f"Box {box_id} set as item_id.")
+
+    def _get_box_loot(self, box_id: int) -> list[dict]:
+        """Fetch box loot (network or cache) and log if empty."""
+        loot = scraper.refresh_box_loot(BOX_LOOT_CACHE_DIR, box_id)
+        if not loot:
+            self._on_log(f"No loot for box {box_id}. Check box_id / wiki items page.")
+        return loot
+
+    def _pick_box_loot_for_rule(self) -> None:
+        """Pick loot (item/material) from the rule's box into Replacement IDs."""
+        box_id = self.editor.selected_rule_item_id()
+        if box_id is None:
+            self._on_log("Select a rule row with a valid item_id first.")
+            return
+        loot = self._get_box_loot(box_id)
+        if not loot:
+            return
+        dlg = BoxLootPicker(box_id, loot, self)
+        if dlg.exec():
+            self.editor.add_ids_to_selected_rule(dlg.selected_ids())
+
+    def _pick_gear_for_rule(self) -> None:
+        """Pick gear scoped to the selected rule's box (name + level filter)."""
+        if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("gear_*.json")):
+            self._on_log("No gear cache. Click 'Scrape gear' first.")
+            return
+        box_id = self.editor.selected_rule_item_id()
+        level_hint = self.editor.selected_rule_level()
+        box_loot: list[dict] = []
+        if box_id is not None:
+            # Use cached loot if available to avoid network on every gear pick.
+            box_loot = read_box_cache(BOX_LOOT_CACHE_DIR, box_id)
+            if not box_loot:
+                # Try fetching once; if still empty, proceed without box filter.
+                box_loot = self._get_box_loot(box_id)
+        dlg = GearPicker(
+            GEAR_CACHE_DIR,
+            self,
+            box_loot=box_loot or None,
+            level_hint=level_hint,
+        )
+        if dlg.exec():
+            self.editor.add_ids_to_selected_rule(dlg.selected_ids())
+
+    def _pick_gear_for_range(self) -> None:
+        """Pick gear for range replacement (no box scope — shows all gear)."""
         if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("gear_*.json")):
             self._on_log("No gear cache. Click 'Scrape gear' first.")
             return
         dlg = GearPicker(GEAR_CACHE_DIR, self)
         if dlg.exec():
-            add_callback(dlg.selected_ids())
+            self.editor.add_ids_to_range(dlg.selected_ids())
 
-    def _pick_box_loot(self) -> None:
-        box_id = self.editor.selected_rule_item_id()
+    def _pick_box_loot_for_range(self) -> None:
+        """Pick box → loot (item/material) into range replacement IDs."""
+        dlg = BoxPicker(BOX_SLUG_CACHE, self)
+        if not dlg.exec():
+            return
+        box_id = dlg.selected_box_id()
         if box_id is None:
-            self._on_log("Select a rule row with a valid item_id first.")
             return
-        loot = scraper.refresh_box_loot(BOX_LOOT_CACHE_DIR, box_id)
+        loot = self._get_box_loot(box_id)
         if not loot:
-            self._on_log(f"No loot for box {box_id}. Check box_id / wiki items page.")
             return
-        dlg = BoxLootPicker(box_id, loot, self)
-        if dlg.exec():
-            self.editor.add_ids_to_selected_rule(dlg.selected_ids())
+        dlg2 = BoxLootPicker(box_id, loot, self)
+        if dlg2.exec():
+            self.editor.add_ids_to_range(dlg2.selected_ids())
 
     def closeEvent(self, event) -> None:  # type: ignore[override]
         if self.gear_scraper.is_running():

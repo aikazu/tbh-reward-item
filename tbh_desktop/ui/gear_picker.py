@@ -1,15 +1,24 @@
 """Dialog to pick gear reward IDs from per-category×grade cache files.
 
-G3: rebuilds the list from ``GEAR_CACHE_DIR/gear_{cat}_{grade}.json`` files
+G4: rebuilds the list from ``GEAR_CACHE_DIR/gear_{cat}_{grade}.json`` files
 matching the current Category/Grade/Level-range filters. Search box and
 multi-select behaviour preserved from the original flat-list picker.
+
+New in G4:
+  - Optional ``box_loot`` list: when supplied, only gear whose ``name``
+    matches one of the loot item names is shown (so the picker is scoped to
+    the box the user is editing).  A "Show all gear" checkbox toggles this.
+  - Optional ``level_hint``: pre-sets the level spinboxes to the box's level
+    (±5 tolerance) so the picker opens pre-filtered.
 """
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -21,7 +30,6 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QSpinBox,
     QVBoxLayout,
-    QWidget,
 )
 
 from tbh_desktop.scraper import read_gear_cache
@@ -46,13 +54,38 @@ _GRADE_DISPLAY = {
     "Cosmic": "cosmic",
 }
 
+# Level tolerance when a level_hint is supplied (± this many levels).
+_LEVEL_TOLERANCE = 5
+
 
 class GearPicker(QDialog):
-    def __init__(self, cache_dir: Path, parent=None) -> None:
+    def __init__(
+        self,
+        cache_dir: Path,
+        parent=None,
+        *,
+        box_loot: list[dict[str, Any]] | None = None,
+        level_hint: int | None = None,
+    ) -> None:
         super().__init__(parent)
         self.setWindowTitle("Pick gear")
         self.resize(540, 640)
         self._cache_dir = Path(cache_dir)
+
+        # Build a set of base gear names from the box loot table (if given).
+        # Gear cache stores "Long Sword", loot stores "Dimensional Sword" etc.
+        # We match on the suffix after the last space-hyphen token, but the
+        # simplest robust match is: loot name == gear name exactly OR gear
+        # name ends with the "core" token of the loot name.  We keep it
+        # simple: exact name match (case-insensitive).
+        self._loot_names: set[str] | None = None
+        if box_loot:
+            self._loot_names = {
+                str(it.get("name", "")).strip().lower() for it in box_loot if it.get("name")
+            }
+            # If the loot names are empty after filtering, treat as None.
+            if not self._loot_names:
+                self._loot_names = None
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
@@ -96,6 +129,18 @@ class GearPicker(QDialog):
         level_row.addStretch()
         filters_layout.addLayout(level_row)
 
+        # "Match box loot" checkbox — only visible when box loot was supplied.
+        self.match_box_check = QCheckBox("Only show gear from this box")
+        if self._loot_names is not None:
+            self.match_box_check.setChecked(True)
+            self.match_box_check.setToolTip(
+                "Hanya tampilkan gear yang ada di loot box yang dipilih."
+            )
+            filters_layout.addWidget(self.match_box_check)
+            self.match_box_check.toggled.connect(self._rebuild)
+        else:
+            self.match_box_check.setVisible(False)
+
         layout.addWidget(filters_group)
 
         # ── Search ────────────────────────────────────────────────────────
@@ -123,6 +168,13 @@ class GearPicker(QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
+
+        # Apply level hint to spinboxes before initial population.
+        if level_hint is not None and level_hint > 0:
+            lo = max(1, level_hint - _LEVEL_TOLERANCE)
+            hi = min(100, level_hint + _LEVEL_TOLERANCE)
+            self.level_min.setValue(lo)
+            self.level_max.setValue(hi)
 
         # Initial population.
         self._rebuild()
@@ -158,11 +210,17 @@ class GearPicker(QDialog):
         return merged
 
     def _rebuild(self) -> None:
-        """Populate the list widget from cache files, applying the level range.
-        Search visibility is reapplied afterwards via :meth:`_apply_search`.
+        """Populate the list widget from cache files, applying the level range
+        and (optionally) the box-loot name filter.  Search visibility is
+        reapplied afterwards via :meth:`_apply_search`.
         """
         lo = self.level_min.value()
         hi = self.level_max.value()
+
+        match_box = (
+            self._loot_names is not None and self.match_box_check.isChecked()
+        )
+        loot_names: set[str] = self._loot_names or set()
 
         self.list_widget.clear()
         for item in self._load_items_for_filters():
@@ -171,6 +229,8 @@ class GearPicker(QDialog):
                 continue
             level = self._parse_level(str(item.get("level", "")))
             if level < lo or level > hi:
+                continue
+            if match_box and str(name).strip().lower() not in loot_names:
                 continue
             text = f"{item.get('id')} · {name} ({item.get('rarity', '')})"
             list_item = QListWidgetItem(text)

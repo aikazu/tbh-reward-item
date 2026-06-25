@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QSplitter,
     QStatusBar,
@@ -41,6 +42,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(splitter)
 
         self._build_toolbar()
+        self._build_menu()
         self.setStatusBar(QStatusBar())
 
         # Initialize button/dot state to "not running".
@@ -84,10 +86,32 @@ class MainWindow(QMainWindow):
         self.btn_refresh_gear.clicked.connect(self._refresh_gear)
         self.btn_save.clicked.connect(self._save)
 
+    def _build_menu(self) -> None:
+        menubar = self.menuBar()
+        file_menu = menubar.addMenu("File")
+        file_menu.addAction("Save config", self._save)
+        file_menu.addAction("Exit", self.close)
+        help_menu = menubar.addMenu("Help")
+        help_menu.addAction("About", self._about)
+
+    def _about(self) -> None:
+        QMessageBox.about(
+            self,
+            "About TBH Reward Proxy",
+            "TBH Reward Proxy desktop GUI.\nEdit config, pick reward IDs, run/stop proxy.",
+        )
+
     def _reload_config(self) -> None:
         data = config_io.load_config(CONFIG_PATH)
         self.editor.load(data)
         self.port_edit.setText(str(data.get("listen_port", 8877)))
+        if not data and CONFIG_PATH.exists():
+            QMessageBox.warning(
+                self,
+                "Config invalid",
+                f"Could not load {CONFIG_PATH.name}. Using empty defaults. "
+                "Fix the file and Save to reload.",
+            )
 
     def _on_log(self, line: str) -> None:
         self.log_panel.append_log(line)
@@ -146,5 +170,15 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:  # type: ignore[override]
         if self.runner.is_running():
+            reply = QMessageBox.question(
+                self,
+                "Stop proxy?",
+                "Proxy is running. Stop and exit?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                event.ignore()
+                return
             self.runner.stop()
         super().closeEvent(event)

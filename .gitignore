@@ -17,3 +17,9 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+
+dont-touch/
+
+# Desktop app generated caches
+tbh_desktop/gear_cache.json
+tbh_desktop/box_loot_cache/

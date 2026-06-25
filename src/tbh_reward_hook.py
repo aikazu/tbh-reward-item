@@ -386,26 +386,44 @@ def _extract_reward_ids(body: str) -> list[int]:
  
  
 def run_self_test() -> None:
-    config = ProxyConfig.load()
+    # Self-test uses a fixed fixture config instead of the live config.json,
+    # so it stays green regardless of which rules are toggled in production.
+    white_rule = QueueRule(
+        enabled=True,
+        name="White box",
+        item_id=910801,
+        replacement_reward_item_ids=(910801,),
+    )
+    blue_rule = QueueRule(
+        enabled=True,
+        name="Blue box",
+        item_id=920801,
+        replacement_reward_item_ids=(920801,),
+    )
+    config = ProxyConfig(
+        listen_port=8877,
+        only_post=True,
+        require_boxes_marker=True,
+        url_contains=("/backend-function/base/v1",),
+        specific_queue_rules=(white_rule, blue_rule),
+        range_replacement=RangeRule(
+            enabled=False,
+            name="Range replacement",
+            match_min_item_id=500000,
+            match_max_item_id=950000,
+            replacement_reward_item_ids=(),
+        ),
+    )
     rewriter = RewardRewriter(config)
 
-    # Derive expected reward IDs from the loaded config (per-item_id cycling),
-    # so the self-test stays valid when rules are edited on the fly.
-    rules = {
-        r.item_id: r
-        for r in config.specific_queue_rules
-        if r.enabled and r.replacement_reward_item_ids
-    }
+    rules = {r.item_id: r for r in config.specific_queue_rules if r.enabled and r.replacement_reward_item_ids}
 
     def _expected(item_ids: list[int]) -> list[int]:
         idx: dict[int, int] = {}
         out: list[int] = []
         for iid in item_ids:
             rule = rules.get(iid)
-            assert rule is not None, (
-                f"no enabled specific_queue_rule for itemId {iid} in config.json — "
-                "self-test needs White(910801)+Blue(920801) rules enabled"
-            )
+            assert rule is not None, f"no enabled specific_queue_rule for itemId {iid} in fixture config"
             k = idx.get(iid, 0)
             out.append(rule.replacement_reward_item_ids[k % len(rule.replacement_reward_item_ids)])
             idx[iid] = k + 1

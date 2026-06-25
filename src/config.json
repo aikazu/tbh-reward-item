@@ -7,42 +7,56 @@
   ],
   "specific_queue_rules": [
     {
-      "enabled": true,
+      "enabled": false,
       "name": "White box",
       "item_id": 910801,
       "replacement_reward_item_ids": [
-        309171,
-        349171,
-        449171,
-        429171,
-        409171,
-        439171
+        406171
       ]
     },
     {
-      "enabled": true,
+      "enabled": false,
       "name": "Blue box",
       "item_id": 920801,
       "replacement_reward_item_ids": [
-        609171,
-        619171,
-        629171,
-        639171
+        406171
       ]
     }
   ],
   "range_replacement": {
-    "enabled": false,
+    "enabled": true,
     "name": "Range replacement",
     "match_min_item_id": 500000,
     "match_max_item_id": 950000,
     "replacement_reward_item_ids": [
-      529191,
-      419191,
-      409191,
-      619191,
-      429191,
-      509191
+      605041,
+      605041,
+      605041,
+      615041,
+      615041,
+      615041,
+      625041,
+      625041,
+      625041,
+      635041,
+      635041,
+      635041,
+      505041,
+      505041,
+      505041,
+      515041,
+      515041,
+      515041,
+      525041,
+      525041,
+      525041,
+      535041,
+      535041,
+      535041,
+      190002,
+      190003,
+      190004
+      
     ]
   }
 }

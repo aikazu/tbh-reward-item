@@ -33,8 +33,7 @@ Mengintercept response POST ke endpoint tertentu, mengganti reward item sesuai a
 - [Menjalankan Proxy](#menjalankan-proxy)
   - [Reload config](#reload-config)
 - [Aplikasi Desktop](#aplikasi-desktop)
-  - [Instalasi](#desktop-install-id)
-  - [Menjalankan](#desktop-launch-id)
+  - [Instalasi & Menjalankan](#desktop-install-id)
   - [Fitur](#desktop-features-id)
   - [Interaksi Hot-Reload](#desktop-hot-reload-id)
   - [Keterbatasan](#desktop-limitations-id)
@@ -226,26 +225,36 @@ GUI PySide6 opsional yang membungkus `config.json` dan `run_proxy.py` yang sama 
 
 GUI **tidak** menggantikan addon proxy — ia menjalankan `src/run_proxy.py` sebagai subprocess dan me-stream stdout-nya. Aturan hot-reload yang sama tetap berlaku.
 
-### Instalasi <a id="desktop-install-id"></a>
+### Instalasi & Menjalankan <a id="desktop-install-id"></a>
 
 Dependensi desktop sengaja dipisah dari `requirements.txt` (mitmproxy) agar install proxy tetap ringan. Aplikasi desktop butuh: PySide6 (GUI), requests + beautifulsoup4 (scraping wiki), playwright + cloakbrowser (stealth browser untuk gear scrape), pytest-qt (tests).
 
 #### Linux (Arch / CachyOS / distro apapun dengan venv)
 
-**Langkah 1 — Buat virtual environment:**
+**Langkah 1 — Buat virtual environment + install deps:**
 
 ```bash
 cd /path/to/TBH
 python -m venv .venv
-```
-
-**Langkah 2 — Install dependensi desktop:**
-
-```bash
 .venv/bin/pip install -r requirements-desktop.txt
 ```
 
 Ini menginstall PySide6, requests, bs4, pytest-qt, playwright, dan cloakbrowser dalam satu langkah.
+
+**Langkah 2 — Jalankan via script readiness-check (direkomendasikan):**
+
+```bash
+./scripts/launch_desktop.sh          # cek venv, deps, mitmproxy, config — lalu jalankan
+./scripts/launch_desktop.sh --check  # cek saja, tidak menjalankan
+```
+
+Launcher memverifikasi venv, deps, mitmproxy, `config.json`, dan binary CloakBrowser sebelum memulai. Bila ada yang kurang, ia menampilkan command fix yang tepat.
+
+**Atau jalankan manual** (lewati readiness check):
+
+```bash
+.venv/bin/python -m tbh_desktop.main
+```
 
 **Langkah 3 — (Opsional) Install browser engine Playwright untuk fallback:**
 
@@ -257,27 +266,29 @@ CloakBrowser mengunduh binary Chromium stealth-nya sendiri saat first launch (~2
 
 > **Catatan untuk Arch users:** PySide6, python-requests, dan python-beautifulsoup4 juga tersedia via pacman (`sudo pacman -S pyside6 python-requests python-beautifulsoup4`), tapi memakai venv lebih simpel dan menghindari masalah PEP 668. `playwright` dan `cloakbrowser` hanya tersedia via pip — tidak ada paket pacman.
 
-**Langkah 4 — Jalankan:**
-
-```bash
-.venv/bin/python -m tbh_desktop.main
-```
-
 #### Windows
 
-**Langkah 1 — Buat virtual environment:**
+**Langkah 1 — Buat virtual environment + install deps:**
 
 ```bat
 cd C:\path\to\TBH
 python -m venv .venv
+.venv\Scripts\pip install -r requirements-desktop.txt
 ```
 
 > Jika `python` tidak ditemukan, coba `py -3 -m venv .venv` (memakai py launcher).
 
-**Langkah 2 — Install dependensi desktop:**
+**Langkah 2 — Jalankan via script readiness-check (direkomendasikan):**
 
 ```bat
-.venv\Scripts\pip install -r requirements-desktop.txt
+windows\launch_desktop.bat            :: cek + jalankan
+windows\launch_desktop.bat --check   :: cek saja
+```
+
+**Atau jalankan manual:**
+
+```bat
+.venv\Scripts\python -m tbh_desktop.main
 ```
 
 **Langkah 3 — (Opsional) Install browser engine Playwright untuk fallback:**
@@ -287,12 +298,6 @@ python -m venv .venv
 ```
 
 Sama seperti Linux — hanya dibutuhkan untuk fallback stock-Playwright. CloakBrowser mengelola binary-nya sendiri.
-
-**Langkah 4 — Jalankan:**
-
-```bat
-.venv\Scripts\python -m tbh_desktop.main
-```
 
 #### CloakBrowser (mesin stealth scraping)
 
@@ -308,20 +313,6 @@ Keunggulan CloakBrowser dibanding Playwright biasa untuk scraping:
 Bila CloakBrowser tidak terinstall (`pip install cloakbrowser`), scraper otomatis fallback ke stock Playwright `chromium.launch()`. Langkah `playwright install chromium` hanya dibutuhkan untuk fallback tersebut.
 
 Addon proxy (`requirements.txt` / `mitmproxy`) tetap dibutuhkan agar Start/Stop berfungsi — lihat [Instalasi](#instalasi) di atas.
-
-### Menjalankan <a id="desktop-launch-id"></a>
-
-Daripada menjalankan `python -m tbh_desktop.main` manual, pakai launcher readiness-check — mereka memverifikasi venv, dependensi, mitmproxy, config.json, dan binary CloakBrowser sebelum memulai app, dan menampilkan instruksi fix bila ada yang kurang:
-
-```bash
-./scripts/launch_desktop.sh          # Linux: cek + jalankan
-./scripts/launch_desktop.sh --check  # Linux: cek saja, tidak menjalankan
-```
-
-```bat
-windows\launch_desktop.bat            : Windows: cek + jalankan
-windows\launch_desktop.bat --check   : Windows: cek saja, tidak menjalankan
-```
 
 Setelah diluncurkan, main window punya toolbar (Start / Stop / Scrape gear / Save config / port / status dot) dan layout dua panel: editor di kiri, log live di kanan.
 

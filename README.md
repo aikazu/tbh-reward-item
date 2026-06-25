@@ -33,8 +33,7 @@ It intercepts responses to POST requests at specific endpoints, swaps reward ite
 - [Running the Proxy](#running-the-proxy)
   - [Reloading config](#reloading-config)
 - [Desktop App](#desktop-app)
-  - [Install](#desktop-install)
-  - [Launch](#desktop-launch)
+  - [Install & Launch](#desktop-install)
   - [Features](#desktop-features)
   - [Hot-Reload Interaction](#desktop-hot-reload)
   - [Known Limitations](#desktop-limitations)
@@ -228,26 +227,36 @@ An optional PySide6 GUI that wraps the same `config.json` and `run_proxy.py` the
 
 It does **not** replace the proxy addon — the GUI spawns `src/run_proxy.py` as a subprocess and streams its stdout. The same hot-reload rules apply.
 
-### Install <a id="desktop-install"></a>
+### Install & Launch <a id="desktop-install"></a>
 
 Desktop deps are intentionally separate from `requirements.txt` (mitmproxy) so the proxy install stays light. The desktop app needs: PySide6 (GUI), requests + beautifulsoup4 (wiki scraping), playwright + cloakbrowser (stealth browser for gear scrape), pytest-qt (tests).
 
 #### Linux (Arch / CachyOS / any distro with venv)
 
-**Step 1 — Create a virtual environment:**
+**Step 1 — Create a virtual environment + install deps:**
 
 ```bash
 cd /path/to/TBH
 python -m venv .venv
-```
-
-**Step 2 — Install desktop dependencies:**
-
-```bash
 .venv/bin/pip install -r requirements-desktop.txt
 ```
 
 This installs PySide6, requests, bs4, pytest-qt, playwright, and cloakbrowser in one shot.
+
+**Step 2 — Launch via readiness-check script (recommended):**
+
+```bash
+./scripts/launch_desktop.sh          # checks venv, deps, mitmproxy, config — then launches
+./scripts/launch_desktop.sh --check  # checks only, no launch
+```
+
+The launcher verifies venv, deps, mitmproxy, `config.json`, and CloakBrowser binary before starting. If anything is missing, it prints the exact fix command.
+
+**Or launch manually** (skip readiness checks):
+
+```bash
+.venv/bin/python -m tbh_desktop.main
+```
 
 **Step 3 — (Optional) Install Playwright browser engine for fallback:**
 
@@ -259,27 +268,29 @@ CloakBrowser downloads its own stealth Chromium binary on first launch (~200 MB,
 
 > **Note for Arch users:** PySide6, python-requests, and python-beautifulsoup4 are also available via pacman (`sudo pacman -S pyside6 python-requests python-beautifulsoup4`), but using the venv is simpler and avoids PEP 668 issues. `playwright` and `cloakbrowser` are pip-only — no pacman package exists.
 
-**Step 4 — Launch:**
-
-```bash
-.venv/bin/python -m tbh_desktop.main
-```
-
 #### Windows
 
-**Step 1 — Create a virtual environment:**
+**Step 1 — Create a virtual environment + install deps:**
 
 ```bat
 cd C:\path\to\TBH
 python -m venv .venv
+.venv\Scripts\pip install -r requirements-desktop.txt
 ```
 
 > If `python` is not found, try `py -3 -m venv .venv` (uses the py launcher).
 
-**Step 2 — Install desktop dependencies:**
+**Step 2 — Launch via readiness-check script (recommended):**
 
 ```bat
-.venv\Scripts\pip install -r requirements-desktop.txt
+windows\launch_desktop.bat            :: checks + launch
+windows\launch_desktop.bat --check   :: checks only
+```
+
+**Or launch manually:**
+
+```bat
+.venv\Scripts\python -m tbh_desktop.main
 ```
 
 **Step 3 — (Optional) Install Playwright browser engine for fallback:**
@@ -289,12 +300,6 @@ python -m venv .venv
 ```
 
 Same as Linux — only needed for the stock-Playwright fallback. CloakBrowser manages its own binary.
-
-**Step 4 — Launch:**
-
-```bat
-.venv\Scripts\python -m tbh_desktop.main
-```
 
 #### CloakBrowser (stealth scraping engine)
 
@@ -310,20 +315,6 @@ CloakBrowser benefits over stock Playwright for scraping:
 If CloakBrowser is not installed (`pip install cloakbrowser`), the scraper falls back to stock Playwright `chromium.launch()` automatically. The `playwright install chromium` step is only needed in that fallback case.
 
 The proxy addon itself (`requirements.txt` / `mitmproxy`) is still required if you want Start/Stop to work — see [Installation](#installation) above.
-
-### Launch <a id="desktop-launch"></a>
-
-Instead of running `python -m tbh_desktop.main` manually, use the readiness-check launchers — they verify venv, deps, mitmproxy, config.json, and CloakBrowser binary before starting the app, and print fix instructions if anything is missing:
-
-```bash
-./scripts/launch_desktop.sh          # Linux: checks + launch
-./scripts/launch_desktop.sh --check  # Linux: checks only, no launch
-```
-
-```bat
-windows\launch_desktop.bat            : Windows: checks + launch
-windows\launch_desktop.bat --check   : Windows: checks only, no launch
-```
 
 After launch, the main window has a toolbar (Start / Stop / Scrape gear / Save config / port / status dot) and a two-pane layout: editor on the left, live log on the right.
 

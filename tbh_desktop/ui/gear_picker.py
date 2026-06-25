@@ -19,7 +19,6 @@ class GearPicker(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Pick gear")
         self.resize(400, 500)
-        self._all = gear_items
 
         layout = QVBoxLayout(self)
         self.search = QLineEdit()
@@ -38,25 +37,33 @@ class GearPicker(QDialog):
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
 
-        self._populate(gear_items)
+        # Build the list once; _filter toggles item visibility (preserves selection).
+        self._build_all(gear_items)
 
-    def _populate(self, items: list[dict[str, Any]]) -> None:
+    def _build_all(self, items: list[dict[str, Any]]) -> None:
+        """Populate the list widget once. Skip items lacking id or name keys."""
         self.list_widget.clear()
         for item in items:
-            text = f'{item["id"]} · {item["name"]} ({item.get("rarity", "")})'
+            item_id = item.get("id")
+            name = item.get("name")
+            if item_id is None or name is None:
+                continue  # malformed cache entry — skip defensively
+            text = f"{item_id} · {name} ({item.get('rarity', '')})"
             list_item = QListWidgetItem(text)
-            list_item.setData(Qt.ItemDataRole.UserRole, item["id"])
+            list_item.setData(Qt.ItemDataRole.UserRole, item_id)
             self.list_widget.addItem(list_item)
 
     def _filter(self, text: str) -> None:
+        """Toggle item visibility by name/id substring. Empty text shows all."""
         text = text.strip().lower()
-        if not text:
-            self._populate(self._all)
-            return
-        filtered = [
-            i for i in self._all if text in i["name"].lower() or text in str(i["id"])
-        ]
-        self._populate(filtered)
+        for i in range(self.list_widget.count()):
+            list_item = self.list_widget.item(i)
+            item_id = list_item.data(Qt.ItemDataRole.UserRole)
+            # item text is "id · name (rarity)"; match against name and id.
+            label = list_item.text()
+            name = label.split(" · ", 1)[1] if " · " in label else ""
+            match = text in name.lower() or text in str(item_id)
+            list_item.setHidden(not match if text else False)
 
     def selected_ids(self) -> list[int]:
         return [

@@ -37,6 +37,7 @@ Mengintercept response POST ke endpoint tertentu, mengganti reward item sesuai a
 - [Pemecahan Masalah](#pemecahan-masalah)
 - [Peringatan Keamanan](#peringatan-keamanan)
 - [Struktur File](#struktur-file)
+- [Ucapan Terima Kasih](#ucapan-terima-kasih)
 
 ---
 
@@ -434,3 +435,9 @@ TBH/
 Skrip memakai path absolut (`REPO_ROOT` di shell, `%~dp0..` di bat) sehingga jalan dari cwd mana pun. File source (`src/`) saling mereferensikan via `Path(__file__).resolve().parent`, jadi `tbh_reward_hook.py`, `run_proxy.py`, dan `config.json` harus tetap satu direktori.
 
 Cache `tbh_desktop/gear_cache.json` dan `tbh_desktop/box_loot_cache/` pada aplikasi desktop bersifat generated dan masuk `.gitignore` — hapus untuk memaksa re-fetch dari wiki.
+
+---
+
+## Ucapan Terima Kasih
+
+Proyek ini dibangun di atas teknik **Persistent Reward Item Generator** yang diteliti dan dibagikan oleh komunitas UnknownCheats. Thread asli: [TBH - Persistent Reward Item Generator](https://www.unknowncheats.me/forum/other-games/758547-tbh-persistent-reward-item-generator.html).

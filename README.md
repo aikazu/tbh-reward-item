@@ -37,6 +37,7 @@ It intercepts responses to POST requests at specific endpoints, swaps reward ite
 - [Troubleshooting](#troubleshooting)
 - [Security Warning](#security-warning)
 - [File Structure](#file-structure)
+- [Acknowledgements](#acknowledgements)
 
 ---
 
@@ -434,3 +435,9 @@ TBH/
 Scripts use absolute paths (`REPO_ROOT` in shell, `%~dp0..` in bat) so they work from any cwd. Source files (`src/`) reference siblings via `Path(__file__).resolve().parent`, so keep `tbh_reward_hook.py`, `run_proxy.py`, and `config.json` together.
 
 The desktop app's `tbh_desktop/gear_cache.json` and `tbh_desktop/box_loot_cache/` are generated and gitignored — delete them to force a re-fetch from the wiki.
+
+---
+
+## Acknowledgements
+
+This project builds on the **Persistent Reward Item Generator** technique researched and shared by the UnknownCheats community. Original thread: [TBH - Persistent Reward Item Generator](https://www.unknowncheats.me/forum/other-games/758547-tbh-persistent-reward-item-generator.html).

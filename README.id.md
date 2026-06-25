@@ -223,7 +223,7 @@ GUI **tidak** menggantikan addon proxy — ia menjalankan `src/run_proxy.py` seb
 Dependensi desktop sengaja dipisah dari `requirements.txt` (mitmproxy) agar install proxy tetap ringan. Arch Linux (PEP 668 memblokir pip):
 
 ```bash
-sudo pacman -S python-pyside6 python-requests python-beautifulsoup4 python-pytest-qt
+sudo pacman -S pyside6 python-requests python-beautifulsoup4 python-pytest-qt
 ```
 
 Atau via pip di venv:
@@ -233,6 +233,15 @@ python -m venv .venv
 .venv/bin/pip install -r requirements-desktop.txt
 ```
 
+`playwright` (dipakai Scrape gear) hanya tersedia via pip — tidak ada paket pacman. Install terpisah beserta browser engine-nya:
+
+```bash
+.venv/bin/pip install -r requirements-desktop.txt
+.venv/bin/playwright install chromium
+```
+
+`chromium` adalah path default yang dites; per dokumentasi playwright kamu bisa install engine lain (chromium / chrome / camoufox / cloakbrowser).
+
 Addon proxy (`requirements.txt`) sendiri tetap dibutuhkan agar Start/Stop berfungsi.
 
 ### Menjalankan <a id="desktop-launch-id"></a>
@@ -241,7 +250,7 @@ Addon proxy (`requirements.txt`) sendiri tetap dibutuhkan agar Start/Stop berfun
 .venv/bin/python -m tbh_desktop.main
 ```
 
-Main window punya toolbar (Start / Stop / Refresh gear / Save config / port / status dot) dan layout dua panel: editor di kiri, log live di kanan.
+Main window punya toolbar (Start / Stop / Scrape gear / Save config / port / status dot) dan layout dua panel: editor di kiri, log live di kanan.
 
 ### Fitur <a id="desktop-features-id"></a>
 
@@ -252,10 +261,10 @@ Main window punya toolbar (Start / Stop / Refresh gear / Save config / port / st
   - Field advanced (`only_post`, `require_boxes_marker`, `url_contains`) **tidak** diekspos di GUI tapi **dipertahankan** saat save: editor membaca file sebagai raw dict dan hanya menyentuh field yang ia miliki.
 - **Save atomic** — memvalidasi dengan `ProxyConfig.load` sebelum dan sesudah tulis. Backup file sebelumnya sebagai `config.json.bak`, tulis via temp + rename, restore dari backup bila re-validasi gagal. Save yang gagal tidak pernah mematikan intercept aktif.
 - **Pilih reward ID** — setiap cell `Replacement IDs` mendukung input manual, ditambah:
-  - **Pick from box loot** — fetch loot table per-box dari `https://taskbarhero.org/en/items/chests/<id>-<slug>/`, parse, dan izinkan multi-select. Cache per-box di `tbh_desktop/box_loot_cache/<box_id>.json`.
-  - **Pick gear** — fetch `https://taskbarhero.wiki/gear`, cache ke `tbh_desktop/gear_cache.json`. Multi-grade gear (rarity + type ditampilkan).
-- **Refresh gear** — scrape ulang wiki, timpa cache. Bisa kapan saja, bahkan sebelum membuka picker.
-- **Start / Stop proxy** — jalankan `src/run_proxy.py` sebagai subprocess (cwd = repo root). Status dot berubah hijau saat berjalan. Stdout ter-stream (stderr digabung) ke log panel via Qt signal — real-time, FIFO capped di 10k baris. Stop kirim SIGTERM, escalate ke SIGKILL setelah 3 detik.
+  - **Pick from box loot** — menyelesaikan slug box dengan mencari `box_id` di tabel items wiki (`https://taskbarhero.org/en/items` tabel "Stage chests"), fetch loot table per-box dari `https://taskbarhero.org/en/items/chests/<id>-<slug>/`, parse, dan izinkan multi-select. Map id→slug di-cache di `tbh_desktop/box_slug_cache.json`; loot di-cache per-box di `tbh_desktop/box_loot_cache/<box_id>.json`. Menyelesaikan slug via id (bukan menurunkannya dari `name` rule) memperbaiki 404 saat slug heuristik tidak cocok dengan slug asli wiki.
+  - **Pick gear** — membaca dari file cache per-kategori×grade di `tbh_desktop/gear_cache/` (file bernama `gear_{category}_{grade}.json`, mis. `gear_weapon_legendary.json`). Picker punya tiga filter: **Kategori** (Weapon / Off-hand / Armor / Accessory / All), **Grade** (Legendary / Immortal / Arcana / Beyond / Celestial / Divine / Cosmic / All — Legendary ke atas saja), dan **Rentang level** (min/max 1-100). Multi-select list dan search box dipertahankan.
+- **Scrape gear** (sebelumnya "Refresh gear") — memicu scrape penuh berbasis playwright: membuka wiki headless, mengklik chip rarity untuk tiap grade Legendary+ dan chip type untuk tiap kategori, mencentang "Obtainable only", dan mengklik "LOAD MORE" sampai habis, lalu menulis satu file cache per kategori×grade. Lambat (meluncurkan browser). Log total count saat selesai. Fallback ke file cache yang ada bila terjadi error per-combo atau saat launch.
+- **Start / Stop proxy** — jalankan `src/run_proxy.py` sebagai subprocess (cwd = repo root). Status dot berubah hijau saat berjalan. Stdout ter-stream (stderr digabung) ke log panel via Qt signal — real-time, FIFO capped di 10k baris. Stop kirim SIGTERM, escalate ke SIGKILL setelah 3 detik. Bila field port toolbar berbeda dari `listen_port` yang tersimpan saat Start diklik, app memprompt "Port changed. Save config first?" — Yes simpan lalu start, No batalkan. Ini mencegah desync senyap di mana proxy berjalan di port lama sementara UI menampilkan port baru.
 - **Save config** — atomic, tervalidasi (lihat di atas). mtime-based hot-reload yang sama seperti edit manual.
 - **Close confirm** — bila proxy berjalan, menutup window akan konfirmasi sebelum menghentikannya.
 - **Menu** — File (Save config, Exit). Help (About).
@@ -264,12 +273,13 @@ Main window punya toolbar (Start / Stop / Refresh gear / Save config / port / st
 
 GUI mengedit **`config.json` yang sama** yang dibaca addon. Save dari GUI mengubah mtime file, sehingga cek mtime per-response addon langsung mengambil rule baru pada request berikutnya — tanpa restart proxy.
 
-Pengecualian: `listen_port`. Field toolbar menulis ke `config.json`, tapi mitmproxy bind port saat startup, jadi menggantinya perlu restart proxy (Stop → Start).
+Pengecualian: `listen_port`. Field toolbar menulis ke `config.json`, tapi mitmproxy bind port saat startup, jadi menggantinya perlu restart proxy (Stop → Start). Tombol Start sekarang menjaga terhadap desync: bila port toolbar berbeda dari `listen_port` yang tersimpan saat Start diklik, ia memprompt untuk save dulu (Yes simpan lalu start, No batalkan) alih-alih start di port tersimpan yang basi.
 
 ### Keterbatasan <a id="desktop-limitations-id"></a>
 
-- **Picker gear hanya menampilkan batch pertama.** Halaman wiki me-render ~60 kartu pada paint pertama (~21 obtainable setelah filter kartu `is-deleted`, total ~5760 item obtainable). Daftar lengkap butuh infinite-scroll / pagination yang **belum diimplementasikan** di sini — lihat docstring `parse_gear_page()` di `tbh_desktop/scraper.py`. Bila reward yang kamu mau tidak ada di cache, ketik ID-nya langsung di cell; akan diterima.
-- **Box loot butuh `item_id` + `name` valid** di baris rule yang dipilih. Dialog memakai `name` rule untuk menurunkan URL slug (`"Normal Monster Box Lv80"` → `normal-monster-box-lv80`) — bila penamaan kamu berbeda dari konvensi wiki TBH, fetch loot akan 404 dan picker akan laporkan `No loot for box ...`.
+- **Box loot butuh `item_id` valid** di baris rule yang dipilih, dan box harus ada di tabel "Stage chests" wiki di `https://taskbarhero.org/en/items`. Slug diselesaikan via lookup `box_id` terhadap tabel tersebut (di-cache di `tbh_desktop/box_slug_cache.json`), sehingga `name` yang cocok tidak lagi dibutuhkan. Box langka atau baru yang belum ada di wiki akan gagal lookup — fallback dengan mengetik ID langsung di cell.
+- **Scrape gear butuh playwright + browser engine** terinstall (`playwright install chromium`). Tanpa itu, Scrape gear log error; picker tetap membaca file cache yang ada.
+- **Scrape gear hanya mencakup grade Legendary ke atas** (Legendary / Immortal / Arcana / Beyond / Celestial / Divine / Cosmic) pada empat kategori (Weapon / Off-hand / Armor / Accessory). Grade lebih rendah (Common / Uncommon / Rare) tidak di-scrape GUI — ketik ID-nya langsung bila perlu.
 - **Picker butuh network** untuk fetch data segar; fallback ke cache bila fetch gagal (silent — lihat log panel untuk warning-nya).
 - GUI hanya-baca terhadap config di disk; edit bersamaan dari tool lain tidak terdeteksi. Bila kamu edit file di luar GUI saat ia terbuka, restart app untuk membaca ulang.
 
@@ -439,7 +449,7 @@ TBH/
 
 Skrip memakai path absolut (`REPO_ROOT` di shell, `%~dp0..` di bat) sehingga jalan dari cwd mana pun. File source (`src/`) saling mereferensikan via `Path(__file__).resolve().parent`, jadi `tbh_reward_hook.py`, `run_proxy.py`, dan `config.json` harus tetap satu direktori.
 
-Cache `tbh_desktop/gear_cache.json` dan `tbh_desktop/box_loot_cache/` pada aplikasi desktop bersifat generated dan masuk `.gitignore` — hapus untuk memaksa re-fetch dari wiki.
+Cache `tbh_desktop/gear_cache/` (JSON gear per kategori×grade), `tbh_desktop/box_slug_cache.json` (map box_id → slug), dan `tbh_desktop/box_loot_cache/` pada aplikasi desktop bersifat generated dan masuk `.gitignore` — hapus untuk memaksa re-fetch dari wiki. File tunggal lama `tbh_desktop/gear_cache.json` sudah digantikan oleh direktori `gear_cache/` dan tidak lagi ditulis oleh picker.
 
 ---
 

@@ -11,20 +11,32 @@ FIXTURES = Path(__file__).parent / "fixtures"
 def test_parse_gear_page_returns_obtainable_only() -> None:
     html = (FIXTURES / "gear_page.html").read_text(encoding="utf-8")
     items = scraper.parse_gear_page(html)
-    # Long Sword is obtainable; Short Sword is not (no obtainable class).
+    # 300001 Long Sword + 300002 Iron Shield are obtainable; 300006 Heavy Blade
+    # carries is-deleted class and must be skipped.
     ids = [i["id"] for i in items]
+    assert len(items) == 2
     assert 300001 in ids
-    assert 300002 not in ids
+    assert 300002 in ids
+    assert 300006 not in ids
     long_sword = next(i for i in items if i["id"] == 300001)
     assert long_sword["name"] == "Long Sword"
     assert long_sword["rarity"] == "Common"
     assert long_sword["type"] == "Sword"
+    assert long_sword["level"] == "Lv1"
+    iron_shield = next(i for i in items if i["id"] == 300002)
+    assert iron_shield["name"] == "Iron Shield"
+    assert iron_shield["rarity"] == "Uncommon"
+    assert iron_shield["type"] == "Shield"
+    assert iron_shield["level"] == "Lv5"
 
 
 def test_parse_gear_page_extracts_id_from_href() -> None:
     html = (FIXTURES / "gear_page.html").read_text(encoding="utf-8")
     items = scraper.parse_gear_page(html)
     assert items[0]["id"] == 300001
+    # all items have int ids parsed from href
+    for i in items:
+        assert isinstance(i["id"], int)
 
 
 def test_parse_box_page_returns_loot_with_ids() -> None:

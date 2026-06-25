@@ -25,26 +25,48 @@ MATERIAL_IMG_ID_RE = re.compile(r"/Item_(\d+)\.png", re.IGNORECASE)
 def parse_gear_page(html: str) -> list[dict[str, Any]]:
     """Parse gear wiki HTML, return list of obtainable gear dicts.
 
-    Each dict: {id, name, rarity, type}. Only cards marked obtainable are returned.
+    Real structure: each gear card is an <a class="entity-card">. Cards whose
+    class list contains "is-deleted" are no longer obtainable and are skipped.
+    Inside each card:
+      - .entity-card-name  -> name
+      - .entity-card-tag   -> rarity (e.g. "Common")
+      - .entity-card-meta  -> "Lv<level> | <type>" — split on "|" into level/type.
+    ID is extracted from href via ID_RE (e.g. /items/300001-long-sword -> 300001).
+
+    Each dict: {id, name, rarity, type, level}. level is the part before "|" in
+    .entity-card-meta (e.g. "Lv1"); "" if missing.
+
+    Limitation: the live page returns ~60 cards on first paint (~22 obtainable,
+    ~38 is-deleted). The full ~5760-item list requires infinite-scroll / pagination
+    which is NOT implemented here — only the first batch is parsed.
     """
     soup = BeautifulSoup(html, "html.parser")
     items: list[dict[str, Any]] = []
-    for card in soup.select(".gear-card"):
-        if "obtainable" not in card.get("class", []):
+    for card in soup.select("a.entity-card"):
+        if "is-deleted" in card.get("class", []):
             continue
         href = card.get("href", "")
         m = ID_RE.search(href)
         if not m:
             continue
-        name_el = card.select_one(".name")
-        rarity_el = card.select_one(".rarity")
-        type_el = card.select_one(".type")
+        name_el = card.select_one(".entity-card-name")
+        rarity_el = card.select_one(".entity-card-tag")
+        meta_el = card.select_one(".entity-card-meta")
+        meta_text = meta_el.get_text(strip=True) if meta_el else ""
+        if "|" in meta_text:
+            level, gear_type = meta_text.split("|", 1)
+            level = level.strip()
+            gear_type = gear_type.strip()
+        else:
+            level = ""
+            gear_type = meta_text.strip()
         items.append(
             {
                 "id": int(m.group(1)),
                 "name": name_el.get_text(strip=True) if name_el else "",
                 "rarity": rarity_el.get_text(strip=True) if rarity_el else "",
-                "type": type_el.get_text(strip=True) if type_el else "",
+                "type": gear_type,
+                "level": level,
             }
         )
     return items

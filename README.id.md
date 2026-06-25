@@ -222,6 +222,8 @@ Restart proxy hanya perlu untuk mengganti `listen_port` (mitmproxy bind port saa
 
 GUI PySide6 opsional yang membungkus `config.json` dan `run_proxy.py` yang sama dengan CLI. Memungkinkan mengedit rule secara visual, memilih reward ID dari wiki/loot table TBH, dan menjalankan proxy tanpa meninggalkan window.
 
+![Desktop App](desktop-app.webp)
+
 GUI **tidak** menggantikan addon proxy — ia menjalankan `src/run_proxy.py` sebagai subprocess dan me-stream stdout-nya. Aturan hot-reload yang sama tetap berlaku.
 
 ### Instalasi <a id="desktop-install-id"></a>

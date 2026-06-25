@@ -222,6 +222,8 @@ You only need to restart the proxy to change `listen_port` (mitmproxy binds the 
 
 ## Desktop App
 
+![Desktop App](desktop-app.webp)
+
 An optional PySide6 GUI that wraps the same `config.json` and `run_proxy.py` the CLI uses. Lets you edit rules visually, pick reward IDs from the TBH wiki/loot tables, and run the proxy without leaving the window.
 
 It does **not** replace the proxy addon — the GUI spawns `src/run_proxy.py` as a subprocess and streams its stdout. The same hot-reload rules apply.

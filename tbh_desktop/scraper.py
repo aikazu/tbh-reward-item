@@ -20,7 +20,6 @@ GEAR_IMG_ID_RE = re.compile(
     re.IGNORECASE,
 )
 MATERIAL_IMG_ID_RE = re.compile(r"/Item_(\d+)\.png", re.IGNORECASE)
-HREF_ID_RE = re.compile(r"/items/[^/]*?(\d+)-")
 
 
 def parse_gear_page(html: str) -> list[dict[str, Any]]:
@@ -98,7 +97,7 @@ def _extract_item_id(cell: Any) -> int | None:
     # Try href.
     for a in cell.find_all("a"):
         href = a.get("href", "")
-        m = HREF_ID_RE.search(href)
+        m = ID_RE.search(href)
         if m:
             return int(m.group(1))
     return None

@@ -32,7 +32,7 @@
         }
     ],
     "range_replacement": {
-        "enabled": true,
+        "enabled": false,
         "name": "Range replacement",
         "match_min_item_id": 500000,
         "match_max_item_id": 950000,

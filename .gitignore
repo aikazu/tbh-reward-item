@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# mitmproxy CA (never commit private keys / local CA)
+.mitmproxy/
+*.pem
+*.p12
+!mitmproxy-ca-cert.pem.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

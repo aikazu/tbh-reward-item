@@ -38,3 +38,33 @@ def test_parse_box_page_returns_loot_with_ids() -> None:
     helmet = next(l for l in loot if l["id"] == 500017)
     assert helmet["name"] == "Dimensional Helmet"
     assert helmet["rate"] == "7.9%"
+
+
+def test_cache_gear_round_trip(tmp_path: Path) -> None:
+    cache = tmp_path / "gear_cache.json"
+    items = [{"id": 1, "name": "X", "rarity": "Common", "type": "Sword"}]
+    scraper.write_gear_cache(cache, items)
+    loaded = scraper.read_gear_cache(cache)
+    assert loaded == items
+
+
+def test_cache_box_loot_round_trip(tmp_path: Path) -> None:
+    cache_dir = tmp_path / "box_loot_cache"
+    cache_dir.mkdir()
+    loot = [{"id": 500017, "name": "Helmet", "rate": "7.9%"}]
+    scraper.write_box_cache(cache_dir, 910801, loot)
+    loaded = scraper.read_box_cache(cache_dir, 910801)
+    assert loaded == loot
+
+
+def test_read_gear_cache_missing_returns_empty(tmp_path: Path) -> None:
+    assert scraper.read_gear_cache(tmp_path / "nope.json") == []
+
+
+def test_read_box_cache_missing_returns_empty(tmp_path: Path) -> None:
+    assert scraper.read_box_cache(tmp_path / "box_loot_cache", 910801) == []
+
+
+def test_resolve_box_slug_from_name() -> None:
+    # Normal Monster Box Lv80 -> normal-monster-box-lv80
+    assert scraper.resolve_box_slug("Normal Monster Box Lv80") == "normal-monster-box-lv80"

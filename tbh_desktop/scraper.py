@@ -101,3 +101,40 @@ def _extract_item_id(cell: Any) -> int | None:
         if m:
             return int(m.group(1))
     return None
+
+
+def write_gear_cache(path: Path, items: list[dict[str, Any]]) -> None:
+    path.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def read_gear_cache(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+        return data if isinstance(data, list) else []
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def write_box_cache(cache_dir: Path, box_id: int, loot: list[dict[str, Any]]) -> None:
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    (cache_dir / f"{box_id}.json").write_text(
+        json.dumps(loot, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def read_box_cache(cache_dir: Path, box_id: int) -> list[dict[str, Any]]:
+    p = cache_dir / f"{box_id}.json"
+    if not p.exists():
+        return []
+    try:
+        data = json.loads(p.read_text(encoding="utf-8-sig"))
+        return data if isinstance(data, list) else []
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def resolve_box_slug(name: str) -> str:
+    """Convert a box name to URL slug. e.g. 'Normal Monster Box Lv80' -> 'normal-monster-box-lv80'."""
+    return name.strip().lower().replace(" ", "-")

@@ -1,5 +1,11 @@
 # TBH Reward Proxy
 
+> **⚠️ DWYOR — Do With Your Own Risk**
+>
+> Tools ini memodifikasi traffic jaringan game. Penggunaannya dapat melanggar
+> Terms of Service game dan **berisiko akun di-banned**. Pembuat tidak
+> bertanggung jawab atas konsekuensi apa pun. Gunakan dengan risiko sendiri.
+
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![mitmproxy](https://img.shields.io/badge/mitmproxy-12%2B-E66733?logo=mitmproxy&logoColor=white)
 ![PySide6](https://img.shields.io/badge/PySide6-6.6%2B-41CD52?logo=qt&logoColor=white)

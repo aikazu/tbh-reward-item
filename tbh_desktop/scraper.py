@@ -264,6 +264,10 @@ LEGENDARY_UP_GRADES = tuple(GRADE_CHIPS.keys())
 CHIP_SELECTOR = ".gear-chip"
 LOAD_MORE_SELECTOR = "button.border-2.font-dos"
 OBTAINABLE_CHECKBOX_SELECTOR = ".gear-filter-row input[type=checkbox]"
+# The Obtainable-only checkbox is visually overlaid by a
+# <span class="gear-toggle-box"> that intercepts pointer events, so .check()
+# on the input times out. The wrapper span is the real Svelte click target.
+TOGGLE_BOX_SELECTOR = ".gear-toggle-box"
 
 
 def _select_gear_filters(
@@ -286,7 +290,12 @@ def _select_gear_filters(
     # Rarity chip.
     page.locator(CHIP_SELECTOR).filter(has_text=grade_label).click()
     if obtainable_only:
-        page.locator(OBTAINABLE_CHECKBOX_SELECTOR).check()
+        # The checkbox input is overlaid by .gear-toggle-box (intercepts
+        # pointer events); .check() times out. Click the visible wrapper
+        # instead, but only when not already checked (avoid toggling it off).
+        cb = page.locator(OBTAINABLE_CHECKBOX_SELECTOR)
+        if not cb.is_checked():
+            page.locator(TOGGLE_BOX_SELECTOR).click()
 
 
 def scrape_gear_batch(page: Any, max_clicks: int = 50) -> list[dict[str, Any]]:

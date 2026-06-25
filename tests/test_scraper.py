@@ -269,31 +269,47 @@ def test_scrape_gear_batch_parses_cards_and_clicks_load_more() -> None:
     assert click_count["n"] >= 1
 
 
-def test_select_gear_filters_clicks_chips_and_checkbox() -> None:
-    """_select_gear_filters clicks the Type chip, Rarity chip, and checks the
-    Obtainable-only checkbox on the page."""
+def test_select_gear_filters_clicks_chips_and_toggle() -> None:
+    """_select_gear_filters clicks the Type chip, Rarity chip, and toggles the
+    Obtainable-only checkbox via its .gear-toggle-box wrapper.
+
+    The checkbox itself is overlaid by a <span class="gear-toggle-box"> that
+    intercepts pointer events, so .check() on the input times out (30s). The
+    wrapper span is the real Svelte click target — click that instead, and only
+    when the checkbox is not already checked.
+    """
     page = MagicMock(name="page")
-
-    # page.query_selector returns a clickable element per selector text match.
-    def fake_query_selector(selector: str):
-        # The scraper queries chips by visible text; return a mock element.
-        el = MagicMock(name=f"el[{selector}]")
-        el.click = MagicMock(name=f"click[{selector}]")
-        return el
-
-    page.query_selector.side_effect = fake_query_selector
-    # page.locator(...).filter(has_text=...).click() pattern — provide a chain.
     locator = MagicMock(name="locator")
     locator.filter.return_value = locator
-    locator.click = MagicMock(name="locator.click")
-    locator.check = MagicMock(name="locator.check")
+    locator.is_checked.return_value = False
     page.locator.return_value = locator
 
     scraper._select_gear_filters(page, "weapon", "legendary", obtainable_only=True)
 
-    # At least one click happened on a chip; checkbox checked.
+    # chips + the toggle-box wrapper clicked via locator(...).click()
     assert locator.click.called
-    assert locator.check.called
+    # the broken .check() path must NOT be used
+    locator.check.assert_not_called()
+    # is_checked consulted so we don't double-toggle an already-on checkbox
+    assert locator.is_checked.called
+    selectors = [c.args[0] for c in page.locator.call_args_list if c.args]
+    assert ".gear-toggle-box" in selectors
+
+
+def test_select_gear_filters_skips_toggle_when_already_checked() -> None:
+    """If the Obtainable-only checkbox is already checked, do not click the
+    toggle again (would turn it off)."""
+    page = MagicMock(name="page")
+    locator = MagicMock(name="locator")
+    locator.filter.return_value = locator
+    locator.is_checked.return_value = True
+    page.locator.return_value = locator
+
+    scraper._select_gear_filters(page, "weapon", "legendary", obtainable_only=True)
+
+    # only chip clicks (2), no toggle-box click for the checkbox
+    toggle_calls = [c for c in page.locator.call_args_list if c.args and c.args[0] == ".gear-toggle-box"]
+    assert toggle_calls == []
 
 
 def test_refresh_gear_full_writes_per_category_grade(tmp_path: Path) -> None:

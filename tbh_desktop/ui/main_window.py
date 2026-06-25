@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 )
 
 from tbh_desktop import config_io, scraper
+from tbh_desktop.gear_scraper_runner import GearScraperRunner
 from tbh_desktop.paths import BOX_LOOT_CACHE_DIR, CONFIG_PATH, GEAR_CACHE_DIR
 from tbh_desktop.proxy_runner import ProxyRunner
 from tbh_desktop.ui.box_loot_picker import BoxLootPicker
@@ -32,6 +33,12 @@ class MainWindow(QMainWindow):
         self.runner = ProxyRunner()
         self.runner.log_line.connect(self._on_log)
         self.runner.running.connect(self._on_running)
+
+        self.gear_scraper = GearScraperRunner()
+        self.gear_scraper.log_line.connect(self._on_log)
+        self.gear_scraper.finished.connect(self._on_gear_scraped)
+        self.gear_scraper.error.connect(self._on_gear_error)
+        self.gear_scraper.scraping.connect(self._on_gear_scraping)
 
         self.editor = ConfigEditor()
         self.log_panel = LogPanel()
@@ -155,15 +162,24 @@ class MainWindow(QMainWindow):
         )
 
     def _refresh_gear(self) -> None:
-        self._on_log("Scraping gear… (this may take a minute)")
-        try:
-            results = scraper.refresh_gear_full(GEAR_CACHE_DIR)
-            total = sum(len(v) for v in results.values())
-            self._on_log(
-                f"Gear scraped: {total} items across {len(results)} category-grade files."
-            )
-        except Exception as exc:
-            self._on_log(f"Gear scrape FAILED: {exc}")
+        if self.gear_scraper.is_running():
+            self._on_log("Scrape already running…")
+            return
+        self.gear_scraper.start()
+
+    def _on_gear_scraping(self, scraping: bool) -> None:
+        self.btn_refresh_gear.setEnabled(not scraping)
+        if scraping:
+            self._on_log("Scraping gear… (this may take a minute)")
+            self.btn_refresh_gear.setText("Scraping…")
+        else:
+            self.btn_refresh_gear.setText("Scrape gear")
+
+    def _on_gear_scraped(self, total: int, num_files: int) -> None:
+        self._on_log(f"Gear scraped: {total} items across {num_files} category-grade files.")
+
+    def _on_gear_error(self, msg: str) -> None:
+        self._on_log(f"Gear scrape FAILED: {msg}")
 
     def _start(self) -> None:
         saved_port = config_io.load_config(CONFIG_PATH).get("listen_port", 8877)
@@ -217,6 +233,17 @@ class MainWindow(QMainWindow):
             self.editor.add_ids_to_selected_rule(dlg.selected_ids())
 
     def closeEvent(self, event) -> None:  # type: ignore[override]
+        if self.gear_scraper.is_running():
+            reply = QMessageBox.question(
+                self,
+                "Scrape in progress?",
+                "Gear scrape is running. Exit anyway?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                event.ignore()
+                return
         if self.runner.is_running():
             reply = QMessageBox.question(
                 self,

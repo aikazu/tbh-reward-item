@@ -14,7 +14,9 @@ from tbh_desktop.ui.main_window import MainWindow
 def window(qtbot):
     with patch("tbh_desktop.ui.main_window.config_io") as mock_cio, patch(
         "tbh_desktop.ui.main_window.scraper"
-    ), patch("tbh_desktop.ui.main_window.ProxyRunner") as mock_runner_cls:
+    ), patch("tbh_desktop.ui.main_window.ProxyRunner") as mock_runner_cls, patch(
+        "tbh_desktop.ui.main_window.GearScraperRunner"
+    ):
         mock_cio.load_config.return_value = {
             "listen_port": 8877,
             "specific_queue_rules": [],
@@ -75,24 +77,24 @@ def test_start_saves_and_starts_on_yes(window, monkeypatch):
     mock_runner.start.assert_called_once()
 
 
-def test_scrape_gear_button_calls_refresh_gear_full(qtbot):
-    """btn_refresh_gear ('Scrape gear') must call scraper.refresh_gear_full
-    with GEAR_CACHE_DIR and log a progress message.
+def test_scrape_gear_button_starts_scraper_runner(qtbot):
+    """btn_refresh_gear ('Scrape gear') must start the GearScraperRunner
+    (background thread) and log a progress message. The button is disabled
+    while scraping and re-enabled when done.
     """
-    mock_scraper = MagicMock()
-    mock_scraper.refresh_gear_full.return_value = {
-        "weapon_legendary": [{"id": 1}],
-        "offhand_immortal": [{"id": 2}],
-    }
     logs: list[str] = []
     with patch("tbh_desktop.ui.main_window.config_io") as mock_cio, patch(
-        "tbh_desktop.ui.main_window.scraper", mock_scraper
-    ), patch("tbh_desktop.ui.main_window.ProxyRunner"):
+        "tbh_desktop.ui.main_window.scraper"
+    ), patch("tbh_desktop.ui.main_window.ProxyRunner"), patch(
+        "tbh_desktop.ui.main_window.GearScraperRunner"
+    ) as mock_runner_cls:
         mock_cio.load_config.return_value = {
             "listen_port": 8877,
             "specific_queue_rules": [],
             "range_replacement": {},
         }
+        runner = mock_runner_cls.return_value
+        runner.is_running.return_value = False
         w = MainWindow()
         qtbot.addWidget(w)
         monkeypatch = pytest.MonkeyPatch()
@@ -100,12 +102,22 @@ def test_scrape_gear_button_calls_refresh_gear_full(qtbot):
 
         w.btn_refresh_gear.click()
 
-    mock_scraper.refresh_gear_full.assert_called_once()
-    call_args, _ = mock_scraper.refresh_gear_full.call_args
-    assert call_args[0] == GEAR_CACHE_DIR
-    # Button label updated to "Scrape gear".
-    assert w.btn_refresh_gear.text() == "Scrape gear"
-    assert any("Gear scraped" in msg or "scraped" in msg.lower() for msg in logs)
+        # start() called on the runner.
+        runner.start.assert_called_once()
+
+        # Simulate scraping(True) signal: button disabled, text changes.
+        w._on_gear_scraping(True)
+        assert not w.btn_refresh_gear.isEnabled()
+        assert "Scraping" in w.btn_refresh_gear.text()
+
+        # Simulate scraping finished: (total, num_files).
+        w._on_gear_scraping(False)
+        w._on_gear_scraped(42, 7)
+
+        # Button re-enabled, label restored.
+        assert w.btn_refresh_gear.isEnabled()
+        assert w.btn_refresh_gear.text() == "Scrape gear"
+        assert any("Gear scraped" in msg or "scraped" in msg.lower() for msg in logs)
 
 
 def test_pick_gear_uses_cache_dir_picker(qtbot, monkeypatch, tmp_path):
@@ -130,7 +142,9 @@ def test_pick_gear_uses_cache_dir_picker(qtbot, monkeypatch, tmp_path):
 
     with patch("tbh_desktop.ui.main_window.config_io") as mock_cio, patch(
         "tbh_desktop.ui.main_window.scraper"
-    ), patch("tbh_desktop.ui.main_window.ProxyRunner"):
+    ), patch("tbh_desktop.ui.main_window.ProxyRunner"), patch(
+        "tbh_desktop.ui.main_window.GearScraperRunner"
+    ):
         mock_cio.load_config.return_value = {
             "listen_port": 8877,
             "specific_queue_rules": [],
@@ -166,7 +180,9 @@ def test_pick_gear_empty_cache_logs_hint(qtbot, monkeypatch, tmp_path):
     logs: list[str] = []
     with patch("tbh_desktop.ui.main_window.config_io") as mock_cio, patch(
         "tbh_desktop.ui.main_window.scraper"
-    ), patch("tbh_desktop.ui.main_window.ProxyRunner"):
+    ), patch("tbh_desktop.ui.main_window.ProxyRunner"), patch(
+        "tbh_desktop.ui.main_window.GearScraperRunner"
+    ):
         mock_cio.load_config.return_value = {
             "listen_port": 8877,
             "specific_queue_rules": [],

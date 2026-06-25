@@ -257,7 +257,7 @@ CATEGORY_CHIPS = {
 GRADE_CHIPS = {
     "legendary": "Legendary",
     "immortal": "Immortal",
-    "arcana": "Arcane",
+    "arcana": "Arcana",
     "beyond": "Beyond",
     "celestial": "Celestial",
     "divine": "Divine",

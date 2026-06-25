@@ -22,4 +22,10 @@ dont-touch/
 
 # Desktop app generated caches
 tbh_desktop/gear_cache.json
+tbh_desktop/gear_cache/
 tbh_desktop/box_loot_cache/
+tbh_desktop/box_slug_cache.json
+
+# config_io atomic-write artifacts (backup + temp)
+src/config.json.bak
+src/config.json.tmp

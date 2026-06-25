@@ -9,4 +9,5 @@ CONFIG_PATH = SRC_DIR / "config.json"
 RUN_PROXY_PATH = SRC_DIR / "run_proxy.py"
 DESKTOP_DIR = Path(__file__).resolve().parent
 GEAR_CACHE = DESKTOP_DIR / "gear_cache.json"
+GEAR_CACHE_DIR = DESKTOP_DIR / "gear_cache"
 BOX_LOOT_CACHE_DIR = DESKTOP_DIR / "box_loot_cache"

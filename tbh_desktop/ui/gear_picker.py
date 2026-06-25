@@ -1,59 +1,179 @@
-"""Dialog to pick gear reward IDs from cached gear list."""
+"""Dialog to pick gear reward IDs from per-category×grade cache files.
+
+G3: rebuilds the list from ``GEAR_CACHE_DIR/gear_{cat}_{grade}.json`` files
+matching the current Category/Grade/Level-range filters. Search box and
+multi-select behaviour preserved from the original flat-list picker.
+"""
 from __future__ import annotations
 
-from typing import Any
+from pathlib import Path
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QDialogButtonBox,
+    QHBoxLayout,
+    QLabel,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QSpinBox,
     QVBoxLayout,
 )
 
+from tbh_desktop.scraper import read_gear_cache
+
+# Display label -> slug (None means "All"). File names use the slug keys that
+# match scraper.GEAR_CATEGORIES / GRADE_CHIPS.
+_CATEGORY_DISPLAY = {
+    "All": None,
+    "Weapon": "weapon",
+    "Off-hand": "offhand",
+    "Armor": "armor",
+    "Accessory": "accessory",
+}
+_GRADE_DISPLAY = {
+    "All": None,
+    "Legendary": "legendary",
+    "Immortal": "immortal",
+    "Arcana": "arcana",
+    "Beyond": "beyond",
+    "Celestial": "celestial",
+    "Divine": "divine",
+    "Cosmic": "cosmic",
+}
+
 
 class GearPicker(QDialog):
-    def __init__(self, gear_items: list[dict[str, Any]], parent=None) -> None:
+    def __init__(self, cache_dir: Path, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Pick gear")
-        self.resize(400, 500)
+        self.resize(500, 600)
+        self._cache_dir = Path(cache_dir)
 
         layout = QVBoxLayout(self)
+
+        # --- Filter row: Category + Grade ---
+        filter_row = QHBoxLayout()
+        filter_row.addWidget(QLabel("Category:"))
+        self.category = QComboBox()
+        self.category.addItems(_CATEGORY_DISPLAY.keys())
+        self.category.currentTextChanged.connect(self._rebuild)
+        filter_row.addWidget(self.category)
+
+        filter_row.addWidget(QLabel("Grade:"))
+        self.grade = QComboBox()
+        self.grade.addItems(_GRADE_DISPLAY.keys())
+        self.grade.currentTextChanged.connect(self._rebuild)
+        filter_row.addWidget(self.grade)
+        layout.addLayout(filter_row)
+
+        # --- Level range row ---
+        level_row = QHBoxLayout()
+        level_row.addWidget(QLabel("Level:"))
+        self.level_min = QSpinBox()
+        self.level_min.setRange(0, 100)
+        self.level_min.setValue(1)
+        self.level_min.valueChanged.connect(self._rebuild)
+        level_row.addWidget(self.level_min)
+
+        level_row.addWidget(QLabel("-"))
+        self.level_max = QSpinBox()
+        self.level_max.setRange(0, 100)
+        self.level_max.setValue(100)
+        self.level_max.valueChanged.connect(self._rebuild)
+        level_row.addWidget(self.level_max)
+        level_row.addStretch()
+        layout.addLayout(level_row)
+
+        # --- Search box ---
         self.search = QLineEdit()
         self.search.setPlaceholderText("Filter by name or id...")
-        self.search.textChanged.connect(self._filter)
+        self.search.textChanged.connect(self._apply_search)
         layout.addWidget(self.search)
 
+        # --- List ---
         self.list_widget = QListWidget()
         self.list_widget.setSelectionMode(QListWidget.SelectionMode.MultiSelection)
         layout.addWidget(self.list_widget)
 
+        # --- Buttons ---
         buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
         )
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
 
-        # Build the list once; _filter toggles item visibility (preserves selection).
-        self._build_all(gear_items)
+        # Initial population.
+        self._rebuild()
 
-    def _build_all(self, items: list[dict[str, Any]]) -> None:
-        """Populate the list widget once. Skip items lacking id or name keys."""
+    # ------------------------------------------------------------------ filters
+    def _load_items_for_filters(self) -> list[dict]:
+        """Glob cache files matching the current category+grade and merge them,
+        deduping by id. Returns the raw item dicts (before level filtering).
+        """
+        cat_slug = _CATEGORY_DISPLAY[self.category.currentText()]
+        grade_slug = _GRADE_DISPLAY[self.grade.currentText()]
+
+        if cat_slug is None and grade_slug is None:
+            pattern = "gear_*_*.json"
+        elif cat_slug is None:
+            pattern = f"gear_*_{grade_slug}.json"
+        elif grade_slug is None:
+            pattern = f"gear_{cat_slug}_*.json"
+        else:
+            pattern = f"gear_{cat_slug}_{grade_slug}.json"
+
+        seen: set[int] = set()
+        merged: list[dict] = []
+        if not self._cache_dir.exists():
+            return merged
+        for path in sorted(self._cache_dir.glob(pattern)):
+            for item in read_gear_cache(path):
+                item_id = item.get("id")
+                if item_id is None or item_id in seen:
+                    continue
+                seen.add(item_id)
+                merged.append(item)
+        return merged
+
+    def _rebuild(self) -> None:
+        """Populate the list widget from cache files, applying the level range.
+        Search visibility is reapplied afterwards via :meth:`_apply_search`.
+        """
+        lo = self.level_min.value()
+        hi = self.level_max.value()
+
         self.list_widget.clear()
-        for item in items:
-            item_id = item.get("id")
+        for item in self._load_items_for_filters():
             name = item.get("name")
-            if item_id is None or name is None:
-                continue  # malformed cache entry — skip defensively
-            text = f"{item_id} · {name} ({item.get('rarity', '')})"
+            if name is None:
+                continue
+            level = self._parse_level(str(item.get("level", "")))
+            if level < lo or level > hi:
+                continue
+            text = f"{item.get('id')} · {name} ({item.get('rarity', '')})"
             list_item = QListWidgetItem(text)
-            list_item.setData(Qt.ItemDataRole.UserRole, item_id)
+            list_item.setData(Qt.ItemDataRole.UserRole, item.get("id"))
             self.list_widget.addItem(list_item)
+        self._apply_search(self.search.text())
 
-    def _filter(self, text: str) -> None:
+    @staticmethod
+    def _parse_level(meta_level: str) -> int:
+        """Parse ``"Lv65"`` -> 65. Empty/unparseable -> 0 (excluded when min>=1).
+        """
+        s = meta_level.strip()
+        if s.startswith("Lv"):
+            s = s[2:].strip()
+        try:
+            return int(s)
+        except ValueError:
+            return 0
+
+    def _apply_search(self, text: str) -> None:
         """Toggle item visibility by name/id substring. Empty text shows all."""
         text = text.strip().lower()
         for i in range(self.list_widget.count()):
@@ -67,5 +187,6 @@ class GearPicker(QDialog):
 
     def selected_ids(self) -> list[int]:
         return [
-            item.data(Qt.ItemDataRole.UserRole) for item in self.list_widget.selectedItems()
+            item.data(Qt.ItemDataRole.UserRole)
+            for item in self.list_widget.selectedItems()
         ]

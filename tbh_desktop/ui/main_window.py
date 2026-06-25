@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 )
 
 from tbh_desktop import config_io, scraper
-from tbh_desktop.paths import BOX_LOOT_CACHE_DIR, CONFIG_PATH, GEAR_CACHE
+from tbh_desktop.paths import BOX_LOOT_CACHE_DIR, CONFIG_PATH, GEAR_CACHE_DIR
 from tbh_desktop.proxy_runner import ProxyRunner
 from tbh_desktop.ui.box_loot_picker import BoxLootPicker
 from tbh_desktop.ui.config_editor import ConfigEditor
@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
         bar = self.addToolBar("main")
         self.btn_start = QPushButton("Start")
         self.btn_stop = QPushButton("Stop")
-        self.btn_refresh_gear = QPushButton("Refresh gear")
+        self.btn_refresh_gear = QPushButton("Scrape gear")
         self.btn_save = QPushButton("Save config")
         self.port_edit = QLineEdit()
         self.port_edit.setFixedWidth(70)
@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
         ):
             bar.addWidget(w)
 
-        self.btn_start.clicked.connect(self.runner.start)
+        self.btn_start.clicked.connect(self._start)
         self.btn_stop.clicked.connect(self.runner.stop)
         self.btn_refresh_gear.clicked.connect(self._refresh_gear)
         self.btn_save.clicked.connect(self._save)
@@ -124,8 +124,29 @@ class MainWindow(QMainWindow):
         )
 
     def _refresh_gear(self) -> None:
-        items = scraper.refresh_gear(GEAR_CACHE)
-        self._on_log(f"Gear refreshed: {len(items)} items")
+        try:
+            results = scraper.refresh_gear_full(GEAR_CACHE_DIR)
+            total = sum(len(v) for v in results.values())
+            self._on_log(
+                f"Gear scraped: {total} items across {len(results)} category-grade files."
+            )
+        except Exception as exc:
+            self._on_log(f"Gear scrape FAILED: {exc}")
+
+    def _start(self) -> None:
+        saved_port = config_io.load_config(CONFIG_PATH).get("listen_port", 8877)
+        if self._parse_port() != saved_port:
+            reply = QMessageBox.question(
+                self,
+                "Unsaved port",
+                "Port changed. Save config first?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+            self._save()
+        self.runner.start()
 
     def _save(self) -> None:
         data = self.editor.dump()
@@ -143,11 +164,10 @@ class MainWindow(QMainWindow):
             return 8877
 
     def _pick_gear(self, add_callback) -> None:
-        items = scraper.read_gear_cache(GEAR_CACHE)
-        if not items:
-            self._on_log("No gear cache. Click 'Refresh gear' first.")
+        if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("gear_*.json")):
+            self._on_log("No gear cache. Click 'Scrape gear' first.")
             return
-        dlg = GearPicker(items, self)
+        dlg = GearPicker(GEAR_CACHE_DIR, self)
         if dlg.exec():
             add_callback(dlg.selected_ids())
 
@@ -156,13 +176,9 @@ class MainWindow(QMainWindow):
         if box_id is None:
             self._on_log("Select a rule row with a valid item_id first.")
             return
-        row = self.editor.rules_table.currentRow()
-        name_item = self.editor.rules_table.item(row, 1) if row >= 0 else None
-        name = name_item.text() if name_item is not None else ""
-        slug = scraper.resolve_box_slug(name) if name else str(box_id)
-        loot = scraper.refresh_box_loot(BOX_LOOT_CACHE_DIR, box_id, slug)
+        loot = scraper.refresh_box_loot(BOX_LOOT_CACHE_DIR, box_id)
         if not loot:
-            self._on_log(f"No loot for box {box_id} (slug={slug}). Check box_id/name.")
+            self._on_log(f"No loot for box {box_id}. Check box_id / wiki items page.")
             return
         dlg = BoxLootPicker(box_id, loot, self)
         if dlg.exec():

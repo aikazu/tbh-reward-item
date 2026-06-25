@@ -2,8 +2,8 @@
 """Read-only log viewer with FIFO cap."""
 from __future__ import annotations
 
-from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QFileDialog, QPlainTextEdit
+from PySide6.QtGui import QAction, QContextMenuEvent
+from PySide6.QtWidgets import QFileDialog, QMessageBox, QPlainTextEdit
 
 
 class LogPanel(QPlainTextEdit):
@@ -24,7 +24,7 @@ class LogPanel(QPlainTextEdit):
         self.appendPlainText(line)
         self.ensureCursorVisible()
 
-    def contextMenuEvent(self, event) -> None:  # type: ignore[override]
+    def contextMenuEvent(self, event: QContextMenuEvent) -> None:
         menu = self.createStandardContextMenu()
         menu.addSeparator()
 
@@ -51,6 +51,4 @@ class LogPanel(QPlainTextEdit):
             with open(path, "w", encoding="utf-8") as f:
                 f.write(self.toPlainText())
         except OSError as exc:
-            from PySide6.QtWidgets import QMessageBox
-
             QMessageBox.critical(self, "Save failed", f"Could not write to {path}:\n{exc}")

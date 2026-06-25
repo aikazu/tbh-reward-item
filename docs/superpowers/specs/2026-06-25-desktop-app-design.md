@@ -40,14 +40,15 @@ App ditempatkan di root repo (`tbh_desktop/`), import `src.tbh_reward_hook` via 
 ## Components
 
 ### config_io
-- Load `src/config.json` via `ProxyConfig.load()` dari `tbh_reward_hook`.
-- Save: serialize kembali ke JSON, preserve key order + formatting (4-space indent) sesuai file existing. Tulis atomic (write temp + rename) supaya proxy hot-reload (mtime check di hook) gak baca file setengah tulis.
-- Fallback: config invalid → pakai `_empty_config()`, tampilkan warning.
+- Load `src/config.json` sebagai **raw dict** (bukan via `ProxyConfig`) supaya semua field termasuk advanced (`only_post`, `require_boxes_marker`, `url_contains`) terjaga. `ProxyConfig.load()` hanya dipakai untuk validasi (raise kalau invalid).
+- Editor bekerja pada raw dict — edit key yang diekspos (rules, port, range), preserve sisanya.
+- Save: backup `config.json` → `config.json.bak`, tulis raw dict ke temp file + atomic rename (supaya proxy hot-reload mtime check gak baca setengah tulis), validasi load ulang via `ProxyConfig.load()`. Kalau validasi gagal → restore dari `.bak`, error dialog.
+- Fallback: config invalid saat load awal → pakai `_empty_config()` untuk default editor, tampilkan warning, tapi tetap simpan raw dict yang ada (jangan overwrite field valid yang tersisa).
 
 ### gear_scraper
 - **Gear source**: fetch `https://taskbarhero.wiki/gear` via `requests` (sudah available via mitmproxy dep).
   - Filter gear obtainable only. Wiki punya toggle "Obtainable only" yang di-render sebagai class/atribut HTML pada item card — scraper select item card yang ber-mark obtainable (verifikasi selector saat implementasi, fallback: fetch via toggle URL param kalau ada).
-  - Extract per item: `(id, name, rarity, type, level)`. Gear wiki menyatukan multi-grade jadi satu entry per nama item (semua tier/level digabung) — ini yang dipakai replacement gear.
+  - Extract per item: `(id, name, rarity, type, level)`. Catatan: wiki gear mungkin punya multi-grade (tier/level berbeda untuk nama item sama) — verifikasi saat implementasi apakah perlu dedup per nama atau biarkan per-ID. Picker tampilkan ID unik.
   - Cache ke `gear_cache.json` dengan timestamp.
 - **Box loot source**: fetch `https://taskbarhero.org/en/items/chests/<item_id>-<slug>/` per box ID (slug di-resolve via search/redirect, atau pattern dari box name). HTML static, parse section "Loot table": `(name, rate)` + ID dari link href `/en/items/.../<id>-<slug>/` atau asset image `Item_<id>.png` / `<SLOT>_<id>.png` (gear dalam loot pakai gear ID, link ke gear page).
   - Cache per box ke `box_loot_cache/<box_id>.json` dengan timestamp. Reuse kalau box sama.
@@ -71,10 +72,10 @@ App ditempatkan di root repo (`tbh_desktop/`), import `src.tbh_reward_hook` via 
 ### config_editor
 - Port field (`listen_port`) di toolbar (bukan di editor — satu field).
 - Section "Specific Queue Rules": `QTableWidget` kolom [enabled (checkbox), name, item_id, replacement IDs (comma-join)]. Tombol [Add rule] [Remove rule] [Pick from box loot] [Pick gear]. "Pick from box loot" pakai `item_id` row terpilih sebagai box ID → fetch loot table box itu.
-- Section "Range Replacement": checkbox enabled, field min_item_id, max_item_id, replacement IDs, [Pick gear] [Pick material manual]. Range bebas: tombol [Pick gear] buka gear_picker; ID lain diketik manual (gak terikat box).
+- Section "Range Replacement": checkbox enabled, field min_item_id, max_item_id, replacement IDs, [Pick gear]. Range bebas: tombol [Pick gear] buka gear_picker; ID lain diketik manual di cell (gak terikat box).
 - "Pick from box loot" → buka `box_loot_picker` (item akurat dari box terpilih). "Pick gear" → buka `gear_picker` (multi-grade wiki). Kembalikan list ID, tambah ke cell terpilih (merge, bukan overwrite).
-- Advanced field (`only_post`, `require_boxes_marker`, `url_contains`) gak diekspos editor — tetap di config, app preserve saat save. Catatan: kalau user mau edit, langsung edit `config.json` (didokumentasikan di README).
-- Save: validasi via `run_self_test` fixture? Tidak — self-test pakai fixture sendiri. Validasi: load ulang config setelah save, kalau `ProxyConfig.load()` raise → error dialog, jangan overwrite backup.
+- Advanced field (`only_post`, `require_boxes_marker`, `url_contains`) gak diekspos editor — tetap di raw dict (lihat config_io), app preserve saat save. Catatan: kalau user mau edit, langsung edit `config.json` (didokumentasikan di README).
+- Save: lihat config_io — backup `.bak`, atomic write, validasi via `ProxyConfig.load()`, restore kalau gagal.
 
 ### gear_picker
 - `QDialog` modal. Search box (filter name/id realtime) + `QListWidget` multi-select dengan icon gear.
@@ -103,7 +104,7 @@ config.json --load--> config_editor --save--> config.json (atomic write)
      [Pick gear]          --> gear_picker     --> gear_cache.json              (multi-grade)
    range_replacement:
      [Pick gear]          --> gear_picker
-     [manual type]        --> ketik ID bebas di cell                            (bebas)
+     [manual type]        --> ketik ID bebas di cell                            (bebas, gak terikat box)
                           |
                    [Start] --> proxy_runner --> run_proxy.py
                                  | stdout (QIODevice)
@@ -143,4 +144,5 @@ Hot-reload: proxy hook cek mtime `config.json` tiap request + SIGHUP. Save dari 
 
 - **Wiki JS-rendered**: `requests.get` mungkin dapat HTML tanpa list gear (rendered client-side). Verifikasi pertama: fetch wiki, cek apakah list gear ada di HTML static. Kalau tidak, opsi: (a) pakai mitmproxy headless yang sudah jalan untuk fetch, (b) cari endpoint JSON API wiki, (c) user import manual. Decide saat implementasi `gear_scraper`.
 - **Box page slug resolution**: URL butuh slug (`910801-normal-monster-box-lv80`). Slug bisa di-resolve via: (a) search endpoint wiki, (b) redirect dari URL tanpa slug, (c) pattern dari box name di config. Verifikasi saat implementasi. Page box HTML static (verified via fetch), scrape rendah risiko.
+- **Gear wiki multi-grade**: wiki gear mungkin list multi-grade (tier/level beda, nama sama) sebagai entry terpisah atau satu. Verifikasi struktur saat implementasi — tentukan dedup strategy. Gak blocking, picker tetap jalan per-ID.
 - **PySide6 dep size**: ~50MB. Tambah ke `requirements.txt` terpisah `requirements-desktop.txt` supaya install proxy gak berat.

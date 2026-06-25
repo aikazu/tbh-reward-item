@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import logging
 import re
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +15,12 @@ log = logging.getLogger(__name__)
 GEAR_URL = "https://taskbarhero.wiki/gear"
 BOX_URL_TEMPLATE = "https://taskbarhero.org/en/items/chests/{box_id}-{slug}/"
 ID_RE = re.compile(r"/items/[^/]*?(\d+)-")
+GEAR_IMG_ID_RE = re.compile(
+    r"/(?:HELMET|ARMOR|GLOVES|BOOTS|SWORD|BOW|STAFF|SCEPTER|CROSSBOW|AXE|SHIELD|OFFHAND)_(\d+)\.png",
+    re.IGNORECASE,
+)
+MATERIAL_IMG_ID_RE = re.compile(r"/Item_(\d+)\.png", re.IGNORECASE)
+HREF_ID_RE = re.compile(r"/items/[^/]*?(\d+)-")
 
 
 def parse_gear_page(html: str) -> list[dict[str, Any]]:
@@ -44,3 +49,56 @@ def parse_gear_page(html: str) -> list[dict[str, Any]]:
             }
         )
     return items
+
+
+def parse_box_page(html: str) -> list[dict[str, Any]]:
+    """Parse box page HTML, return loot table items.
+
+    Each dict: {id, name, rate}. ID extracted from gear image path, material image
+    path, or href. Only rows inside the 'Loot table' section are returned.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    loot: list[dict[str, Any]] = []
+    # Find the Loot table heading, then the next table after it.
+    loot_heading = soup.find(
+        lambda tag: tag.name in ("h2", "h3")
+        and "loot table" in tag.get_text(strip=True).lower()
+    )
+    table = (
+        loot_heading.find_next("table")
+        if loot_heading is not None
+        else soup.find("table")
+    )
+    if table is None:
+        return loot
+    for row in table.select("tbody > tr"):
+        cells = row.find_all("td")
+        if len(cells) < 2:
+            continue  # header row (th cells)
+        name_cell = cells[0]
+        rate = cells[1].get_text(strip=True)
+        name = name_cell.get_text(strip=True)
+        item_id = _extract_item_id(name_cell)
+        if item_id is None:
+            continue
+        loot.append({"id": item_id, "name": name, "rate": rate})
+    return loot
+
+
+def _extract_item_id(cell: Any) -> int | None:
+    # Try gear image path.
+    for img in cell.find_all("img"):
+        src = img.get("src", "")
+        m = GEAR_IMG_ID_RE.search(src)
+        if m:
+            return int(m.group(1))
+        m = MATERIAL_IMG_ID_RE.search(src)
+        if m:
+            return int(m.group(1))
+    # Try href.
+    for a in cell.find_all("a"):
+        href = a.get("href", "")
+        m = HREF_ID_RE.search(href)
+        if m:
+            return int(m.group(1))
+    return None

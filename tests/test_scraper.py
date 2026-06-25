@@ -68,3 +68,38 @@ def test_read_box_cache_missing_returns_empty(tmp_path: Path) -> None:
 def test_resolve_box_slug_from_name() -> None:
     # Normal Monster Box Lv80 -> normal-monster-box-lv80
     assert scraper.resolve_box_slug("Normal Monster Box Lv80") == "normal-monster-box-lv80"
+
+
+from unittest.mock import patch
+
+
+def test_refresh_gear_fetches_parses_caches(tmp_path: Path) -> None:
+    cache = tmp_path / "gear_cache.json"
+    html = (FIXTURES / "gear_page.html").read_text(encoding="utf-8")
+    with patch("tbh_desktop.scraper.requests.get") as mock_get:
+        mock_get.return_value.text = html
+        mock_get.return_value.raise_for_status = lambda: None
+        items = scraper.refresh_gear(cache)
+    assert 300001 in [i["id"] for i in items]
+    # cache written
+    assert scraper.read_gear_cache(cache) == items
+
+
+def test_refresh_gear_falls_back_to_cache_on_error(tmp_path: Path) -> None:
+    cache = tmp_path / "gear_cache.json"
+    cached = [{"id": 99, "name": "Cached", "rarity": "Common", "type": "Sword"}]
+    scraper.write_gear_cache(cache, cached)
+    with patch("tbh_desktop.scraper.requests.get", side_effect=Exception("network")):
+        items = scraper.refresh_gear(cache)
+    assert items == cached
+
+
+def test_refresh_box_loot_fetches_parses_caches(tmp_path: Path) -> None:
+    cache_dir = tmp_path / "box_loot_cache"
+    html = (FIXTURES / "box_page.html").read_text(encoding="utf-8")
+    with patch("tbh_desktop.scraper.requests.get") as mock_get:
+        mock_get.return_value.text = html
+        mock_get.return_value.raise_for_status = lambda: None
+        loot = scraper.refresh_box_loot(cache_dir, 910801, "normal-monster-box-lv80")
+    assert 500017 in [l["id"] for l in loot]
+    assert scraper.read_box_cache(cache_dir, 910801) == loot

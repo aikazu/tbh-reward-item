@@ -138,3 +138,30 @@ def read_box_cache(cache_dir: Path, box_id: int) -> list[dict[str, Any]]:
 def resolve_box_slug(name: str) -> str:
     """Convert a box name to URL slug. e.g. 'Normal Monster Box Lv80' -> 'normal-monster-box-lv80'."""
     return name.strip().lower().replace(" ", "-")
+
+
+def refresh_gear(cache_path: Path) -> list[dict[str, Any]]:
+    """Fetch gear wiki, parse, cache. Fall back to existing cache on error."""
+    try:
+        resp = requests.get(GEAR_URL, timeout=30)
+        resp.raise_for_status()
+        items = parse_gear_page(resp.text)
+        write_gear_cache(cache_path, items)
+        return items
+    except Exception as exc:
+        log.warning("gear refresh failed: %s", exc)
+        return read_gear_cache(cache_path)
+
+
+def refresh_box_loot(cache_dir: Path, box_id: int, slug: str) -> list[dict[str, Any]]:
+    """Fetch box page, parse loot, cache. Fall back to existing cache on error."""
+    try:
+        url = BOX_URL_TEMPLATE.format(box_id=box_id, slug=slug)
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        loot = parse_box_page(resp.text)
+        write_box_cache(cache_dir, box_id, loot)
+        return loot
+    except Exception as exc:
+        log.warning("box %s refresh failed: %s", box_id, exc)
+        return read_box_cache(cache_dir, box_id)

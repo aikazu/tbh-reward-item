@@ -62,6 +62,7 @@ Mengintercept response POST ke endpoint tertentu, mengganti reward item sesuai a
 | `install_requirements.sh` / `.bat` | Install dependensi (`mitmproxy`). |
 | `self_test.sh` / `.bat` | Jalankan tes rewrite offline (tanpa proxy berjalan). |
 | `install_cert.sh` | Install CA mitmproxy ke system trust store (Linux). |
+| `windows/install_cert.bat` | Install CA mitmproxy ke Windows Trusted Root store (auto-elevate ke admin). |
 | `remove_cert.sh` | Hapus CA mitmproxy dari system trust store (Linux). |
 | `requirements.txt` | Dependensi: `mitmproxy`. |
 | `requirements-desktop.txt` | Dep opsional desktop: `PySide6`, `requests`, `beautifulsoup4`, `pytest-qt`. |
@@ -402,26 +403,43 @@ Install:
 ./scripts/install_cert.sh
 ```
 
-Skrip auto-re-exec sudo, memakai `trust anchor --store` + `update-ca-trust extract`. Verifikasi:
+Script auto re-exec via sudo, pakai `trust anchor --store` + `update-ca-trust extract`. Verifikasi:
 
 ```bash
 trust list | grep -i mitmproxy
 ```
 
-Hapus (bila tidak intercept lagi):
+Hapus (setelah selesai intercept):
 
 ```bash
 ./scripts/remove_cert.sh
 ```
 
+### Windows (system trust)
+
+Install (auto-elevate ke admin via prompt UAC):
+
+```bat
+windows\install_cert.bat
+```
+
+Pakai `certutil -addstore -f "Root"` untuk menambah cert (default: `%USERPROFILE%\.mitmproxy\mitmproxy-ca-cert.cer`) ke store Trusted Root Certification Authorities. Override path cert via env var `MITMPROXY_CA_CERT`. Verifikasi:
+
+```bat
+certutil -store Root | findstr /i mitmproxy
+```
+
+Kalau PowerShell tidak tersedia dan script belum elevated, script akan print instruksi untuk klik kanan → "Run as administrator".
+
+> Catatan: belum ada `windows\remove_cert.bat` — untuk hapus, buka `certmgr.msc` → Trusted Root Certification Authorities → Certificates → cari `mitmproxy` → Delete.
+
 ### Firefox
 
-Firefox punya store sendiri, tidak baca system trust.
+Firefox punya store sendiri dan tidak baca system trust.
 
 1. `about:preferences#privacy`
 2. Certificates → View Certificates → tab **Authorities**
-3. Import → `~/.mitmproxy/mitmproxy-ca-cert.pem`
-4. Centang "Trust this CA to identify websites" → OK
+3. Import → `%USERPROFILE%\.mitmproxy\mitmproxy-ca-cert.cer`
 
 ### Chromium / Chrome
 

@@ -62,6 +62,7 @@ It intercepts responses to POST requests at specific endpoints, swaps reward ite
 | `install_requirements.sh` / `.bat` | Install dependencies (`mitmproxy`). |
 | `self_test.sh` / `.bat` | Run offline rewrite tests (without proxy running). |
 | `install_cert.sh` | Install mitmproxy CA into system trust store (Linux). |
+| `windows/install_cert.bat` | Install mitmproxy CA into Windows Trusted Root store (auto-elevates to admin). |
 | `remove_cert.sh` | Remove mitmproxy CA from system trust store (Linux). |
 | `scripts/launch_desktop.sh` | Readiness-check launcher for the desktop app (Linux). |
 | `windows/launch_desktop.bat` | Readiness-check launcher for the desktop app (Windows). |
@@ -415,6 +416,24 @@ Remove (when no longer intercepting):
 ```bash
 ./scripts/remove_cert.sh
 ```
+
+### Windows (system trust)
+
+Install (auto-elevates to admin via UAC prompt):
+
+```bat
+windows\install_cert.bat
+```
+
+Uses `certutil -addstore -f "Root"` to add the cert (default: `%USERPROFILE%\.mitmproxy\mitmproxy-ca-cert.cer`) to the Trusted Root Certification Authorities store. Override the cert path via `MITMPROXY_CA_CERT` env var. Verify:
+
+```bat
+certutil -store Root | findstr /i mitmproxy
+```
+
+If PowerShell is unavailable and the script is not already elevated, it will print instructions to right-click → "Run as administrator".
+
+> Note: there is no `windows\remove_cert.bat` yet — to remove, open `certmgr.msc` → Trusted Root Certification Authorities → Certificates → locate `mitmproxy` → Delete.
 
 ### Firefox
 

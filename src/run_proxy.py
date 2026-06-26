@@ -44,7 +44,7 @@ def _install_signal_handlers(proc: subprocess.Popen) -> None:
     # runs and mitmdump is left orphaned holding the port. Convert SIGTERM
     # and SIGINT into a clean KeyboardInterrupt-style exit instead.
     def _handler(*_args: object) -> None:
-        signum = _args[0] if _args else signal.SIGTERM
+        signum = int(_args[0]) if _args else int(signal.SIGTERM)
         _terminate(proc)
         # Restore default so a second signal still hard-kills if cleanup hangs.
         signal.signal(signum, signal.SIG_DFL)

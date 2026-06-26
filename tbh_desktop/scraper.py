@@ -329,6 +329,63 @@ OBTAINABLE_CHECKBOX_SELECTOR = ".gear-filter-row input[type=checkbox]"
 TOGGLE_BOX_SELECTOR = ".gear-toggle-box"
 
 
+def _strip_overlay_iframes(page: Any) -> None:
+    """Remove any <iframe> covering the page so subsequent clicks don't hit
+    a pointer_events check failure. Cloudflare / ad iframes occasionally
+    overlay the wiki on cold scrapes. Safe no-op when no iframes are present.
+    """
+    page.evaluate(
+        """() => {
+            for (const f of document.querySelectorAll('iframe')) {
+                try { f.remove(); } catch (e) {}
+            }
+        }"""
+    )
+
+
+def _cache_path(out_dir: Path, cat: str, grade: str) -> Path:
+    """Per-combo cache file path. Module-level so _scrape_one_combo can reuse it."""
+    return out_dir / f"gear_{cat}_{grade}.json"
+
+
+def _force_click(page: Any, selector: str, *, has_text: str | None = None) -> None:
+    """Click via JS dispatchEvent('click') so we bypass Playwright's
+    pointer_events visibility check. Used as a fallback when the normal
+    locator-based click fails because an iframe / overlay covers the target.
+
+    For text-matched chips, we resolve the matching element with a JS query
+    (instead of locator.has_text which isn't supported in dispatchEvent land)
+    and call .click() on it — Playwright still dispatches a real mouse event
+    when you call .click() on a Locator, so the wiki's Svelte handlers fire.
+    """
+    if has_text is not None:
+        # JS: find first element matching selector whose text contains has_text,
+        # then dispatch a click. We use 'mousedown' + 'mouseup' + 'click' to
+        # cover libs that listen for any of those.
+        page.evaluate(
+            """([sel, txt]) => {
+                const all = Array.from(document.querySelectorAll(sel));
+                const el = all.find(e => (e.textContent || '').trim().includes(txt));
+                if (!el) throw new Error('no match for ' + sel + ' with text ' + txt);
+                ['mousedown', 'mouseup', 'click'].forEach(ev =>
+                    el.dispatchEvent(new MouseEvent(ev, {bubbles: true, cancelable: true, view: window}))
+                );
+            }""",
+            [selector, has_text],
+        )
+    else:
+        page.evaluate(
+            """(sel) => {
+                const el = document.querySelector(sel);
+                if (!el) throw new Error('no match for ' + sel);
+                ['mousedown', 'mouseup', 'click'].forEach(ev =>
+                    el.dispatchEvent(new MouseEvent(ev, {bubbles: true, cancelable: true, view: window}))
+                );
+            }""",
+            selector,
+        )
+
+
 def _select_gear_filters(
     page: Any,
     category_slug: str,
@@ -339,22 +396,37 @@ def _select_gear_filters(
     on the wiki /gear page before loading more cards.
 
     Uses ``page.locator(...).filter(has_text=label).click()`` so the chip is
-    matched by visible text rather than positional index.
+    matched by visible text rather than positional index. Falls back to a
+    JS-dispatched click via :func:`_force_click` when an iframe overlay blocks
+    the normal click (Playwright raises ``pointer_events`` error).
     """
     category_label = CATEGORY_CHIPS[category_slug]
     grade_label = GRADE_CHIPS[grade_slug]
 
-    # Type chip (weapon/armor/...). The chip text equals the label exactly.
-    page.locator(CHIP_SELECTOR).filter(has_text=category_label).click()
-    # Rarity chip.
-    page.locator(CHIP_SELECTOR).filter(has_text=grade_label).click()
+    def _click_chip(label: str) -> None:
+        try:
+            page.locator(CHIP_SELECTOR).filter(has_text=label).click()
+        except Exception:
+            # Iframe/overlay covered the chip. Strip overlays and retry with
+            # JS-dispatched click — bypasses the pointer_events check.
+            log.info("gear chip click via locator failed (%s); retrying via JS dispatch", label)
+            _strip_overlay_iframes(page)
+            _force_click(page, CHIP_SELECTOR, has_text=label)
+
+    _click_chip(category_label)
+    _click_chip(grade_label)
     if obtainable_only:
         # The checkbox input is overlaid by .gear-toggle-box (intercepts
         # pointer events); .check() times out. Click the visible wrapper
         # instead, but only when not already checked (avoid toggling it off).
         cb = page.locator(OBTAINABLE_CHECKBOX_SELECTOR)
         if not cb.is_checked():
-            page.locator(TOGGLE_BOX_SELECTOR).click()
+            try:
+                page.locator(TOGGLE_BOX_SELECTOR).click()
+            except Exception:
+                log.info("obtainable toggle click via locator failed; retrying via JS dispatch")
+                _strip_overlay_iframes(page)
+                _force_click(page, TOGGLE_BOX_SELECTOR)
 
 
 def scrape_gear_batch(page: Any, max_clicks: int = 50) -> list[dict[str, Any]]:
@@ -391,6 +463,51 @@ def scrape_gear_batch(page: Any, max_clicks: int = 50) -> list[dict[str, Any]]:
     return items
 
 
+def _scrape_one_combo(
+    page: Any,
+    cat: str,
+    grade: str,
+    *,
+    out_dir: Path,
+    cancel_event: threading.Event | None = None,
+) -> list[dict[str, Any]] | None:
+    """Scrape a single (cat, grade) combo with one iframe-strip retry.
+
+    Returns the parsed items list on success. Returns None to signal the caller
+    should fall back to the cache for this combo (logged as warning either way).
+    Most failures are transient iframe overlays; the retry strips them and
+    re-navigates. If the retry also fails, the caller falls back to cache.
+    """
+    cache_path = _cache_path(out_dir, cat, grade)
+    for attempt in (1, 2):
+        if cancel_event is not None and cancel_event.is_set():
+            return None
+        try:
+            page.goto(GEAR_URL)
+            _select_gear_filters(page, cat, grade, obtainable_only=True)
+            items = scrape_gear_batch(page)
+            write_gear_cache(cache_path, items)
+            log.info("gear %s/%s scraped %d items", cat, grade, len(items))
+            return items
+        except Exception as exc:
+            if attempt == 1:
+                # Strip overlay iframes (Cloudflare / ads) and retry. This
+                # fixes the "element is covered by <IFRAME>" pointer_events
+                # failure that fires sporadically on cold scrapes.
+                log.info(
+                    "gear %s/%s attempt 1 failed (%s); stripping iframes and retrying",
+                    cat, grade, exc,
+                )
+                try:
+                    _strip_overlay_iframes(page)
+                except Exception:
+                    pass
+                continue
+            log.warning("gear %s/%s scrape failed: %s", cat, grade, exc)
+            return None
+    return None  # unreachable; loop has 2 iterations max
+
+
 def refresh_gear_full(
     out_dir: Path,
     categories: list[str] | None = None,
@@ -422,11 +539,8 @@ def refresh_gear_full(
 
     result: dict[str, list[dict[str, Any]]] = {}
 
-    def _cache_path(cat: str, grade: str) -> Path:
-        return out_dir / f"gear_{cat}_{grade}.json"
-
     def _fallback(cat: str, grade: str) -> list[dict[str, Any]]:
-        items = read_gear_cache(_cache_path(cat, grade))
+        items = read_gear_cache(_cache_path(out_dir, cat, grade))
         log.warning("gear %s/%s fell back to cache (%d items)", cat, grade, len(items))
         return items
 
@@ -445,16 +559,9 @@ def refresh_gear_full(
                     if cancel_event is not None and cancel_event.is_set():
                         break
                     key = f"{cat}_{grade}"
-                    try:
-                        page.goto(GEAR_URL)
-                        _select_gear_filters(page, cat, grade, obtainable_only=True)
-                        items = scrape_gear_batch(page)
-                        write_gear_cache(_cache_path(cat, grade), items)
+                    items = _scrape_one_combo(page, cat, grade, out_dir=out_dir, cancel_event=cancel_event)
+                    if items is not None:
                         result[key] = items
-                        log.info("gear %s/%s scraped %d items", cat, grade, len(items))
-                    except Exception as exc:
-                        log.warning("gear %s/%s scrape failed: %s", cat, grade, exc)
-                        result[key] = _fallback(cat, grade)
                 if cancel_event is not None and cancel_event.is_set():
                     break
         finally:

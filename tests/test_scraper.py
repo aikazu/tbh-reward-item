@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from tbh_desktop import scraper
 
@@ -436,3 +437,87 @@ def test_refresh_gear_full_falls_back_to_cache_on_error(tmp_path: Path) -> None:
     # existing cache preserved + returned.
     assert scraper.read_gear_cache(out_dir / "gear_weapon_legendary.json") == cached
     assert result["weapon_legendary"] == cached
+
+
+def test_scrape_one_combo_retries_after_iframe_failure(tmp_path: Path) -> None:
+    """When the first attempt fails (simulated iframe overlay on the chip click
+    that the inner _select_gear_filters JS-dispatch fallback can't recover from,
+    or a transient page.goto failure), _scrape_one_combo strips iframes and
+    retries at the per-combo level. Second attempt succeeds and writes the cache."""
+    from unittest.mock import MagicMock
+
+    page = MagicMock(name="page")
+    # Simulate transient failure: first goto raises (e.g. Cloudflare challenge
+    # midway through navigation); second goto succeeds.
+    goto_count = {"n": 0}
+
+    def fake_goto(url: Any) -> None:
+        goto_count["n"] += 1
+        if goto_count["n"] == 1:
+            raise Exception("transient: Cloudflare challenge")
+
+    page.goto.side_effect = fake_goto
+
+    def fake_locator(sel: Any) -> Any:
+        loc = MagicMock()
+        loc.filter.return_value = loc
+        loc.click.return_value = None
+        loc.is_checked.return_value = True
+        return loc
+
+    page.locator.side_effect = fake_locator
+    page.evaluate.return_value = None  # iframe strip is a no-op in mock
+
+    # Don't need real network — make scrape_gear_batch return one fake item.
+    original = scraper.scrape_gear_batch
+    scraper.scrape_gear_batch = lambda page, max_clicks=50: [
+        {"id": 999, "name": "Test", "rarity": "Legendary", "type": "ATK+5", "level": "Lv1",
+         "image": "", "rarity_color": ""},
+    ]
+    try:
+        out_dir = tmp_path / "cache"
+        out_dir.mkdir()
+        result = scraper._scrape_one_combo(
+            page, "weapon", "legendary", out_dir=out_dir
+        )
+        assert result is not None, "should succeed on retry"
+        assert len(result) == 1
+        assert result[0]["id"] == 999
+        # Cache file written
+        cache_file = out_dir / "gear_weapon_legendary.json"
+        assert cache_file.exists()
+        # page.goto called twice (initial + retry)
+        assert goto_count["n"] == 2
+        # page.evaluate called at least once for iframe strip
+        assert page.evaluate.called
+    finally:
+        scraper.scrape_gear_batch = original
+
+
+def test_scrape_one_combo_returns_none_after_two_failures(tmp_path: Path) -> None:
+    """If BOTH attempts fail, returns None so caller can fall back to cache."""
+    from unittest.mock import MagicMock
+
+    page = MagicMock(name="page")
+    page.goto.return_value = None
+
+    def fake_locator(sel: Any) -> Any:
+        loc = MagicMock()
+        loc.filter.return_value = loc
+        loc.click.side_effect = Exception("always fails")
+        loc.is_checked.return_value = True
+        return loc
+
+    page.locator.side_effect = fake_locator
+    page.evaluate.return_value = None
+
+    out_dir = tmp_path / "cache"
+    out_dir.mkdir()
+    result = scraper._scrape_one_combo(
+        page, "weapon", "legendary", out_dir=out_dir
+    )
+    assert result is None
+    # page.goto called exactly twice
+    assert page.goto.call_count == 2
+    # No cache file written
+    assert not (out_dir / "gear_weapon_legendary.json").exists()

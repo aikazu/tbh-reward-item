@@ -5,6 +5,9 @@
     "kind": "material",
     "rarity": "LEGENDARY",
     "family": "OFFERING",
-    "search_text": "160004 Empire 10th Anniversary Coin Material Legendary Offering Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "160004 Empire 10th Anniversary Coin Material Legendary Offering Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Empire 10th Anniversary Coin"
+    }
   }
 ]

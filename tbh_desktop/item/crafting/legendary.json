@@ -5,7 +5,11 @@
     "kind": "material",
     "rarity": "LEGENDARY",
     "family": "CRAFTING",
-    "search_text": "143001 Stardust Ingot Material Legendary Crafting Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "143001 Stardust Ingot Material Legendary Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Stardust Ingot",
+      "crafting": "Crafts that consume Stardust Ingot as a material â including higher-tier recipes the game only reveals once you reach them. Worth a look before you use it up. · Tier 4 | Accessory makes Lv 30â40 gear | 48 possible items Stardust Ingot Jade Stone Amber Gem â Accessory ? Open the crafting station â Tier 6 | Armor makes Lv 50â65 gear | 11 possible items Stardust Ingot â Armor ? Open the crafting station â Tier 6 | Boots makes Lv 50â65 gear | 11 possible items Stardust Ingot â Boots ? Open the crafting station â Tier 6 | Gloves makes Lv 50â65 gear | 11 possible items Stardust Ingot â Gloves ? Open the crafting station â Tier 6 | Helmet makes Lv 50â65 gear | 11 possible items Stardust Ingot â Helmet ? Open the crafting station â Tier 6 | Sub weapon makes Lv 50â65 gear | 66 possible items Stardust Ingot Void Iron â Sub weapon ? Open the crafting station â"
+    }
   },
   {
     "id": 143002,
@@ -13,6 +17,10 @@
     "kind": "material",
     "rarity": "LEGENDARY",
     "family": "CRAFTING",
-    "search_text": "143002 Void Iron Material Legendary Crafting Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "143002 Void Iron Material Legendary Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Void Iron",
+      "crafting": "Crafts that consume Void Iron as a material â including higher-tier recipes the game only reveals once you reach them. Worth a look before you use it up. · Tier 5 | Accessory makes Lv 40 gear | 24 possible items Void Iron Ruby Sapphire â Accessory ? Open the crafting station â Tier 6 | Main weapon makes Lv 50â65 gear | 66 possible items Void Iron â Main weapon ? Open the crafting station â Tier 6 | Sub weapon makes Lv 50â65 gear | 66 possible items Stardust Ingot Void Iron â Sub weapon ? Open the crafting station â"
+    }
   }
 ]

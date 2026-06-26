@@ -3,189 +3,762 @@
     "id": 308141,
     "name": "Vengeance Sword",
     "rarity": "Divine",
-    "type": "ATK +306",
+    "type": "Sword",
     "level": "Lv65",
+    "stat": "ATK +306",
     "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,271",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.57/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+306",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+27.1%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+10%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 308171,
     "name": "Dimensional Sword",
     "rarity": "Divine",
-    "type": "ATK +492",
+    "type": "Sword",
     "level": "Lv80",
+    "stat": "ATK +492",
     "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+2,045",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.57/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+492",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+197.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+11.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 318141,
     "name": "Limitless Bow",
     "rarity": "Divine",
-    "type": "ATK +306",
+    "type": "Bow",
     "level": "Lv65",
+    "stat": "ATK +306",
     "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,273",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+2.35/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+306",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+115%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+3.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 318171,
     "name": "Shadow Bow",
     "rarity": "Divine",
-    "type": "ATK +492",
+    "type": "Bow",
     "level": "Lv80",
+    "stat": "ATK +492",
     "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+2,045",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+2.35/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+492",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+4.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+148.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 328141,
     "name": "Sacred Staff",
     "rarity": "Divine",
-    "type": "ATK +306",
+    "type": "Staff",
     "level": "Lv65",
+    "stat": "ATK +306",
     "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,835",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+306",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+147.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+115%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 328171,
     "name": "Tempest Staff",
     "rarity": "Divine",
-    "type": "CRIT +4.9%",
+    "type": "Staff",
     "level": "Lv80",
+    "stat": "CRIT +4.9%",
     "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+2,954",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+4.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+197.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+148.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 338141,
     "name": "Limitless Scepter",
     "rarity": "Divine",
-    "type": "CDR +10%",
+    "type": "Scepter",
     "level": "Lv65",
+    "stat": "CDR +10%",
     "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,129",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+10%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+306",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+115%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 338171,
     "name": "Dimensional Scepter",
     "rarity": "Divine",
-    "type": "CAST +49.5%",
+    "type": "Scepter",
     "level": "Lv80",
+    "stat": "CAST +49.5%",
     "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,818",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Cast Speed",
+        "value": "+49.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+492",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+148.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 348141,
     "name": "Limitless Crossbow",
     "rarity": "Divine",
-    "type": "CDR +10%",
+    "type": "Crossbow",
     "level": "Lv65",
+    "stat": "CDR +10%",
     "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,836",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+10%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+115%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+306",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 348171,
     "name": "Dimensional Crossbow",
     "rarity": "Divine",
-    "type": "ASPD +34.7%",
+    "type": "Crossbow",
     "level": "Lv80",
+    "stat": "ASPD +34.7%",
     "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+2,955",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+34.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+148.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+4.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 358141,
     "name": "Limitless Axe",
     "rarity": "Divine",
-    "type": "CDR +10%",
+    "type": "Axe",
     "level": "Lv65",
+    "stat": "CDR +10%",
     "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,694",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+10%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+115%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+27.1%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 358171,
     "name": "Dimensional Axe",
     "rarity": "Divine",
-    "type": "ATK +492",
+    "type": "Axe",
     "level": "Lv80",
+    "stat": "ATK +492",
     "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+2,727",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+492",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+4.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+148.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 458141,
     "name": "Limitless Hatchet",
     "rarity": "Divine",
-    "type": "ATK +153",
+    "type": "Hatchet",
     "level": "Lv65",
+    "stat": "ATK +153",
     "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+146.7%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+153",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+39.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+74.3%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 458171,
     "name": "Dimensional Hatchet",
     "rarity": "Divine",
-    "type": "ATK +246",
+    "type": "Hatchet",
     "level": "Lv80",
+    "stat": "ATK +246",
     "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+170.2%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+246",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+49.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+99%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 308111,
     "name": "Fate Sword",
     "rarity": "Divine",
-    "type": "ATK +115.5%",
+    "type": "Sword",
     "level": "Lv50",
+    "stat": "ATK +115.5%",
     "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+844",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.57/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+115.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+22.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+203",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 318111,
     "name": "Mystic Bow",
     "rarity": "Divine",
-    "type": "ASPD +22.3%",
+    "type": "Bow",
     "level": "Lv50",
+    "stat": "ASPD +22.3%",
     "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+846",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+2.35/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+22.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+115.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+93.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 328111,
     "name": "Void Staff",
     "rarity": "Divine",
-    "type": "ATK +203",
+    "type": "Staff",
     "level": "Lv50",
+    "stat": "ATK +203",
     "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,216",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+203",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add HP Per Hit",
+        "value": "+21",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+93.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 338111,
     "name": "Fate Scepter",
     "rarity": "Divine",
-    "type": "CRIT +2.9%",
+    "type": "Scepter",
     "level": "Lv50",
+    "stat": "CRIT +2.9%",
     "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+751",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+2.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+203",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+93.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 348111,
     "name": "Mystic Crossbow",
     "rarity": "Divine",
-    "type": "CDR +8.7%",
+    "type": "Crossbow",
     "level": "Lv50",
+    "stat": "CDR +8.7%",
     "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,218",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+8.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+115.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+22.3%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 358111,
     "name": "Fate Axe",
     "rarity": "Divine",
-    "type": "ASPD +22.3%",
+    "type": "Axe",
     "level": "Lv50",
+    "stat": "ASPD +22.3%",
     "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,124",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.36/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+22.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+115.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+93.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 458111,
     "name": "Mystic Hatchet",
     "rarity": "Divine",
-    "type": "ATK +58.7%",
+    "type": "Hatchet",
     "level": "Lv50",
+    "stat": "ATK +58.7%",
     "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+123.8%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+58.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+33.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+58.7%",
+        "kind": "inherent"
+      }
+    ]
   }
 ]

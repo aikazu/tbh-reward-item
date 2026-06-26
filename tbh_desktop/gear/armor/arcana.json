@@ -3,252 +3,896 @@
     "id": 505041,
     "name": "Knight Helmet",
     "rarity": "Arcana",
-    "type": "HP +34",
+    "type": "Helmet",
     "level": "Lv15",
+    "stat": "HP +34",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500004.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+153",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+34",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+48",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+200",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 505051,
     "name": "Chain Helmet",
     "rarity": "Arcana",
-    "type": "HP +41",
+    "type": "Helmet",
     "level": "Lv20",
+    "stat": "HP +41",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500005.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+160",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+41",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+78",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+270",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 505071,
     "name": "War Helmet",
     "rarity": "Arcana",
-    "type": "HP +59",
+    "type": "Helmet",
     "level": "Lv30",
+    "stat": "HP +59",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500007.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+283",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+59",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+183",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+45.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 505091,
     "name": "Rune Helmet",
     "rarity": "Arcana",
-    "type": "HP +81",
+    "type": "Helmet",
     "level": "Lv40",
+    "stat": "HP +81",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500009.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+414",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+81",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+69.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+348",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 505111,
     "name": "Fate Helmet",
     "rarity": "Arcana",
-    "type": "HP +101",
+    "type": "Helmet",
     "level": "Lv50",
+    "stat": "HP +101",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500011.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+522",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+101",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+3.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+906",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 505141,
     "name": "Fighter's Helmet",
     "rarity": "Arcana",
-    "type": "HP +127",
+    "type": "Helmet",
     "level": "Lv65",
+    "stat": "HP +127",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500014.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+1,069",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+127",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+767",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+118.1%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 505171,
     "name": "Dimensional Helmet",
     "rarity": "Arcana",
-    "type": "HP +168",
+    "type": "Helmet",
     "level": "Lv80",
+    "stat": "HP +168",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500017.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+2,215",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+168",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+1,214",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+1,613",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 515041,
     "name": "Chain Mail",
     "rarity": "Arcana",
-    "type": "HP +44",
+    "type": "Armor",
     "level": "Lv15",
+    "stat": "HP +44",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510004.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+306",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+44",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+350",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+35%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 515051,
     "name": "Knight's Armor",
     "rarity": "Arcana",
-    "type": "HP +56",
+    "type": "Armor",
     "level": "Lv20",
+    "stat": "HP +56",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510005.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+321",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+56",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+465",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+10.2%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 515071,
     "name": "War Armor",
     "rarity": "Arcana",
-    "type": "HP +86",
+    "type": "Armor",
     "level": "Lv30",
+    "stat": "HP +86",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510007.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+564",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+86",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+779",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+77.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 515091,
     "name": "Rune Plate",
     "rarity": "Arcana",
-    "type": "HP +125",
+    "type": "Armor",
     "level": "Lv40",
+    "stat": "HP +125",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510009.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+829",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+125",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+16.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+1,175",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 515111,
     "name": "Mystic Armor",
     "rarity": "Arcana",
-    "type": "HP +159",
+    "type": "Armor",
     "level": "Lv50",
+    "stat": "HP +159",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510011.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+1,042",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+159",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+19.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+152.1%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 515141,
     "name": "Shine Armor",
     "rarity": "Arcana",
-    "type": "HP +204",
+    "type": "Armor",
     "level": "Lv65",
+    "stat": "HP +204",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510014.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+2,139",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+204",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+23.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+197.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 515171,
     "name": "Dimensional Armor",
     "rarity": "Arcana",
-    "type": "HP +274",
+    "type": "Armor",
     "level": "Lv80",
+    "stat": "HP +274",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510017.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+4,429",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+274",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+269.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Damage Reduction",
+        "value": "+1.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 525041,
     "name": "Knight Gloves",
     "rarity": "Arcana",
-    "type": "HP +34",
+    "type": "Gloves",
     "level": "Lv15",
+    "stat": "HP +34",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520004.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+130",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+34",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+31",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+8.2%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 525051,
     "name": "Chain Gloves",
     "rarity": "Arcana",
-    "type": "ASPD +8.7%",
+    "type": "Gloves",
     "level": "Lv20",
+    "stat": "ASPD +8.7%",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520005.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+137",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+8.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+41",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+16.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 525071,
     "name": "War Gloves",
     "rarity": "Arcana",
-    "type": "HP +59",
+    "type": "Gloves",
     "level": "Lv30",
+    "stat": "HP +59",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520007.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+241",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+59",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+320",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+22.5%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 525091,
     "name": "Rune Gloves",
     "rarity": "Arcana",
-    "type": "HP +81",
+    "type": "Gloves",
     "level": "Lv40",
+    "stat": "HP +81",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520009.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+355",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+81",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+12%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+29.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 525111,
     "name": "Mystic Gloves",
     "rarity": "Arcana",
-    "type": "ATK +108",
+    "type": "Gloves",
     "level": "Lv50",
+    "stat": "ATK +108",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520011.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+446",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+108",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+344",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+61.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 525141,
     "name": "Shine Gloves",
     "rarity": "Arcana",
-    "type": "ATK +161",
+    "type": "Gloves",
     "level": "Lv65",
+    "stat": "ATK +161",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520014.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+916",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+161",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+127",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+798",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 525171,
     "name": "Dimensional Gloves",
     "rarity": "Arcana",
-    "type": "ASPD +19.2%",
+    "type": "Gloves",
     "level": "Lv80",
+    "stat": "ASPD +19.2%",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520017.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+1,898",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+19.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+809",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Leech",
+        "value": "+2.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 535041,
     "name": "Knight Boots",
     "rarity": "Arcana",
-    "type": "MOVE +41",
+    "type": "Boots",
     "level": "Lv15",
+    "stat": "MOVE +41",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530004.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+87",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+41",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+34",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+149",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 535051,
     "name": "Chain Boots",
     "rarity": "Arcana",
-    "type": "MOVE +46",
+    "type": "Boots",
     "level": "Lv20",
+    "stat": "MOVE +46",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530005.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+91",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+46",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+41",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+52",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 535071,
     "name": "War Boots",
     "rarity": "Arcana",
-    "type": "MOVE +60",
+    "type": "Boots",
     "level": "Lv30",
+    "stat": "MOVE +60",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530007.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+161",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+60",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+122",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+320",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 535091,
     "name": "Rune Boots",
     "rarity": "Arcana",
-    "type": "MOVE +78",
+    "type": "Boots",
     "level": "Lv40",
+    "stat": "MOVE +78",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530009.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+236",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+78",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+81",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+232",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 535111,
     "name": "Mystic Boots",
     "rarity": "Arcana",
-    "type": "MOVE +94",
+    "type": "Boots",
     "level": "Lv50",
+    "stat": "MOVE +94",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530011.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+298",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+94",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+344",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+616",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 535141,
     "name": "Shine Boots",
     "rarity": "Arcana",
-    "type": "MOVE +114",
+    "type": "Boots",
     "level": "Lv65",
+    "stat": "MOVE +114",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530014.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+611",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+114",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+127",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+511",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 535171,
     "name": "Dimensional Boots",
     "rarity": "Arcana",
-    "type": "MOVE +147",
+    "type": "Boots",
     "level": "Lv80",
+    "stat": "MOVE +147",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530017.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+1,266",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+147",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+809",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+1,083",
+        "kind": "inherent"
+      }
+    ]
   }
 ]

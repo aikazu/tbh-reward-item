@@ -5,7 +5,55 @@
     "kind": "material",
     "rarity": "CELESTIAL",
     "family": "ENGRAVING",
-    "search_text": "127001 Abyssal Mucus Material Celestial Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "127001 Abyssal Mucus Material Celestial Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Abyssal Mucus",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Fire Damage Percent",
+          "chance": "50%",
+          "value": "+130~180%",
+          "tier": "T9"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Cooldown Reduction",
+          "chance": "50%",
+          "value": "+13~14.5%",
+          "tier": "T9"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Armor",
+          "chance": "50%",
+          "value": "+45~50%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Block Chance",
+          "chance": "50%",
+          "value": "+13~16%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Attack Speed",
+          "chance": "50%",
+          "value": "+15~17%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Movement Speed",
+          "chance": "50%",
+          "value": "+45~50%",
+          "tier": "T8"
+        }
+      ]
+    }
   },
   {
     "id": 127002,
@@ -13,6 +61,54 @@
     "kind": "material",
     "rarity": "CELESTIAL",
     "family": "ENGRAVING",
-    "search_text": "127002 Chaos Spore Material Celestial Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "127002 Chaos Spore Material Celestial Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Chaos Spore",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Physical Damage Percent",
+          "chance": "50%",
+          "value": "+130~180%",
+          "tier": "T9"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Attack Damage",
+          "chance": "50%",
+          "value": "+100~150",
+          "tier": "T9"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Cold Resistance",
+          "chance": "50%",
+          "value": "+40~45%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Chaos Resistance",
+          "chance": "50%",
+          "value": "+40~45%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Movement Speed",
+          "chance": "50%",
+          "value": "+45~50%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "HP Regen Per Sec",
+          "chance": "50%",
+          "value": "+700~1,000",
+          "tier": "T8"
+        }
+      ]
+    }
   }
 ]

@@ -3,44 +3,117 @@
     "id": 606071,
     "name": "Moonstone Pendant",
     "rarity": "Beyond",
-    "type": "CDR +3.8%",
+    "type": "Amulet",
     "level": "Lv30",
+    "stat": "CDR +3.8%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600007.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+3.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+11.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+22.5%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 606091,
     "name": "Ruby Pendant",
     "rarity": "Beyond",
-    "type": "CDR +4.3%",
+    "type": "Amulet",
     "level": "Lv40",
+    "stat": "CDR +4.3%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600009.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+4.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add All Skill Level",
+        "value": "+1",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+26.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 606111,
     "name": "Emerald Amulet",
     "rarity": "Beyond",
-    "type": "ASPD +15.8%",
+    "type": "Amulet",
     "level": "Lv50",
+    "stat": "ASPD +15.8%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600011.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+15.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+4.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+30.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 606141,
     "name": "Eclipse Amulet",
     "rarity": "Beyond",
-    "type": "ASPD +18.4%",
+    "type": "Amulet",
     "level": "Lv65",
+    "stat": "ASPD +18.4%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600014.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+18.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+5.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+36.2%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 606171,
     "name": "Ethereal Amulet",
     "rarity": "Beyond",
-    "type": "CDR +6.3%",
+    "type": "Amulet",
     "level": "Lv80",
+    "stat": "CDR +6.3%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600017.png",
     "rarity_color": "#fc246c"
   },
@@ -48,8 +121,9 @@
     "id": 616071,
     "name": "Emerald Earring",
     "rarity": "Beyond",
-    "type": "HpLeech +0.9%",
+    "type": "Earing",
     "level": "Lv30",
+    "stat": "HpLeech +0.9%",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610007.png",
     "rarity_color": "#fc246c"
   },
@@ -57,126 +131,378 @@
     "id": 616091,
     "name": "Tiger Eye Earring",
     "rarity": "Beyond",
-    "type": "AreaOfEffect +11.6%",
+    "type": "Earing",
     "level": "Lv40",
+    "stat": "AreaOfEffect +11.6%",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610009.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Area Of Effect",
+        "value": "+11.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Leech",
+        "value": "+1.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+13.8%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 616111,
     "name": "Sapphire Earring",
     "rarity": "Beyond",
-    "type": "IncreaseExpAmount +9%",
+    "type": "Earing",
     "level": "Lv50",
+    "stat": "IncreaseExpAmount +9%",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610011.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Increase Exp Amount",
+        "value": "+9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+27.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+15.8%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 616141,
     "name": "Celestial Earring",
     "rarity": "Beyond",
-    "type": "HpLeech +1.7%",
+    "type": "Earing",
     "level": "Lv65",
+    "stat": "HpLeech +1.7%",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610014.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "HP Leech",
+        "value": "+1.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Area Of Effect",
+        "value": "+16.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+18.4%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 616171,
     "name": "Ethereal Earring",
     "rarity": "Beyond",
-    "type": "CRIT DMG +38%",
+    "type": "Earing",
     "level": "Lv80",
+    "stat": "CRIT DMG +38%",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610017.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Critical Damage",
+        "value": "+38%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Area Of Effect",
+        "value": "+21.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+22.5%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 626071,
     "name": "Amber Ring",
     "rarity": "Beyond",
-    "type": "CDR +3%",
+    "type": "Ring",
     "level": "Lv30",
+    "stat": "CDR +3%",
     "image": "https://taskbarhero.wiki/game/gear/ring/RING_620007.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add HP Per Hit",
+        "value": "+3",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add HP Per Kill",
+        "value": "+21",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 626091,
     "name": "Amethyst Ring",
     "rarity": "Beyond",
-    "type": "CDR +3.6%",
+    "type": "Ring",
     "level": "Lv40",
+    "stat": "CDR +3.6%",
     "image": "https://taskbarhero.wiki/game/gear/ring/RING_620009.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+3.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add HP Per Kill",
+        "value": "+30",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 626111,
     "name": "Emerald Ring",
     "rarity": "Beyond",
-    "type": "ASPD +10.3%",
+    "type": "Ring",
     "level": "Lv50",
+    "stat": "ASPD +10.3%",
     "image": "https://taskbarhero.wiki/game/gear/ring/RING_620011.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+10.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+22.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cast Speed",
+        "value": "+9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 626141,
     "name": "Eclipse Ring",
     "rarity": "Beyond",
-    "type": "CDR +4.8%",
+    "type": "Ring",
     "level": "Lv65",
+    "stat": "CDR +4.8%",
     "image": "https://taskbarhero.wiki/game/gear/ring/RING_620014.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+4.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+27.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+52",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 626171,
     "name": "Ethereal Ring",
     "rarity": "Beyond",
-    "type": "ASPD +14.9%",
+    "type": "Ring",
     "level": "Lv80",
+    "stat": "ASPD +14.9%",
     "image": "https://taskbarhero.wiki/game/gear/ring/RING_620017.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+14.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+35.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add HP Per Kill",
+        "value": "+67",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 636071,
     "name": "Obsidian Bracer",
     "rarity": "Beyond",
-    "type": "DamageReduction +6.5%",
+    "type": "Bracer",
     "level": "Lv30",
+    "stat": "DamageReduction +6.5%",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630007.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Damage Reduction",
+        "value": "+6.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Area Of Effect",
+        "value": "+9.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+5.8%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 636091,
     "name": "Crimson Bracer",
     "rarity": "Beyond",
-    "type": "BlockChance +7.5%",
+    "type": "Bracer",
     "level": "Lv40",
+    "stat": "BlockChance +7.5%",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630009.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Block Chance",
+        "value": "+7.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Dodge Chance",
+        "value": "+6.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+10.3%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 636111,
     "name": "Emerald Bracer",
     "rarity": "Beyond",
-    "type": "AreaOfEffect +13.8%",
+    "type": "Bracer",
     "level": "Lv50",
+    "stat": "AreaOfEffect +13.8%",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630011.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Area Of Effect",
+        "value": "+13.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Damage Reduction",
+        "value": "+9.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 636141,
     "name": "Eclipse Bracer",
     "rarity": "Beyond",
-    "type": "HpRegenPerSec +996",
+    "type": "Bracer",
     "level": "Lv65",
+    "stat": "HpRegenPerSec +996",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630014.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+996",
+        "kind": "inherent"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+14.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+73.3%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 636171,
     "name": "Ethereal Bracer",
     "rarity": "Beyond",
-    "type": "DamageAbsorption +208",
+    "type": "Bracer",
     "level": "Lv80",
+    "stat": "DamageAbsorption +208",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630017.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Damage Absorption",
+        "value": "+208",
+        "kind": "inherent"
+      },
+      {
+        "name": "Damage Reduction",
+        "value": "+14.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Area Of Effect",
+        "value": "+21.4%",
+        "kind": "inherent"
+      }
+    ]
   }
 ]

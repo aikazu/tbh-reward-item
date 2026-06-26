@@ -5,6 +5,10 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "INSCRIPTION",
-    "search_text": "134001 Scroll of Immortal Inscription Material Immortal Inscription Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "134001 Scroll of Immortal Inscription Material Immortal Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Scroll of Immortal Inscription",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown)."
+    }
   }
 ]

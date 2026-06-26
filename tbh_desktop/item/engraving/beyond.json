@@ -5,7 +5,55 @@
     "kind": "material",
     "rarity": "BEYOND",
     "family": "ENGRAVING",
-    "search_text": "126001 Wraith Essence Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "126001 Wraith Essence Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Wraith Essence",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Critical Damage",
+          "chance": "50%",
+          "value": "+60~80%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Fire Damage Percent",
+          "chance": "50%",
+          "value": "+100~130%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Block Chance",
+          "chance": "50%",
+          "value": "+11~13%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Max HP",
+          "chance": "50%",
+          "value": "+180~210",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Add HP Per Hit",
+          "chance": "50%",
+          "value": "+7~9",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Damage",
+          "chance": "50%",
+          "value": "+50~60%",
+          "tier": "T7"
+        }
+      ]
+    }
   },
   {
     "id": 126002,
@@ -13,7 +61,55 @@
     "kind": "material",
     "rarity": "BEYOND",
     "family": "ENGRAVING",
-    "search_text": "126002 Kraken Ink Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "126002 Kraken Ink Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Kraken Ink",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Cold Damage Percent",
+          "chance": "50%",
+          "value": "+100~130%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Area Of Effect",
+          "chance": "50%",
+          "value": "+20~23%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Lightning Resistance",
+          "chance": "50%",
+          "value": "+35~40%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Dodge Chance",
+          "chance": "50%",
+          "value": "+11~13%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Add HP Per Hit",
+          "chance": "50%",
+          "value": "+7~9",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Attack Damage",
+          "chance": "50%",
+          "value": "+30~50",
+          "tier": "T7"
+        }
+      ]
+    }
   },
   {
     "id": 126003,
@@ -21,7 +117,55 @@
     "kind": "material",
     "rarity": "BEYOND",
     "family": "ENGRAVING",
-    "search_text": "126003 Titan Marrow Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "126003 Titan Marrow Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Titan Marrow",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Attack Damage",
+          "chance": "50%",
+          "value": "+50~70%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Fire Damage Percent",
+          "chance": "50%",
+          "value": "+100~130%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Lightning Resistance",
+          "chance": "50%",
+          "value": "+35~40%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Damage Reduction",
+          "chance": "50%",
+          "value": "+8.5~10%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "HP Regen Per Sec",
+          "chance": "50%",
+          "value": "+500~700",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Max HP",
+          "chance": "50%",
+          "value": "+180~210",
+          "tier": "T7"
+        }
+      ]
+    }
   },
   {
     "id": 126004,
@@ -29,6 +173,54 @@
     "kind": "material",
     "rarity": "BEYOND",
     "family": "ENGRAVING",
-    "search_text": "126004 Void Ichor Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "126004 Void Ichor Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Void Ichor",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Critical Chance",
+          "chance": "50%",
+          "value": "+45~50%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Add HP Per Hit",
+          "chance": "50%",
+          "value": "+8~10",
+          "tier": "T8"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Damage Reduction",
+          "chance": "50%",
+          "value": "+8.5~10%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Cold Resistance",
+          "chance": "50%",
+          "value": "+35~40%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Movement Speed",
+          "chance": "50%",
+          "value": "+40~45%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Chance",
+          "chance": "50%",
+          "value": "+40~45%",
+          "tier": "T7"
+        }
+      ]
+    }
   }
 ]

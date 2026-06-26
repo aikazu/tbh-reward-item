@@ -5,6 +5,10 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "INSCRIPTION",
-    "search_text": "132001 Scroll of Rare Inscription Material Rare Inscription Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "132001 Scroll of Rare Inscription Material Rare Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Scroll of Rare Inscription",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown)."
+    }
   }
 ]

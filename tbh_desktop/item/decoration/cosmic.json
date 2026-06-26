@@ -5,7 +5,34 @@
     "kind": "material",
     "rarity": "COSMIC",
     "family": "DECORATION",
-    "search_text": "119001 Ethereal Gem Material Cosmic Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "119001 Ethereal Gem Material Cosmic Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Ethereal Gem",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Multistrike",
+          "chance": "100%",
+          "value": "+1",
+          "tier": "T10"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Damage Reduction",
+          "chance": "100%",
+          "value": "+14~16%",
+          "tier": "T10"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Base Attack Count Reduction",
+          "chance": "100%",
+          "value": "+1",
+          "tier": "T10"
+        }
+      ]
+    }
   },
   {
     "id": 119002,
@@ -13,6 +40,33 @@
     "kind": "material",
     "rarity": "COSMIC",
     "family": "DECORATION",
-    "search_text": "119002 Chaos Diamond Material Cosmic Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "119002 Chaos Diamond Material Cosmic Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Chaos Diamond",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Projectile Count",
+          "chance": "100%",
+          "value": "+1",
+          "tier": "T10"
+        },
+        {
+          "slot": "Armor",
+          "stat": "All Elemental Resistance",
+          "chance": "100%",
+          "value": "+25~30%",
+          "tier": "T10"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Damage",
+          "chance": "100%",
+          "value": "+100~150%",
+          "tier": "T10"
+        }
+      ]
+    }
   }
 ]

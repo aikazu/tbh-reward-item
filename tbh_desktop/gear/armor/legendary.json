@@ -3,360 +3,1080 @@
     "id": 503011,
     "name": "Wooden Helmet",
     "rarity": "Legendary",
-    "type": "ARM +8",
+    "type": "Helmet",
     "level": "Lv1",
+    "stat": "ARM +8",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500001.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+35",
+        "kind": "base"
+      },
+      {
+        "name": "Armor",
+        "value": "+8",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+0.5%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 503021,
     "name": "Empire Helmet",
     "rarity": "Legendary",
-    "type": "HP +24",
+    "type": "Helmet",
     "level": "Lv5",
+    "stat": "HP +24",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500002.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+40",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+24",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+89",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 503031,
     "name": "Iron Helmet",
     "rarity": "Legendary",
-    "type": "SkillRangeExpansion +9.5%",
+    "type": "Helmet",
     "level": "Lv10",
+    "stat": "SkillRangeExpansion +9.5%",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500003.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+53",
+        "kind": "base"
+      },
+      {
+        "name": "Skill Range Expansion",
+        "value": "+9.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+10.4%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 503041,
     "name": "Knight Helmet",
     "rarity": "Legendary",
-    "type": "ARM +22",
+    "type": "Helmet",
     "level": "Lv15",
+    "stat": "ARM +22",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500004.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+66",
+        "kind": "base"
+      },
+      {
+        "name": "Armor",
+        "value": "+22",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+1.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 503051,
     "name": "Chain Helmet",
     "rarity": "Legendary",
-    "type": "HP +31",
+    "type": "Helmet",
     "level": "Lv20",
+    "stat": "HP +31",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500005.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+73",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+31",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+33",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 503071,
     "name": "War Helmet",
     "rarity": "Legendary",
-    "type": "ARM +83",
+    "type": "Helmet",
     "level": "Lv30",
+    "stat": "ARM +83",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500007.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+131",
+        "kind": "base"
+      },
+      {
+        "name": "Armor",
+        "value": "+83",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+28%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 503091,
     "name": "Rune Helmet",
     "rarity": "Legendary",
-    "type": "HP +57",
+    "type": "Helmet",
     "level": "Lv40",
+    "stat": "HP +57",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500009.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+204",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+57",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+443",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 503111,
     "name": "Fate Helmet",
     "rarity": "Legendary",
-    "type": "ARM +281",
+    "type": "Helmet",
     "level": "Lv50",
+    "stat": "ARM +281",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500011.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+282",
+        "kind": "base"
+      },
+      {
+        "name": "Armor",
+        "value": "+281",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+2.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 503141,
     "name": "Fighter's Helmet",
     "rarity": "Legendary",
-    "type": "HP +86",
+    "type": "Helmet",
     "level": "Lv65",
+    "stat": "HP +86",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500014.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+539",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+86",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+388",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 503171,
     "name": "Dimensional Helmet",
     "rarity": "Legendary",
-    "type": "ARM +635",
+    "type": "Helmet",
     "level": "Lv80",
+    "stat": "ARM +635",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500017.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+1,156",
+        "kind": "base"
+      },
+      {
+        "name": "Armor",
+        "value": "+635",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Range Expansion",
+        "value": "+87.3%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 513011,
     "name": "Wooden Armor",
     "rarity": "Legendary",
-    "type": "HpRegenPerSec +142",
+    "type": "Armor",
     "level": "Lv1",
+    "stat": "HpRegenPerSec +142",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510001.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+70",
+        "kind": "base"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+142",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+7.4%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 513021,
     "name": "Empire Armor",
     "rarity": "Legendary",
-    "type": "HP +7.6%",
+    "type": "Armor",
     "level": "Lv5",
+    "stat": "HP +7.6%",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510002.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+81",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+7.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+165",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 513031,
     "name": "Iron Plate",
     "rarity": "Legendary",
-    "type": "HpRegenPerSec +190",
+    "type": "Armor",
     "level": "Lv10",
+    "stat": "HpRegenPerSec +190",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510003.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+106",
+        "kind": "base"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+190",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+19%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 513041,
     "name": "Chain Mail",
     "rarity": "Legendary",
-    "type": "HpRegenPerSec +230",
+    "type": "Armor",
     "level": "Lv15",
+    "stat": "HpRegenPerSec +230",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510004.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+131",
+        "kind": "base"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+230",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+8.1%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 513051,
     "name": "Knight's Armor",
     "rarity": "Legendary",
-    "type": "HP +38",
+    "type": "Armor",
     "level": "Lv20",
+    "stat": "HP +38",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510005.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+146",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+38",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+28.8%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 513071,
     "name": "War Armor",
     "rarity": "Legendary",
-    "type": "HpRegenPerSec +483",
+    "type": "Armor",
     "level": "Lv30",
+    "stat": "HpRegenPerSec +483",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510007.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+262",
+        "kind": "base"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+483",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+10.4%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 513091,
     "name": "Rune Plate",
     "rarity": "Legendary",
-    "type": "HP +12.7%",
+    "type": "Armor",
     "level": "Lv40",
+    "stat": "HP +12.7%",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510009.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+407",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+12.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+753",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 513111,
     "name": "Mystic Armor",
     "rarity": "Legendary",
-    "type": "HP +111",
+    "type": "Armor",
     "level": "Lv50",
+    "stat": "HP +111",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510011.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+565",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+111",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+15.1%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 513141,
     "name": "Shine Armor",
     "rarity": "Legendary",
-    "type": "HP +134",
+    "type": "Armor",
     "level": "Lv65",
+    "stat": "HP +134",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510014.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+1,077",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+134",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+1,262",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 513171,
     "name": "Dimensional Armor",
     "rarity": "Legendary",
-    "type": "HP +181",
+    "type": "Armor",
     "level": "Lv80",
+    "stat": "HP +181",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510017.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+2,311",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+181",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+21.4%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 523011,
     "name": "Leather Gloves",
     "rarity": "Legendary",
-    "type": "ASPD +7.2%",
+    "type": "Gloves",
     "level": "Lv1",
+    "stat": "ASPD +7.2%",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520001.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+30",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+7.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+10.8%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 523021,
     "name": "Empire Gloves",
     "rarity": "Legendary",
-    "type": "ASPD +7.3%",
+    "type": "Gloves",
     "level": "Lv5",
+    "stat": "ASPD +7.3%",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520002.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+35",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+7.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+24",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 523031,
     "name": "Iron Gloves",
     "rarity": "Legendary",
-    "type": "ATK +3",
+    "type": "Gloves",
     "level": "Lv10",
+    "stat": "ATK +3",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520003.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+46",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+3",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+25",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 523041,
     "name": "Knight Gloves",
     "rarity": "Legendary",
-    "type": "HP +27",
+    "type": "Gloves",
     "level": "Lv15",
+    "stat": "HP +27",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520004.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+56",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+27",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+14",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 523051,
     "name": "Chain Gloves",
     "rarity": "Legendary",
-    "type": "HP +31",
+    "type": "Gloves",
     "level": "Lv20",
+    "stat": "HP +31",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520005.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+62",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+31",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+6",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 523071,
     "name": "War Gloves",
     "rarity": "Legendary",
-    "type": "ASPD +8.8%",
+    "type": "Gloves",
     "level": "Lv30",
+    "stat": "ASPD +8.8%",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520007.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+112",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+8.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add HP Per Kill",
+        "value": "+6",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 523091,
     "name": "Rune Gloves",
     "rarity": "Legendary",
-    "type": "ASPD +10.1%",
+    "type": "Gloves",
     "level": "Lv40",
+    "stat": "ASPD +10.1%",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520009.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+174",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+10.1%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+22%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 523111,
     "name": "Mystic Gloves",
     "rarity": "Legendary",
-    "type": "ASPD +11.3%",
+    "type": "Gloves",
     "level": "Lv50",
+    "stat": "ASPD +11.3%",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520011.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+242",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+11.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+187",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 523141,
     "name": "Shine Gloves",
     "rarity": "Legendary",
-    "type": "HP +86",
+    "type": "Gloves",
     "level": "Lv65",
+    "stat": "HP +86",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520014.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+462",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+86",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+259",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 523171,
     "name": "Dimensional Gloves",
     "rarity": "Legendary",
-    "type": "HP +114",
+    "type": "Gloves",
     "level": "Lv80",
+    "stat": "HP +114",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520017.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+991",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+114",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+14.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 533011,
     "name": "Wooden Boots",
     "rarity": "Legendary",
-    "type": "HP +22",
+    "type": "Boots",
     "level": "Lv1",
+    "stat": "HP +22",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530001.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+20",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+22",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+5",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 533021,
     "name": "Empire Boots",
     "rarity": "Legendary",
-    "type": "MOVE +33",
+    "type": "Boots",
     "level": "Lv5",
+    "stat": "MOVE +33",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530002.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+23",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+33",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+24",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 533031,
     "name": "Iron Boots",
     "rarity": "Legendary",
-    "type": "ARM +10",
+    "type": "Boots",
     "level": "Lv10",
+    "stat": "ARM +10",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530003.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+30",
+        "kind": "base"
+      },
+      {
+        "name": "Armor",
+        "value": "+10",
+        "kind": "inherent"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+34",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 533041,
     "name": "Knight Boots",
     "rarity": "Legendary",
-    "type": "MOVE +36",
+    "type": "Boots",
     "level": "Lv15",
+    "stat": "MOVE +36",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530004.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+38",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+36",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+27",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 533051,
     "name": "Chain Boots",
     "rarity": "Legendary",
-    "type": "ARM +22",
+    "type": "Boots",
     "level": "Lv20",
+    "stat": "ARM +22",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530005.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+42",
+        "kind": "base"
+      },
+      {
+        "name": "Armor",
+        "value": "+22",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+31",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 533071,
     "name": "War Boots",
     "rarity": "Legendary",
-    "type": "HP +42",
+    "type": "Boots",
     "level": "Lv30",
+    "stat": "HP +42",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530007.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+75",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+42",
+        "kind": "inherent"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+47",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 533091,
     "name": "Rune Boots",
     "rarity": "Legendary",
-    "type": "MOVE +59",
+    "type": "Boots",
     "level": "Lv40",
+    "stat": "MOVE +59",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530009.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+116",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+59",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+57",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 533111,
     "name": "Mystic Boots",
     "rarity": "Legendary",
-    "type": "MOVE +72",
+    "type": "Boots",
     "level": "Lv50",
+    "stat": "MOVE +72",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530011.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+161",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+72",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+73",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 533141,
     "name": "Shine Boots",
     "rarity": "Legendary",
-    "type": "ARM +259",
+    "type": "Boots",
     "level": "Lv65",
+    "stat": "ARM +259",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530014.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+308",
+        "kind": "base"
+      },
+      {
+        "name": "Armor",
+        "value": "+259",
+        "kind": "inherent"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+82",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 533171,
     "name": "Dimensional Boots",
     "rarity": "Legendary",
-    "type": "MOVE +104",
+    "type": "Boots",
     "level": "Lv80",
+    "stat": "MOVE +104",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530017.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+660",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+104",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+423",
+        "kind": "inherent"
+      }
+    ]
   }
 ]

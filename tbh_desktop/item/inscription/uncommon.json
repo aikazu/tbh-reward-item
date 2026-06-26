@@ -5,6 +5,10 @@
     "kind": "material",
     "rarity": "UNCOMMON",
     "family": "INSCRIPTION",
-    "search_text": "131001 Scroll of Uncommon Inscription Material Uncommon Inscription Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "131001 Scroll of Uncommon Inscription Material Uncommon Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Scroll of Uncommon Inscription",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown)."
+    }
   }
 ]

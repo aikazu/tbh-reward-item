@@ -5,7 +5,34 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "DECORATION",
-    "search_text": "115001 Arcane Crystal Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "115001 Arcane Crystal Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Arcane Crystal",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Cast Speed",
+          "chance": "100%",
+          "value": "+25~30%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Cooldown Reduction",
+          "chance": "100%",
+          "value": "+8.5~10%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Damage",
+          "chance": "100%",
+          "value": "+40~50%",
+          "tier": "T6"
+        }
+      ]
+    }
   },
   {
     "id": 115002,
@@ -13,7 +40,34 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "DECORATION",
-    "search_text": "115002 Mystic Topaz Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "115002 Mystic Topaz Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Mystic Topaz",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Lightning Damage Percent",
+          "chance": "100%",
+          "value": "+80~100%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Lightning Resistance",
+          "chance": "100%",
+          "value": "+30~35%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Cast Speed",
+          "chance": "100%",
+          "value": "+20~25%",
+          "tier": "T6"
+        }
+      ]
+    }
   },
   {
     "id": 115003,
@@ -21,7 +75,34 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "DECORATION",
-    "search_text": "115003 Enchanted Ruby Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "115003 Enchanted Ruby Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Enchanted Ruby",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Fire Damage Percent",
+          "chance": "100%",
+          "value": "+80~100%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Fire Resistance",
+          "chance": "100%",
+          "value": "+30~35%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Attack Damage",
+          "chance": "100%",
+          "value": "+15~30",
+          "tier": "T6"
+        }
+      ]
+    }
   },
   {
     "id": 115004,
@@ -29,6 +110,33 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "DECORATION",
-    "search_text": "115004 Starlight Sapphire Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "115004 Starlight Sapphire Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Starlight Sapphire",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Cold Damage Percent",
+          "chance": "100%",
+          "value": "+80~100%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Cold Resistance",
+          "chance": "100%",
+          "value": "+30~35%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Chance",
+          "chance": "100%",
+          "value": "+35~40%",
+          "tier": "T6"
+        }
+      ]
+    }
   }
 ]

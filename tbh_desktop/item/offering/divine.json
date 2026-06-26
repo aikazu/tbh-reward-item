@@ -5,6 +5,9 @@
     "kind": "material",
     "rarity": "DIVINE",
     "family": "OFFERING",
-    "search_text": "160009 Sacred Kingdom 1000th Anniversary Coin Material Divine Offering Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "160009 Sacred Kingdom 1000th Anniversary Coin Material Divine Offering Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Sacred Kingdom 1000th Anniversary Coin"
+    }
   }
 ]

@@ -5,6 +5,10 @@
     "kind": "material",
     "rarity": "COMMON",
     "family": "INSCRIPTION",
-    "search_text": "130001 Scroll of Common Inscription Material Common Inscription Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "130001 Scroll of Common Inscription Material Common Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Scroll of Common Inscription",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown)."
+    }
   }
 ]

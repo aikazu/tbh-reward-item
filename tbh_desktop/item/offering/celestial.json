@@ -5,6 +5,9 @@
     "kind": "material",
     "rarity": "CELESTIAL",
     "family": "OFFERING",
-    "search_text": "160008 Empire 100th Anniversary Coin Material Celestial Offering Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "160008 Empire 100th Anniversary Coin Material Celestial Offering Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Empire 100th Anniversary Coin"
+    }
   }
 ]

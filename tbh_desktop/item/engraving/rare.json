@@ -5,7 +5,55 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "ENGRAVING",
-    "search_text": "122001 Bat Wing Membrane Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "122001 Bat Wing Membrane Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Bat Wing Membrane",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Lightning Damage Percent",
+          "chance": "50%",
+          "value": "+40~50%",
+          "tier": "T4"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Fire Damage Percent",
+          "chance": "50%",
+          "value": "+40~50%",
+          "tier": "T4"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Damage Reduction",
+          "chance": "50%",
+          "value": "+3~4%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Max HP",
+          "chance": "50%",
+          "value": "+60~90",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Damage",
+          "chance": "50%",
+          "value": "+20~25%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Add HP Per Hit",
+          "chance": "50%",
+          "value": "+1~2",
+          "tier": "T3"
+        }
+      ]
+    }
   },
   {
     "id": 122002,
@@ -13,7 +61,55 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "ENGRAVING",
-    "search_text": "122002 Ogre Blood Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "122002 Ogre Blood Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Ogre Blood",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Area Of Effect",
+          "chance": "50%",
+          "value": "+10~12%",
+          "tier": "T4"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Attack Damage",
+          "chance": "50%",
+          "value": "+20~25%",
+          "tier": "T4"
+        },
+        {
+          "slot": "Armor",
+          "stat": "HP Regen Per Sec",
+          "chance": "50%",
+          "value": "+200~250",
+          "tier": "T3"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Cold Resistance",
+          "chance": "50%",
+          "value": "+15~20%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Max HP",
+          "chance": "50%",
+          "value": "+60~90",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Attack Damage",
+          "chance": "50%",
+          "value": "+3~6",
+          "tier": "T3"
+        }
+      ]
+    }
   },
   {
     "id": 122003,
@@ -21,7 +117,55 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "ENGRAVING",
-    "search_text": "122003 Mushroom Spore Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "122003 Mushroom Spore Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Mushroom Spore",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Cooldown Reduction",
+          "chance": "50%",
+          "value": "+5.5~7%",
+          "tier": "T4"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Add HP Per Hit",
+          "chance": "50%",
+          "value": "+4~6",
+          "tier": "T4"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Block Chance",
+          "chance": "50%",
+          "value": "+4.5~5.5%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Lightning Resistance",
+          "chance": "50%",
+          "value": "+15~20%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "HP Regen Per Sec",
+          "chance": "50%",
+          "value": "+200~250",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Max HP",
+          "chance": "50%",
+          "value": "+60~90",
+          "tier": "T3"
+        }
+      ]
+    }
   },
   {
     "id": 122004,
@@ -29,6 +173,54 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "ENGRAVING",
-    "search_text": "122004 Ancient Tree Sap Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "122004 Ancient Tree Sap Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Ancient Tree Sap",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Critical Damage",
+          "chance": "50%",
+          "value": "+25~30%",
+          "tier": "T4"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Area Of Effect",
+          "chance": "50%",
+          "value": "+10~12%",
+          "tier": "T4"
+        },
+        {
+          "slot": "Armor",
+          "stat": "HP Regen Per Sec",
+          "chance": "50%",
+          "value": "+200~250",
+          "tier": "T3"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Damage Reduction",
+          "chance": "50%",
+          "value": "+3~4%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Damage",
+          "chance": "50%",
+          "value": "+20~25%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Attack Speed",
+          "chance": "50%",
+          "value": "+6~7%",
+          "tier": "T3"
+        }
+      ]
+    }
   }
 ]

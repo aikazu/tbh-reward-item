@@ -5,7 +5,55 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "ENGRAVING",
-    "search_text": "125001 Minotaur Horn Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "125001 Minotaur Horn Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Minotaur Horn",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Cold Damage Percent",
+          "chance": "50%",
+          "value": "+80~100%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Attack Speed",
+          "chance": "50%",
+          "value": "+13~15%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Lightning Resistance",
+          "chance": "50%",
+          "value": "+30~35%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "HP Regen Per Sec",
+          "chance": "50%",
+          "value": "+400~500",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Area Of Effect",
+          "chance": "50%",
+          "value": "+14~17%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Cooldown Reduction",
+          "chance": "50%",
+          "value": "+8.5~10%",
+          "tier": "T6"
+        }
+      ]
+    }
   },
   {
     "id": 125002,
@@ -13,7 +61,55 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "ENGRAVING",
-    "search_text": "125002 Griffin Beak Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "125002 Griffin Beak Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Griffin Beak",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Cold Damage Percent",
+          "chance": "50%",
+          "value": "+80~100%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Attack Damage",
+          "chance": "50%",
+          "value": "+30~50",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Lightning Resistance",
+          "chance": "50%",
+          "value": "+30~35%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Max HP",
+          "chance": "50%",
+          "value": "+20~25%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Cast Speed",
+          "chance": "50%",
+          "value": "+20~25%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Damage",
+          "chance": "50%",
+          "value": "+40~50%",
+          "tier": "T6"
+        }
+      ]
+    }
   },
   {
     "id": 125003,
@@ -21,7 +117,55 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "ENGRAVING",
-    "search_text": "125003 Phoenix Ash Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "125003 Phoenix Ash Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Phoenix Ash",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Critical Chance",
+          "chance": "50%",
+          "value": "+40~45%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Attack Damage",
+          "chance": "50%",
+          "value": "+30~50",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Damage Absorption",
+          "chance": "50%",
+          "value": "+26~30",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Damage Reduction",
+          "chance": "50%",
+          "value": "+7~8.5%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Attack Speed",
+          "chance": "50%",
+          "value": "+11~13%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Damage",
+          "chance": "50%",
+          "value": "+40~50%",
+          "tier": "T6"
+        }
+      ]
+    }
   },
   {
     "id": 125004,
@@ -29,6 +173,54 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "ENGRAVING",
-    "search_text": "125004 Dragon Bile Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "125004 Dragon Bile Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Dragon Bile",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Critical Damage",
+          "chance": "50%",
+          "value": "+50~60%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Critical Chance",
+          "chance": "50%",
+          "value": "+40~45%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Dodge Chance",
+          "chance": "50%",
+          "value": "+9~11%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Block Chance",
+          "chance": "50%",
+          "value": "+9~11%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Chance",
+          "chance": "50%",
+          "value": "+35~40%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Add HP Per Hit",
+          "chance": "50%",
+          "value": "+6~8",
+          "tier": "T6"
+        }
+      ]
+    }
   }
 ]

@@ -5,6 +5,9 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "SOULSTONE",
-    "search_text": "190001 Soulstone - Normal Material Immortal Soul Stone Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "190001 Soulstone - Normal Material Immortal Soul Stone Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Soulstone - Normal"
+    }
   }
 ]

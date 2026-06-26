@@ -5,7 +5,10 @@
     "kind": "material",
     "rarity": "DIVINE",
     "family": "CRAFTING",
-    "search_text": "148001 Mithril Ore Material Divine Crafting Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "148001 Mithril Ore Material Divine Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Mithril Ore"
+    }
   },
   {
     "id": 148002,
@@ -13,6 +16,9 @@
     "kind": "material",
     "rarity": "DIVINE",
     "family": "CRAFTING",
-    "search_text": "148002 Ethereal Ingot Material Divine Crafting Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "148002 Ethereal Ingot Material Divine Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Ethereal Ingot"
+    }
   }
 ]

@@ -5,7 +5,11 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "CRAFTING",
-    "search_text": "145001 Chaos Shard Material Arcana Crafting Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "145001 Chaos Shard Material Arcana Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Chaos Shard",
+      "crafting": "Crafts that consume Chaos Shard as a material â including higher-tier recipes the game only reveals once you reach them. Worth a look before you use it up. · Tier 8 | Sub weapon makes Lv 80 gear | 30 possible items Chaos Shard Arcane Ore â Sub weapon ? Open the crafting station â"
+    }
   },
   {
     "id": 145002,
@@ -13,6 +17,10 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "CRAFTING",
-    "search_text": "145002 Arcane Ore Material Arcana Crafting Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "145002 Arcane Ore Material Arcana Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Arcane Ore",
+      "crafting": "Crafts that consume Arcane Ore as a material â including higher-tier recipes the game only reveals once you reach them. Worth a look before you use it up. · Tier 7 | Accessory makes Lv 65â80 gear | 40 possible items Arcane Ore Crystal Quartz Pearl â Accessory ? Open the crafting station â Tier 8 | Main weapon makes Lv 80 gear | 30 possible items Arcane Ore â Main weapon ? Open the crafting station â Tier 8 | Sub weapon makes Lv 80 gear | 30 possible items Chaos Shard Arcane Ore â Sub weapon ? Open the crafting station â"
+    }
   }
 ]

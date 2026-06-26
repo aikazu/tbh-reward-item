@@ -5,7 +5,55 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "ENGRAVING",
-    "search_text": "124001 Basilisk Scale Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "124001 Basilisk Scale Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Basilisk Scale",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "HP Leech",
+          "chance": "50%",
+          "value": "+3.5~4.5%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Attack Damage",
+          "chance": "50%",
+          "value": "+15~30",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Max HP",
+          "chance": "50%",
+          "value": "+120~150",
+          "tier": "T5"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Damage Reduction",
+          "chance": "50%",
+          "value": "+5.5~7%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Movement Speed",
+          "chance": "50%",
+          "value": "+30~35%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Cast Speed",
+          "chance": "50%",
+          "value": "+16~20%",
+          "tier": "T5"
+        }
+      ]
+    }
   },
   {
     "id": 124002,
@@ -13,7 +61,55 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "ENGRAVING",
-    "search_text": "124002 Wyvern Claw Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "124002 Wyvern Claw Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Wyvern Claw",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Cold Damage Percent",
+          "chance": "50%",
+          "value": "+60~80%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Add HP Per Hit",
+          "chance": "50%",
+          "value": "+6~8",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Cold Resistance",
+          "chance": "50%",
+          "value": "+25~30%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Armor",
+          "chance": "50%",
+          "value": "+200~250",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Chance",
+          "chance": "50%",
+          "value": "+30~35%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "HP Regen Per Sec",
+          "chance": "50%",
+          "value": "+300~400",
+          "tier": "T5"
+        }
+      ]
+    }
   },
   {
     "id": 124003,
@@ -21,7 +117,55 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "ENGRAVING",
-    "search_text": "124003 Dice Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "124003 Dice Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Dice",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Physical Damage Percent",
+          "chance": "50%",
+          "value": "+60~80%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Cold Damage Percent",
+          "chance": "50%",
+          "value": "+60~80%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Damage Absorption",
+          "chance": "50%",
+          "value": "+22~26",
+          "tier": "T5"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Block Chance",
+          "chance": "50%",
+          "value": "+7~9%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Cooldown Reduction",
+          "chance": "50%",
+          "value": "+7~8.5%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Movement Speed",
+          "chance": "50%",
+          "value": "+30~35%",
+          "tier": "T5"
+        }
+      ]
+    }
   },
   {
     "id": 124004,
@@ -29,6 +173,54 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "ENGRAVING",
-    "search_text": "124004 Demon Blood Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "124004 Demon Blood Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Demon Blood",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Area Of Effect",
+          "chance": "50%",
+          "value": "+14~17%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Weapon",
+          "stat": "Lightning Damage Percent",
+          "chance": "50%",
+          "value": "+60~80%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Block Chance",
+          "chance": "50%",
+          "value": "+7~9%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Dodge Chance",
+          "chance": "50%",
+          "value": "+7~9%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "HP Leech",
+          "chance": "50%",
+          "value": "+3~4%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Chance",
+          "chance": "50%",
+          "value": "+30~35%",
+          "tier": "T5"
+        }
+      ]
+    }
   }
 ]

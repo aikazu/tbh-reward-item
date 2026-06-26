@@ -3,108 +3,324 @@
     "id": 608141,
     "name": "Eclipse Amulet",
     "rarity": "Divine",
-    "type": "CDR +6.5%",
+    "type": "Amulet",
     "level": "Lv65",
+    "stat": "CDR +6.5%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+6.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Multistrike",
+        "value": "+1",
+        "kind": "inherent"
+      },
+      {
+        "name": "All Elemental Resistance",
+        "value": "+23%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 608171,
     "name": "Ethereal Amulet",
     "rarity": "Divine",
-    "type": "CDR +7.9%",
+    "type": "Amulet",
     "level": "Lv80",
+    "stat": "CDR +7.9%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+7.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cast Speed",
+        "value": "+20%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add All Skill Level",
+        "value": "+2",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 618141,
     "name": "Celestial Earring",
     "rarity": "Divine",
-    "type": "IncreaseExpAmount +15%",
+    "type": "Earing",
     "level": "Lv65",
+    "stat": "IncreaseExpAmount +15%",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Increase Exp Amount",
+        "value": "+15%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+21.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+23.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 618171,
     "name": "Ethereal Earring",
     "rarity": "Divine",
-    "type": "HpLeech +3%",
+    "type": "Earing",
     "level": "Lv80",
+    "stat": "HpLeech +3%",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "HP Leech",
+        "value": "+3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+24.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+29.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 628141,
     "name": "Eclipse Ring",
     "rarity": "Divine",
-    "type": "CDR +6.2%",
+    "type": "Ring",
     "level": "Lv65",
+    "stat": "CDR +6.2%",
     "image": "https://taskbarhero.wiki/game/gear/ring/RING_620014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+6.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+37.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+15.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 628171,
     "name": "Ethereal Ring",
     "rarity": "Divine",
-    "type": "ASPD +19.8%",
+    "type": "Ring",
     "level": "Lv80",
+    "stat": "ASPD +19.8%",
     "image": "https://taskbarhero.wiki/game/gear/ring/RING_620017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+19.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cast Speed",
+        "value": "+19.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add HP Per Kill",
+        "value": "+99",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 638141,
     "name": "Eclipse Bracer",
     "rarity": "Divine",
-    "type": "DamageReduction +15.4%",
+    "type": "Bracer",
     "level": "Lv65",
+    "stat": "DamageReduction +15.4%",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630014.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Damage Reduction",
+        "value": "+15.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+19.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+1,446",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 638171,
     "name": "Ethereal Bracer",
     "rarity": "Divine",
-    "type": "ARM +148.3%",
+    "type": "Bracer",
     "level": "Lv80",
+    "stat": "ARM +148.3%",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630017.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+148.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Dodge Chance",
+        "value": "+14.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+19.8%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 608111,
     "name": "Emerald Amulet",
     "rarity": "Divine",
-    "type": "ASPD +19.7%",
+    "type": "Amulet",
     "level": "Lv50",
+    "stat": "ASPD +19.7%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+19.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+38.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Base Attack Count Reduction",
+        "value": "+1",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 618111,
     "name": "Sapphire Earring",
     "rarity": "Divine",
-    "type": "MOVE +19.8%",
+    "type": "Earing",
     "level": "Lv50",
+    "stat": "MOVE +19.8%",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Movement Speed",
+        "value": "+19.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Increase Exp Amount",
+        "value": "+12%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+19.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 628111,
     "name": "Emerald Ring",
     "rarity": "Divine",
-    "type": "CDR +5.2%",
+    "type": "Ring",
     "level": "Lv50",
+    "stat": "CDR +5.2%",
     "image": "https://taskbarhero.wiki/game/gear/ring/RING_620011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+5.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+30.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cast Speed",
+        "value": "+12%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 638111,
     "name": "Emerald Bracer",
     "rarity": "Divine",
-    "type": "MOVE +15.6%",
+    "type": "Bracer",
     "level": "Lv50",
+    "stat": "MOVE +15.6%",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630011.png",
-    "rarity_color": "#fce454"
+    "rarity_color": "#fce454",
+    "stats": [
+      {
+        "name": "Movement Speed",
+        "value": "+15.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Area Of Effect",
+        "value": "+18.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Damage Reduction",
+        "value": "+12.5%",
+        "kind": "inherent"
+      }
+    ]
   }
 ]

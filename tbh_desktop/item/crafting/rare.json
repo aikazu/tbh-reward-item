@@ -5,7 +5,11 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "CRAFTING",
-    "search_text": "142001 Silver Ingot Material Rare Crafting Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "142001 Silver Ingot Material Rare Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Silver Ingot",
+      "crafting": "Crafts that consume Silver Ingot as a material â including higher-tier recipes the game only reveals once you reach them. Worth a look before you use it up. · Tier 5 | Armor makes Lv 40 gear | 6 possible items Silver Ingot â Armor ? Open the crafting station â Tier 5 | Boots makes Lv 40 gear | 6 possible items Silver Ingot â Boots ? Open the crafting station â Tier 5 | Gloves makes Lv 40 gear | 6 possible items Silver Ingot â Gloves ? Open the crafting station â Tier 5 | Helmet makes Lv 40 gear | 6 possible items Silver Ingot â Helmet ? Open the crafting station â Tier 5 | Sub weapon makes Lv 40 gear | 36 possible items Silver Ingot Gold Ingot â Sub weapon ? Open the crafting station â"
+    }
   },
   {
     "id": 142002,
@@ -13,6 +17,10 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "CRAFTING",
-    "search_text": "142002 Gold Ingot Material Rare Crafting Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "142002 Gold Ingot Material Rare Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Gold Ingot",
+      "crafting": "Crafts that consume Gold Ingot as a material â including higher-tier recipes the game only reveals once you reach them. Worth a look before you use it up. · Tier 5 | Main weapon makes Lv 40 gear | 36 possible items Gold Ingot â Main weapon ? Open the crafting station â Tier 5 | Sub weapon makes Lv 40 gear | 36 possible items Silver Ingot Gold Ingot â Sub weapon ? Open the crafting station â"
+    }
   }
 ]

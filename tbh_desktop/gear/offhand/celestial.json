@@ -3,180 +3,640 @@
     "id": 407141,
     "name": "Radiant Shield",
     "rarity": "Celestial",
-    "type": "HP +482",
+    "type": "Shield",
     "level": "Lv65",
+    "stat": "HP +482",
     "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400014.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Block Chance",
+        "value": "+32.5%",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+482",
+        "kind": "inherent"
+      },
+      {
+        "name": "Area Of Effect",
+        "value": "+39.1%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+4,621",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 407171,
     "name": "Dimensional Shield",
     "rarity": "Celestial",
-    "type": "HP +657",
+    "type": "Shield",
     "level": "Lv80",
+    "stat": "HP +657",
     "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400017.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Block Chance",
+        "value": "+39%",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+657",
+        "kind": "inherent"
+      },
+      {
+        "name": "All Elemental Resistance",
+        "value": "+34%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+25.3%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 417141,
     "name": "Haste Arrow",
     "rarity": "Celestial",
-    "type": "ATK +116",
+    "type": "Arrow",
     "level": "Lv65",
+    "stat": "ATK +116",
     "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410014.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+52.2%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+116",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+63.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+5.5%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 417171,
     "name": "Dimensional Arrow",
     "rarity": "Celestial",
-    "type": "ATK +186",
+    "type": "Arrow",
     "level": "Lv80",
+    "stat": "ATK +186",
     "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410017.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+60.5%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+186",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Leech",
+        "value": "+4.1%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+6.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 427141,
     "name": "Ancient Orb",
     "rarity": "Celestial",
-    "type": "ATK +116",
+    "type": "Orb",
     "level": "Lv65",
+    "stat": "ATK +116",
     "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420014.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+28%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+116",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+63.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+35.4%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 427171,
     "name": "Dimensional Orb",
     "rarity": "Celestial",
-    "type": "ATK +186",
+    "type": "Orb",
     "level": "Lv80",
+    "stat": "ATK +186",
     "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420017.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+31.8%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+186",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+83.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+6.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 437141,
     "name": "Warrior's Tome",
     "rarity": "Celestial",
-    "type": "BlockChance +12.9%",
+    "type": "Tome",
     "level": "Lv65",
+    "stat": "BlockChance +12.9%",
     "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430014.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Max HP",
+        "value": "+374",
+        "kind": "base"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+12.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+1,205",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Heal Increase",
+        "value": "+33.3%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 437171,
     "name": "Dimensional Tome",
     "rarity": "Celestial",
-    "type": "BlockChance +16.8%",
+    "type": "Tome",
     "level": "Lv80",
+    "stat": "BlockChance +16.8%",
     "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430017.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Max HP",
+        "value": "+725",
+        "kind": "base"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+16.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+1,642",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+12.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 447141,
     "name": "Haste Bolt",
     "rarity": "Celestial",
-    "type": "ATK +116",
+    "type": "Bolt",
     "level": "Lv65",
+    "stat": "ATK +116",
     "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440014.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Critical Damage",
+        "value": "+202%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+116",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+35.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+63.2%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 447171,
     "name": "Dimensional Bolt",
     "rarity": "Celestial",
-    "type": "ATK +186",
+    "type": "Bolt",
     "level": "Lv80",
+    "stat": "ATK +186",
     "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440017.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Critical Damage",
+        "value": "+235%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+186",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+43.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+6.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 407091,
     "name": "Elite Shield",
     "rarity": "Celestial",
-    "type": "ARM +2,046",
+    "type": "Shield",
     "level": "Lv40",
+    "stat": "ARM +2,046",
     "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400009.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Block Chance",
+        "value": "+23.9%",
+        "kind": "base"
+      },
+      {
+        "name": "Armor",
+        "value": "+2,046",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+1,411",
+        "kind": "inherent"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+13.2%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 417091,
     "name": "Rune Arrow",
     "rarity": "Celestial",
-    "type": "CRIT +26.5%",
+    "type": "Arrow",
     "level": "Lv40",
+    "stat": "CRIT +26.5%",
     "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410009.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+38.7%",
+        "kind": "base"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+26.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+13.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+4%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 427091,
     "name": "Arcane Orb",
     "rarity": "Celestial",
-    "type": "AreaOfEffect +23.1%",
+    "type": "Orb",
     "level": "Lv40",
+    "stat": "AreaOfEffect +23.1%",
     "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420009.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+21.9%",
+        "kind": "base"
+      },
+      {
+        "name": "Area Of Effect",
+        "value": "+23.1%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cast Speed",
+        "value": "+16.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+4%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 437091,
     "name": "Rune Tome",
     "rarity": "Celestial",
-    "type": "DamageAbsorption +197",
+    "type": "Tome",
     "level": "Lv40",
+    "stat": "DamageAbsorption +197",
     "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430009.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Max HP",
+        "value": "+221",
+        "kind": "base"
+      },
+      {
+        "name": "Damage Absorption",
+        "value": "+197",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+722",
+        "kind": "inherent"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+8.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 447091,
     "name": "Rune Bolt",
     "rarity": "Celestial",
-    "type": "ATK +52",
+    "type": "Bolt",
     "level": "Lv40",
+    "stat": "ATK +52",
     "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440009.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Critical Damage",
+        "value": "+149.2%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+52",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+40.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+40.8%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 407111,
     "name": "Mystic Shield",
     "rarity": "Celestial",
-    "type": "CDR +7.7%",
+    "type": "Shield",
     "level": "Lv50",
+    "stat": "CDR +7.7%",
     "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400011.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Block Chance",
+        "value": "+27.1%",
+        "kind": "base"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+7.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+3,065",
+        "kind": "inherent"
+      },
+      {
+        "name": "Damage Reduction",
+        "value": "+11%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 417111,
     "name": "Fate Arrow",
     "rarity": "Celestial",
-    "type": "ATK +50.3%",
+    "type": "Arrow",
     "level": "Lv50",
+    "stat": "ATK +50.3%",
     "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410011.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+44.1%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+50.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+78",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+4.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 427111,
     "name": "Mystic Orb",
     "rarity": "Celestial",
-    "type": "CDR +4.6%",
+    "type": "Orb",
     "level": "Lv50",
+    "stat": "CDR +4.6%",
     "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420011.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+24.3%",
+        "kind": "base"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+4.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+50.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+78",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 437111,
     "name": "Fate Tome",
     "rarity": "Celestial",
-    "type": "BlockChance +10.4%",
+    "type": "Tome",
     "level": "Lv50",
+    "stat": "BlockChance +10.4%",
     "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430011.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Max HP",
+        "value": "+255",
+        "kind": "base"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+10.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+928",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+7.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 447111,
     "name": "Fate Bolt",
     "rarity": "Celestial",
-    "type": "ATK +78",
+    "type": "Bolt",
     "level": "Lv50",
+    "stat": "ATK +78",
     "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440011.png",
-    "rarity_color": "#6ccce4"
+    "rarity_color": "#6ccce4",
+    "stats": [
+      {
+        "name": "Critical Damage",
+        "value": "+170%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+78",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+30.2%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+4.6%",
+        "kind": "inherent"
+      }
+    ]
   }
 ]

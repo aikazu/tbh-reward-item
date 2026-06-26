@@ -5,6 +5,10 @@
     "kind": "material",
     "rarity": "CELESTIAL",
     "family": "INSCRIPTION",
-    "search_text": "137001 Scroll of Celestial Inscription Material Celestial Inscription Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "137001 Scroll of Celestial Inscription Material Celestial Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Scroll of Celestial Inscription",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown)."
+    }
   }
 ]

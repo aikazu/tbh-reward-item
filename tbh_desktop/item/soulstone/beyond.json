@@ -5,6 +5,9 @@
     "kind": "material",
     "rarity": "BEYOND",
     "family": "SOULSTONE",
-    "search_text": "190003 Soulstone - Hell Material Beyond Soul Stone Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "190003 Soulstone - Hell Material Beyond Soul Stone Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Soulstone - Hell"
+    }
   }
 ]

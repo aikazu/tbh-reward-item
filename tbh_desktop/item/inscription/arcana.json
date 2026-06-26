@@ -5,6 +5,10 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "INSCRIPTION",
-    "search_text": "135001 Scroll of Arcana Inscription Material Arcana Inscription Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "135001 Scroll of Arcana Inscription Material Arcana Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Scroll of Arcana Inscription",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown)."
+    }
   }
 ]

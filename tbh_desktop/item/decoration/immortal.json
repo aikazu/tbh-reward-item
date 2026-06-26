@@ -5,7 +5,34 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "DECORATION",
-    "search_text": "114001 Diamond Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "114001 Diamond Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Diamond",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Attack Damage",
+          "chance": "100%",
+          "value": "+15~30",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "All Elemental Resistance",
+          "chance": "100%",
+          "value": "+13~15%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Area Of Effect",
+          "chance": "100%",
+          "value": "+12~14%",
+          "tier": "T5"
+        }
+      ]
+    }
   },
   {
     "id": 114002,
@@ -13,7 +40,34 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "DECORATION",
-    "search_text": "114002 Opal Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "114002 Opal Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Opal",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Attack Speed",
+          "chance": "100%",
+          "value": "+11~13%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Max HP",
+          "chance": "100%",
+          "value": "+17~20%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "HP Regen Per Sec",
+          "chance": "100%",
+          "value": "+300~400",
+          "tier": "T5"
+        }
+      ]
+    }
   },
   {
     "id": 114003,
@@ -21,7 +75,34 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "DECORATION",
-    "search_text": "114003 Lapis Lazuli Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "114003 Lapis Lazuli Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Lapis Lazuli",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Critical Chance",
+          "chance": "100%",
+          "value": "+35~40%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Dodge Chance",
+          "chance": "100%",
+          "value": "+7~9%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Movement Speed",
+          "chance": "100%",
+          "value": "+30~35%",
+          "tier": "T5"
+        }
+      ]
+    }
   },
   {
     "id": 114004,
@@ -29,6 +110,33 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "DECORATION",
-    "search_text": "114004 Black Pearl Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "114004 Black Pearl Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Black Pearl",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Area Of Effect",
+          "chance": "100%",
+          "value": "+14~17%",
+          "tier": "T6"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Block Chance",
+          "chance": "100%",
+          "value": "+7~9%",
+          "tier": "T5"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Cast Speed",
+          "chance": "100%",
+          "value": "+16~20%",
+          "tier": "T5"
+        }
+      ]
+    }
   }
 ]

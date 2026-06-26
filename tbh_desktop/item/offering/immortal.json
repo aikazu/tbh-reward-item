@@ -5,6 +5,9 @@
     "kind": "material",
     "rarity": "IMMORTAL",
     "family": "OFFERING",
-    "search_text": "160005 Kingdom 50th Anniversary Coin Material Immortal Offering Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "160005 Kingdom 50th Anniversary Coin Material Immortal Offering Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Kingdom 50th Anniversary Coin"
+    }
   }
 ]

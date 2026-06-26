@@ -3,72 +3,256 @@
     "id": 509141,
     "name": "Fighter's Helmet",
     "rarity": "Cosmic",
-    "type": "HP +258",
+    "type": "Helmet",
     "level": "Lv65",
+    "stat": "HP +258",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500014.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+3,339",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+258",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+4.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+256%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 509171,
     "name": "Dimensional Helmet",
     "rarity": "Cosmic",
-    "type": "HP +300",
+    "type": "Helmet",
     "level": "Lv80",
+    "stat": "HP +300",
     "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500017.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+7,014",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+300",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+3,000",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 519141,
     "name": "Shine Armor",
     "rarity": "Cosmic",
-    "type": "HP +428",
+    "type": "Armor",
     "level": "Lv65",
+    "stat": "HP +428",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510014.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+6,679",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+428",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+427%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Max HP",
+        "value": "+43.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 519171,
     "name": "Dimensional Armor",
     "rarity": "Cosmic",
-    "type": "HP +500",
+    "type": "Armor",
     "level": "Lv80",
+    "stat": "HP +500",
     "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510017.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+14,029",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+500",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+5,000",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+500%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 529141,
     "name": "Shine Gloves",
     "rarity": "Cosmic",
-    "type": "HP +258",
+    "type": "Gloves",
     "level": "Lv65",
+    "stat": "HP +258",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520014.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+2,860",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+258",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+26.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+1,709",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 529171,
     "name": "Dimensional Gloves",
     "rarity": "Cosmic",
-    "type": "HP +300",
+    "type": "Gloves",
     "level": "Lv80",
+    "stat": "HP +300",
     "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520017.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+6,012",
+        "kind": "base"
+      },
+      {
+        "name": "Max HP",
+        "value": "+300",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+30%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+2,000",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 539141,
     "name": "Shine Boots",
     "rarity": "Cosmic",
-    "type": "MOVE +217",
+    "type": "Boots",
     "level": "Lv65",
+    "stat": "MOVE +217",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530014.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+1,907",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+217",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+1,589",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+170.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 539171,
     "name": "Dimensional Boots",
     "rarity": "Cosmic",
-    "type": "MOVE +250",
+    "type": "Boots",
     "level": "Lv80",
+    "stat": "MOVE +250",
     "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530017.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Armor",
+        "value": "+4,011",
+        "kind": "base"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+250",
+        "kind": "inherent"
+      },
+      {
+        "name": "Armor",
+        "value": "+2,000",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+2,000",
+        "kind": "inherent"
+      }
+    ]
   }
 ]

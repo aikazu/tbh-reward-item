@@ -5,7 +5,35 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "DECORATION",
-    "search_text": "112001 Ruby Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "112001 Ruby Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Ruby",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Fire Damage Percent",
+          "chance": "100%",
+          "value": "+30~40%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Fire Resistance",
+          "chance": "100%",
+          "value": "+15~20%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Attack Damage",
+          "chance": "100%",
+          "value": "+3~6",
+          "tier": "T3"
+        }
+      ],
+      "crafting": "Crafts that consume Ruby as a material â including higher-tier recipes the game only reveals once you reach them. Worth a look before you use it up. · Tier 5 | Accessory makes Lv 40 gear | 24 possible items Void Iron Ruby Sapphire â Accessory ? Open the crafting station â"
+    }
   },
   {
     "id": 112002,
@@ -13,7 +41,35 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "DECORATION",
-    "search_text": "112002 Sapphire Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "112002 Sapphire Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Sapphire",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Cold Damage Percent",
+          "chance": "100%",
+          "value": "+30~40%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Cold Resistance",
+          "chance": "100%",
+          "value": "+15~20%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Critical Chance",
+          "chance": "100%",
+          "value": "+20~25%",
+          "tier": "T3"
+        }
+      ],
+      "crafting": "Crafts that consume Sapphire as a material â including higher-tier recipes the game only reveals once you reach them. Worth a look before you use it up. · Tier 5 | Accessory makes Lv 40 gear | 24 possible items Void Iron Ruby Sapphire â Accessory ? Open the crafting station â"
+    }
   },
   {
     "id": 112003,
@@ -21,7 +77,35 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "DECORATION",
-    "search_text": "112003 Topaz Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "112003 Topaz Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Topaz",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Lightning Damage Percent",
+          "chance": "100%",
+          "value": "+30~40%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Lightning Resistance",
+          "chance": "100%",
+          "value": "+15~20%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Cast Speed",
+          "chance": "100%",
+          "value": "+12~14%",
+          "tier": "T3"
+        }
+      ],
+      "crafting": "Crafts that consume Topaz as a material â including higher-tier recipes the game only reveals once you reach them. Worth a look before you use it up. · Tier 6 | Accessory makes Lv 50â65 gear | 44 possible items Thunderstone Topaz Emerald â Accessory ? Open the crafting station â"
+    }
   },
   {
     "id": 112004,
@@ -29,7 +113,35 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "DECORATION",
-    "search_text": "112004 Emerald Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "112004 Emerald Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Emerald",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Attack Speed",
+          "chance": "100%",
+          "value": "+7~9%",
+          "tier": "T4"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Chaos Resistance",
+          "chance": "100%",
+          "value": "+15~20%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Movement Speed",
+          "chance": "100%",
+          "value": "+20~25%",
+          "tier": "T3"
+        }
+      ],
+      "crafting": "Crafts that consume Emerald as a material â including higher-tier recipes the game only reveals once you reach them. Worth a look before you use it up. · Tier 6 | Accessory makes Lv 50â65 gear | 44 possible items Thunderstone Topaz Emerald â Accessory ? Open the crafting station â"
+    }
   },
   {
     "id": 112005,
@@ -37,6 +149,33 @@
     "kind": "material",
     "rarity": "RARE",
     "family": "DECORATION",
-    "search_text": "112005 Amethyst Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "112005 Amethyst Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Amethyst",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Physical Damage Percent",
+          "chance": "100%",
+          "value": "+30~40%",
+          "tier": "T3"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Max HP",
+          "chance": "100%",
+          "value": "+60~90",
+          "tier": "T3"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Cooldown Reduction",
+          "chance": "100%",
+          "value": "+4~5.5%",
+          "tier": "T3"
+        }
+      ]
+    }
   }
 ]

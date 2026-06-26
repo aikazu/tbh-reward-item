@@ -5,6 +5,9 @@
     "kind": "material",
     "rarity": "ARCANA",
     "family": "SOULSTONE",
-    "search_text": "190002 Soulstone - Nightmare Material Arcana Soul Stone Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "190002 Soulstone - Nightmare Material Arcana Soul Stone Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Soulstone - Nightmare"
+    }
   }
 ]

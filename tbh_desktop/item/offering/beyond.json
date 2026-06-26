@@ -5,6 +5,9 @@
     "kind": "material",
     "rarity": "BEYOND",
     "family": "OFFERING",
-    "search_text": "160007 Kingdom 100th Anniversary Coin Material Beyond Offering Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "160007 Kingdom 100th Anniversary Coin Material Beyond Offering Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Kingdom 100th Anniversary Coin"
+    }
   }
 ]

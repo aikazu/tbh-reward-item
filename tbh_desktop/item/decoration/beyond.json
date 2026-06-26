@@ -5,7 +5,34 @@
     "kind": "material",
     "rarity": "BEYOND",
     "family": "DECORATION",
-    "search_text": "116001 Void Opal Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "116001 Void Opal Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Void Opal",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Cooldown Reduction",
+          "chance": "100%",
+          "value": "+11.5~13%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Max HP",
+          "chance": "100%",
+          "value": "+25~30%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Max HP",
+          "chance": "100%",
+          "value": "+180~210",
+          "tier": "T7"
+        }
+      ]
+    }
   },
   {
     "id": 116002,
@@ -13,7 +40,34 @@
     "kind": "material",
     "rarity": "BEYOND",
     "family": "DECORATION",
-    "search_text": "116002 Astral Diamond Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "116002 Astral Diamond Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Astral Diamond",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Attack Damage",
+          "chance": "100%",
+          "value": "+50~100",
+          "tier": "T8"
+        },
+        {
+          "slot": "Armor",
+          "stat": "All Elemental Resistance",
+          "chance": "100%",
+          "value": "+17~19%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Area Of Effect",
+          "chance": "100%",
+          "value": "+17~20%",
+          "tier": "T7"
+        }
+      ]
+    }
   },
   {
     "id": 116003,
@@ -21,7 +75,34 @@
     "kind": "material",
     "rarity": "BEYOND",
     "family": "DECORATION",
-    "search_text": "116003 Phantom Emerald Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "116003 Phantom Emerald Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Phantom Emerald",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Attack Speed",
+          "chance": "100%",
+          "value": "+15~17%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Chaos Resistance",
+          "chance": "100%",
+          "value": "+35~40%",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Movement Speed",
+          "chance": "100%",
+          "value": "+40~45%",
+          "tier": "T7"
+        }
+      ]
+    }
   },
   {
     "id": 116004,
@@ -29,6 +110,33 @@
     "kind": "material",
     "rarity": "BEYOND",
     "family": "DECORATION",
-    "search_text": "116004 Twilight Amethyst Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "116004 Twilight Amethyst Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Twilight Amethyst",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown).",
+      "stats": [
+        {
+          "slot": "Weapon",
+          "stat": "Physical Damage Percent",
+          "chance": "100%",
+          "value": "+100~130%",
+          "tier": "T8"
+        },
+        {
+          "slot": "Armor",
+          "stat": "Max HP",
+          "chance": "100%",
+          "value": "+180~210",
+          "tier": "T7"
+        },
+        {
+          "slot": "Accessory",
+          "stat": "Cooldown Reduction",
+          "chance": "100%",
+          "value": "+8.5~10%",
+          "tier": "T6"
+        }
+      ]
+    }
   }
 ]

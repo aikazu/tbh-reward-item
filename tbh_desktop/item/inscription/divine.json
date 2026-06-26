@@ -5,6 +5,10 @@
     "kind": "material",
     "rarity": "DIVINE",
     "family": "INSCRIPTION",
-    "search_text": "138001 Scroll of Divine Inscription Material Divine Inscription Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "138001 Scroll of Divine Inscription Material Divine Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Scroll of Divine Inscription",
+      "effect": "Applied to gear, this material rolls one stat per category (pick chance shown)."
+    }
   }
 ]

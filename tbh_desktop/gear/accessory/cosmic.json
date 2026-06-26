@@ -3,72 +3,216 @@
     "id": 609141,
     "name": "Eclipse Amulet",
     "rarity": "Cosmic",
-    "type": "CDR +7.3%",
+    "type": "Amulet",
     "level": "Lv65",
+    "stat": "CDR +7.3%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600014.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+7.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+53.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Multistrike",
+        "value": "+1",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 609171,
     "name": "Ethereal Amulet",
     "rarity": "Cosmic",
-    "type": "ASPD +30%",
+    "type": "Amulet",
     "level": "Lv80",
+    "stat": "ASPD +30%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600017.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+30%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+60%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 619141,
     "name": "Celestial Earring",
     "rarity": "Cosmic",
-    "type": "ATK +795",
+    "type": "Earing",
     "level": "Lv65",
+    "stat": "ATK +795",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610014.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+795",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+44.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+26.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 619171,
     "name": "Ethereal Earring",
     "rarity": "Cosmic",
-    "type": "AreaOfEffect +30%",
+    "type": "Earing",
     "level": "Lv80",
+    "stat": "AreaOfEffect +30%",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610017.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Area Of Effect",
+        "value": "+30%",
+        "kind": "inherent"
+      },
+      {
+        "name": "HP Leech",
+        "value": "+3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+30%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 629141,
     "name": "Eclipse Ring",
     "rarity": "Cosmic",
-    "type": "ASPD +17.8%",
+    "type": "Ring",
     "level": "Lv65",
+    "stat": "ASPD +17.8%",
     "image": "https://taskbarhero.wiki/game/gear/ring/RING_620014.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Attack Speed",
+        "value": "+17.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+43.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add HP Per Kill",
+        "value": "+86",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 629171,
     "name": "Ethereal Ring",
     "rarity": "Cosmic",
-    "type": "CDR +8%",
+    "type": "Ring",
     "level": "Lv80",
+    "stat": "CDR +8%",
     "image": "https://taskbarhero.wiki/game/gear/ring/RING_620017.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+20%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add HP Per Hit",
+        "value": "+30",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 639141,
     "name": "Eclipse Bracer",
     "rarity": "Cosmic",
-    "type": "DamageAbsorption +260",
+    "type": "Bracer",
     "level": "Lv65",
+    "stat": "DamageAbsorption +260",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630014.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Damage Absorption",
+        "value": "+260",
+        "kind": "inherent"
+      },
+      {
+        "name": "Damage Reduction",
+        "value": "+17.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+17.5%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 639171,
     "name": "Ethereal Bracer",
     "rarity": "Cosmic",
-    "type": "AreaOfEffect +30%",
+    "type": "Bracer",
     "level": "Lv80",
+    "stat": "AreaOfEffect +30%",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630017.png",
-    "rarity_color": "#fcfcfc"
+    "rarity_color": "#fcfcfc",
+    "stats": [
+      {
+        "name": "Area Of Effect",
+        "value": "+30%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Damage Reduction",
+        "value": "+20%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Block Chance",
+        "value": "+20%",
+        "kind": "inherent"
+      }
+    ]
   }
 ]

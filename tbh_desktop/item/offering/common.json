@@ -5,6 +5,9 @@
     "kind": "material",
     "rarity": "COMMON",
     "family": "OFFERING",
-    "search_text": "160001 Kingdom 1st Anniversary Coin Material Common Offering Material type lookup; exact loot source needs current loot table confirmation."
+    "search_text": "160001 Kingdom 1st Anniversary Coin Material Common Offering Material type lookup; exact loot source needs current loot table confirmation.",
+    "info": {
+      "name": "Kingdom 1st Anniversary Coin"
+    }
   }
 ]

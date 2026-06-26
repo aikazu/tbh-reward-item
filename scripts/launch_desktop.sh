@@ -120,4 +120,8 @@ if [[ "$CHECK_ONLY" == true ]]; then
 fi
 
 echo "Launching TBH desktop app…"
+# Suppress Wayland noise: "This plugin supports grabbing the mouse only for
+# popup windows" is informational (Qt can't grab mouse for non-popup windows
+# on Wayland by design — does not affect functionality).
+export QT_LOGGING_RULES="${QT_LOGGING_RULES:-};qt.qpa.wayland.warning=false"
 exec .venv/bin/python -m tbh_desktop.main

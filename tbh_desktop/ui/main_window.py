@@ -1,7 +1,7 @@
 """Main window: toolbar, splitter (editor + log), proxy runner wiring."""
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
@@ -24,6 +24,35 @@ from tbh_desktop.ui.config_editor import ConfigEditor
 from tbh_desktop.ui.gear_picker import GearPicker
 from tbh_desktop.ui.log_panel import LogPanel
 from tbh_desktop.ui.theme import status_dot_style
+
+
+class _ThreadLogBridge(QObject):
+    """Tiny QObject that lets non-Qt threads push log lines into the GUI
+    log panel via a Qt signal.
+
+    Why this exists: ``ProxyRunner`` and ``GearScraperRunner`` already
+    emit ``log_line`` from their worker threads. ``Qt.AutoConnection``
+    routes those across threads correctly (the receiver lives on the GUI
+    thread, so the slot runs there).
+
+    But the inline ``threading.Thread`` spawned by
+    ``MainWindow._refresh_gear`` for the drops index fetch was calling
+    ``self._on_log(...)`` *directly* — that bypasses the queue and
+    invokes ``QPlainTextEdit.appendPlainText`` from a non-GUI thread.
+    Layout operations on a widget from a foreign thread are undefined
+    behavior; on PySide6 6.11 / Qt 6.11 with a font containing the
+    ellipsis glyph, that crashed inside HarfBuzz
+    (``QTextEngine::shapeTextWithHarfbuzzNG``) with a SIGSEGV.
+
+    Fix: spawn a ``_ThreadLogBridge`` (lives on the GUI thread) and have
+    the worker thread call ``bridge.log_line.emit(...)``. Qt queues the
+    signal across threads so the slot runs on the GUI thread safely.
+    """
+
+    log_line = Signal(str)
+
+    def __init__(self) -> None:
+        super().__init__()
 
 
 class MainWindow(QMainWindow):
@@ -207,17 +236,25 @@ class MainWindow(QMainWindow):
         # Kick off gear scrape in its own thread.
         self.gear_scraper.start()
         # Run drops index fetch in parallel — it doesn't depend on gear data.
+        # The drops thread must NOT call self._on_log directly (would touch
+        # the log widget from a non-GUI thread → SIGSEGV in HarfBuzz text
+        # shaping). Use a small QObject bridge that lives on the GUI thread
+        # and emits across-thread so the slot runs safely on the GUI thread.
         import threading
+        bridge = _ThreadLogBridge()
+        bridge.log_line.connect(self._on_log)
+        # Keep a ref so it isn't GC'd mid-scrape.
+        self._drops_log_bridge = bridge
         def _fetch_drops_async() -> None:
             try:
                 from tbh_desktop.paths import DROPS_INDEX_CACHE
                 from tbh_desktop.scraper import fetch_drops_index
                 items = fetch_drops_index(DROPS_INDEX_CACHE)
-                self._on_log(
+                bridge.log_line.emit(
                     f"Drops index: {len(items)} items cached (materials + stage boxes)"
                 )
             except Exception as exc:
-                self._on_log(f"Drops index fetch failed: {exc}")
+                bridge.log_line.emit(f"Drops index fetch failed: {exc}")
         threading.Thread(target=_fetch_drops_async, daemon=True).start()
 
     def _on_gear_scraping(self, scraping: bool) -> None:

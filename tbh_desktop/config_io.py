@@ -12,10 +12,14 @@ from typing import Any, TypeVar
 
 from tbh_desktop.paths import SRC_DIR
 
-# Import ProxyConfig from src for validation only.
+# Import ProxyConfig from the dedicated data module. This module has no
+# addon side effects (no mitmproxy import, no top-level TBHRewardHook()).
+# Previously we imported from tbh_reward_hook which constructed the addon
+# at import time — that's why the desktop app printed "loaded: N rules"
+# at launch even though the proxy hadn't been started.
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
-from tbh_reward_hook import ProxyConfig  # type: ignore[import-not-found]
+from tbh_proxy_config import ProxyConfig  # type: ignore[import-not-found]
 from config_setup import DEFAULT_CONFIG_PATH  # type: ignore[import-not-found]  # noqa: E402
 
 log = logging.getLogger(__name__)

@@ -8,8 +8,14 @@ New in G4:
   - Optional ``box_loot`` list: when supplied, only gear whose ``name``
     matches one of the loot item names is shown (so the picker is scoped to
     the box the user is editing).  A "Show all gear" checkbox toggles this.
-  - Optional ``level_hint``: pre-sets the level spinboxes to the box's level
-    (±5 tolerance) so the picker opens pre-filtered.
+  - Optional ``level_hint``: pre-sets the level dropdowns to bracket the
+    box's level (±5 tolerance) so the picker opens pre-filtered.
+
+G5:
+  - Replaced the level min/max spinboxes (continuous 0-100) with two
+    dropdowns that list only the distinct levels actually present in the
+    cache for the current category+grade filter. Avoids picking a level
+    that no gear has.
 """
 from __future__ import annotations
 
@@ -28,7 +34,6 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
-    QSpinBox,
     QVBoxLayout,
 )
 
@@ -97,22 +102,29 @@ class GearPicker(QDialog):
         filter_row.addStretch()
         filters_layout.addLayout(filter_row)
 
-        # Level range row
+        # Level row — two discrete dropdowns populated from levels that
+        # actually appear in the cache (e.g. Lv1 / Lv5 / Lv10 / ...). Avoids
+        # the "spinbox lets you pick Lv47 even though no gear has that level"
+        # problem. "All" is always the first option (= no level filter).
         level_row = QHBoxLayout()
         level_row.addWidget(QLabel("Level:"))
-        self.level_min = QSpinBox()
-        self.level_min.setRange(0, 100)
-        self.level_min.setValue(1)
-        self.level_min.valueChanged.connect(self._rebuild)
+        self.level_min = QComboBox()
+        self.level_min.setToolTip("Lowest level to show (from cache) — 'All' = no minimum")
+        self.level_min.currentIndexChanged.connect(self._rebuild)
         level_row.addWidget(self.level_min)
         level_row.addWidget(QLabel("–"))
-        self.level_max = QSpinBox()
-        self.level_max.setRange(0, 100)
-        self.level_max.setValue(100)
-        self.level_max.valueChanged.connect(self._rebuild)
+        self.level_max = QComboBox()
+        self.level_max.setToolTip("Highest level to show (from cache) — 'All' = no maximum")
+        self.level_max.currentIndexChanged.connect(self._rebuild)
         level_row.addWidget(self.level_max)
         level_row.addStretch()
         filters_layout.addLayout(level_row)
+
+        # Pre-populate level dropdowns with distinct levels from cache files.
+        # "All" is the first entry (index 0); subsequent entries are sorted by
+        # numeric level. Repopulated on filter changes via _rebuild since
+        # adding a category filter changes which levels are visible.
+        self._populate_level_options()
 
         # "Match box loot" checkbox — only visible when box loot was supplied.
         self.match_box_check = QCheckBox("Only show gear from this box")
@@ -154,12 +166,9 @@ class GearPicker(QDialog):
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
 
-        # Apply level hint to spinboxes before initial population.
+        # Apply level hint to dropdowns before initial population.
         if level_hint is not None and level_hint > 0:
-            lo = max(1, level_hint - _LEVEL_TOLERANCE)
-            hi = min(100, level_hint + _LEVEL_TOLERANCE)
-            self.level_min.setValue(lo)
-            self.level_max.setValue(hi)
+            self._apply_level_hint(level_hint)
 
         # Initial population.
         self._rebuild()
@@ -199,8 +208,12 @@ class GearPicker(QDialog):
         and (optionally) the box-loot name filter.  Search visibility is
         reapplied afterwards via :meth:`_apply_search`.
         """
-        lo = self.level_min.value()
-        hi = self.level_max.value()
+        # Repopulate level dropdowns — distinct levels depend on the current
+        # category+grade filter, so the available options may shrink/grow.
+        self._populate_level_options()
+        # currentData() returns None for the "All" pseudo-entry.
+        lo = self.level_min.currentData()
+        hi = self.level_max.currentData()
 
         match_box = (
             self._loot_names is not None and self.match_box_check.isChecked()
@@ -213,7 +226,9 @@ class GearPicker(QDialog):
             if name is None:
                 continue
             level = self._parse_level(str(item.get("level", "")))
-            if level < lo or level > hi:
+            if lo is not None and level < lo:
+                continue
+            if hi is not None and level > hi:
                 continue
             if match_box and str(name).strip().lower() not in loot_names:
                 continue
@@ -232,6 +247,70 @@ class GearPicker(QDialog):
             self.count_label.setText(f"{total} items")
         else:
             self.count_label.setText(f"{visible} of {total} items")
+
+    # -------------------------------------------------------------- level ops
+    def _populate_level_options(self) -> None:
+        """Populate the level_min / level_max dropdowns with distinct levels
+        present in the cache files matching the current category+grade filter.
+
+        "All" is always the first option (UserData=None = no filter). Other
+        entries are sorted by numeric level, lowest to highest. Preserves the
+        current selection where possible.
+        """
+        levels = self._collect_levels()
+        # Block signals so re-populating doesn't fire _rebuild recursively.
+        for combo, current in (
+            (self.level_min, self.level_min.currentData()),
+            (self.level_max, self.level_max.currentData()),
+        ):
+            combo.blockSignals(True)
+            combo.clear()
+            combo.addItem("All", None)  # userData=None = no filter
+            for lv in levels:
+                combo.addItem(f"Lv{lv}", lv)
+            # Restore previous selection if that level still exists.
+            if current is not None and current in levels:
+                idx = combo.findData(current)
+                if idx >= 0:
+                    combo.setCurrentIndex(idx)
+            combo.blockSignals(False)
+
+    def _collect_levels(self) -> list[int]:
+        """Distinct levels across all cache files matching the current
+        category+grade filter, sorted ascending.
+        """
+        levels: set[int] = set()
+        for item in self._load_items_for_filters():
+            levels.add(self._parse_level(str(item.get("level", ""))))
+        return sorted(levels)
+
+    def _apply_level_hint(self, level: int) -> None:
+        """Pick dropdowns nearest to *level* (within _LEVEL_TOLERANCE). If no
+        exact-or-close level exists in the dropdowns yet, pick the closest.
+        """
+        levels = self._collect_levels()
+        if not levels:
+            return
+        # Pick the closest level to (level - tolerance) and (level + tolerance).
+        target_lo = max(1, level - _LEVEL_TOLERANCE)
+        target_hi = min(100, level + _LEVEL_TOLERANCE)
+        lo = min(levels, key=lambda lv: abs(lv - target_lo))
+        hi = min(levels, key=lambda lv: abs(lv - target_hi))
+        # If both clamps land on the same level, expand hi to the next level
+        # up so the dropdowns always represent a non-empty bracket.
+        if lo == hi:
+            higher = [lv for lv in levels if lv > lo]
+            if higher:
+                hi = higher[0]
+            else:
+                # Nothing higher — fall back to "All" on hi (no upper bound).
+                hi = None
+        self.level_min.setCurrentIndex(self.level_min.findData(lo))
+        if hi is not None:
+            self.level_max.setCurrentIndex(self.level_max.findData(hi))
+        else:
+            # -1 = "All" entry, which has userData=None
+            self.level_max.setCurrentIndex(0)
 
     @staticmethod
     def _parse_level(meta_level: str) -> int:

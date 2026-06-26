@@ -1,0 +1,18 @@
+[
+  {
+    "id": 127001,
+    "name": "Abyssal Mucus",
+    "kind": "material",
+    "rarity": "CELESTIAL",
+    "family": "ENGRAVING",
+    "search_text": "127001 Abyssal Mucus Material Celestial Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 127002,
+    "name": "Chaos Spore",
+    "kind": "material",
+    "rarity": "CELESTIAL",
+    "family": "ENGRAVING",
+    "search_text": "127002 Chaos Spore Material Celestial Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "id": 119001,
+    "name": "Ethereal Gem",
+    "kind": "material",
+    "rarity": "COSMIC",
+    "family": "DECORATION",
+    "search_text": "119001 Ethereal Gem Material Cosmic Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 119002,
+    "name": "Chaos Diamond",
+    "kind": "material",
+    "rarity": "COSMIC",
+    "family": "DECORATION",
+    "search_text": "119002 Chaos Diamond Material Cosmic Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "id": 117001,
+    "name": "Celestial Pearl",
+    "kind": "material",
+    "rarity": "CELESTIAL",
+    "family": "DECORATION",
+    "search_text": "117001 Celestial Pearl Material Celestial Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 117002,
+    "name": "Dragonite Crystal",
+    "kind": "material",
+    "rarity": "CELESTIAL",
+    "family": "DECORATION",
+    "search_text": "117002 Dragonite Crystal Material Celestial Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

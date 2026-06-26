@@ -1,0 +1,34 @@
+[
+  {
+    "id": 115001,
+    "name": "Arcane Crystal",
+    "kind": "material",
+    "rarity": "ARCANA",
+    "family": "DECORATION",
+    "search_text": "115001 Arcane Crystal Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 115002,
+    "name": "Mystic Topaz",
+    "kind": "material",
+    "rarity": "ARCANA",
+    "family": "DECORATION",
+    "search_text": "115002 Mystic Topaz Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 115003,
+    "name": "Enchanted Ruby",
+    "kind": "material",
+    "rarity": "ARCANA",
+    "family": "DECORATION",
+    "search_text": "115003 Enchanted Ruby Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 115004,
+    "name": "Starlight Sapphire",
+    "kind": "material",
+    "rarity": "ARCANA",
+    "family": "DECORATION",
+    "search_text": "115004 Starlight Sapphire Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

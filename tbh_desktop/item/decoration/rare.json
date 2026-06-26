@@ -1,0 +1,42 @@
+[
+  {
+    "id": 112001,
+    "name": "Ruby",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "DECORATION",
+    "search_text": "112001 Ruby Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 112002,
+    "name": "Sapphire",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "DECORATION",
+    "search_text": "112002 Sapphire Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 112003,
+    "name": "Topaz",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "DECORATION",
+    "search_text": "112003 Topaz Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 112004,
+    "name": "Emerald",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "DECORATION",
+    "search_text": "112004 Emerald Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 112005,
+    "name": "Amethyst",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "DECORATION",
+    "search_text": "112005 Amethyst Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

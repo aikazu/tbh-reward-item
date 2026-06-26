@@ -1,0 +1,18 @@
+[
+  {
+    "id": 129001,
+    "name": "Chaso Dice",
+    "kind": "material",
+    "rarity": "COSMIC",
+    "family": "ENGRAVING",
+    "search_text": "129001 Chaso Dice Material Cosmic Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 129002,
+    "name": "Void Tendril",
+    "kind": "material",
+    "rarity": "COSMIC",
+    "family": "ENGRAVING",
+    "search_text": "129002 Void Tendril Material Cosmic Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

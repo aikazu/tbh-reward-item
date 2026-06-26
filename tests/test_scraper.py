@@ -696,8 +696,9 @@ def test_select_gear_filters_skips_toggle_when_already_checked() -> None:
 
 def test_refresh_gear_full_writes_per_category_grade(tmp_path: Path) -> None:
     """refresh_gear_full writes one cache file per (category, grade) combo and
-    returns a dict keyed by '{cat}_{grade}'."""
-    out_dir = tmp_path / "gear_cache"
+    returns a dict keyed by '{cat}_{grade}'. Cache layout: nested by
+    category, e.g. ``{out_dir}/weapon/legendary.json``."""
+    out_dir = tmp_path / "gear"
 
     # Fake browser: patch _stealth_launch so launch returns a context with
     # a page whose content() returns GEAR_HTML and selectors behave.
@@ -725,16 +726,19 @@ def test_refresh_gear_full_writes_per_category_grade(tmp_path: Path) -> None:
 
     # 4 cache files written (weapon x legendary/immortal, offhand x ...).
     expected = {
-        "gear_weapon_legendary.json",
-        "gear_weapon_immortal.json",
-        "gear_offhand_legendary.json",
-        "gear_offhand_immortal.json",
+        "weapon/legendary.json",
+        "weapon/immortal.json",
+        "offhand/legendary.json",
+        "offhand/immortal.json",
     }
-    written = {p.name for p in out_dir.iterdir()}
+    written = {
+        str(p.relative_to(out_dir)).replace("\\", "/")
+        for p in out_dir.rglob("*.json")
+    }
     assert expected <= written
     assert set(result.keys()) == {"weapon_legendary", "weapon_immortal", "offhand_legendary", "offhand_immortal"}
     # each file parses back to the fixture's obtainable items.
-    loaded = scraper.read_gear_cache(out_dir / "gear_weapon_legendary.json")
+    loaded = scraper.read_gear_cache(out_dir / "weapon" / "legendary.json")
     assert 300001 in [i["id"] for i in loaded]
     assert 300006 not in [i["id"] for i in loaded]
 
@@ -742,10 +746,10 @@ def test_refresh_gear_full_writes_per_category_grade(tmp_path: Path) -> None:
 def test_refresh_gear_full_falls_back_to_cache_on_error(tmp_path: Path) -> None:
     """If browser launch raises, existing cache files are preserved and
     their items returned (per-combo fallback)."""
-    out_dir = tmp_path / "gear_cache"
+    out_dir = tmp_path / "gear"
     out_dir.mkdir(parents=True)
     cached = [{"id": 777, "name": "Cached Legendary", "rarity": "Legendary", "type": "Sword"}]
-    scraper.write_gear_cache(out_dir / "gear_weapon_legendary.json", cached)
+    scraper.write_gear_cache(out_dir / "weapon" / "legendary.json", cached)
 
     def _boom(*_a, **_k):
         raise RuntimeError("browser launch failed")
@@ -758,7 +762,7 @@ def test_refresh_gear_full_falls_back_to_cache_on_error(tmp_path: Path) -> None:
         )
 
     # existing cache preserved + returned.
-    assert scraper.read_gear_cache(out_dir / "gear_weapon_legendary.json") == cached
+    assert scraper.read_gear_cache(out_dir / "weapon" / "legendary.json") == cached
     assert result["weapon_legendary"] == cached
 
 
@@ -807,7 +811,7 @@ def test_scrape_one_combo_retries_after_iframe_failure(tmp_path: Path) -> None:
         assert len(result) == 1
         assert result[0]["id"] == 999
         # Cache file written
-        cache_file = out_dir / "gear_weapon_legendary.json"
+        cache_file = out_dir / "weapon" / "legendary.json"
         assert cache_file.exists()
         # page.goto called twice (initial + retry)
         assert goto_count["n"] == 2

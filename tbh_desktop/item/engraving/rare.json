@@ -1,0 +1,34 @@
+[
+  {
+    "id": 122001,
+    "name": "Bat Wing Membrane",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "ENGRAVING",
+    "search_text": "122001 Bat Wing Membrane Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 122002,
+    "name": "Ogre Blood",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "ENGRAVING",
+    "search_text": "122002 Ogre Blood Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 122003,
+    "name": "Mushroom Spore",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "ENGRAVING",
+    "search_text": "122003 Mushroom Spore Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 122004,
+    "name": "Ancient Tree Sap",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "ENGRAVING",
+    "search_text": "122004 Ancient Tree Sap Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

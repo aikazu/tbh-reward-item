@@ -1,0 +1,26 @@
+[
+  {
+    "id": 120001,
+    "name": "Goblin Hide",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "ENGRAVING",
+    "search_text": "120001 Goblin Hide Material Common Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 120002,
+    "name": "Skeleton Bone",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "ENGRAVING",
+    "search_text": "120002 Skeleton Bone Material Common Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 120003,
+    "name": "Slime Jelly",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "ENGRAVING",
+    "search_text": "120003 Slime Jelly Material Common Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

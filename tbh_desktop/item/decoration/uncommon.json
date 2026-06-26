@@ -1,0 +1,34 @@
+[
+  {
+    "id": 111001,
+    "name": "Obsidian Shard",
+    "kind": "material",
+    "rarity": "UNCOMMON",
+    "family": "DECORATION",
+    "search_text": "111001 Obsidian Shard Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 111002,
+    "name": "Coral Piece",
+    "kind": "material",
+    "rarity": "UNCOMMON",
+    "family": "DECORATION",
+    "search_text": "111002 Coral Piece Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 111003,
+    "name": "Jade Stone",
+    "kind": "material",
+    "rarity": "UNCOMMON",
+    "family": "DECORATION",
+    "search_text": "111003 Jade Stone Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 111004,
+    "name": "Amber Gem",
+    "kind": "material",
+    "rarity": "UNCOMMON",
+    "family": "DECORATION",
+    "search_text": "111004 Amber Gem Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "id": 116001,
+    "name": "Void Opal",
+    "kind": "material",
+    "rarity": "BEYOND",
+    "family": "DECORATION",
+    "search_text": "116001 Void Opal Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 116002,
+    "name": "Astral Diamond",
+    "kind": "material",
+    "rarity": "BEYOND",
+    "family": "DECORATION",
+    "search_text": "116002 Astral Diamond Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 116003,
+    "name": "Phantom Emerald",
+    "kind": "material",
+    "rarity": "BEYOND",
+    "family": "DECORATION",
+    "search_text": "116003 Phantom Emerald Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 116004,
+    "name": "Twilight Amethyst",
+    "kind": "material",
+    "rarity": "BEYOND",
+    "family": "DECORATION",
+    "search_text": "116004 Twilight Amethyst Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

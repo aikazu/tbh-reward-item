@@ -189,24 +189,36 @@ class GearPicker(QDialog):
     def _load_items_for_filters(self) -> list[dict]:
         """Glob cache files matching the current category+grade and merge them,
         deduping by id. Returns the raw item dicts (before level filtering).
+
+        Cache layout (since G8): ``{cache_dir}/{category}/{rarity}.json``.
+        e.g. ``gear/weapon/legendary.json``.
         """
         cat_slug = _CATEGORY_DISPLAY[self.category.currentText()]
         grade_slug = _GRADE_DISPLAY[self.grade.currentText()]
-
-        if cat_slug is None and grade_slug is None:
-            pattern = "gear_*_*.json"
-        elif cat_slug is None:
-            pattern = f"gear_*_{grade_slug}.json"
-        elif grade_slug is None:
-            pattern = f"gear_{cat_slug}_*.json"
-        else:
-            pattern = f"gear_{cat_slug}_{grade_slug}.json"
 
         seen: set[int] = set()
         merged: list[dict] = []
         if not self._cache_dir.exists():
             return merged
-        for path in sorted(self._cache_dir.glob(pattern)):
+
+        # Build candidate file paths based on the cat/grade filter.
+        candidate_paths: list[Path] = []
+        cats = [cat_slug] if cat_slug else ["weapon", "offhand", "armor", "accessory"]
+        grades = (
+            [grade_slug]
+            if grade_slug
+            else ["legendary", "immortal", "arcana", "beyond", "celestial", "divine", "cosmic"]
+        )
+        for c in cats:
+            for g in grades:
+                p = self._cache_dir / c / f"{g}.json"
+                if p.exists():
+                    candidate_paths.append(p)
+        # Also pick up any *.json under any subdir (forward-compat).
+        if not candidate_paths:
+            candidate_paths = sorted(self._cache_dir.glob("*/*.json"))
+
+        for path in sorted(candidate_paths):
             for item in read_gear_cache(path):
                 item_id = item.get("id")
                 if item_id is None or item_id in seen:

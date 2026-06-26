@@ -78,10 +78,9 @@ def test_start_saves_and_starts_on_yes(window, monkeypatch):
 
 
 def test_scrape_gear_button_starts_scraper_runner(qtbot):
-    """btn_refresh_gear ('Scrape gear') must start the GearScraperRunner
+    """btn_refresh_gear ('Scrape Data') must start the GearScraperRunner
     (background thread) and log a progress message. The button is disabled
-    while scraping and re-enabled when done.
-    """
+    while scraping and re-enabled when done."""
     logs: list[str] = []
     with patch("tbh_desktop.ui.main_window.config_io") as mock_cio, patch(
         "tbh_desktop.ui.main_window.scraper"
@@ -114,9 +113,9 @@ def test_scrape_gear_button_starts_scraper_runner(qtbot):
         w._on_gear_scraping(False)
         w._on_gear_scraped(42, 7)
 
-        # Button re-enabled, label restored.
+        # Button re-enabled, label restored to the new "Scrape Data" text.
         assert w.btn_refresh_gear.isEnabled()
-        assert w.btn_refresh_gear.text() == "Scrape gear"
+        assert w.btn_refresh_gear.text() == "Scrape Data"
         assert any("Gear scraped" in msg or "scraped" in msg.lower() for msg in logs)
 
 

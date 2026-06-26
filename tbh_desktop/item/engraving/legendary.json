@@ -1,0 +1,34 @@
+[
+  {
+    "id": 123001,
+    "name": "Skull",
+    "kind": "material",
+    "rarity": "LEGENDARY",
+    "family": "ENGRAVING",
+    "search_text": "123001 Skull Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 123002,
+    "name": "Harpy Feather",
+    "kind": "material",
+    "rarity": "LEGENDARY",
+    "family": "ENGRAVING",
+    "search_text": "123002 Harpy Feather Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 123003,
+    "name": "Mandrake Root",
+    "kind": "material",
+    "rarity": "LEGENDARY",
+    "family": "ENGRAVING",
+    "search_text": "123003 Mandrake Root Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 123004,
+    "name": "Nightshade Extract",
+    "kind": "material",
+    "rarity": "LEGENDARY",
+    "family": "ENGRAVING",
+    "search_text": "123004 Nightshade Extract Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

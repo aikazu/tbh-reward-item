@@ -1,0 +1,18 @@
+[
+  {
+    "id": 145001,
+    "name": "Chaos Shard",
+    "kind": "material",
+    "rarity": "ARCANA",
+    "family": "CRAFTING",
+    "search_text": "145001 Chaos Shard Material Arcana Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 145002,
+    "name": "Arcane Ore",
+    "kind": "material",
+    "rarity": "ARCANA",
+    "family": "CRAFTING",
+    "search_text": "145002 Arcane Ore Material Arcana Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

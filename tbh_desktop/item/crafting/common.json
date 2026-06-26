@@ -1,0 +1,34 @@
+[
+  {
+    "id": 140001,
+    "name": "Wood",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "CRAFTING",
+    "search_text": "140001 Wood Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 140002,
+    "name": "Stone",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "CRAFTING",
+    "search_text": "140002 Stone Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 140003,
+    "name": "Leather",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "CRAFTING",
+    "search_text": "140003 Leather Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 140004,
+    "name": "Copper Nugget",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "CRAFTING",
+    "search_text": "140004 Copper Nugget Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

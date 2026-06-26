@@ -248,6 +248,7 @@ def _extract_item_id(cell: Any) -> int | None:
 
 
 def write_gear_cache(path: Path, items: list[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
@@ -384,7 +385,7 @@ def _strip_overlay_iframes(page: Any) -> None:
 
 def _cache_path(out_dir: Path, cat: str, grade: str) -> Path:
     """Per-combo cache file path. Module-level so _scrape_one_combo can reuse it."""
-    return out_dir / f"gear_{cat}_{grade}.json"
+    return out_dir / cat / f"{grade}.json"
 
 
 def _force_click(page: Any, selector: str, *, has_text: str | None = None) -> None:
@@ -962,15 +963,32 @@ def parse_gear_detail(html: str) -> dict[str, Any]:
     return result
 
 
+def _gear_slug_for(item_id: int, name: str) -> str:
+    """Build the wiki slug from item name: 'Long Sword' → 'long-sword'."""
+    slug = name.lower().strip()
+    # Replace non-alphanumeric runs with hyphens.
+    slug = re.sub(r"[^a-z0-9]+", "-", slug)
+    return slug.strip("-")
+
+
 def fetch_gear_detail(
     item_id: int,
-    slug: str,
-    cache_dir: Path,
+    slug: str | None = None,
+    name: str | None = None,
+    cache_dir: Path | None = None,
 ) -> dict[str, Any]:
     """Fetch /items/{id}-{slug} on taskbarhero.wiki and cache the parsed result.
 
-    cache_dir is the parent directory; per-item file is gear_{item_id}.json.
+    Slug can be passed explicitly, OR derived from name (lowercased, hyphens).
+    cache_dir defaults to tbh_desktop (gear_detail_cache/). Cached file:
+    gear_{item_id}.json.
     """
+    if cache_dir is None:
+        cache_dir = GEAR_DETAIL_CACHE_DIR
+    if not slug and name:
+        slug = _gear_slug_for(item_id, name)
+    if not slug:
+        return {}
     cache_dir.mkdir(parents=True, exist_ok=True)
     cache_path = cache_dir / f"gear_{item_id}.json"
     if cache_path.exists():

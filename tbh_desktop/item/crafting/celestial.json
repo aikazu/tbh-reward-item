@@ -1,0 +1,18 @@
+[
+  {
+    "id": 147001,
+    "name": "Moonstone",
+    "kind": "material",
+    "rarity": "CELESTIAL",
+    "family": "CRAFTING",
+    "search_text": "147001 Moonstone Material Celestial Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 147002,
+    "name": "Sunstone",
+    "kind": "material",
+    "rarity": "CELESTIAL",
+    "family": "CRAFTING",
+    "search_text": "147002 Sunstone Material Celestial Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

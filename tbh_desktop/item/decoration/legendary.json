@@ -1,0 +1,34 @@
+[
+  {
+    "id": 113001,
+    "name": "Crystal Quartz",
+    "kind": "material",
+    "rarity": "LEGENDARY",
+    "family": "DECORATION",
+    "search_text": "113001 Crystal Quartz Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 113002,
+    "name": "Pearl",
+    "kind": "material",
+    "rarity": "LEGENDARY",
+    "family": "DECORATION",
+    "search_text": "113002 Pearl Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 113003,
+    "name": "Turquoise",
+    "kind": "material",
+    "rarity": "LEGENDARY",
+    "family": "DECORATION",
+    "search_text": "113003 Turquoise Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 113004,
+    "name": "Garnet",
+    "kind": "material",
+    "rarity": "LEGENDARY",
+    "family": "DECORATION",
+    "search_text": "113004 Garnet Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

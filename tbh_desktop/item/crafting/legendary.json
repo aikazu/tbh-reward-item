@@ -1,0 +1,18 @@
+[
+  {
+    "id": 143001,
+    "name": "Stardust Ingot",
+    "kind": "material",
+    "rarity": "LEGENDARY",
+    "family": "CRAFTING",
+    "search_text": "143001 Stardust Ingot Material Legendary Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 143002,
+    "name": "Void Iron",
+    "kind": "material",
+    "rarity": "LEGENDARY",
+    "family": "CRAFTING",
+    "search_text": "143002 Void Iron Material Legendary Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "id": 118001,
+    "name": "Void Crystal",
+    "kind": "material",
+    "rarity": "DIVINE",
+    "family": "DECORATION",
+    "search_text": "118001 Void Crystal Material Divine Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 118002,
+    "name": "Abyssal Pearl",
+    "kind": "material",
+    "rarity": "DIVINE",
+    "family": "DECORATION",
+    "search_text": "118002 Abyssal Pearl Material Divine Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

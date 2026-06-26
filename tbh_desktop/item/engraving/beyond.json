@@ -1,0 +1,34 @@
+[
+  {
+    "id": 126001,
+    "name": "Wraith Essence",
+    "kind": "material",
+    "rarity": "BEYOND",
+    "family": "ENGRAVING",
+    "search_text": "126001 Wraith Essence Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 126002,
+    "name": "Kraken Ink",
+    "kind": "material",
+    "rarity": "BEYOND",
+    "family": "ENGRAVING",
+    "search_text": "126002 Kraken Ink Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 126003,
+    "name": "Titan Marrow",
+    "kind": "material",
+    "rarity": "BEYOND",
+    "family": "ENGRAVING",
+    "search_text": "126003 Titan Marrow Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 126004,
+    "name": "Void Ichor",
+    "kind": "material",
+    "rarity": "BEYOND",
+    "family": "ENGRAVING",
+    "search_text": "126004 Void Ichor Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

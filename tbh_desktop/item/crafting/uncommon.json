@@ -1,0 +1,18 @@
+[
+  {
+    "id": 141001,
+    "name": "Bronze Ingot",
+    "kind": "material",
+    "rarity": "UNCOMMON",
+    "family": "CRAFTING",
+    "search_text": "141001 Bronze Ingot Material Uncommon Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 141002,
+    "name": "Iron Ingot",
+    "kind": "material",
+    "rarity": "UNCOMMON",
+    "family": "CRAFTING",
+    "search_text": "141002 Iron Ingot Material Uncommon Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

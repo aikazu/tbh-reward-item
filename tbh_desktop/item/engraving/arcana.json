@@ -1,0 +1,34 @@
+[
+  {
+    "id": 125001,
+    "name": "Minotaur Horn",
+    "kind": "material",
+    "rarity": "ARCANA",
+    "family": "ENGRAVING",
+    "search_text": "125001 Minotaur Horn Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 125002,
+    "name": "Griffin Beak",
+    "kind": "material",
+    "rarity": "ARCANA",
+    "family": "ENGRAVING",
+    "search_text": "125002 Griffin Beak Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 125003,
+    "name": "Phoenix Ash",
+    "kind": "material",
+    "rarity": "ARCANA",
+    "family": "ENGRAVING",
+    "search_text": "125003 Phoenix Ash Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 125004,
+    "name": "Dragon Bile",
+    "kind": "material",
+    "rarity": "ARCANA",
+    "family": "ENGRAVING",
+    "search_text": "125004 Dragon Bile Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

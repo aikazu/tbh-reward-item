@@ -1,0 +1,18 @@
+[
+  {
+    "id": 144001,
+    "name": "Bloodstone",
+    "kind": "material",
+    "rarity": "IMMORTAL",
+    "family": "CRAFTING",
+    "search_text": "144001 Bloodstone Material Immortal Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 144002,
+    "name": "Thunderstone",
+    "kind": "material",
+    "rarity": "IMMORTAL",
+    "family": "CRAFTING",
+    "search_text": "144002 Thunderstone Material Immortal Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

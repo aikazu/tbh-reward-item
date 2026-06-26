@@ -1,0 +1,34 @@
+[
+  {
+    "id": 124001,
+    "name": "Basilisk Scale",
+    "kind": "material",
+    "rarity": "IMMORTAL",
+    "family": "ENGRAVING",
+    "search_text": "124001 Basilisk Scale Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 124002,
+    "name": "Wyvern Claw",
+    "kind": "material",
+    "rarity": "IMMORTAL",
+    "family": "ENGRAVING",
+    "search_text": "124002 Wyvern Claw Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 124003,
+    "name": "Dice",
+    "kind": "material",
+    "rarity": "IMMORTAL",
+    "family": "ENGRAVING",
+    "search_text": "124003 Dice Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 124004,
+    "name": "Demon Blood",
+    "kind": "material",
+    "rarity": "IMMORTAL",
+    "family": "ENGRAVING",
+    "search_text": "124004 Demon Blood Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

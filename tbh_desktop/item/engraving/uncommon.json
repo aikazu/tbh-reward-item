@@ -1,0 +1,34 @@
+[
+  {
+    "id": 121001,
+    "name": "Wolf Fang",
+    "kind": "material",
+    "rarity": "UNCOMMON",
+    "family": "ENGRAVING",
+    "search_text": "121001 Wolf Fang Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 121002,
+    "name": "Spider Silk",
+    "kind": "material",
+    "rarity": "UNCOMMON",
+    "family": "ENGRAVING",
+    "search_text": "121002 Spider Silk Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 121003,
+    "name": "Poisonous Herb",
+    "kind": "material",
+    "rarity": "UNCOMMON",
+    "family": "ENGRAVING",
+    "search_text": "121003 Poisonous Herb Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 121004,
+    "name": "Healing Herb",
+    "kind": "material",
+    "rarity": "UNCOMMON",
+    "family": "ENGRAVING",
+    "search_text": "121004 Healing Herb Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

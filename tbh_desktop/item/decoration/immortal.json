@@ -1,0 +1,34 @@
+[
+  {
+    "id": 114001,
+    "name": "Diamond",
+    "kind": "material",
+    "rarity": "IMMORTAL",
+    "family": "DECORATION",
+    "search_text": "114001 Diamond Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 114002,
+    "name": "Opal",
+    "kind": "material",
+    "rarity": "IMMORTAL",
+    "family": "DECORATION",
+    "search_text": "114002 Opal Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 114003,
+    "name": "Lapis Lazuli",
+    "kind": "material",
+    "rarity": "IMMORTAL",
+    "family": "DECORATION",
+    "search_text": "114003 Lapis Lazuli Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 114004,
+    "name": "Black Pearl",
+    "kind": "material",
+    "rarity": "IMMORTAL",
+    "family": "DECORATION",
+    "search_text": "114004 Black Pearl Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

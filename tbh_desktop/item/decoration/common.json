@@ -1,0 +1,42 @@
+[
+  {
+    "id": 110001,
+    "name": "Minor Ruby",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "DECORATION",
+    "search_text": "110001 Minor Ruby Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 110002,
+    "name": "Minor Sapphire",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "DECORATION",
+    "search_text": "110002 Minor Sapphire Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 110003,
+    "name": "Minor Topaz",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "DECORATION",
+    "search_text": "110003 Minor Topaz Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 110004,
+    "name": "Minor Emerald",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "DECORATION",
+    "search_text": "110004 Minor Emerald Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 110005,
+    "name": "Minor Amethyst",
+    "kind": "material",
+    "rarity": "COMMON",
+    "family": "DECORATION",
+    "search_text": "110005 Minor Amethyst Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

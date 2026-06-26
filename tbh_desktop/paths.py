@@ -15,8 +15,14 @@ from config_setup import CONFIG_PATH  # noqa: E402
 
 RUN_PROXY_PATH = SRC_DIR / "run_proxy.py"
 DESKTOP_DIR = Path(__file__).resolve().parent
-GEAR_CACHE_DIR = DESKTOP_DIR / "gear_cache"
+GEAR_DIR = DESKTOP_DIR / "gear"
+GEAR_INDEX = GEAR_DIR / "index.json"
+ITEM_DIR = DESKTOP_DIR / "item"
+ITEM_INDEX = ITEM_DIR / "index.json"
+# Backwards-compat alias — older call sites still use this name.
+GEAR_CACHE_DIR = GEAR_DIR
 BOX_LOOT_CACHE_DIR = DESKTOP_DIR / "box_loot_cache"
 ITEM_DETAIL_CACHE = DESKTOP_DIR / "item_detail_cache.json"
 BOX_DROP_MAP_CACHE = DESKTOP_DIR / "box_drop_map.json"
 DROPS_INDEX_CACHE = DESKTOP_DIR / "drops_index.json"
+GEAR_DETAIL_CACHE_DIR = DESKTOP_DIR / "gear_detail_cache"

@@ -1,0 +1,18 @@
+[
+  {
+    "id": 142001,
+    "name": "Silver Ingot",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "CRAFTING",
+    "search_text": "142001 Silver Ingot Material Rare Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 142002,
+    "name": "Gold Ingot",
+    "kind": "material",
+    "rarity": "RARE",
+    "family": "CRAFTING",
+    "search_text": "142002 Gold Ingot Material Rare Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

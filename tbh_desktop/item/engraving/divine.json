@@ -1,0 +1,18 @@
+[
+  {
+    "id": 128001,
+    "name": "Primordial Sap",
+    "kind": "material",
+    "rarity": "DIVINE",
+    "family": "ENGRAVING",
+    "search_text": "128001 Primordial Sap Material Divine Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 128002,
+    "name": "Eldritch Venom",
+    "kind": "material",
+    "rarity": "DIVINE",
+    "family": "ENGRAVING",
+    "search_text": "128002 Eldritch Venom Material Divine Engraving Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

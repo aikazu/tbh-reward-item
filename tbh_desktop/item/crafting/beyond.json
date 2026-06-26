@@ -1,0 +1,18 @@
+[
+  {
+    "id": 146001,
+    "name": "Darksteel Ingot",
+    "kind": "material",
+    "rarity": "BEYOND",
+    "family": "CRAFTING",
+    "search_text": "146001 Darksteel Ingot Material Beyond Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  },
+  {
+    "id": 146002,
+    "name": "Orichalcum Ore",
+    "kind": "material",
+    "rarity": "BEYOND",
+    "family": "CRAFTING",
+    "search_text": "146002 Orichalcum Ore Material Beyond Crafting Material type lookup; exact loot source needs current loot table confirmation."
+  }
+]

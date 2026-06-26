@@ -1,0 +1,917 @@
+{
+  "kind": "material",
+  "total": 115,
+  "families": [
+    "INSCRIPTION",
+    "OFFERING",
+    "SOULSTONE",
+    "DECORATION",
+    "ENGRAVING",
+    "CRAFTING"
+  ],
+  "rarities": [
+    "ARCANA",
+    "BEYOND",
+    "CELESTIAL",
+    "COMMON",
+    "COSMIC",
+    "DIVINE",
+    "IMMORTAL",
+    "LEGENDARY",
+    "RARE",
+    "UNCOMMON"
+  ],
+  "summary": {
+    "DECORATION": {
+      "count": 36,
+      "rarities": {
+        "COMMON": 5,
+        "UNCOMMON": 4,
+        "RARE": 5,
+        "LEGENDARY": 4,
+        "IMMORTAL": 4,
+        "ARCANA": 4,
+        "BEYOND": 4,
+        "CELESTIAL": 2,
+        "DIVINE": 2,
+        "COSMIC": 2
+      }
+    },
+    "ENGRAVING": {
+      "count": 33,
+      "rarities": {
+        "COMMON": 3,
+        "UNCOMMON": 4,
+        "RARE": 4,
+        "LEGENDARY": 4,
+        "IMMORTAL": 4,
+        "ARCANA": 4,
+        "BEYOND": 4,
+        "CELESTIAL": 2,
+        "DIVINE": 2,
+        "COSMIC": 2
+      }
+    },
+    "INSCRIPTION": {
+      "count": 10,
+      "rarities": {
+        "COMMON": 1,
+        "UNCOMMON": 1,
+        "RARE": 1,
+        "LEGENDARY": 1,
+        "IMMORTAL": 1,
+        "ARCANA": 1,
+        "BEYOND": 1,
+        "CELESTIAL": 1,
+        "DIVINE": 1,
+        "COSMIC": 1
+      }
+    },
+    "CRAFTING": {
+      "count": 22,
+      "rarities": {
+        "COMMON": 4,
+        "UNCOMMON": 2,
+        "RARE": 2,
+        "LEGENDARY": 2,
+        "IMMORTAL": 2,
+        "ARCANA": 2,
+        "BEYOND": 2,
+        "CELESTIAL": 2,
+        "DIVINE": 2,
+        "COSMIC": 2
+      }
+    },
+    "OFFERING": {
+      "count": 10,
+      "rarities": {
+        "COMMON": 1,
+        "UNCOMMON": 1,
+        "RARE": 1,
+        "LEGENDARY": 1,
+        "IMMORTAL": 1,
+        "ARCANA": 1,
+        "BEYOND": 1,
+        "CELESTIAL": 1,
+        "DIVINE": 1,
+        "COSMIC": 1
+      }
+    },
+    "SOULSTONE": {
+      "count": 4,
+      "rarities": {
+        "IMMORTAL": 1,
+        "ARCANA": 1,
+        "BEYOND": 1,
+        "CELESTIAL": 1
+      }
+    }
+  },
+  "items": [
+    {
+      "id": 110001,
+      "name": "Minor Ruby",
+      "family": "DECORATION",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 110002,
+      "name": "Minor Sapphire",
+      "family": "DECORATION",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 110003,
+      "name": "Minor Topaz",
+      "family": "DECORATION",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 110004,
+      "name": "Minor Emerald",
+      "family": "DECORATION",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 110005,
+      "name": "Minor Amethyst",
+      "family": "DECORATION",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 111001,
+      "name": "Obsidian Shard",
+      "family": "DECORATION",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 111002,
+      "name": "Coral Piece",
+      "family": "DECORATION",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 111003,
+      "name": "Jade Stone",
+      "family": "DECORATION",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 111004,
+      "name": "Amber Gem",
+      "family": "DECORATION",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 112001,
+      "name": "Ruby",
+      "family": "DECORATION",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 112002,
+      "name": "Sapphire",
+      "family": "DECORATION",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 112003,
+      "name": "Topaz",
+      "family": "DECORATION",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 112004,
+      "name": "Emerald",
+      "family": "DECORATION",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 112005,
+      "name": "Amethyst",
+      "family": "DECORATION",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 113001,
+      "name": "Crystal Quartz",
+      "family": "DECORATION",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 113002,
+      "name": "Pearl",
+      "family": "DECORATION",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 113003,
+      "name": "Turquoise",
+      "family": "DECORATION",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 113004,
+      "name": "Garnet",
+      "family": "DECORATION",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 114001,
+      "name": "Diamond",
+      "family": "DECORATION",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 114002,
+      "name": "Opal",
+      "family": "DECORATION",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 114003,
+      "name": "Lapis Lazuli",
+      "family": "DECORATION",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 114004,
+      "name": "Black Pearl",
+      "family": "DECORATION",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 115001,
+      "name": "Arcane Crystal",
+      "family": "DECORATION",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 115002,
+      "name": "Mystic Topaz",
+      "family": "DECORATION",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 115003,
+      "name": "Enchanted Ruby",
+      "family": "DECORATION",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 115004,
+      "name": "Starlight Sapphire",
+      "family": "DECORATION",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 116001,
+      "name": "Void Opal",
+      "family": "DECORATION",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 116002,
+      "name": "Astral Diamond",
+      "family": "DECORATION",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 116003,
+      "name": "Phantom Emerald",
+      "family": "DECORATION",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 116004,
+      "name": "Twilight Amethyst",
+      "family": "DECORATION",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 117001,
+      "name": "Celestial Pearl",
+      "family": "DECORATION",
+      "rarity": "CELESTIAL",
+      "kind": "material"
+    },
+    {
+      "id": 117002,
+      "name": "Dragonite Crystal",
+      "family": "DECORATION",
+      "rarity": "CELESTIAL",
+      "kind": "material"
+    },
+    {
+      "id": 118001,
+      "name": "Void Crystal",
+      "family": "DECORATION",
+      "rarity": "DIVINE",
+      "kind": "material"
+    },
+    {
+      "id": 118002,
+      "name": "Abyssal Pearl",
+      "family": "DECORATION",
+      "rarity": "DIVINE",
+      "kind": "material"
+    },
+    {
+      "id": 119001,
+      "name": "Ethereal Gem",
+      "family": "DECORATION",
+      "rarity": "COSMIC",
+      "kind": "material"
+    },
+    {
+      "id": 119002,
+      "name": "Chaos Diamond",
+      "family": "DECORATION",
+      "rarity": "COSMIC",
+      "kind": "material"
+    },
+    {
+      "id": 120001,
+      "name": "Goblin Hide",
+      "family": "ENGRAVING",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 120002,
+      "name": "Skeleton Bone",
+      "family": "ENGRAVING",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 120003,
+      "name": "Slime Jelly",
+      "family": "ENGRAVING",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 121001,
+      "name": "Wolf Fang",
+      "family": "ENGRAVING",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 121002,
+      "name": "Spider Silk",
+      "family": "ENGRAVING",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 121003,
+      "name": "Poisonous Herb",
+      "family": "ENGRAVING",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 121004,
+      "name": "Healing Herb",
+      "family": "ENGRAVING",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 122001,
+      "name": "Bat Wing Membrane",
+      "family": "ENGRAVING",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 122002,
+      "name": "Ogre Blood",
+      "family": "ENGRAVING",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 122003,
+      "name": "Mushroom Spore",
+      "family": "ENGRAVING",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 122004,
+      "name": "Ancient Tree Sap",
+      "family": "ENGRAVING",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 123001,
+      "name": "Skull",
+      "family": "ENGRAVING",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 123002,
+      "name": "Harpy Feather",
+      "family": "ENGRAVING",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 123003,
+      "name": "Mandrake Root",
+      "family": "ENGRAVING",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 123004,
+      "name": "Nightshade Extract",
+      "family": "ENGRAVING",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 124001,
+      "name": "Basilisk Scale",
+      "family": "ENGRAVING",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 124002,
+      "name": "Wyvern Claw",
+      "family": "ENGRAVING",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 124003,
+      "name": "Dice",
+      "family": "ENGRAVING",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 124004,
+      "name": "Demon Blood",
+      "family": "ENGRAVING",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 125001,
+      "name": "Minotaur Horn",
+      "family": "ENGRAVING",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 125002,
+      "name": "Griffin Beak",
+      "family": "ENGRAVING",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 125003,
+      "name": "Phoenix Ash",
+      "family": "ENGRAVING",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 125004,
+      "name": "Dragon Bile",
+      "family": "ENGRAVING",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 126001,
+      "name": "Wraith Essence",
+      "family": "ENGRAVING",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 126002,
+      "name": "Kraken Ink",
+      "family": "ENGRAVING",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 126003,
+      "name": "Titan Marrow",
+      "family": "ENGRAVING",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 126004,
+      "name": "Void Ichor",
+      "family": "ENGRAVING",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 127001,
+      "name": "Abyssal Mucus",
+      "family": "ENGRAVING",
+      "rarity": "CELESTIAL",
+      "kind": "material"
+    },
+    {
+      "id": 127002,
+      "name": "Chaos Spore",
+      "family": "ENGRAVING",
+      "rarity": "CELESTIAL",
+      "kind": "material"
+    },
+    {
+      "id": 128001,
+      "name": "Primordial Sap",
+      "family": "ENGRAVING",
+      "rarity": "DIVINE",
+      "kind": "material"
+    },
+    {
+      "id": 128002,
+      "name": "Eldritch Venom",
+      "family": "ENGRAVING",
+      "rarity": "DIVINE",
+      "kind": "material"
+    },
+    {
+      "id": 129001,
+      "name": "Chaso Dice",
+      "family": "ENGRAVING",
+      "rarity": "COSMIC",
+      "kind": "material"
+    },
+    {
+      "id": 129002,
+      "name": "Void Tendril",
+      "family": "ENGRAVING",
+      "rarity": "COSMIC",
+      "kind": "material"
+    },
+    {
+      "id": 130001,
+      "name": "Scroll of Common Inscription",
+      "family": "INSCRIPTION",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 131001,
+      "name": "Scroll of Uncommon Inscription",
+      "family": "INSCRIPTION",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 132001,
+      "name": "Scroll of Rare Inscription",
+      "family": "INSCRIPTION",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 133001,
+      "name": "Scroll of Legendary Inscription",
+      "family": "INSCRIPTION",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 134001,
+      "name": "Scroll of Immortal Inscription",
+      "family": "INSCRIPTION",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 135001,
+      "name": "Scroll of Arcana Inscription",
+      "family": "INSCRIPTION",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 136001,
+      "name": "Scroll of Beyond Inscription",
+      "family": "INSCRIPTION",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 137001,
+      "name": "Scroll of Celestial Inscription",
+      "family": "INSCRIPTION",
+      "rarity": "CELESTIAL",
+      "kind": "material"
+    },
+    {
+      "id": 138001,
+      "name": "Scroll of Divine Inscription",
+      "family": "INSCRIPTION",
+      "rarity": "DIVINE",
+      "kind": "material"
+    },
+    {
+      "id": 139001,
+      "name": "Scroll of Cosmic Inscription",
+      "family": "INSCRIPTION",
+      "rarity": "COSMIC",
+      "kind": "material"
+    },
+    {
+      "id": 140001,
+      "name": "Wood",
+      "family": "CRAFTING",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 140002,
+      "name": "Stone",
+      "family": "CRAFTING",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 140003,
+      "name": "Leather",
+      "family": "CRAFTING",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 140004,
+      "name": "Copper Nugget",
+      "family": "CRAFTING",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 141001,
+      "name": "Bronze Ingot",
+      "family": "CRAFTING",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 141002,
+      "name": "Iron Ingot",
+      "family": "CRAFTING",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 142001,
+      "name": "Silver Ingot",
+      "family": "CRAFTING",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 142002,
+      "name": "Gold Ingot",
+      "family": "CRAFTING",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 143001,
+      "name": "Stardust Ingot",
+      "family": "CRAFTING",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 143002,
+      "name": "Void Iron",
+      "family": "CRAFTING",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 144001,
+      "name": "Bloodstone",
+      "family": "CRAFTING",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 144002,
+      "name": "Thunderstone",
+      "family": "CRAFTING",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 145001,
+      "name": "Chaos Shard",
+      "family": "CRAFTING",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 145002,
+      "name": "Arcane Ore",
+      "family": "CRAFTING",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 146001,
+      "name": "Darksteel Ingot",
+      "family": "CRAFTING",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 146002,
+      "name": "Orichalcum Ore",
+      "family": "CRAFTING",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 147001,
+      "name": "Moonstone",
+      "family": "CRAFTING",
+      "rarity": "CELESTIAL",
+      "kind": "material"
+    },
+    {
+      "id": 147002,
+      "name": "Sunstone",
+      "family": "CRAFTING",
+      "rarity": "CELESTIAL",
+      "kind": "material"
+    },
+    {
+      "id": 148001,
+      "name": "Mithril Ore",
+      "family": "CRAFTING",
+      "rarity": "DIVINE",
+      "kind": "material"
+    },
+    {
+      "id": 148002,
+      "name": "Ethereal Ingot",
+      "family": "CRAFTING",
+      "rarity": "DIVINE",
+      "kind": "material"
+    },
+    {
+      "id": 149001,
+      "name": "Adamantium Ore",
+      "family": "CRAFTING",
+      "rarity": "COSMIC",
+      "kind": "material"
+    },
+    {
+      "id": 149002,
+      "name": "Aeon Ingot",
+      "family": "CRAFTING",
+      "rarity": "COSMIC",
+      "kind": "material"
+    },
+    {
+      "id": 160001,
+      "name": "Kingdom 1st Anniversary Coin",
+      "family": "OFFERING",
+      "rarity": "COMMON",
+      "kind": "material"
+    },
+    {
+      "id": 160002,
+      "name": "Empire 1st Anniversary Coin",
+      "family": "OFFERING",
+      "rarity": "UNCOMMON",
+      "kind": "material"
+    },
+    {
+      "id": 160003,
+      "name": "Kingdom 10th Anniversary Coin",
+      "family": "OFFERING",
+      "rarity": "RARE",
+      "kind": "material"
+    },
+    {
+      "id": 160004,
+      "name": "Empire 10th Anniversary Coin",
+      "family": "OFFERING",
+      "rarity": "LEGENDARY",
+      "kind": "material"
+    },
+    {
+      "id": 160005,
+      "name": "Kingdom 50th Anniversary Coin",
+      "family": "OFFERING",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 160006,
+      "name": "Empire 50th Anniversary Coin",
+      "family": "OFFERING",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 160007,
+      "name": "Kingdom 100th Anniversary Coin",
+      "family": "OFFERING",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 160008,
+      "name": "Empire 100th Anniversary Coin",
+      "family": "OFFERING",
+      "rarity": "CELESTIAL",
+      "kind": "material"
+    },
+    {
+      "id": 160009,
+      "name": "Sacred Kingdom 1000th Anniversary Coin",
+      "family": "OFFERING",
+      "rarity": "DIVINE",
+      "kind": "material"
+    },
+    {
+      "id": 160010,
+      "name": "Eternal Empire 1000th Anniversary Coin",
+      "family": "OFFERING",
+      "rarity": "COSMIC",
+      "kind": "material"
+    },
+    {
+      "id": 190001,
+      "name": "Soulstone - Normal",
+      "family": "SOULSTONE",
+      "rarity": "IMMORTAL",
+      "kind": "material"
+    },
+    {
+      "id": 190002,
+      "name": "Soulstone - Nightmare",
+      "family": "SOULSTONE",
+      "rarity": "ARCANA",
+      "kind": "material"
+    },
+    {
+      "id": 190003,
+      "name": "Soulstone - Hell",
+      "family": "SOULSTONE",
+      "rarity": "BEYOND",
+      "kind": "material"
+    },
+    {
+      "id": 190004,
+      "name": "Soulstone - Torment",
+      "family": "SOULSTONE",
+      "rarity": "CELESTIAL",
+      "kind": "material"
+    }
+  ]
+}

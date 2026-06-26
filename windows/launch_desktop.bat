@@ -64,6 +64,13 @@ if !errorlevel! equ 0 (
 )
 
 REM ── 4. config.json ──────────────────────────────────────────────────────────
+REM Auto-generate config.json from config.default.json if missing (mirrors
+REM the Linux launch_desktop.sh logic).
+if not exist "src\config.json" if exist "src\config.default.json" (
+    .venv\Scripts\python -c "import sys; sys.path.insert(0, r'%CD%\src'); from config_setup import ensure_config, CONFIG_PATH; ensure_config(CONFIG_PATH)" >nul 2>&1
+    if exist "src\config.json" echo [OK]  src\config.json (auto-generated from config.default.json)
+)
+
 if not exist "src\config.json" (
     echo [FAIL] src\config.json not found
     echo   The proxy addon needs this file. Create one with the example format from README.

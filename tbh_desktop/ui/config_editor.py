@@ -120,8 +120,9 @@ class ConfigEditor(QWidget):
         self.btn_pick_gear_range = QPushButton("Pick gear")
         self.btn_pick_loot_range = QPushButton("Pick item")
         self.btn_pick_loot_range.setToolTip(
-            "Browse the wiki drops index (materials, stage boxes, consumables) "
-            "and add selected IDs to this range replacement."
+            "Browse the wiki drops index (materials only — Soul Stones "
+            "excluded as range replacement targets). Adds selected IDs "
+            "to this range replacement."
         )
         range_form.addRow("Enabled", self.range_enabled)
         range_form.addRow("match_min_item_id", self.range_min)

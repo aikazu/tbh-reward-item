@@ -129,8 +129,9 @@ def test_parse_drops_page_round_trip() -> None:
         assert scraper.read_drops_index(Path(tmp) / "missing.json") == []
 
 
-def test_box_loot_picker_filters_gear() -> None:
-    """BoxLootPicker skips items with kind == 'gear'."""
+def test_box_loot_picker_filters_to_materials_only() -> None:
+    """BoxLootPicker is materials-only. Stage-box and gear never appear
+    even though the source drops index has them."""
     from PySide6.QtWidgets import QApplication
     app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
     from tbh_desktop.ui.box_loot_picker import BoxLootPicker
@@ -146,20 +147,19 @@ def test_box_loot_picker_filters_gear() -> None:
         for i in range(dlg.list_widget.count())
         if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
     ]
-    assert len(selectable) == 2
-    ids = {item.data(Qt.ItemDataRole.UserRole) for item in selectable}
-    assert ids == {110001, 910011}
+    assert len(selectable) == 1
+    assert selectable[0].data(Qt.ItemDataRole.UserRole) == 110001
 
 
-def test_box_loot_picker_sorts_by_id_ascending() -> None:
-    """Items listed by id ascending (simple, predictable ordering)."""
+def test_box_loot_picker_sorts_by_family_then_rarity() -> None:
+    """Items sorted by FAMILY_ORDER then RARITY_ORDER (canonical wiki order)."""
     from PySide6.QtWidgets import QApplication
     app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
     from tbh_desktop.ui.box_loot_picker import BoxLootPicker
     items = [
-        {"id": 300, "name": "Z", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
-        {"id": 100, "name": "Y", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
-        {"id": 200, "name": "X", "kind": "material", "rarity": "LEGENDARY", "family": "DECORATION"},
+        {"id": 200, "name": "Dec LEGEND", "kind": "material", "rarity": "LEGENDARY", "family": "DECORATION"},
+        {"id": 100, "name": "Craft COMMON", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
+        {"id": 300, "name": "Dec COMMON", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
     ]
     dlg = BoxLootPicker(items=items)
     Qt = __import__("PySide6").QtCore.Qt
@@ -168,11 +168,45 @@ def test_box_loot_picker_sorts_by_id_ascending() -> None:
         for i in range(dlg.list_widget.count())
         if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
     ]
-    assert ids == [100, 200, 300]
+    # CRAFTING COMMON (100) → DECORATION COMMON (300) → DECORATION LEGENDARY (200)
+    assert ids == [100, 300, 200]
+
+
+def test_box_loot_picker_excludes_soulstone() -> None:
+    """Soul Stone family is excluded from the materials picker.
+
+    Per the wiki, SOULSTONE family items are special (bind-on-pickup
+    crafting materials that, if used as range replacement targets, can
+    silently brick the addon logic). Range replacement IDs should never
+    include them, so the picker hides the entire family.
+    """
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
+    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+    items = [
+        {"id": 1, "name": "Bronze Ingot", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
+        {"id": 2, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
+        {"id": 3, "name": "Soul Shard", "kind": "material", "rarity": "RARE", "family": "SOULSTONE"},
+        {"id": 4, "name": "Glyph", "kind": "material", "rarity": "EPIC", "family": "INSCRIPTION"},
+    ]
+    dlg = BoxLootPicker(items=items)
+    Qt = __import__("PySide6").QtCore.Qt
+    ids = [
+        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
+        for i in range(dlg.list_widget.count())
+        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
+    ]
+    # Soul Shard (id=3) is excluded; all others shown.
+    assert 3 not in ids
+    assert {1, 2, 4} == set(ids)
 
 
 def test_box_loot_picker_kind_filter() -> None:
-    """Kind dropdown filters list to matching kind only."""
+    """Kind dropdown filters list to matching kind only (materials only here).
+
+    The picker is restricted to kind == 'material'; stage-boxes and gear
+    never appear regardless of dropdown selection.
+    """
     from PySide6.QtWidgets import QApplication
     app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
     from tbh_desktop.ui.box_loot_picker import BoxLootPicker
@@ -180,20 +214,70 @@ def test_box_loot_picker_kind_filter() -> None:
         {"id": 1, "name": "Mat A", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
         {"id": 2, "name": "Box A", "kind": "stage-box", "rarity": "COMMON", "family": "Normal Monster"},
         {"id": 3, "name": "Mat B", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
+        {"id": 4, "name": "Long Sword", "kind": "gear", "rarity": "Common", "family": ""},
     ]
     dlg = BoxLootPicker(items=items)
     Qt = __import__("PySide6").QtCore.Qt
-    # Find index whose data() == "MATERIAL" (case-insensitive).
-    material_idx = dlg.kind_filter.findData("MATERIAL")
-    assert material_idx > 0, "kind dropdown should have a MATERIAL entry"
-    dlg.kind_filter.setCurrentIndex(material_idx)
     ids = [
         dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
         for i in range(dlg.list_widget.count())
         if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
     ]
+    # Stage-box and gear are filtered out by constructor; only materials remain.
     assert ids == [1, 3]
 
+
+def test_box_loot_picker_rarity_filter() -> None:
+    """Rarity dropdown filters materials by rarity."""
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
+    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+    items = [
+        {"id": 1, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
+        {"id": 2, "name": "Obsidian Shard", "kind": "material", "rarity": "UNCOMMON", "family": "DECORATION"},
+        {"id": 3, "name": "Crystal", "kind": "material", "rarity": "LEGENDARY", "family": "ENGRAVING"},
+    ]
+    dlg = BoxLootPicker(items=items)
+    Qt = __import__("PySide6").QtCore.Qt
+    # Dropdown should have All + COMMON + UNCOMMON + LEGENDARY (no other rarities).
+    assert dlg.rarity_filter.count() == 4
+    legendary_idx = dlg.rarity_filter.findData("LEGENDARY")
+    assert legendary_idx > 0
+    dlg.rarity_filter.setCurrentIndex(legendary_idx)
+    ids = [
+        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
+        for i in range(dlg.list_widget.count())
+        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
+    ]
+    assert ids == [3]
+
+
+def test_box_loot_picker_family_headers() -> None:
+    """Material items grouped by family with non-selectable header rows."""
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
+    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+    items = [
+        {"id": 1, "name": "Bronze Ingot", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
+        {"id": 2, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
+    ]
+    dlg = BoxLootPicker(items=items)
+    Qt = __import__("PySide6").QtCore.Qt
+    # Walk through rows; expect header + item per family, in FAMILY_ORDER.
+    rows = []
+    for i in range(dlg.list_widget.count()):
+        li = dlg.list_widget.item(i)
+        if li.data(Qt.ItemDataRole.UserRole) is None:
+            rows.append(("header", li.text()))
+        else:
+            rows.append(("item", li.data(Qt.ItemDataRole.UserRole)))
+    # CRAFTING comes first per FAMILY_ORDER, so its header + item appear first.
+    assert rows[0][0] == "header"
+    assert "Crafting" in rows[0][1]
+    assert rows[1] == ("item", 1)
+    assert rows[2][0] == "header"
+    assert "Decoration" in rows[2][1]
+    assert rows[3] == ("item", 2)
 
 def test_box_loot_picker_scope_filter() -> None:
     """scope_box_name pre-filters to items whose name contains it."""

@@ -46,21 +46,32 @@ class BoxLootPicker(QDialog):
         items: list[dict[str, Any]] | None = None,
         cache_path: Any | None = None,
         scope_box_name: str | None = None,
+        mode: str = "materials",  # "materials" | "box_loot"
     ) -> None:
-        """Either pass ``items`` directly (for tests) or ``cache_path`` to
-        load from the drops index on disk. If neither, returns an empty
-        picker with a "no items available" notice.
+        """Pick reward IDs from the wiki drops index.
 
-        ``scope_box_name`` optionally pre-filters to items that come from
-        that box (matched against item name). Used when picking replacements
-        for a specific rule — saves the user from browsing the whole catalog.
+        Two modes:
+        - "materials" (default): range replacement picker. Lists only
+          materials, excludes SOULSTONE family (those are bind-on-pickup
+          crafting materials; using them as range replacement targets can
+          silently break addon logic). No stage-box, no gear.
+        - "box_loot": per-rule loot picker. Scoped to a specific box, lists
+          ALL items in that box (materials + stage boxes + everything else).
+          User picks a single rule's replacement IDs.
+
+        Gear and stage-boxes are excluded from the "materials" mode — gear
+        has its own GearPicker, and stage-boxes are containers, not reward
+        items.
         """
         super().__init__(parent)
+        self._mode = mode
         self.setWindowTitle(
             f"Pick reward IDs from {scope_box_name}" if scope_box_name
             else "Pick reward IDs from drops index"
         )
-        self.resize(560, 680)
+        # box_loot mode shows everything (no header); materials mode needs
+        # more vertical space for grouped headers.
+        self.resize(640, 720)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
@@ -71,42 +82,67 @@ class BoxLootPicker(QDialog):
             from tbh_desktop.scraper import read_drops_index
             items = read_drops_index(cache_path)
         items = items or []
-        # Filter out gear — that's the GearPicker's territory.
-        non_gear = [it for it in items if str(it.get("kind", "")).lower() != "gear"]
+        # Filter by mode.
+        if mode == "materials":
+            # Range replacement picker: materials only, exclude SOULSTONE.
+            from tbh_desktop.scraper import FAMILY_ORDER as _FAMILY_ORDER
+            safe_families = {f for f in _FAMILY_ORDER if f != "SOULSTONE"}
+            filtered = [
+                it for it in items
+                if str(it.get("kind", "")).lower() == "material"
+                and str(it.get("family", "")).upper() in safe_families
+            ]
+        else:  # "box_loot"
+            # Per-rule loot picker: everything non-gear from the box.
+            filtered = [
+                it for it in items
+                if str(it.get("kind", "")).lower() != "gear"
+            ]
 
-        # If scope_box_name given, pre-filter to items whose name contains it
-        # (heuristic — the drops index doesn't carry box_id). The user can
-        # clear the filter via the dropdown.
+        # If scope_box_name given, pre-filter to items whose name contains it.
         if scope_box_name:
             needle = scope_box_name.lower()
-            non_gear = [it for it in non_gear if needle in it.get("name", "").lower()]
-            if not non_gear:
-                # Scope name yielded nothing — fall back to full list and
-                # pre-populate the search box so the user sees why.
-                non_gear = [it for it in items if str(it.get("kind", "")).lower() != "gear"]
-                self._scope_search_hint = scope_box_name
-            else:
-                self._scope_search_hint = None
+            scoped = [it for it in filtered if needle in it.get("name", "").lower()]
+            if scoped:
+                filtered = scoped
 
-        # Sort: by id ascending (simple, predictable).
-        non_gear.sort(key=lambda it: int(it.get("id", 0)))
+        # Sort by family rank, then rarity rank, then id. SOULSTONE never
+        # appears in materials mode (filtered above).
+        from tbh_desktop.scraper import FAMILY_ORDER, RARITY_ORDER
+        family_rank = {f: i for i, f in enumerate(FAMILY_ORDER)}
+        rarity_rank = {r: i for i, r in enumerate(RARITY_ORDER)}
+
+        def _sort_key(it: dict[str, Any]) -> tuple[int, int, int]:
+            fam = str(it.get("family", ""))
+            rar = str(it.get("rarity", "COMMON"))
+            return (
+                family_rank.get(fam, 99),
+                rarity_rank.get(rar, 99),
+                int(it.get("id", 0)),
+            )
+
+        filtered.sort(key=_sort_key)
 
         # ── Filter row ───────────────────────────────────────────────────
         filter_row = QHBoxLayout()
         filter_row.setSpacing(8)
-        filter_row.addWidget(QLabel("Kind:"))
-        self.kind_filter = QComboBox()
-        self.kind_filter.setToolTip("Filter by item kind")
-        # Build kind list with counts.
-        kind_counts: dict[str, int] = {}
-        for it in non_gear:
-            k = str(it.get("kind", "other")).title()
-            kind_counts[k] = kind_counts.get(k, 0) + 1
-        self.kind_filter.addItem(f"All ({len(non_gear)})", None)
-        for k in sorted(kind_counts.keys()):
-            self.kind_filter.addItem(f"{k} ({kind_counts[k]})", k.upper())
-        self.kind_filter.currentIndexChanged.connect(self._apply_filters)
-        filter_row.addWidget(self.kind_filter)
+        filter_row.addWidget(QLabel("Rarity:"))
+        self.rarity_filter = QComboBox()
+        self.rarity_filter.setToolTip("Filter by material rarity")
+        rarity_counts: dict[str, int] = {}
+        for it in filtered:
+            r = str(it.get("rarity", "COMMON")).upper()
+            rarity_counts[r] = rarity_counts.get(r, 0) + 1
+        self.rarity_filter.addItem(f"All ({len(filtered)})", None)
+        # Rarity dropdown shows COMMON → COSMIC in canonical order.
+        from tbh_desktop.scraper import RARITY_ORDER
+        for r in RARITY_ORDER:
+            if r in rarity_counts:
+                self.rarity_filter.addItem(
+                    f"{r.title()} ({rarity_counts[r]})", r
+                )
+        self.rarity_filter.currentIndexChanged.connect(self._apply_filters)
+        filter_row.addWidget(self.rarity_filter)
         filter_row.addStretch()
         layout.addLayout(filter_row)
 
@@ -139,54 +175,41 @@ class BoxLootPicker(QDialog):
         self._image_cache = ImageCache(self)
         self._image_cache.icon_ready.connect(self._apply_icon)
 
-        # Stash the filtered+scoped items; _apply_filters rebuilds the list.
-        self._all_items = non_gear
+        # Stash the filtered+scoped items; _apply_filters rebuilds the list
+        # with rarity filter + search applied on top.
+        self._all_items = filtered
         self._apply_filters()
 
     def _apply_filters(self) -> None:
-        """Rebuild list based on current kind_filter + search text."""
-        kind = self.kind_filter.currentData()  # None = all
+        """Rebuild list with rarity filter + search text applied."""
+        rarity = self.rarity_filter.currentData()  # None = all
         text = self.search.text().strip().lower()
         self.list_widget.clear()
+        # Track family boundaries so we can insert header rows.
+        last_family: str | None = None
         for it in self._all_items:
-            if kind is not None and str(it.get("kind", "")).upper() != kind:
+            if rarity is not None and str(it.get("rarity", "")).upper() != rarity:
                 continue
             if text:
                 name = str(it.get("name", "")).lower()
                 if text not in name and text not in str(it.get("id", "")):
                     continue
+            fam = str(it.get("family", ""))
+            if fam != last_family:
+                self._add_family_header(fam)
+                last_family = fam
             self._add_item_row(it)
         self._update_count()
 
-    def _build_all(self, items: list[dict[str, Any]]) -> None:
-        """Populate the list widget with grouped headers + item rows."""
-        self.list_widget.clear()
-        from tbh_desktop.scraper import FAMILY_ORDER, RARITY_ORDER
+    def _add_family_header(self, family: str) -> None:
+        """Insert a non-selectable header row to demarcate a family group.
 
-        # Group by (family, rarity) preserving sort order.
-        grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
-        for it in items:
-            key = (str(it.get("family", "")), str(it.get("rarity", "COMMON")))
-            grouped.setdefault(key, []).append(it)
-
-        # Walk in FAMILY_ORDER × RARITY_ORDER; skip empty groups.
-        family_rank = {f: i for i, f in enumerate(FAMILY_ORDER)}
-        rarity_rank = {r: i for i, r in enumerate(RARITY_ORDER)}
-
-        ordered_keys = sorted(
-            grouped.keys(),
-            key=lambda k: (family_rank.get(k[0], 99), rarity_rank.get(k[1], 99)),
-        )
-
-        for fam, rar in ordered_keys:
-            self._add_header(f"{rar.title()} {fam.title()}" if fam else rar.title())
-            for it in grouped[(fam, rar)]:
-                self._add_item_row(it)
-        self._update_count()
-
-    def _add_header(self, text: str) -> None:
-        """Insert a non-selectable header row to break the list into sections."""
-        header = QListWidgetItem(f"── {text} ──")
+        Items are pre-sorted by FAMILY_ORDER, so consecutive items share a
+        family. The header row is visually distinct (grey, bold, dimmed)
+        and not selectable.
+        """
+        label = family.replace("_", " ").title() if family else "Other"
+        header = QListWidgetItem(f"── {label} ──")
         header.setFlags(Qt.ItemFlag.NoItemFlags)  # not selectable
         header.setForeground(QColor("#8a92a6"))
         font = QFont()
@@ -274,29 +297,6 @@ class BoxLootPicker(QDialog):
                 or text in str(item_id)
                 or text in (li.toolTip() or "").lower()
             )
-            item_match[i] = match
-            li.setHidden(bool(text) and not match)
-        # Second pass: hide headers whose group has no matches.
-        # Walk contiguous runs of items between headers.
-        i = 0
-        while i < self.list_widget.count():
-            li = self.list_widget.item(i)
-            if li.data(Qt.ItemDataRole.UserRole) is not None:
-                i += 1
-                continue
-            # header — find next header or end
-            j = i + 1
-            while j < self.list_widget.count() and self.list_widget.item(j).data(Qt.ItemDataRole.UserRole) is not None:
-                j += 1
-            any_visible = any(
-                self.list_widget.item(k).data(Qt.ItemDataRole.UserRole) is not None
-                and not self.list_widget.item(k).isHidden()
-                for k in range(i + 1, j)
-            )
-            li.setHidden(bool(text) and not any_visible)
-            i = j
-        self._update_count()
-
     def _update_count(self) -> None:
         selectable = sum(
             1

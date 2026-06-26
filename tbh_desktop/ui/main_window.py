@@ -270,23 +270,21 @@ class MainWindow(QMainWindow):
         return loot
 
     def _pick_box_loot_for_rule(self) -> None:
-        """Pick reward IDs from the drops index for the selected rule's box.
+        """Pick reward IDs from the drops index, scoped to the selected rule's box.
 
-        Resolves the rule's item_id → box name via the cache (no box-picker
-        step), then opens the drops index dialog with that box's loot
-        pre-filtered.
+        Opens BoxLootPicker in ``box_loot`` mode — shows ALL items in the
+        box (materials + stage-box + everything else, but no gear). Used
+        for a single specific_queue rule's replacement IDs.
         """
         from tbh_desktop.paths import DROPS_INDEX_CACHE
         from tbh_desktop.scraper import fetch_drops_index
         from tbh_desktop.ui.box_loot_picker import BoxLootPicker
 
         box_id = self.editor.selected_rule_item_id()
-        # Try to scope to the selected box's name (if we have it in cache).
         scope_name: str | None = None
         if box_id is not None:
             cached_loot = self._get_box_loot(box_id)
             if cached_loot:
-                # Use the first entry's box_name as the scope hint.
                 scope_name = cached_loot[0].get("box_name")
 
         items = fetch_drops_index(DROPS_INDEX_CACHE)
@@ -298,7 +296,7 @@ class MainWindow(QMainWindow):
                 "run the proxy once.",
             )
             return
-        dlg = BoxLootPicker(self, items=items, scope_box_name=scope_name)
+        dlg = BoxLootPicker(self, items=items, scope_box_name=scope_name, mode="box_loot")
         if dlg.exec():
             self.editor.add_ids_to_selected_rule(dlg.selected_ids())
 

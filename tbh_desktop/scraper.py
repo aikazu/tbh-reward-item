@@ -510,25 +510,36 @@ def _scrape_one_combo(
     out_dir: Path,
     cancel_event: threading.Event | None = None,
 ) -> list[dict[str, Any]] | None:
-    """Scrape a single (cat, grade) combo with one iframe-strip retry.
+    """Scrape a single (cat, grade) combo with iframe-strip + delayed retry.
 
     Returns the parsed items list on success. Returns None to signal the caller
     should fall back to the cache for this combo (logged as warning either way).
     Most failures are transient iframe overlays; the retry strips them and
     re-navigates. If the retry also fails, the caller falls back to cache.
+
+    Up to 3 attempts total: initial → strip iframes → wait + re-navigate.
+    The third attempt uses a fresh navigation (page.goto again with cache
+    bypass) to defeat cases where the page is in a stuck state after the
+    first failure.
     """
     cache_path = _cache_path(out_dir, cat, grade)
-    for attempt in (1, 2):
+    last_exc: Exception | None = None
+    for attempt in (1, 2, 3):
         if cancel_event is not None and cancel_event.is_set():
             return None
         try:
-            page.goto(GEAR_URL)
+            # On attempt 3, bypass page cache to force a fresh load.
+            if attempt >= 3:
+                page.goto(GEAR_URL, wait_until="domcontentloaded")
+            else:
+                page.goto(GEAR_URL)
             _select_gear_filters(page, cat, grade, obtainable_only=True)
             items = scrape_gear_batch(page)
             write_gear_cache(cache_path, items)
             log.info("gear %s/%s scraped %d items", cat, grade, len(items))
             return items
         except Exception as exc:
+            last_exc = exc
             if attempt == 1:
                 # Strip overlay iframes (Cloudflare / ads) and retry. This
                 # fixes the "element is covered by <IFRAME>" pointer_events
@@ -542,9 +553,20 @@ def _scrape_one_combo(
                 except Exception:
                     pass
                 continue
+            if attempt == 2:
+                # Second failure: wait briefly for any transient overlay to
+                # disappear, then retry with cache-bypass goto.
+                log.info(
+                    "gear %s/%s attempt 2 failed (%s); waiting 1.5s and retrying fresh",
+                    cat, grade, exc,
+                )
+                import time as _time
+                _time.sleep(1.5)
+                continue
+            # Third failure → caller falls back to cache.
             log.warning("gear %s/%s scrape failed: %s", cat, grade, exc)
             return None
-    return None  # unreachable; loop has 2 iterations max
+    return None
 
 
 def refresh_gear_full(

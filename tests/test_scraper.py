@@ -596,8 +596,8 @@ def test_scrape_one_combo_retries_after_iframe_failure(tmp_path: Path) -> None:
         scraper.scrape_gear_batch = original
 
 
-def test_scrape_one_combo_returns_none_after_two_failures(tmp_path: Path) -> None:
-    """If BOTH attempts fail, returns None so caller can fall back to cache."""
+def test_scrape_one_combo_returns_none_after_three_failures(tmp_path: Path) -> None:
+    """If all 3 attempts fail, returns None so caller can fall back to cache."""
     from unittest.mock import MagicMock
 
     page = MagicMock(name="page")
@@ -615,11 +615,16 @@ def test_scrape_one_combo_returns_none_after_two_failures(tmp_path: Path) -> Non
 
     out_dir = tmp_path / "cache"
     out_dir.mkdir()
-    result = scraper._scrape_one_combo(
-        page, "weapon", "legendary", out_dir=out_dir
-    )
+    # Mock time.sleep via patch — module-level import inside the function
+    # uses import time as _time, so we patch the standard library module.
+    import unittest.mock
+    import time as _stdlib_time
+    with unittest.mock.patch.object(_stdlib_time, "sleep", lambda _: None):
+        result = scraper._scrape_one_combo(
+            page, "weapon", "legendary", out_dir=out_dir
+        )
     assert result is None
-    # page.goto called exactly twice
-    assert page.goto.call_count == 2
+    # page.goto called exactly 3 times (initial + 2 retries)
+    assert page.goto.call_count == 3
     # No cache file written
     assert not (out_dir / "gear_weapon_legendary.json").exists()

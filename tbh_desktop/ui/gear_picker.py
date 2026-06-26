@@ -47,8 +47,57 @@ from tbh_desktop.ui.image_cache import ImageCache
 _CATEGORY_DISPLAY: dict[str, str | None] = {"All": None, **CATEGORY_DISPLAY}
 _GRADE_DISPLAY: dict[str, str | None] = {"All": None, **GRADE_DISPLAY}
 
-# Level tolerance when a level_hint is supplied (± this many levels).
+# Level tolerance when a level_hint is supplied (± this many level).
 _LEVEL_TOLERANCE = 5
+
+# Compact stat-name -> short label for inline rendering. Avoids printing
+# full "Attack Damage BASE" lines per stat — the row is a single list line.
+_STAT_SHORT: dict[str, str] = {
+    "Attack Damage": "ATK",
+    "Attack Speed": "ASPD",
+    "Critical Rate": "CRIT",
+    "Critical Damage": "CD",
+    "Cooldown Reduction": "CDR",
+    "Max HP": "HP",
+    "Defense": "DEF",
+}
+
+
+def _short_stat_name(name: str) -> str:
+    """Return the short label for *name* (e.g. 'Attack Damage' -> 'ATK').
+    Falls back to a stripped title-case version if no mapping exists.
+    """
+    if name in _STAT_SHORT:
+        return _STAT_SHORT[name]
+    # Title-case first 2 words, e.g. "Some Cool Stat" -> "Some Cool".
+    parts = name.split()
+    return " ".join(parts[:2]) if len(parts) > 2 else name
+
+
+def _format_stats_compact(stats: list[dict[str, str]] | None) -> str:
+    """Format a per-item stats list as a single inline row.
+
+    Example output: ``ATK +1,656 · ASPD +3.10/s · ATK +397 (inh) · CD +132.1% (inh)``.
+
+    BASE stats are shown without a suffix; INHERENT ones are tagged ``(inh)``
+    so the breakdown is visible without hovering (per user request).
+    Returns '' if no stats are present.
+    """
+    if not stats:
+        return ""
+    parts: list[str] = []
+    for s in stats:
+        name = s.get("name", "").strip()
+        value = s.get("value", "").strip()
+        kind = s.get("kind", "").strip()
+        if not name or not value:
+            continue
+        short = _short_stat_name(name)
+        if kind == "inherent":
+            parts.append(f"{short} {value} (inh)")
+        else:
+            parts.append(f"{short} {value}")
+    return " · ".join(parts)
 
 
 class GearPicker(QDialog):
@@ -158,6 +207,9 @@ class GearPicker(QDialog):
         # most styles; set an explicit size since QSize.width() can return -1
         # on some styles and then *3 would also be negative.
         self.list_widget.setIconSize(QSize(48, 48))
+        # Two-line rows (name + stats). Word-wrap so long stat rows don't
+        # stretch the dialog horizontally.
+        self.list_widget.setWordWrap(True)
         layout.addWidget(self.list_widget)
 
         # Async image cache (per-dialog). Icon-ready signals land on the GUI
@@ -260,7 +312,12 @@ class GearPicker(QDialog):
                 continue
             if match_box and str(name).strip().lower() not in loot_names:
                 continue
-            text = f"{item.get('id')} · {name} ({item.get('rarity', '')})"
+            # Stats field comes from the per-combo cache file (stamped at
+            # scrape time by scraper._enrich_items_with_stats). No separate
+            # detail cache; just read what _load_items_for_filters gave us.
+            line1 = f"{item.get('id')} · {name} ({item.get('rarity', '')})"
+            stats_line = _format_stats_compact(item.get("stats"))
+            text = f"{line1}\n{stats_line}" if stats_line else line1
             list_item = QListWidgetItem(text)
             list_item.setData(Qt.ItemDataRole.UserRole, item.get("id"))
             # Style per-item: rarity color as background tint + tooltip with drops.

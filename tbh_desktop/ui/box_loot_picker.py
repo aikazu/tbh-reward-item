@@ -36,6 +36,64 @@ from PySide6.QtWidgets import (
 from tbh_desktop.ui.image_cache import ImageCache
 
 
+# Short labels for inline stat-name display. Mirrors the gear picker
+# helper so the two pickers render stat names consistently.
+_STAT_SHORT: dict[str, str] = {
+    "Attack Damage": "ATK",
+    "Attack Speed": "ASPD",
+    "Critical Rate": "CRIT",
+    "Critical Damage": "CD",
+    "Cooldown Reduction": "CDR",
+    "Max HP": "HP",
+    "Defense": "DEF",
+    "Fire Damage Percent": "Fire Dmg",
+    "Fire Resistance": "Fire Res",
+    "Water Damage Percent": "Water Dmg",
+    "Water Resistance": "Water Res",
+    "Earth Damage Percent": "Earth Dmg",
+    "Earth Resistance": "Earth Res",
+    "Lightning Damage Percent": "Lightning Dmg",
+    "Lightning Resistance": "Lightning Res",
+    "Light Damage Percent": "Light Dmg",
+    "Light Resistance": "Light Res",
+    "Dark Damage Percent": "Dark Dmg",
+    "Dark Resistance": "Dark Res",
+}
+
+
+def _short_stat_name(name: str) -> str:
+    if name in _STAT_SHORT:
+        return _STAT_SHORT[name]
+    parts = name.split()
+    return " ".join(parts[:2]) if len(parts) > 2 else name
+
+
+def _format_info_inline(info: dict[str, Any] | None) -> str:
+    """Format a material's wiki info dict as a single inline row.
+
+    Example: ``Fire Dmg +20~30% (W) · Fire Res +5~10% (A) · ATK +1~2 (X)``.
+
+    Slot suffix is single-letter for compactness: W=Weapon, A=Armor,
+    X=Accessory, H=Helmet. Returns '' if info is empty/absent.
+    """
+    if not info:
+        return ""
+    stats = info.get("stats") or []
+    if not stats:
+        return ""
+    slot_short = {"Weapon": "W", "Armor": "A", "Accessory": "X", "Helmet": "H"}
+    parts: list[str] = []
+    for s in stats:
+        stat = s.get("stat", "").strip()
+        value = s.get("value", "").strip()
+        slot = s.get("slot", "").strip()
+        if not stat or not value:
+            continue
+        suffix = f" ({slot_short.get(slot, slot[0] if slot else '?')})" if slot else ""
+        parts.append(f"{_short_stat_name(stat)} {value}{suffix}")
+    return " · ".join(parts)
+
+
 class BoxLootPicker(QDialog):
     """Pick reward IDs from the wiki drops index (everything non-gear)."""
 
@@ -82,6 +140,18 @@ class BoxLootPicker(QDialog):
             from tbh_desktop.scraper import read_drops_index
             items = read_drops_index(cache_path)
         items = items or []
+        # Merge per-item info (effect + stat rolls + crafting) from the
+        # per-(family,rarity) cache files. The drops index itself doesn't
+        # carry this — it's added by refresh_material_details during the
+        # Scrape Data flow. The picker reads it from disk here so the
+        # effect + stats show up without hovering or opening the wiki.
+        from tbh_desktop.paths import ITEM_DIR
+        from tbh_desktop.scraper import load_material_info_by_id
+        info_by_id = load_material_info_by_id(ITEM_DIR)
+        for it in items:
+            iid = it.get("id")
+            if isinstance(iid, int) and iid in info_by_id:
+                it["info"] = info_by_id[iid]
         # Filter by mode.
         if mode == "materials":
             # Range replacement picker: materials only, exclude SOULSTONE.
@@ -182,6 +252,9 @@ class BoxLootPicker(QDialog):
         self.list_widget.setAlternatingRowColors(True)
         self.list_widget.setSelectionMode(QListWidget.SelectionMode.MultiSelection)
         self.list_widget.setIconSize(QSize(48, 48))
+        # Two-line rows (name + info) need word-wrap so the info line
+        # doesn't get clipped at the dialog width.
+        self.list_widget.setWordWrap(True)
         layout.addWidget(self.list_widget)
 
         self.count_label = QLabel()
@@ -255,7 +328,11 @@ class BoxLootPicker(QDialog):
         rarity = str(item.get("rarity", "")).title()
         family = str(item.get("family", "")).title()
         rate_part = f" ({rate})" if rate else ""
-        text = f"  {item_id} · {name}{rate_part}"
+        line1 = f"  {item_id} · {name}{rate_part}"
+        # Inline info: effect + stat rolls (one per slot type). If the
+        # item has no info yet (never re-scraped), just show the name line.
+        info_line = _format_info_inline(item.get("info"))
+        text = f"{line1}\n{info_line}" if info_line else line1
         list_item = QListWidgetItem(text)
         list_item.setData(Qt.ItemDataRole.UserRole, item_id)
         # Tooltip with structured info.
@@ -268,6 +345,24 @@ class BoxLootPicker(QDialog):
             tooltip_lines.append(f"Kind: {kind}")
         if rate:
             tooltip_lines.append(f"Drop rate: <b>{rate}</b>")
+        # Surface the wiki-derived info in the tooltip too, so the user
+        # can see the FULL text (the inline line is truncated to keep the
+        # row short).
+        info = item.get("info") or {}
+        if info.get("effect"):
+            tooltip_lines.append(f"<br><i>{info['effect']}</i>")
+        for st in info.get("stats", []):
+            slot = st.get("slot", "")
+            stat = st.get("stat", "")
+            value = st.get("value", "")
+            tier = st.get("tier", "")
+            slot_prefix = f"[{slot}] " if slot else ""
+            tier_suffix = f" (T{tier})" if tier else ""
+            tooltip_lines.append(
+                f"{slot_prefix}<b>{stat}</b> {value}{tier_suffix}"
+            )
+        if info.get("crafting"):
+            tooltip_lines.append(f"<br>Crafting: {info['crafting']}")
         list_item.setToolTip("<br>".join(tooltip_lines))
         # Background tint per rarity (subtle differentiation).
         tint = self._rarity_tint(rarity)

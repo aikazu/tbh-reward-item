@@ -247,12 +247,24 @@ class MainWindow(QMainWindow):
         self._drops_log_bridge = bridge
         def _fetch_drops_async() -> None:
             try:
-                from tbh_desktop.paths import DROPS_INDEX_CACHE
-                from tbh_desktop.scraper import fetch_drops_index
+                from tbh_desktop.paths import DROPS_INDEX_CACHE, ITEM_DIR
+                from tbh_desktop.scraper import fetch_drops_index, refresh_material_details
                 items = fetch_drops_index(DROPS_INDEX_CACHE)
                 bridge.log_line.emit(
                     f"Drops index: {len(items)} items cached (materials + stage boxes)"
                 )
+                # After the drops index is up to date, fetch each
+                # material's wiki detail (effect + stat rolls + crafting)
+                # and inline the info into the per-(family,rarity) files
+                # under ITEM_DIR. Best-effort — partial enrichment is fine
+                # (e.g. wiki may 429 us), and any failure is logged.
+                try:
+                    enriched = refresh_material_details(ITEM_DIR, items)
+                    bridge.log_line.emit(
+                        f"Material details: enriched {enriched} items (effect + stats)"
+                    )
+                except Exception as exc:
+                    bridge.log_line.emit(f"Material details enrichment failed: {exc}")
             except Exception as exc:
                 bridge.log_line.emit(f"Drops index fetch failed: {exc}")
         threading.Thread(target=_fetch_drops_async, daemon=True).start()

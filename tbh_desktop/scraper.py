@@ -598,6 +598,12 @@ def _scrape_one_combo(
                 page.goto(GEAR_URL)
             _select_gear_filters(page, cat, grade, obtainable_only=True)
             items = scrape_gear_batch(page)
+            # Enrich each item with BASE/INHERENT stats from the per-item
+            # detail page. fetch_gear_detail reads from disk-cache first,
+            # so already-enriched combos are fast. Stats are stamped onto
+            # each item dict and persisted into the per-combo cache file
+            # by write_gear_cache below — no separate per-item file.
+            _enrich_items_with_stats(items, cancel_event=cancel_event)
             write_gear_cache(cache_path, items)
             log.info("gear %s/%s scraped %d items", cat, grade, len(items))
             return items
@@ -701,6 +707,65 @@ def refresh_gear_full(
     return result
 
 
+def _enrich_items_with_stats(
+    items: list[dict[str, Any]],
+    cancel_event: threading.Event | None = None,
+    max_workers: int = 4,
+) -> None:
+    """Stamp BASE/INHERENT stats onto each item in *items* in place.
+
+    For each item, downloads the wiki detail page, parses it via
+    :func:`parse_gear_detail`, and (on success) sets
+    ``item["stats"] = detail["stats"]``. The caller (``_scrape_one_combo``)
+    then writes the enriched items to the per-combo cache file via
+    :func:`write_gear_cache` — stats live in the same file as the rest
+    of the item data, no separate per-item cache directory.
+
+    Uses a small thread pool to keep total time bounded — most combos
+    have 10-70 items and each detail fetch is a single HTTP GET. Network
+    errors and per-item failures are logged at ``info`` level and never
+    raise.
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    if not items:
+        return
+
+    log.info("enriching %d gear items with BASE/INHERENT stats", len(items))
+
+    def _worker(item: dict[str, Any]) -> tuple[int, list[dict[str, str]]]:
+        iid = item.get("id")
+        name = item.get("name") or ""
+        if not isinstance(iid, int) or not name:
+            return iid if isinstance(iid, int) else -1, []
+        slug = _gear_slug_for(iid, name)
+        url = f"https://taskbarhero.wiki/items/{iid}-{slug}"
+        try:
+            resp = requests.get(url, timeout=30)
+            resp.raise_for_status()
+            detail = parse_gear_detail(resp.text)
+            return iid, detail.get("stats", [])
+        except Exception as exc:
+            log.info("gear detail %s failed: %s", iid, exc)
+            return iid, []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futures = [ex.submit(_worker, it) for it in items]
+        for fut in as_completed(futures):
+            if cancel_event is not None and cancel_event.is_set():
+                break
+            try:
+                iid, stats = fut.result()
+            except Exception:
+                continue
+            if not stats:
+                continue
+            for it in items:
+                if it.get("id") == iid:
+                    it["stats"] = stats
+                    break
+
+
 def refresh_gear(cache_path: Path) -> list[dict[str, Any]]:
     """Fetch gear wiki, parse, cache. Fall back to existing cache on error."""
     try:
@@ -712,6 +777,105 @@ def refresh_gear(cache_path: Path) -> list[dict[str, Any]]:
     except Exception as exc:
         log.warning("gear refresh failed: %s", exc)
         return read_gear_cache(cache_path)
+
+
+def parse_material_detail_wiki(html: str) -> dict[str, Any]:
+    """Parse a material detail page on the WIKI (taskbarhero.wiki).
+
+    URL: ``/items/{slug}`` (no id in path — id is sourced from the org
+    drops index). Schema (Dec 2026):
+      - <h1>Name</h1>
+      - Section header "Decoration Effects" / "Material Effects" / "Effect"
+        with a single <p> description and one or more <table> stat rolls
+        (Stat | Chance | Value | Tier). Each table is one slot type
+        (Weapon / Armor / Accessory).
+      - Section header "Used in Crafting" with a brief <p> + tier info.
+      - Section header "Found in | N chests" with drop locations (parsed
+        loosely — not surfaced in the picker because box drop info is
+        already in BOX_DROP_MAP_CACHE).
+
+    Returns dict: {name, effect, stats: [{slot, stat, chance, value, tier}], crafting}.
+    Empty dict on parse failure. The BoxLootPicker renders ``effect``
+    and ``stats`` inline so users can compare materials without opening
+    the wiki.
+    """
+    soup = BeautifulSoup(html, "lxml")
+    result: dict[str, Any] = {}
+
+    h1 = soup.find("h1")
+    if h1:
+        result["name"] = h1.get_text(strip=True)
+
+    # Effect section — heading text varies by family. Match loosely.
+    effect_heading = None
+    for h in soup.find_all(["h2", "h3"]):
+        ht = h.get_text(strip=True).lower()
+        if "effect" in ht or "decoration effect" in ht:
+            effect_heading = h
+            break
+    if effect_heading is not None:
+        # The <p> right after the heading is the prose description.
+        desc_p = effect_heading.find_next("p")
+        if desc_p:
+            desc_text = desc_p.get_text(" ", strip=True)
+            if desc_text and len(desc_text) > 8:
+                result["effect"] = desc_text
+        # The stat rolls live in a wrapper <div> (e.g. ``<div class="space-y-3">``)
+        # whose direct children are slot-grouped <div> wrappers, each containing
+        # a single <table>. The wrapper's leading text node names the slot:
+        # "Weapon", "Armor", "Accessory", "Helmet".
+        stats: list[dict[str, str]] = []
+        for sib in effect_heading.find_next_siblings():
+            if sib.name in ("h2", "h3"):
+                break
+            if sib.name != "div":
+                continue
+            for inner_div in sib.find_all("div", recursive=False):
+                # Slot label is the first text node (or word) of inner_div.
+                full_text = inner_div.get_text(" ", strip=True)
+                first_token = full_text.split(maxsplit=1)[0] if full_text else ""
+                if first_token not in ("Weapon", "Armor", "Accessory", "Helmet"):
+                    continue
+                table = inner_div.find("table")
+                if table is None:
+                    continue
+                for tr in table.find_all("tr")[1:]:  # skip header row
+                    cells = [
+                        c.get_text(" ", strip=True)
+                        for c in tr.find_all(["th", "td"])
+                    ]
+                    if len(cells) < 4:
+                        continue
+                    stats.append({
+                        "slot": first_token,
+                        "stat": cells[0],
+                        "chance": cells[1],
+                        "value": cells[2],
+                        "tier": cells[3],
+                    })
+        if stats:
+            result["stats"] = stats
+
+    # "Used in Crafting" — single <p> + tier line, no table.
+    for h in soup.find_all(["h2", "h3"]):
+        ht = h.get_text(strip=True).lower()
+        if "crafting" in ht:
+            sib = h.find_next_sibling()
+            parts: list[str] = []
+            hops = 0
+            while sib is not None and hops < 4:
+                if sib.name in ("h2", "h3"):
+                    break
+                t = sib.get_text(" ", strip=True)
+                if t and len(t) > 8:
+                    parts.append(t)
+                sib = sib.find_next_sibling()
+                hops += 1
+            if parts:
+                result["crafting"] = " · ".join(parts)
+            break
+
+    return result
 
 
 def parse_item_detail(html: str) -> dict[str, Any]:
@@ -937,6 +1101,29 @@ def read_drops_index(path: Path) -> list[dict[str, Any]]:
     return []
 
 
+def load_material_info_by_id(item_dir: Path) -> dict[int, dict[str, Any]]:
+    """Read every per-(family,rarity) JSON under *item_dir* and return a
+    map of ``{item_id: info_dict}`` for items that have an ``info`` field.
+
+    The BoxLootPicker merges this into the drops index so the row text +
+    tooltip can show effect + stat rolls without opening the wiki. Items
+    without an ``info`` field are simply absent from the returned map.
+    """
+    out: dict[int, dict[str, Any]] = {}
+    if not item_dir.exists():
+        return out
+    for family_dir in item_dir.iterdir():
+        if not family_dir.is_dir():
+            continue
+        for cache_path in family_dir.glob("*.json"):
+            for it in _read_item_cache(cache_path):
+                iid = it.get("id")
+                info = it.get("info")
+                if isinstance(iid, int) and isinstance(info, dict) and info:
+                    out[iid] = info
+    return out
+
+
 def fetch_drops_index(cache_path: Path, *, force: bool = False) -> list[dict[str, Any]]:
     """Fetch /en/tools/drops/ and cache the parsed result.
 
@@ -968,13 +1155,26 @@ def parse_gear_detail(html: str) -> dict[str, Any]:
     - <div class="flex flex-wrap ..."> panel with span children labeled
       "Type" / "Slot" / "Lv". Each label span is followed by a value span.
     - <div class="stat-tile"> tiles — each tile has 1-2 spans:
-        * Alchemy Gold / Cube EXP — name + value
-        * Attack Speed INHERENT / Cooldown Reduction INHERENT — name has
-          "INHERENT" suffix, value is "+13.6%" / "+8%" etc.
-    - Drop locations (further down the page).
+        * Resell tiles (Alchemy Gold, Cube EXP) — name + value, no kind badge.
+        * Stat tiles — name has either "BASE" or "INHERENT" suffix
+          (e.g. "Attack Damage BASE" or "Critical Damage INHERENT"),
+          value is "+1,656" / "+132.1%" / etc.
 
-    Returns dict: {name, type, slot, level, stats: [{name, value, inherent}], resell}.
-    Empty dict on parse failure.
+    Returns dict:
+      {
+        name, type, slot, level,
+        stats: [
+          {"name": "Attack Damage", "value": "+1,656", "kind": "base"},
+          {"name": "Critical Damage", "value": "+132.1%", "kind": "inherent"},
+          ...
+        ],
+        resell: [
+          {"name": "Alchemy Gold", "value": "322,179,942"}, ...
+        ],
+      }
+
+    Empty dict on parse failure. The picker renders ``stats`` inline (no
+    hover) so the user can see the BASE/INHERENT breakdown at a glance.
     """
     soup = BeautifulSoup(html, "lxml")
     result: dict[str, Any] = {}
@@ -1000,27 +1200,41 @@ def parse_gear_detail(html: str) -> dict[str, Any]:
             break
 
     # Stat tiles: walk each <div class="stat-tile">. Top-level structure:
-    # <span class="k">Name [INHERENT]</span>
+    # <span class="k">Name [BASE|INHERENT]</span>
     # <span class="v">value</span>
-    # Tiles WITHOUT the INHERENT badge are resell value (Alchemy Gold, Cube
-    # EXP) — skipped. Tiles WITH INHERENT are the rolled status bonuses.
-    status: list[dict[str, str]] = []
+    # Tiles WITHOUT a kind badge (Alchemy Gold, Cube EXP) are resell
+    # value, kept separately under "resell". Tiles WITH a kind badge are
+    # the rolled status bonuses — kept under "stats" with the kind tagged.
+    stats: list[dict[str, str]] = []
+    resell: list[dict[str, str]] = []
     for tile in soup.find_all("div", class_="stat-tile"):
         k_span = tile.find("span", class_="k")
         v_span = tile.find("span", class_="v")
         if not (k_span and v_span):
             continue
         k_text = k_span.get_text(" ", strip=True)
-        if "INHERENT" not in k_text:
-            continue  # skip resell tiles (Alchemy Gold, Cube EXP)
-        clean_name = k_text.replace("INHERENT", "").strip()
         value_text = v_span.get_text(strip=True)
-        status.append({
-            "name": clean_name,
-            "value": value_text,
-        })
-    if status:
-        result["status"] = status
+        if "BASE" in k_text:
+            stats.append({
+                "name": k_text.replace("BASE", "").strip(),
+                "value": value_text,
+                "kind": "base",
+            })
+        elif "INHERENT" in k_text:
+            stats.append({
+                "name": k_text.replace("INHERENT", "").strip(),
+                "value": value_text,
+                "kind": "inherent",
+            })
+        else:
+            resell.append({
+                "name": k_text,
+                "value": value_text,
+            })
+    if stats:
+        result["stats"] = stats
+    if resell:
+        result["resell"] = resell
 
     return result
 
@@ -1039,38 +1253,27 @@ def fetch_gear_detail(
     name: str | None = None,
     cache_dir: Path | None = None,
 ) -> dict[str, Any]:
-    """Fetch /items/{id}-{slug} on taskbarhero.wiki and cache the parsed result.
+    """Fetch /items/{id}-{slug} on taskbarhero.wiki and return the parsed result.
+
+    Stats live in the per-combo cache file (``tbh_desktop/gear/{cat}/{rarity}.json``)
+    after the Scrape Data flow runs ``_enrich_items_with_stats`` — this
+    function is kept for callers that want the raw detail on demand
+    (e.g. CLI tools, ad-hoc tests). It does NOT write any per-item cache
+    file; the only persisted copy of the stats is inside the per-combo
+    gear cache. Pass *cache_dir* explicitly if you want to override the
+    default in-memory behavior.
 
     Slug can be passed explicitly, OR derived from name (lowercased, hyphens).
-    cache_dir defaults to tbh_desktop (gear_detail_cache/). Cached file:
-    gear_{item_id}.json.
     """
-    if cache_dir is None:
-        cache_dir = GEAR_DETAIL_CACHE_DIR
     if not slug and name:
         slug = _gear_slug_for(item_id, name)
     if not slug:
         return {}
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    cache_path = cache_dir / f"gear_{item_id}.json"
-    if cache_path.exists():
-        try:
-            cached = json.loads(cache_path.read_text(encoding="utf-8-sig"))
-            if isinstance(cached, dict):
-                return cached
-        except (json.JSONDecodeError, OSError):
-            pass
     try:
         url = f"https://taskbarhero.wiki/items/{item_id}-{slug}"
         resp = requests.get(url, timeout=30)
         resp.raise_for_status()
-        detail = parse_gear_detail(resp.text)
-        detail["slug"] = slug
-        cache_path.write_text(
-            json.dumps(detail, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-        log.info("gear detail cached: %d %s", item_id, slug)
-        return detail
+        return parse_gear_detail(resp.text)
     except Exception as exc:
         log.warning("gear detail fetch failed: %d %s (%s)", item_id, slug, exc)
         return {}
@@ -1128,3 +1331,151 @@ def refresh_box_loot(
     except Exception as exc:
         log.warning("box %s refresh failed: %s", box_id, exc)
         return read_box_cache(cache_dir, box_id)
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Material info enrichment
+#
+# The org /en/tools/drops/ page gives us id+name+family+rarity for every
+# material but no effect / stat-roll / crafting info. The wiki DOES have
+# that info on /items/{slug} (note: slug-based URL, not id-based). This
+# module fetches each material's wiki detail, parses the rich info, and
+# inlines it into the existing per-(family,rarity) JSON files under
+# tbh_desktop/item/{family}/{rarity}.json — same layout the gear cache
+# uses, so the box loot picker can render effect + stats without any
+# extra per-item cache file.
+# ─────────────────────────────────────────────────────────────────────────
+
+
+def _material_slug_for(name: str) -> str:
+    """Build the wiki slug for a material: 'Minor Ruby' → 'minor-ruby'.
+
+    Same algorithm as :func:`_gear_slug_for` — wiki uses the same slug
+    convention. Kept as a separate function so the two domains can
+    diverge later (gear's URL is /items/{id}-{slug}, material's is
+    /items/{slug}, but the slug-derivation rule is identical).
+    """
+    slug = name.lower().strip()
+    slug = re.sub(r"[^a-z0-9]+", "-", slug)
+    return slug.strip("-")
+
+
+def _fetch_material_detail_wiki(item_id: int, name: str) -> dict[str, Any]:
+    """Fetch /items/{slug} on taskbarhero.wiki for a material. No on-disk
+    cache — the parsed result is inlined into the per-(family,rarity)
+    cache file by the caller. Returns ``{}`` on failure.
+    """
+    slug = _material_slug_for(name)
+    if not slug:
+        return {}
+    try:
+        url = f"https://taskbarhero.wiki/items/{slug}"
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        return parse_material_detail_wiki(resp.text)
+    except Exception as exc:
+        log.info("material detail %s (%s) failed: %s", item_id, name, exc)
+        return {}
+
+
+def _write_item_cache(cache_path: Path, items: list[dict[str, Any]]) -> None:
+    """Persist a list of material items to a per-(family,rarity) JSON file.
+
+    Layout matches the gear cache: array of dicts, UTF-8, indented.
+    """
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    cache_path.write_text(
+        json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def _read_item_cache(cache_path: Path) -> list[dict[str, Any]]:
+    """Read a per-(family,rarity) material cache file. [] on missing."""
+    if not cache_path.exists():
+        return []
+    try:
+        data = json.loads(cache_path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    return data if isinstance(data, list) else []
+
+
+def refresh_material_details(
+    item_dir: Path,
+    drops_index: list[dict[str, Any]],
+    *,
+    cancel_event: threading.Event | None = None,
+    max_workers: int = 4,
+) -> int:
+    """Fetch wiki material details for every item in *drops_index* and
+    inline the parsed info into the per-(family,rarity) files under
+    *item_dir*.
+
+    Each material item entry gets an ``info`` field with the parsed
+    wiki data (effect, stats, crafting). The per-(family,rarity) files
+    are rewritten in place — no new directory. Existing items not
+    present in the drops index are left untouched (the per-(family,
+    rarity) files are read, items with id-matching ``info`` are
+    stamped, others kept as-is, then the file is written back).
+
+    Returns the number of items successfully enriched. Network errors
+    and per-item failures are logged at ``info`` and never raise.
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    if not drops_index:
+        return 0
+    log.info(
+        "enriching %d material items with wiki details (effect/stats/crafting)",
+        len(drops_index),
+    )
+
+    def _worker(item: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+        iid = item.get("id")
+        name = item.get("name") or ""
+        if not isinstance(iid, int) or not name:
+            return iid if isinstance(iid, int) else -1, {}
+        return iid, _fetch_material_detail_wiki(iid, name)
+
+    info_by_id: dict[int, dict[str, Any]] = {}
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futures = [ex.submit(_worker, it) for it in drops_index]
+        for fut in as_completed(futures):
+            if cancel_event is not None and cancel_event.is_set():
+                break
+            try:
+                iid, info = fut.result()
+            except Exception:
+                continue
+            if info:
+                info_by_id[iid] = info
+
+    if not info_by_id:
+        return 0
+
+    # Walk every per-(family,rarity) file under item_dir, stamp info, write.
+    enriched = 0
+    if not item_dir.exists():
+        log.warning("item_dir does not exist: %s", item_dir)
+        return 0
+    for family_dir in sorted(item_dir.iterdir()):
+        if not family_dir.is_dir():
+            continue
+        for cache_path in sorted(family_dir.glob("*.json")):
+            items = _read_item_cache(cache_path)
+            if not items:
+                continue
+            changed = False
+            for it in items:
+                iid = it.get("id")
+                if isinstance(iid, int) and iid in info_by_id:
+                    it["info"] = info_by_id[iid]
+                    changed = True
+                    enriched += 1
+            if changed:
+                _write_item_cache(cache_path, items)
+                log.info("wrote %s with %d info-stamped items", cache_path.name, sum(
+                    1 for it in items if "info" in it
+                ))
+    return enriched
+

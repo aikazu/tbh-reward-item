@@ -270,15 +270,35 @@ class MainWindow(QMainWindow):
         return loot
 
     def _pick_box_loot_for_rule(self) -> None:
-        """Pick loot (item/material) from the rule's box into Replacement IDs."""
+        """Pick reward IDs from the drops index for the selected rule's box.
+
+        Resolves the rule's item_id → box name via the cache (no box-picker
+        step), then opens the drops index dialog with that box's loot
+        pre-filtered.
+        """
+        from tbh_desktop.paths import DROPS_INDEX_CACHE
+        from tbh_desktop.scraper import fetch_drops_index
+        from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+
         box_id = self.editor.selected_rule_item_id()
-        if box_id is None:
-            self._on_log("Select a rule row with a valid item_id first.")
+        # Try to scope to the selected box's name (if we have it in cache).
+        scope_name: str | None = None
+        if box_id is not None:
+            cached_loot = self._get_box_loot(box_id)
+            if cached_loot:
+                # Use the first entry's box_name as the scope hint.
+                scope_name = cached_loot[0].get("box_name")
+
+        items = fetch_drops_index(DROPS_INDEX_CACHE)
+        if not items:
+            QMessageBox.warning(
+                self,
+                "Drops index empty",
+                "Could not load the drops index. Connect to the internet and "
+                "run the proxy once.",
+            )
             return
-        loot = self._get_box_loot(box_id)
-        if not loot:
-            return
-        dlg = BoxLootPicker(box_id, loot, self)
+        dlg = BoxLootPicker(self, items=items, scope_box_name=scope_name)
         if dlg.exec():
             self.editor.add_ids_to_selected_rule(dlg.selected_ids())
 

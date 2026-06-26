@@ -140,35 +140,82 @@ def test_box_loot_picker_filters_gear() -> None:
         {"id": 303011, "name": "Long Sword", "kind": "gear", "rarity": "Common", "family": ""},
     ]
     dlg = BoxLootPicker(items=items)
-    # Only non-gear shown
+    Qt = __import__("PySide6").QtCore.Qt
     selectable = [
         dlg.list_widget.item(i)
         for i in range(dlg.list_widget.count())
-        if dlg.list_widget.item(i).data(__import__("PySide6").QtCore.Qt.ItemDataRole.UserRole) is not None
+        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
     ]
     assert len(selectable) == 2
-    ids = {item.data(__import__("PySide6").QtCore.Qt.ItemDataRole.UserRole) for item in selectable}
+    ids = {item.data(Qt.ItemDataRole.UserRole) for item in selectable}
     assert ids == {110001, 910011}
 
 
-def test_box_loot_picker_sorts_by_family_then_rarity() -> None:
-    """Items grouped: rarity COMMON → COSMIC within each family."""
+def test_box_loot_picker_sorts_by_id_ascending() -> None:
+    """Items listed by id ascending (simple, predictable ordering)."""
     from PySide6.QtWidgets import QApplication
     app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
     from tbh_desktop.ui.box_loot_picker import BoxLootPicker
     items = [
-        {"id": 200, "name": "X", "kind": "material", "rarity": "LEGENDARY", "family": "DECORATION"},
-        {"id": 100, "name": "Y", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
         {"id": 300, "name": "Z", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
+        {"id": 100, "name": "Y", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
+        {"id": 200, "name": "X", "kind": "material", "rarity": "LEGENDARY", "family": "DECORATION"},
     ]
     dlg = BoxLootPicker(items=items)
-    # First selectable item should be id=100 (CRAFTING COMMON comes first).
-    selectable_ids = [
-        dlg.list_widget.item(i).data(__import__("PySide6").QtCore.Qt.ItemDataRole.UserRole)
+    Qt = __import__("PySide6").QtCore.Qt
+    ids = [
+        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
         for i in range(dlg.list_widget.count())
-        if dlg.list_widget.item(i).data(__import__("PySide6").QtCore.Qt.ItemDataRole.UserRole) is not None
+        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
     ]
-    assert selectable_ids == [100, 300, 200]  # CRAFTING COMMON → DECORATION COMMON → DECORATION LEGENDARY
+    assert ids == [100, 200, 300]
+
+
+def test_box_loot_picker_kind_filter() -> None:
+    """Kind dropdown filters list to matching kind only."""
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
+    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+    items = [
+        {"id": 1, "name": "Mat A", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
+        {"id": 2, "name": "Box A", "kind": "stage-box", "rarity": "COMMON", "family": "Normal Monster"},
+        {"id": 3, "name": "Mat B", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
+    ]
+    dlg = BoxLootPicker(items=items)
+    Qt = __import__("PySide6").QtCore.Qt
+    # Find index whose data() == "MATERIAL" (case-insensitive).
+    material_idx = dlg.kind_filter.findData("MATERIAL")
+    assert material_idx > 0, "kind dropdown should have a MATERIAL entry"
+    dlg.kind_filter.setCurrentIndex(material_idx)
+    ids = [
+        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
+        for i in range(dlg.list_widget.count())
+        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
+    ]
+    assert ids == [1, 3]
+
+
+def test_box_loot_picker_scope_filter() -> None:
+    """scope_box_name pre-filters to items whose name contains it."""
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
+    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+    items = [
+        {"id": 1, "name": "Obsidian Shard", "kind": "material", "rarity": "UNCOMMON", "family": "DECORATION"},
+        {"id": 2, "name": "Bronze Ingot", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
+        {"id": 3, "name": "Obsidian Blade", "kind": "material", "rarity": "LEGENDARY", "family": "ENGRAVING"},
+        {"id": 4, "name": "Box Lv1", "kind": "stage-box", "rarity": "COMMON", "family": "Normal Monster"},
+    ]
+    dlg = BoxLootPicker(items=items, scope_box_name="Obsidian")
+    Qt = __import__("PySide6").QtCore.Qt
+    ids = [
+        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
+        for i in range(dlg.list_widget.count())
+        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
+    ]
+    assert ids == [1, 3]
+    # Window title reflects scope.
+    assert "Obsidian" in dlg.windowTitle()
 
 
 def test_build_box_drop_map_groups_by_item() -> None:

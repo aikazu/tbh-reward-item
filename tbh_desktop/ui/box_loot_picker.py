@@ -22,8 +22,10 @@ from typing import Any
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QDialogButtonBox,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -43,13 +45,21 @@ class BoxLootPicker(QDialog):
         *,
         items: list[dict[str, Any]] | None = None,
         cache_path: Any | None = None,
+        scope_box_name: str | None = None,
     ) -> None:
         """Either pass ``items`` directly (for tests) or ``cache_path`` to
         load from the drops index on disk. If neither, returns an empty
         picker with a "no items available" notice.
+
+        ``scope_box_name`` optionally pre-filters to items that come from
+        that box (matched against item name). Used when picking replacements
+        for a specific rule — saves the user from browsing the whole catalog.
         """
         super().__init__(parent)
-        self.setWindowTitle("Pick reward IDs from drops index")
+        self.setWindowTitle(
+            f"Pick reward IDs from {scope_box_name}" if scope_box_name
+            else "Pick reward IDs from drops index"
+        )
         self.resize(560, 680)
 
         layout = QVBoxLayout(self)
@@ -64,42 +74,47 @@ class BoxLootPicker(QDialog):
         # Filter out gear — that's the GearPicker's territory.
         non_gear = [it for it in items if str(it.get("kind", "")).lower() != "gear"]
 
-        # Sort: by family (FAMILY_ORDER), then rarity (RARITY_ORDER), then id.
-        from tbh_desktop.scraper import FAMILY_ORDER, RARITY_ORDER
-        family_rank = {f: i for i, f in enumerate(FAMILY_ORDER)}
-        rarity_rank = {r: i for i, r in enumerate(RARITY_ORDER)}
+        # If scope_box_name given, pre-filter to items whose name contains it
+        # (heuristic — the drops index doesn't carry box_id). The user can
+        # clear the filter via the dropdown.
+        if scope_box_name:
+            needle = scope_box_name.lower()
+            non_gear = [it for it in non_gear if needle in it.get("name", "").lower()]
+            if not non_gear:
+                # Scope name yielded nothing — fall back to full list and
+                # pre-populate the search box so the user sees why.
+                non_gear = [it for it in items if str(it.get("kind", "")).lower() != "gear"]
+                self._scope_search_hint = scope_box_name
+            else:
+                self._scope_search_hint = None
 
-        def _sort_key(it: dict[str, Any]) -> tuple[int, int, int]:
-            fam = str(it.get("family", ""))
-            rar = str(it.get("rarity", "COMMON"))
-            return (
-                family_rank.get(fam, 99),
-                rarity_rank.get(rar, 99),
-                int(it.get("id", 0)),
-            )
+        # Sort: by id ascending (simple, predictable).
+        non_gear.sort(key=lambda it: int(it.get("id", 0)))
 
-        non_gear.sort(key=_sort_key)
-
-        # Header summary.
-        families = sorted({it.get("family", "") for it in non_gear if it.get("family")})
-        rarities = sorted({it.get("rarity", "") for it in non_gear if it.get("rarity")})
-        if non_gear:
-            summary = (
-                f"Drops index — {len(non_gear)} non-gear items · "
-                f"{len(families)} families · {len(rarities)} rarities"
-            )
-        else:
-            summary = (
-                "Drops index is empty — fetch it first "
-                "(Run proxy once or call fetch_drops_index)."
-            )
-        layout.addWidget(QLabel(summary))
+        # ── Filter row ───────────────────────────────────────────────────
+        filter_row = QHBoxLayout()
+        filter_row.setSpacing(8)
+        filter_row.addWidget(QLabel("Kind:"))
+        self.kind_filter = QComboBox()
+        self.kind_filter.setToolTip("Filter by item kind")
+        # Build kind list with counts.
+        kind_counts: dict[str, int] = {}
+        for it in non_gear:
+            k = str(it.get("kind", "other")).title()
+            kind_counts[k] = kind_counts.get(k, 0) + 1
+        self.kind_filter.addItem(f"All ({len(non_gear)})", None)
+        for k in sorted(kind_counts.keys()):
+            self.kind_filter.addItem(f"{k} ({kind_counts[k]})", k.upper())
+        self.kind_filter.currentIndexChanged.connect(self._apply_filters)
+        filter_row.addWidget(self.kind_filter)
+        filter_row.addStretch()
+        layout.addLayout(filter_row)
 
         # Search box.
         self.search = QLineEdit()
-        self.search.setPlaceholderText("Filter by name, id, family, or rarity…")
+        self.search.setPlaceholderText("Search name or id…")
         self.search.setClearButtonEnabled(True)
-        self.search.textChanged.connect(self._filter)
+        self.search.textChanged.connect(self._apply_filters)
         layout.addWidget(self.search)
 
         # List widget.
@@ -107,7 +122,6 @@ class BoxLootPicker(QDialog):
         self.list_widget.setAlternatingRowColors(True)
         self.list_widget.setSelectionMode(QListWidget.SelectionMode.MultiSelection)
         self.list_widget.setIconSize(QSize(48, 48))
-        # Smaller item height than gear (no extra icons strip).
         layout.addWidget(self.list_widget)
 
         self.count_label = QLabel()
@@ -125,7 +139,24 @@ class BoxLootPicker(QDialog):
         self._image_cache = ImageCache(self)
         self._image_cache.icon_ready.connect(self._apply_icon)
 
-        self._build_all(non_gear)
+        # Stash the filtered+scoped items; _apply_filters rebuilds the list.
+        self._all_items = non_gear
+        self._apply_filters()
+
+    def _apply_filters(self) -> None:
+        """Rebuild list based on current kind_filter + search text."""
+        kind = self.kind_filter.currentData()  # None = all
+        text = self.search.text().strip().lower()
+        self.list_widget.clear()
+        for it in self._all_items:
+            if kind is not None and str(it.get("kind", "")).upper() != kind:
+                continue
+            if text:
+                name = str(it.get("name", "")).lower()
+                if text not in name and text not in str(it.get("id", "")):
+                    continue
+            self._add_item_row(it)
+        self._update_count()
 
     def _build_all(self, items: list[dict[str, Any]]) -> None:
         """Populate the list widget with grouped headers + item rows."""

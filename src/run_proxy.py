@@ -38,6 +38,21 @@ def _terminate(proc: subprocess.Popen) -> None:
             pass
 
 
+def _install_signal_handlers(proc: subprocess.Popen) -> None:
+    # Default SIGTERM aborts the interpreter immediately, skipping `finally`
+    # blocks — so when the desktop kills our process group, _terminate never
+    # runs and mitmdump is left orphaned holding the port. Convert SIGTERM
+    # and SIGINT into a clean KeyboardInterrupt-style exit instead.
+    def _handler(_signum: int, _frame: object) -> None:  # noqa: ARG001
+        _terminate(proc)
+        # Restore default so a second signal still hard-kills if cleanup hangs.
+        signal.signal(_signum, signal.SIG_DFL)
+        os.kill(os.getpid(), _signum)
+
+    signal.signal(signal.SIGTERM, _handler)
+    signal.signal(signal.SIGINT, _handler)
+
+
 def main() -> int:
     from config_setup import ensure_config
     ensure_config(CONFIG_PATH)
@@ -75,6 +90,7 @@ def main() -> int:
         cwd=str(ROOT),
         start_new_session=True,
     )
+    _install_signal_handlers(proc)
     try:
         return proc.wait()
     except KeyboardInterrupt:

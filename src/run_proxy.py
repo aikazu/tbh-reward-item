@@ -1,12 +1,14 @@
 from __future__ import annotations
- 
+
 import json
+import os
 import shutil
+import signal
 import subprocess
 import sys
 from pathlib import Path
- 
- 
+
+
 ROOT = Path(__file__).resolve().parent
 CONFIG_PATH = ROOT / "config.json"
 ADDON_PATH = ROOT / "tbh_reward_hook.py"
@@ -18,6 +20,22 @@ def load_port() -> int:
     except Exception:
         return 8877
     return int(data.get("listen_port", data.get("ListenPort", 8877)))
+
+
+def _terminate(proc: subprocess.Popen) -> None:
+    # Send SIGTERM to the whole process group so mitmdump + any child
+    # threads release the listening socket. Escalate to SIGKILL if needed.
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+    except (ProcessLookupError, PermissionError):
+        return
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            pass
 
 
 def main() -> int:
@@ -35,7 +53,7 @@ def main() -> int:
         "--set",
         "block_global=false",
     ]
- 
+
     mitmdump = shutil.which("mitmdump")
     if mitmdump:
         command = [mitmdump, *common_args]
@@ -46,10 +64,23 @@ def main() -> int:
             "from mitmproxy.tools.main import mitmdump; mitmdump()",
             *common_args,
         ]
- 
+
     print(f"Starting quiet mitmproxy on 127.0.0.1:{port}")
     print("Only [TBH] addon messages are shown. Press Ctrl+C to stop.")
-    return subprocess.call(command, cwd=str(ROOT))
+
+    # New session so mitmdump + its threads share a process group we can
+    # signal together; otherwise Ctrl+C leaves a zombie holding the port.
+    proc = subprocess.Popen(
+        command,
+        cwd=str(ROOT),
+        start_new_session=True,
+    )
+    try:
+        return proc.wait()
+    except KeyboardInterrupt:
+        return 130
+    finally:
+        _terminate(proc)
  
  
 if __name__ == "__main__":

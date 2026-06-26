@@ -52,7 +52,7 @@ def parse_gear_page(html: str) -> list[dict[str, Any]]:
     ~38 is-deleted). The full ~5760-item list requires infinite-scroll / pagination
     which is NOT implemented here — only the first batch is parsed.
     """
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(html, "lxml")
     items: list[dict[str, Any]] = []
     for card in soup.select("a.entity-card"):
         if "is-deleted" in card.get("class", []):
@@ -90,7 +90,7 @@ def parse_box_page(html: str) -> list[dict[str, Any]]:
     Each dict: {id, name, rate}. ID extracted from gear image path, material image
     path, or href. Only rows inside the 'Loot table' section are returned.
     """
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(html, "lxml")
     loot: list[dict[str, Any]] = []
     # Find the Loot table heading, then the next table after it.
     loot_heading = soup.find(
@@ -169,14 +169,6 @@ def read_box_cache(cache_dir: Path, box_id: int) -> list[dict[str, Any]]:
         return []
 
 
-def resolve_box_slug(name: str) -> str:
-    """Convert a box name to URL slug. e.g. 'Normal Monster Box Lv80' -> 'normal-monster-box-lv80'.
-
-    Naive heuristic kept as fallback when wiki items-page lookup is unavailable.
-    """
-    return name.strip().lower().replace(" ", "-")
-
-
 def _load_slug_cache(cache_path: Path) -> dict[str, str]:
     if not cache_path.exists():
         return {}
@@ -212,7 +204,7 @@ def resolve_box_id_slug(
 
         resp = requests.get(ITEMS_URL, timeout=30)
         resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, "html.parser")
+        soup = BeautifulSoup(resp.text, "lxml")
 
         # Find the "Stage chests" heading, then the next table.
         chests_heading = soup.find(
@@ -247,24 +239,14 @@ def resolve_box_id_slug(
 # G3 — playwright-based full gear scraper (per category x grade)
 # ---------------------------------------------------------------------------
 
-# Cache slug -> wiki chip label.
-GEAR_CATEGORIES = ("weapon", "offhand", "armor", "accessory")
-CATEGORY_CHIPS = {
-    "weapon": "Weapon",
-    "offhand": "Off-hand",
-    "armor": "Armor",
-    "accessory": "Accessory",
-}
-GRADE_CHIPS = {
-    "legendary": "Legendary",
-    "immortal": "Immortal",
-    "arcana": "Arcana",
-    "beyond": "Beyond",
-    "celestial": "Celestial",
-    "divine": "Divine",
-    "cosmic": "Cosmic",
-}
-LEGENDARY_UP_GRADES = tuple(GRADE_CHIPS.keys())
+# Slugs and chip labels live in tbh_desktop.gear_filters (single source of
+# truth shared with the picker UI). Re-exported here for backwards compat.
+from tbh_desktop.gear_filters import (  # noqa: E402, F401
+    GEAR_CATEGORIES,
+    CATEGORY_CHIPS,
+    GRADE_CHIPS,
+    LEGENDARY_UP_GRADES,
+)
 
 # CSS selectors for the wiki /gear filter row + LOAD MORE button.
 CHIP_SELECTOR = ".gear-chip"
@@ -343,7 +325,6 @@ def refresh_gear_full(
     categories: list[str] | None = None,
     grades: list[str] | None = None,
     cancel_event: threading.Event | None = None,
-    browser_ref: Any = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Scrape full Legendary+ obtainable gear per (category, grade) using
     playwright (headless chromium) and write one cache file per combo.
@@ -359,9 +340,10 @@ def refresh_gear_full(
     ``"{category}_{grade}"`` -> items.
 
     If *cancel_event* is set (e.g. by ``GearScraperRunner.stop()``), the loop
-    bails early and the browser is closed. *browser_ref* (the
-    ``GearScraperRunner``) gets a reference to the live browser so it can be
-    force-closed from outside the thread.
+    bails early and the browser is closed by this function's own ``finally``.
+    The browser is owned by the scrape thread that called this function —
+    callers from other threads must NOT call ``browser.close()`` themselves
+    (race with the in-progress close).
     """
     cats = list(categories) if categories is not None else list(GEAR_CATEGORIES)
     grads = list(grades) if grades is not None else list(LEGENDARY_UP_GRADES)
@@ -384,9 +366,6 @@ def refresh_gear_full(
         else:
             # Fallback to stock Playwright if cloakbrowser not installed.
             browser = sync_playwright().start().chromium.launch(headless=True)
-        # Share browser ref with caller so stop() can force-close it.
-        if browser_ref is not None:
-            browser_ref._browser = browser
         try:
             context = browser.new_context()
             page = context.new_page()

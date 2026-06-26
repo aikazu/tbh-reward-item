@@ -77,11 +77,6 @@ def test_read_box_cache_missing_returns_empty(tmp_path: Path) -> None:
     assert scraper.read_box_cache(tmp_path / "box_loot_cache", 910801) == []
 
 
-def test_resolve_box_slug_from_name() -> None:
-    # Normal Monster Box Lv80 -> normal-monster-box-lv80
-    assert scraper.resolve_box_slug("Normal Monster Box Lv80") == "normal-monster-box-lv80"
-
-
 from unittest.mock import patch
 
 

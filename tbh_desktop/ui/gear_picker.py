@@ -32,27 +32,12 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from tbh_desktop.gear_filters import CATEGORY_DISPLAY, GRADE_DISPLAY
 from tbh_desktop.scraper import read_gear_cache
 
-# Display label -> slug (None means "All"). File names use the slug keys that
-# match scraper.GEAR_CATEGORIES / GRADE_CHIPS.
-_CATEGORY_DISPLAY = {
-    "All": None,
-    "Weapon": "weapon",
-    "Off-hand": "offhand",
-    "Armor": "armor",
-    "Accessory": "accessory",
-}
-_GRADE_DISPLAY = {
-    "All": None,
-    "Legendary": "legendary",
-    "Immortal": "immortal",
-    "Arcana": "arcana",
-    "Beyond": "beyond",
-    "Celestial": "celestial",
-    "Divine": "divine",
-    "Cosmic": "cosmic",
-}
+# Inject the "All" pseudo-option (None slug means no filter).
+_CATEGORY_DISPLAY: dict[str, str | None] = {"All": None, **CATEGORY_DISPLAY}
+_GRADE_DISPLAY: dict[str, str | None] = {"All": None, **GRADE_DISPLAY}
 
 # Level tolerance when a level_hint is supplied (± this many levels).
 _LEVEL_TOLERANCE = 5
@@ -100,13 +85,13 @@ class GearPicker(QDialog):
         filter_row = QHBoxLayout()
         filter_row.addWidget(QLabel("Category:"))
         self.category = QComboBox()
-        self.category.addItems(_CATEGORY_DISPLAY.keys())
+        self.category.addItems(list(_CATEGORY_DISPLAY.keys()))
         self.category.currentTextChanged.connect(self._rebuild)
         filter_row.addWidget(self.category)
         filter_row.addSpacing(12)
         filter_row.addWidget(QLabel("Grade:"))
         self.grade = QComboBox()
-        self.grade.addItems(_GRADE_DISPLAY.keys())
+        self.grade.addItems(list(_GRADE_DISPLAY.keys()))
         self.grade.currentTextChanged.connect(self._rebuild)
         filter_row.addWidget(self.grade)
         filter_row.addStretch()

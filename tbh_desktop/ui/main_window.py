@@ -150,6 +150,15 @@ class MainWindow(QMainWindow):
             "Scraping powered by CloakBrowser (stealth Chromium).",
         )
 
+    def _confirm(self, title: str, message: str, *, default_yes: bool = False) -> bool:
+        """Show a Yes/No dialog. Returns True if user clicked Yes."""
+        buttons = QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        default = (
+            QMessageBox.StandardButton.Yes if default_yes else QMessageBox.StandardButton.No
+        )
+        reply = QMessageBox.question(self, title, message, buttons, default)
+        return reply == QMessageBox.StandardButton.Yes
+
     def _reload_config(self) -> None:
         data = config_io.load_config(CONFIG_PATH)
         self.editor.load(data)
@@ -196,14 +205,7 @@ class MainWindow(QMainWindow):
     def _start(self) -> None:
         saved_port = config_io.load_config(CONFIG_PATH).get("listen_port", 8877)
         if self._parse_port() != saved_port:
-            reply = QMessageBox.question(
-                self,
-                "Unsaved port",
-                "Port changed. Save config first?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.Yes,
-            )
-            if reply != QMessageBox.StandardButton.Yes:
+            if not self._confirm("Unsaved port", "Port changed. Save config first?"):
                 return
             self._save()
         self.runner.start()
@@ -220,27 +222,18 @@ class MainWindow(QMainWindow):
     def _reset_config(self) -> None:
         """Reset config.json to default template, reload editor + port field."""
         if self.runner.is_running():
-            reply = QMessageBox.question(
-                self,
+            if not self._confirm(
                 "Reset config?",
                 "Proxy is running. Stop it and reset config to default?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No,
-            )
-            if reply != QMessageBox.StandardButton.Yes:
+            ):
                 return
             self.runner.stop()
-        else:
-            reply = QMessageBox.question(
-                self,
-                "Reset config?",
-                "Reset config.json back to the default template?\n"
-                "Your current rules will be lost.",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No,
-            )
-            if reply != QMessageBox.StandardButton.Yes:
-                return
+        elif not self._confirm(
+            "Reset config?",
+            "Reset config.json back to the default template?\n"
+            "Your current rules will be lost.",
+        ):
+            return
         if config_io.reset_config(CONFIG_PATH):
             self._reload_config()
             self._on_log("Config reset to default.")
@@ -338,25 +331,21 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:  # type: ignore[override]
         if self.gear_scraper.is_running():
-            reply = QMessageBox.question(
-                self,
+            if not self._confirm(
                 "Scrape in progress?",
                 "Gear scrape is running. Exit anyway?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No,
-            )
-            if reply != QMessageBox.StandardButton.Yes:
+            ):
                 event.ignore()
                 return
+            # Stop the scrape immediately so it doesn't keep running after the
+            # window closes. _cleanup() also calls stop() defensively in case
+            # this path is bypassed (e.g. SIGINT → app.quit()).
+            self.gear_scraper.stop()
         if self.runner.is_running():
-            reply = QMessageBox.question(
-                self,
+            if not self._confirm(
                 "Stop proxy?",
                 "Proxy is running. Stop and exit?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No,
-            )
-            if reply != QMessageBox.StandardButton.Yes:
+            ):
                 event.ignore()
                 return
             self.runner.stop()

@@ -8,7 +8,7 @@ import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
 from tbh_desktop.paths import SRC_DIR
 
@@ -16,23 +16,47 @@ from tbh_desktop.paths import SRC_DIR
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 from tbh_reward_hook import ProxyConfig  # type: ignore[import-not-found]
+from config_setup import DEFAULT_CONFIG_PATH  # type: ignore[import-not-found]  # noqa: E402
 
 log = logging.getLogger(__name__)
 
-DEFAULT_CONFIG_PATH = SRC_DIR / "config.default.json"
+T = TypeVar("T")
+
+
+def read_json(path: Path, default: T) -> T:
+    """Read JSON from *path*, return *default* if missing or unparseable.
+
+    Centralized so call sites don't repeat the same try/except dance.
+    """
+    if not path.exists():
+        return default
+    try:
+        result = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (json.JSONDecodeError, OSError) as exc:
+        log.warning("read_json(%s) failed: %s", path, exc)
+        return default
+    # If caller asked for a specific type and JSON returned a different one,
+    # return default — avoids surprising callers with wrong-shaped data.
+    if default is not None and not isinstance(result, type(default)):
+        log.warning("read_json(%s) returned %s, expected %s", path, type(result).__name__, type(default).__name__)
+        return default
+    return result  # type: ignore[no-any-return]
 
 
 def ensure_config(path: Path) -> bool:
     """Create config.json from config.default.json if it doesn't exist.
 
-    Returns True if the file was created, False if it already existed.
+    Validates the copied file round-trips before keeping it.
+    Returns True if the file was created, False otherwise.
     """
     if path.exists():
         return False
     if not DEFAULT_CONFIG_PATH.exists():
         log.warning("default config not found: %s", DEFAULT_CONFIG_PATH)
         return False
-    shutil.copy2(DEFAULT_CONFIG_PATH, path)
+    if not _copy_and_validate(DEFAULT_CONFIG_PATH, path):
+        log.warning("default config failed validation; not creating %s", path)
+        return False
     log.info("generated %s from default", path)
     return True
 
@@ -41,26 +65,48 @@ def reset_config(path: Path) -> bool:
     """Reset config.json back to the default template (config.default.json).
 
     Overwrites the existing config.json with the default. Returns True on
-    success, False if the default template is missing.
+    success, False if the default template is missing or invalid.
     """
     if not DEFAULT_CONFIG_PATH.exists():
         log.warning("cannot reset — default config not found: %s", DEFAULT_CONFIG_PATH)
         return False
-    shutil.copy2(DEFAULT_CONFIG_PATH, path)
+    # Back up the existing file so we can restore on validation failure.
+    backup: Path | None = None
+    if path.exists():
+        backup = path.with_suffix(".json.bak")
+        shutil.copy2(path, backup)
+    if not _copy_and_validate(DEFAULT_CONFIG_PATH, path):
+        # Restore from backup so user doesn't lose their config to a bad default.
+        if backup is not None:
+            try:
+                shutil.copy2(backup, path)
+                log.warning("restored %s from backup after failed validation", path)
+            except OSError as exc:
+                log.warning("restore-after-failed-validation failed: %s", exc)
+        log.warning("default config failed validation; %s untouched", path)
+        return False
     log.info("reset %s to default", path)
     return True
 
 
+def _copy_and_validate(src: Path, dst: Path) -> bool:
+    """Copy src to dst, then verify dst is a valid ProxyConfig."""
+    shutil.copy2(src, dst)
+    try:
+        ProxyConfig.load(dst)
+        return True
+    except Exception as exc:
+        log.warning("copied config at %s failed validation: %s", dst, exc)
+        try:
+            dst.unlink(missing_ok=True)
+        except OSError:
+            pass
+        return False
+
+
 def load_config(path: Path) -> dict[str, Any]:
     """Load config JSON as raw dict. Return {} if missing or invalid."""
-    if not path.exists():
-        log.warning("config not found: %s", path)
-        return {}
-    try:
-        return json.loads(path.read_text(encoding="utf-8-sig"))
-    except (json.JSONDecodeError, OSError) as exc:
-        log.warning("config invalid (%s): %s", path, exc)
-        return {}
+    return read_json(path, {})
 
 
 @dataclass

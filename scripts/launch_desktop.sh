@@ -76,6 +76,22 @@ else
 fi
 
 # ── 4. config.json ──────────────────────────────────────────────────────────
+# If config.json is missing but config.default.json is present, auto-generate
+# it before the existence check. This mirrors the desktop app / addon
+# auto-generate logic in src/config_setup.py.
+if [[ ! -f "src/config.json" && -f "src/config.default.json" ]]; then
+    if .venv/bin/python -c "
+import shutil, sys
+sys.path.insert(0, 'src')
+from config_setup import ensure_config, CONFIG_PATH
+ensure_config(CONFIG_PATH)
+" 2>/dev/null; then
+        if [[ -f "src/config.json" ]]; then
+            ok "src/config.json (auto-generated from config.default.json)"
+        fi
+    fi
+fi
+
 if [[ ! -f "src/config.json" ]]; then
     fail "src/config.json not found"
     echo "  The proxy addon needs this file. Create one with the example format from README."

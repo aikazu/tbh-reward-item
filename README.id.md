@@ -40,6 +40,7 @@ Mengintercept response POST ke endpoint tertentu, mengganti reward item sesuai a
 - [Setup Klien Steam (TaskBarHero via Proton)](#setup-klien-steam-taskbarhero-via-proton)
 - [Sertifikat CA](#sertifikat-ca)
   - [Linux (system trust)](#linux-system-trust)
+  - [Windows (system trust)](#windows-system-trust)
   - [Firefox](#firefox)
   - [Chromium / Chrome](#chromium--chrome)
   - [Klien Lain](#klien-lain)
@@ -64,8 +65,10 @@ Mengintercept response POST ke endpoint tertentu, mengganti reward item sesuai a
 | `install_cert.sh` | Install CA mitmproxy ke system trust store (Linux). |
 | `windows/install_cert.bat` | Install CA mitmproxy ke Windows Trusted Root store (auto-elevate ke admin). |
 | `remove_cert.sh` | Hapus CA mitmproxy dari system trust store (Linux). |
+| `scripts/launch_desktop.sh` | Readiness-check launcher untuk aplikasi desktop (Linux). |
+| `windows/launch_desktop.bat` | Readiness-check launcher untuk aplikasi desktop (Windows). |
 | `requirements.txt` | Dependensi: `mitmproxy`. |
-| `requirements-desktop.txt` | Dep opsional desktop: `PySide6`, `requests`, `beautifulsoup4`, `pytest-qt`. |
+| `requirements-desktop.txt` | Dep opsional desktop: `PySide6`, `requests`, `beautifulsoup4`, `lxml`, `pytest-qt`, `playwright`, `cloakbrowser`. |
 | `tbh_desktop/` | GUI PySide6 opsional: edit `config.json`, pilih reward ID, jalankan/stop proxy, stream log. Lihat [Aplikasi Desktop](#aplikasi-desktop). |
 | `tests/` | Suite pytest untuk aplikasi desktop (`config_io`, `scraper`, `proxy_runner`). |
 | `docs/` | Specs + implementation plans. |
@@ -328,7 +331,7 @@ Setelah diluncurkan, main window punya toolbar (Start / Stop / Scrape gear / Sav
 - **Save atomic** — memvalidasi dengan `ProxyConfig.load` sebelum dan sesudah tulis. Backup file sebelumnya sebagai `config.json.bak`, tulis via temp + rename, restore dari backup bila re-validasi gagal. Save yang gagal tidak pernah mematikan intercept aktif.
 - **Pilih reward ID** — setiap cell `Replacement IDs` mendukung input manual, ditambah:
   - **Pick from box loot** — menyelesaikan slug box dengan mencari `box_id` di tabel items wiki (`https://taskbarhero.org/en/items` tabel "Stage chests"), fetch loot table per-box dari `https://taskbarhero.org/en/items/chests/<id>-<slug>/`, parse, dan izinkan multi-select. Map id→slug di-cache di `tbh_desktop/box_slug_cache.json`; loot di-cache per-box di `tbh_desktop/box_loot_cache/<box_id>.json`. Menyelesaikan slug via id (bukan menurunkannya dari `name` rule) memperbaiki 404 saat slug heuristik tidak cocok dengan slug asli wiki.
-  - **Pick gear** — membaca dari file cache per-kategori×grade di `tbh_desktop/gear_cache/` (file bernama `gear_{category}_{grade}.json`, mis. `gear_weapon_legendary.json`). Picker punya tiga filter: **Kategori** (Weapon / Off-hand / Armor / Accessory / All), **Grade** (Legendary / Immortal / Arcana / Beyond / Celestial / Divine / Cosmic / All — Legendary ke atas saja), dan **Rentang level** (min/max 1-100). Multi-select list dan search box dipertahankan.
+  - **Pick gear** — membaca dari file cache per-kategori×rarity di `tbh_desktop/gear/` (layout nested: `tbh_desktop/gear/{category}/{rarity}.json`, mis. `tbh_desktop/gear/weapon/legendary.json`). Picker punya tiga filter: **Kategori** (Weapon / Off-hand / Armor / Accessory / All), **Grade** (Legendary / Immortal / Arcana / Beyond / Celestial / Divine / Cosmic / All — Legendary ke atas saja), dan **Rentang level** (min/max 1-100). Multi-select list dan search box dipertahankan.
 - **Scrape gear** (sebelumnya "Refresh gear") — memicu scrape penuh berbasis CloakBrowser: membuka wiki headless, mengklik chip rarity untuk tiap grade Legendary+ dan chip type untuk tiap kategori, mencentang "Obtainable only", dan mengklik "LOAD MORE" sampai habis, lalu menulis satu file cache per kategori×grade. Lambat (meluncurkan stealth browser). Log total count saat selesai. Fallback ke file cache yang ada bila terjadi error per-combo atau saat launch. Bila CloakBrowser tidak terinstall, fallback ke stock Playwright.
 - **Start / Stop proxy** — jalankan `src/run_proxy.py` sebagai subprocess (cwd = repo root). Status dot berubah hijau saat berjalan. Stdout ter-stream (stderr digabung) ke log panel via Qt signal — real-time, FIFO capped di 10k baris. Stop kirim SIGTERM, escalate ke SIGKILL setelah 3 detik. Bila field port toolbar berbeda dari `listen_port` yang tersimpan saat Start diklik, app memprompt "Port changed. Save config first?" — Yes simpan lalu start, No batalkan. Ini mencegah desync senyap di mana proxy berjalan di port lama sementara UI menampilkan port baru.
 - **Save config** — atomic, tervalidasi (lihat di atas). mtime-based hot-reload yang sama seperti edit manual.
@@ -467,10 +470,9 @@ Tes rewrite offline tanpa proxy berjalan. Memvalidasi logika regex + rule terhad
 windows\self_test.bat           # Windows
 ```
 
-Output sukses:
+Output sukses (satu baris — self-test pakai fixture config internal dan tidak memuat `config.json`):
 
 ```
-[TBH] TBH Reward Proxy loaded: 2 queue rules, range mode=off.
 Self-test OK.
 ```
 
@@ -516,25 +518,25 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 --set block_global=false -
 tbh-reward-item/
 ├── src/                    # mitmproxy addon (tbh_reward_hook.py, run_proxy.py, config.json)
 ├── scripts/                # Linux wrappers (run_proxy, install_reqs, self_test, launch_desktop)
-├── windows/                # Windows wrappers (run_proxy, install_reqs, self_test, launch_desktop)
+├── windows/                # Windows wrappers (run_proxy, install_reqs, self_test, launch_desktop, install_cert)
 ├── tbh_desktop/            # PySide6 desktop GUI (opsional)
 │   ├── main.py             # entry point
 │   ├── config_io.py        # load/save config (atomic + validate)
 │   ├── scraper.py          # gear wiki + box loot scrape, cache
 │   ├── proxy_runner.py     # subprocess + stdout stream
 │   ├── paths.py            # path resolution
-│   └── ui/                 # main_window, config_editor, gear_picker, box_loot_picker, log_panel, theme
-├── tests/                  # pytest (config_io, scraper, proxy_runner)
+│   └── ui/                 # main_window, config_editor, gear_picker, box_picker, box_loot_picker, image_cache, log_panel, theme
+├── tests/                  # pytest (config_io, proxy_runner, gear_picker, config_editor, main_window, scraper)
 ├── docs/                   # specs + plans
 ├── requirements.txt            # mitmproxy
-├── requirements-desktop.txt    # PySide6, requests, bs4, pytest-qt, playwright, cloakbrowser
+├── requirements-desktop.txt    # PySide6, requests, bs4, lxml, pytest-qt, playwright, cloakbrowser
 ├── README.md
 └── README.id.md
 ```
 
 Skrip memakai path absolut (`REPO_ROOT` di shell, `%~dp0..` di bat) sehingga jalan dari cwd mana pun. File source (`src/`) saling mereferensikan via `Path(__file__).resolve().parent`, jadi `tbh_reward_hook.py`, `run_proxy.py`, dan `config.json` harus tetap satu direktori.
 
-Cache `tbh_desktop/gear_cache/` (JSON gear per kategori×grade), `tbh_desktop/box_slug_cache.json` (map box_id → slug), dan `tbh_desktop/box_loot_cache/` pada aplikasi desktop bersifat generated dan masuk `.gitignore` — hapus untuk memaksa re-fetch dari wiki. File tunggal lama `tbh_desktop/gear_cache.json` sudah digantikan oleh direktori `gear_cache/` dan tidak lagi ditulis oleh picker.
+Cache `tbh_desktop/gear/` (JSON gear per kategori×rarity, nested), `tbh_desktop/item/` (JSON material per family×rarity, nested), `tbh_desktop/box_slug_cache.json` (map box_id → slug), dan `tbh_desktop/box_loot_cache/` pada aplikasi desktop bersifat generated dan masuk `.gitignore` — hapus untuk memaksa re-fetch dari wiki. Layout lama flat-file `tbh_desktop/gear/{category}_{rarity}.json` (direktori satu-level) sudah digantikan oleh layout nested `gear/{category}/{rarity}.json` dan tidak lagi ditulis oleh picker.
 
 ---
 

@@ -40,6 +40,7 @@ It intercepts responses to POST requests at specific endpoints, swaps reward ite
 - [Steam Client Setup (TaskBarHero via Proton)](#steam-client-setup-taskbarhero-via-proton)
 - [CA Certificate](#ca-certificate)
   - [Linux (system trust)](#linux-system-trust)
+  - [Windows (system trust)](#windows-system-trust)
   - [Firefox](#firefox)
   - [Chromium / Chrome](#chromium--chrome)
   - [Other Clients](#other-clients)
@@ -67,7 +68,7 @@ It intercepts responses to POST requests at specific endpoints, swaps reward ite
 | `scripts/launch_desktop.sh` | Readiness-check launcher for the desktop app (Linux). |
 | `windows/launch_desktop.bat` | Readiness-check launcher for the desktop app (Windows). |
 | `requirements.txt` | Dependency: `mitmproxy`. |
-| `requirements-desktop.txt` | Optional desktop deps: `PySide6`, `requests`, `beautifulsoup4`, `pytest-qt`. |
+| `requirements-desktop.txt` | Optional desktop deps: `PySide6`, `requests`, `beautifulsoup4`, `lxml`, `pytest-qt`, `playwright`, `cloakbrowser`. |
 | `tbh_desktop/` | Optional PySide6 GUI: edit `config.json`, pick reward IDs, run/stop proxy, stream logs. See [Desktop App](#desktop-app). |
 | `tests/` | Pytest suite for the desktop app (`config_io`, `scraper`, `proxy_runner`). |
 | `docs/` | Specs + implementation plans. |
@@ -330,7 +331,7 @@ After launch, the main window has a toolbar (Start / Stop / Scrape gear / Save c
 - **Atomic save** — validates against `ProxyConfig.load` before and after writing. Backups the previous file as `config.json.bak`, writes via temp + rename, restores from backup on re-validation failure. A bad save never breaks active interception.
 - **Pick reward IDs** — every `Replacement IDs` cell supports manual typing, plus:
   - **Pick from box loot** — resolves the box's slug by looking up the `box_id` in the wiki's items page (`https://taskbarhero.org/en/items` "Stage chests" table), fetches the per-box loot table from `https://taskbarhero.org/en/items/chests/<id>-<slug>/`, parses it, and lets you multi-select items. The id→slug map is cached at `tbh_desktop/box_slug_cache.json`; loot is cached per-box at `tbh_desktop/box_loot_cache/<box_id>.json`. Resolving the slug by id (rather than deriving it from the rule's `name`) fixes 404s when the heuristic slug didn't match the wiki's real slug.
-  - **Pick gear** — reads from per-category×grade cache files under `tbh_desktop/gear_cache/` (files named `gear_{category}_{grade}.json`, e.g. `gear_weapon_legendary.json`). The picker has three filters: **Category** (Weapon / Off-hand / Armor / Accessory / All), **Grade** (Legendary / Immortal / Arcana / Beyond / Celestial / Divine / Cosmic / All — Legendary-and-above only), and **Level range** (min/max 1-100). Multi-select list and search box preserved.
+  - **Pick gear** — reads from per-category×rarity cache files under `tbh_desktop/gear/` (nested layout: `tbh_desktop/gear/{category}/{rarity}.json`, e.g. `tbh_desktop/gear/weapon/legendary.json`). The picker has three filters: **Category** (Weapon / Off-hand / Armor / Accessory / All), **Grade** (Legendary / Immortal / Arcana / Beyond / Celestial / Divine / Cosmic / All — Legendary-and-above only), and **Level range** (min/max 1-100). Multi-select list and search box preserved.
 - **Scrape gear** (was "Refresh gear") — triggers a full CloakBrowser-based scrape: opens the wiki headless, clicks the rarity chip for each Legendary+ grade and the type chip for each category, ticks "Obtainable only", and clicks "LOAD MORE" until exhausted, then writes one cache file per category×grade. Slow (launches a stealth browser). Logs the total count on completion. Falls back to existing cache files on per-combo or launch error. If CloakBrowser is not installed, falls back to stock Playwright.
 - **Start / Stop proxy** — spawns `src/run_proxy.py` as a subprocess (cwd = repo root). Status dot turns green while running. Streamed stdout (with stderr merged) flows into the log panel via Qt signals — real-time, FIFO capped at 10k lines. Stop sends SIGTERM, escalates to SIGKILL after 3s. If the toolbar port field differs from the saved `listen_port` when Start is clicked, the app prompts "Port changed. Save config first?" — Yes saves then starts, No aborts. This prevents the silent desync where the proxy ran on the old port while the UI showed the new one.
 - **Save config** — atomic, validated (see above). Same mtime-based hot-reload as a manual edit.
@@ -470,10 +471,9 @@ Offline rewrite test without the proxy running. Validates regex + rule logic aga
 windows\self_test.bat           # Windows
 ```
 
-Success output:
+Success output (single line — the self-test uses a built-in fixture config and does not load `config.json`):
 
 ```
-[TBH] TBH Reward Proxy loaded: 2 queue rules, range mode=off.
 Self-test OK.
 ```
 
@@ -519,25 +519,25 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 --set block_global=false -
 tbh-reward-item/
 ├── src/                    # mitmproxy addon (tbh_reward_hook.py, run_proxy.py, config.json)
 ├── scripts/                # Linux wrappers (run_proxy, install_reqs, self_test, launch_desktop)
-├── windows/                # Windows wrappers (run_proxy, install_reqs, self_test, launch_desktop)
+├── windows/                # Windows wrappers (run_proxy, install_reqs, self_test, launch_desktop, install_cert)
 ├── tbh_desktop/            # PySide6 desktop GUI (optional)
 │   ├── main.py             # entry point
 │   ├── config_io.py        # load/save config (atomic + validate)
 │   ├── scraper.py          # gear wiki + box loot scrape, cache
 │   ├── proxy_runner.py     # subprocess + stdout stream
 │   ├── paths.py            # path resolution
-│   └── ui/                 # main_window, config_editor, gear_picker, box_loot_picker, log_panel, theme
-├── tests/                  # pytest (config_io, scraper, proxy_runner)
+│   └── ui/                 # main_window, config_editor, gear_picker, box_picker, box_loot_picker, image_cache, log_panel, theme
+├── tests/                  # pytest (config_io, proxy_runner, gear_picker, config_editor, main_window, scraper)
 ├── docs/                   # specs + plans
 ├── requirements.txt            # mitmproxy
-├── requirements-desktop.txt    # PySide6, requests, bs4, pytest-qt, playwright, cloakbrowser
+├── requirements-desktop.txt    # PySide6, requests, bs4, lxml, pytest-qt, playwright, cloakbrowser
 ├── README.md
 └── README.id.md
 ```
 
 Scripts use absolute paths (`REPO_ROOT` in shell, `%~dp0..` in bat) so they work from any cwd. Source files (`src/`) reference siblings via `Path(__file__).resolve().parent`, so keep `tbh_reward_hook.py`, `run_proxy.py`, and `config.json` together.
 
-The desktop app's `tbh_desktop/gear_cache/` (per category×grade gear JSON), `tbh_desktop/box_slug_cache.json` (box_id → slug map), and `tbh_desktop/box_loot_cache/` are generated and gitignored — delete them to force a re-fetch from the wiki. The legacy single-file `tbh_desktop/gear_cache.json` is superseded by the `gear_cache/` directory and is no longer written by the picker.
+The desktop app's `tbh_desktop/gear/` (per category×rarity gear JSON, nested), `tbh_desktop/item/` (per family×rarity material JSON, nested), `tbh_desktop/box_slug_cache.json` (box_id → slug map), and `tbh_desktop/box_loot_cache/` are generated and gitignored — delete them to force a re-fetch from the wiki. The legacy flat-file layout `tbh_desktop/gear/{category}_{rarity}.json` (single-level directory) is superseded by the nested `gear/{category}/{rarity}.json` layout and is no longer written by the picker.
 
 ---
 

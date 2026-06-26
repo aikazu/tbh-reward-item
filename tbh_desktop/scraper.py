@@ -34,6 +34,46 @@ MATERIAL_IMG_ID_RE = re.compile(r"/Item_(\d+)\.png", re.IGNORECASE)
 CHEST_SLUG_RE = re.compile(r"/chests/(\d+)-([\w-]+)/")
 
 
+# Image-path folder -> slot type label (title-cased).
+# Used to fill the `type` field of each gear entry — the wiki's
+# .entity-card-meta doesn't always carry the slot type (higher rarities
+# show a stat string there instead, e.g. "Lv65 | ATK +397"), so we read
+# it from the gear image URL: /game/gear/<folder>/<FILE>_<id>.png.
+# Folder names are the Svelte wiki's canonical set.
+_IMAGE_FOLDER_TO_SLOT: dict[str, str] = {
+    "sword":    "Sword",
+    "bow":      "Bow",
+    "staff":    "Staff",
+    "scepter":  "Scepter",
+    "crossbow": "Crossbow",
+    "axe":      "Axe",
+    "hatchet":  "Hatchet",
+    "shield":   "Shield",
+    "offhand":  "Offhand",
+    "helmet":   "Helmet",
+    "armor":    "Armor",
+    "gloves":   "Gloves",
+    "boots":    "Boots",
+}
+_IMAGE_FOLDER_RE = re.compile(
+    r"/game/gear/([a-z]+)/[A-Z_0-9]+\.png", re.IGNORECASE
+)
+
+
+def _slot_type_from_image(image_url: str) -> str:
+    """Extract the gear slot type ('Sword', 'Bow', ...) from its image URL.
+
+    Returns '' if the URL doesn't match the expected /game/gear/<folder>/ pattern.
+    """
+    if not image_url:
+        return ""
+    m = _IMAGE_FOLDER_RE.search(image_url)
+    if not m:
+        return ""
+    folder = m.group(1).lower()
+    return _IMAGE_FOLDER_TO_SLOT.get(folder, folder.capitalize())
+
+
 def parse_gear_page(html: str) -> list[dict[str, Any]]:
     """Parse gear wiki HTML, return list of obtainable gear dicts.
 
@@ -43,12 +83,19 @@ def parse_gear_page(html: str) -> list[dict[str, Any]]:
       - .entity-card-art img    -> image URL (e.g. /game/gear/sword/SWORD_300001.png)
       - .entity-card-name       -> name
       - .entity-card-tag        -> rarity text (e.g. "Common")
-      - .entity-card-meta       -> "Lv<level> | <type>" — split on "|" into level/type.
+      - .entity-card-meta       -> "Lv<level> | <stat>" for higher rarities, or
+                                   "Lv<level> | <slot>" for lower rarities. The
+                                   slot type is NOT reliable here, so we
+                                   derive it from the image URL's folder
+                                   (see _slot_type_from_image).
       - style="--rc:#RRGGBB"    -> rarity color (root <a> attribute) for theming.
     ID is extracted from href via ID_RE (e.g. /items/300001-long-sword -> 300001).
 
-    Each dict: {id, name, rarity, type, level, image, rarity_color}.
-    level is the part before "|" in .entity-card-meta (e.g. "Lv1"); "" if missing.
+    Each dict: {id, name, rarity, type, level, stat, image, rarity_color}.
+    type  = slot type ("Sword" / "Bow" / "Helmet" / ...) from image folder.
+    stat  = the second part of the meta div ("ATK +397", "CRIT +1.6%", ...)
+            — empty when the wiki omits it.
+    level = the part before "|" in .entity-card-meta (e.g. "Lv65"); "" if missing.
     image is the absolute URL (wiki-relative paths resolved to https://taskbarhero.wiki).
     rarity_color is "#RRGGBB" or "" if the wiki didn't set it.
 
@@ -68,19 +115,33 @@ def parse_gear_page(html: str) -> list[dict[str, Any]]:
         name_el = card.select_one(".entity-card-name")
         rarity_el = card.select_one(".entity-card-tag")
         meta_el = card.select_one(".entity-card-meta")
-        meta_text = meta_el.get_text(strip=True) if meta_el else ""
-        if "|" in meta_text:
-            level, gear_type = meta_text.split("|", 1)
-            level = level.strip()
-            gear_type = gear_type.strip()
-        else:
-            level = ""
-            gear_type = meta_text.strip()
-        # Image — prefer the explicit gear art <img>, fall back to first <img>.
+        # Image first — we need it to derive the slot type, and the wiki puts
+        # the stat (not the slot) in .entity-card-meta for higher rarities.
         img_el = card.select_one(".entity-card-art img") or card.select_one("img")
         image_url = str(img_el.get("src", "")) if img_el else ""
         if image_url.startswith("/"):
             image_url = "https://taskbarhero.wiki" + image_url
+        # Slot type from the image folder (always present for obtainable cards).
+        slot_type = _slot_type_from_image(image_url)
+        # Meta split: the wiki shows "Lv<n> | <something>" where <something>
+        # is either the slot (lower rarities) or a stat string (higher rarities).
+        # We only use it for level + (optional) stat; the slot comes from the
+        # image folder.
+        meta_text = meta_el.get_text(strip=True) if meta_el else ""
+        if "|" in meta_text:
+            level, _meta_right = meta_text.split("|", 1)
+            level = level.strip()
+            meta_right = _meta_right.strip()
+            # If the meta right-hand side matches the slot type we derived from
+            # the image (case-insensitive), it's the slot, not a stat — drop it.
+            # Otherwise treat it as a stat string.
+            if slot_type and meta_right.lower() == slot_type.lower():
+                stat = ""
+            else:
+                stat = meta_right
+        else:
+            level = ""
+            stat = meta_text.strip()
         # Rarity color from CSS variable on the root <a>.
         rarity_color = ""
         style_attr = str(card.get("style", ""))
@@ -92,8 +153,9 @@ def parse_gear_page(html: str) -> list[dict[str, Any]]:
                 "id": int(m.group(1)),
                 "name": name_el.get_text(strip=True) if name_el else "",
                 "rarity": rarity_el.get_text(strip=True) if rarity_el else "",
-                "type": gear_type,
+                "type": slot_type,
                 "level": level,
+                "stat": stat,
                 "image": image_url,
                 "rarity_color": rarity_color,
             }

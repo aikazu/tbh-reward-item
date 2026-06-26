@@ -40,13 +40,17 @@ def parse_gear_page(html: str) -> list[dict[str, Any]]:
     Real structure: each gear card is an <a class="entity-card">. Cards whose
     class list contains "is-deleted" are no longer obtainable and are skipped.
     Inside each card:
-      - .entity-card-name  -> name
-      - .entity-card-tag   -> rarity (e.g. "Common")
-      - .entity-card-meta  -> "Lv<level> | <type>" — split on "|" into level/type.
+      - .entity-card-art img    -> image URL (e.g. /game/gear/sword/SWORD_300001.png)
+      - .entity-card-name       -> name
+      - .entity-card-tag        -> rarity text (e.g. "Common")
+      - .entity-card-meta       -> "Lv<level> | <type>" — split on "|" into level/type.
+      - style="--rc:#RRGGBB"    -> rarity color (root <a> attribute) for theming.
     ID is extracted from href via ID_RE (e.g. /items/300001-long-sword -> 300001).
 
-    Each dict: {id, name, rarity, type, level}. level is the part before "|" in
-    .entity-card-meta (e.g. "Lv1"); "" if missing.
+    Each dict: {id, name, rarity, type, level, image, rarity_color}.
+    level is the part before "|" in .entity-card-meta (e.g. "Lv1"); "" if missing.
+    image is the absolute URL (wiki-relative paths resolved to https://taskbarhero.wiki).
+    rarity_color is "#RRGGBB" or "" if the wiki didn't set it.
 
     Limitation: the live page returns ~60 cards on first paint (~22 obtainable,
     ~38 is-deleted). The full ~5760-item list requires infinite-scroll / pagination
@@ -72,6 +76,17 @@ def parse_gear_page(html: str) -> list[dict[str, Any]]:
         else:
             level = ""
             gear_type = meta_text.strip()
+        # Image — prefer the explicit gear art <img>, fall back to first <img>.
+        img_el = card.select_one(".entity-card-art img") or card.select_one("img")
+        image_url = str(img_el.get("src", "")) if img_el else ""
+        if image_url.startswith("/"):
+            image_url = "https://taskbarhero.wiki" + image_url
+        # Rarity color from CSS variable on the root <a>.
+        rarity_color = ""
+        style_attr = str(card.get("style", ""))
+        rc_match = re.search(r"--rc:\s*(#[0-9a-fA-F]+)", style_attr)
+        if rc_match:
+            rarity_color = rc_match.group(1).lower()
         items.append(
             {
                 "id": int(m.group(1)),
@@ -79,16 +94,23 @@ def parse_gear_page(html: str) -> list[dict[str, Any]]:
                 "rarity": rarity_el.get_text(strip=True) if rarity_el else "",
                 "type": gear_type,
                 "level": level,
+                "image": image_url,
+                "rarity_color": rarity_color,
             }
         )
     return items
 
 
-def parse_box_page(html: str) -> list[dict[str, Any]]:
+def parse_box_page(html: str, box_id: int = 0, box_name: str = "") -> list[dict[str, Any]]:
     """Parse box page HTML, return loot table items.
 
-    Each dict: {id, name, rate}. ID extracted from gear image path, material image
-    path, or href. Only rows inside the 'Loot table' section are returned.
+    Each dict: {id, name, rate, box_id, box_name}. ID extracted from gear image path,
+    material image path, or href. Only rows inside the 'Loot table' section are
+    returned.
+
+    The box_id/box_name args are stamped onto every loot entry so the caller can
+    build a reverse map (item_id -> boxes) without having to re-derive them.
+    Pass them when you know them (e.g. from the URL you scraped); default 0/"".
     """
     soup = BeautifulSoup(html, "lxml")
     loot: list[dict[str, Any]] = []
@@ -114,8 +136,57 @@ def parse_box_page(html: str) -> list[dict[str, Any]]:
         item_id = _extract_item_id(name_cell)
         if item_id is None:
             continue
-        loot.append({"id": item_id, "name": name, "rate": rate})
+        loot.append({
+            "id": item_id,
+            "name": name,
+            "rate": rate,
+            "box_id": box_id,
+            "box_name": box_name,
+        })
     return loot
+
+
+def build_box_drop_map(loot_entries: list[dict[str, Any]]) -> dict[int, list[dict[str, Any]]]:
+    """Group flat loot entries by item_id. Returns {item_id: [loot_dict, ...]}.
+
+    Each input loot dict must have id, box_id, box_name, rate. Output is sorted
+    by box_id ascending for stable display order. Used to populate the gear
+    picker's 'Drops from' column.
+    """
+    drop_map: dict[int, list[dict[str, Any]]] = {}
+    for entry in loot_entries:
+        drop_map.setdefault(entry["id"], []).append(entry)
+    # Sort each item's drop list by box_id for deterministic rendering.
+    for drops in drop_map.values():
+        drops.sort(key=lambda d: (d.get("box_id", 0), d.get("box_name", "")))
+    return drop_map
+
+
+def write_box_drop_cache(path: Path, drop_map: dict[int, list[dict[str, Any]]]) -> None:
+    """Persist the drop map to JSON. Keys are coerced to strings (JSON limitation)."""
+    serializable = {str(item_id): drops for item_id, drops in drop_map.items()}
+    path.write_text(json.dumps(serializable, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def read_box_drop_cache(path: Path) -> dict[int, list[dict[str, Any]]]:
+    """Load the drop map from JSON. Returns {} on missing or invalid file."""
+    if not path.exists():
+        return {}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    result: dict[int, list[dict[str, Any]]] = {}
+    for k, v in raw.items():
+        try:
+            item_id = int(k)
+        except (ValueError, TypeError):
+            continue
+        if isinstance(v, list):
+            result[item_id] = v
+    return result
 
 
 def _extract_item_id(cell: Any) -> int | None:
@@ -410,6 +481,94 @@ def refresh_gear(cache_path: Path) -> list[dict[str, Any]]:
     except Exception as exc:
         log.warning("gear refresh failed: %s", exc)
         return read_gear_cache(cache_path)
+
+
+def parse_item_detail(html: str) -> dict[str, Any]:
+    """Parse an item detail page (e.g. /items/300001-long-sword).
+
+    Extracts the wiki-provided flavor description and a stats dict. Field names
+    in the stats dict are whatever the wiki uses (varies per item type).
+    Returns an empty dict if the page has no parseable content.
+
+    The parser is intentionally lenient — many fields are missing or differently
+    named across item types (gear / material / consumable). Empty/missing fields
+    are silently skipped. Used to populate the picker's "more info" tooltip.
+    """
+    soup = BeautifulSoup(html, "lxml")
+    result: dict[str, Any] = {}
+
+    # Flavor text: <meta name="description"> is the cheapest reliable source.
+    meta_desc = soup.find("meta", attrs={"name": "description"})
+    if meta_desc is not None:
+        content = meta_desc.get("content", "")
+        if isinstance(content, str):
+            content = content.strip()
+            if content:
+                result["flavor"] = content
+
+    # Stats: look for a <dl> or table with "Stats"/"Bonuses" heading, then
+    # collect the dt/dd pairs (or table rows) under it. Best-effort: if the
+    # page doesn't follow that structure, stats stays empty.
+    def _stats_heading(tag: Any) -> bool:
+        if tag.name not in ("h2", "h3", "h4"):
+            return False
+        # Match words like "Stats", "Bonuses", "Effects" — \b doesn't work
+        # for "Stats" because of the trailing 's'. Use explicit alternation.
+        return bool(
+            re.search(
+                r"\b(?:stats?|bonuses?|effects?)\b",
+                tag.get_text(strip=True),
+                re.IGNORECASE,
+            )
+        )
+
+    stats_heading = soup.find(_stats_heading)
+    if stats_heading is not None:
+        stats: dict[str, str] = {}
+        # Try <dl> format first.
+        dl = stats_heading.find_next("dl")
+        if dl is not None:
+            for dt, dd in zip(dl.find_all("dt"), dl.find_all("dd")):
+                k = dt.get_text(strip=True)
+                v = dd.get_text(strip=True)
+                if k:
+                    stats[k] = v
+        if stats:
+            result["stats"] = stats
+
+    return result
+
+
+ITEM_DETAIL_URL_TEMPLATE = "https://taskbarhero.org/en/items/{slug}/"
+
+
+def fetch_item_detail(item_id: int, slug: str, cache_path: Path) -> dict[str, Any]:
+    """Fetch item detail page and cache it. Returns empty dict on failure.
+
+    cache_path is the path to the per-item cache JSON file (caller decides
+    layout). Result is also cached to disk so subsequent calls are free.
+    """
+    if cache_path.exists():
+        try:
+            cached = json.loads(cache_path.read_text(encoding="utf-8-sig"))
+            if isinstance(cached, dict):
+                return cached
+        except (json.JSONDecodeError, OSError):
+            pass
+    try:
+        url = ITEM_DETAIL_URL_TEMPLATE.format(slug=slug)
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        detail = parse_item_detail(resp.text)
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache_path.write_text(
+            json.dumps(detail, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        return detail
+    except Exception as exc:
+        log.warning("item detail fetch failed for %s: %s", item_id, exc)
+        return {}
 
 
 def refresh_box_loot(

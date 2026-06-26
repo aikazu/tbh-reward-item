@@ -23,11 +23,15 @@ def test_parse_gear_page_returns_obtainable_only() -> None:
     assert long_sword["rarity"] == "Common"
     assert long_sword["type"] == "Sword"
     assert long_sword["level"] == "Lv1"
+    # New G5 fields: image + rarity_color from .entity-card-art and --rc
+    assert long_sword["image"] == "https://taskbarhero.wiki/game/gear/sword/SWORD_300001.png"
+    assert long_sword["rarity_color"] == "#e4e4e4"
     iron_shield = next(i for i in items if i["id"] == 300002)
     assert iron_shield["name"] == "Iron Shield"
     assert iron_shield["rarity"] == "Uncommon"
     assert iron_shield["type"] == "Shield"
     assert iron_shield["level"] == "Lv5"
+    assert iron_shield["rarity_color"] == "#a0e4a4"
 
 
 def test_parse_gear_page_extracts_id_from_href() -> None:
@@ -50,6 +54,65 @@ def test_parse_box_page_returns_loot_with_ids() -> None:
     helmet = next(l for l in loot if l["id"] == 500017)
     assert helmet["name"] == "Dimensional Helmet"
     assert helmet["rate"] == "7.9%"
+    # G5: box_id/box_name stamping (default 0/"" when not passed)
+    assert helmet["box_id"] == 0
+    assert helmet["box_name"] == ""
+
+
+def test_parse_box_page_stamps_box_id_and_name() -> None:
+    """When box_id/box_name are passed to parse_box_page, they're stamped on
+    every loot entry — needed to build the per-item drop map."""
+    html = (FIXTURES / "box_page.html").read_text(encoding="utf-8")
+    loot = scraper.parse_box_page(html, box_id=910801, box_name="Normal Monster Box Lv80")
+    assert all(l["box_id"] == 910801 for l in loot)
+    assert all(l["box_name"] == "Normal Monster Box Lv80" for l in loot)
+
+
+def test_build_box_drop_map_groups_by_item() -> None:
+    """Two boxes dropping the same item → that item maps to a 2-entry list."""
+    loot = [
+        {"id": 500017, "name": "Dimensional Helmet", "rate": "7.9%", "box_id": 910801, "box_name": "Box80"},
+        {"id": 500017, "name": "Dimensional Helmet", "rate": "12.0%", "box_id": 910901, "box_name": "Box90"},
+        {"id": 141001, "name": "Bronze Ingot", "rate": "1.5%", "box_id": 910801, "box_name": "Box80"},
+    ]
+    drop_map = scraper.build_box_drop_map(loot)
+    assert set(drop_map.keys()) == {500017, 141001}
+    assert len(drop_map[500017]) == 2
+    # Sorted by box_id ascending.
+    assert drop_map[500017][0]["box_id"] == 910801
+    assert drop_map[500017][1]["box_id"] == 910901
+
+
+def test_box_drop_cache_round_trip(tmp_path: Path) -> None:
+    """write_box_drop_cache + read_box_drop_cache preserves keys as ints."""
+    cache = tmp_path / "drop_map.json"
+    drop_map = {500017: [{"box_id": 910801, "box_name": "Box80", "rate": "7.9%"}]}
+    scraper.write_box_drop_cache(cache, drop_map)
+    loaded = scraper.read_box_drop_cache(cache)
+    assert loaded == drop_map
+    # Missing file → empty dict
+    assert scraper.read_box_drop_cache(tmp_path / "missing.json") == {}
+    # Invalid JSON → empty dict (no crash)
+    bad = tmp_path / "bad.json"
+    bad.write_text("not json {")
+    assert scraper.read_box_drop_cache(bad) == {}
+
+
+def test_parse_item_detail_extracts_flavor_and_stats() -> None:
+    """parse_item_detail extracts meta description as flavor and <dl> pairs as stats."""
+    html = (FIXTURES / "item_detail.html").read_text(encoding="utf-8")
+    detail = scraper.parse_item_detail(html)
+    assert "flavor" in detail
+    assert "sturdy iron blade" in detail["flavor"]
+    assert "stats" in detail
+    assert detail["stats"]["Attack"] == "+3"
+    assert detail["stats"]["Required Level"] == "1"
+
+
+def test_parse_item_detail_empty_on_minimal_html() -> None:
+    """Empty HTML → empty dict (no crash)."""
+    assert scraper.parse_item_detail("") == {}
+    assert scraper.parse_item_detail("<html><body><p>Nothing here.</p></body></html>") == {}
 
 
 def test_cache_gear_round_trip(tmp_path: Path) -> None:

@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -38,6 +39,8 @@ from PySide6.QtWidgets import (
 )
 
 from tbh_desktop.gear_filters import CATEGORY_DISPLAY, GRADE_DISPLAY
+from tbh_desktop.paths import BOX_DROP_MAP_CACHE
+from tbh_desktop.scraper import read_box_drop_cache
 from tbh_desktop.scraper import read_gear_cache
 
 # Inject the "All" pseudo-option (None slug means no filter).
@@ -221,6 +224,10 @@ class GearPicker(QDialog):
         loot_names: set[str] = self._loot_names or set()
 
         self.list_widget.clear()
+        # Lazy-load box drop map once per rebuild. May be empty if no
+        # box_drop_map.json has been generated yet — that's fine, tooltips
+        # just won't show the "Drops from" line.
+        drop_map = self._get_box_drop_map()
         for item in self._load_items_for_filters():
             name = item.get("name")
             if name is None:
@@ -235,6 +242,20 @@ class GearPicker(QDialog):
             text = f"{item.get('id')} · {name} ({item.get('rarity', '')})"
             list_item = QListWidgetItem(text)
             list_item.setData(Qt.ItemDataRole.UserRole, item.get("id"))
+            # Style per-item: rarity color as background tint + tooltip with drops.
+            rarity_color = str(item.get("rarity_color", "")).strip()
+            if rarity_color:
+                bg = self._tinted_bg(rarity_color)
+                list_item.setBackground(QBrush(QColor(bg)))
+            image_url = str(item.get("image", "")).strip()
+            if image_url:
+                list_item.setToolTip(self._build_tooltip(item, drop_map))
+                # Note: not calling setIcon here — synchronously fetching 60+
+                # images on every rebuild would block the UI. Instead show a
+                # placeholder and let the user hover for the rich tooltip.
+                # (A future async-image-cache can replace this.)
+            else:
+                list_item.setToolTip(self._build_tooltip(item, drop_map))
             self.list_widget.addItem(list_item)
         self._apply_search(self.search.text())
         self._update_count()
@@ -311,6 +332,70 @@ class GearPicker(QDialog):
         else:
             # -1 = "All" entry, which has userData=None
             self.level_max.setCurrentIndex(0)
+
+    # ----------------------------------------------------------- styling/tooltip
+    @staticmethod
+    def _tinted_bg(rarity_color: str) -> QColor:
+        """Return a soft background tint derived from a rarity hex color.
+
+        Mixes the rarity color with a near-transparent alpha so the dark theme
+        stays readable. Common = grey, Uncommon = green, etc.
+        """
+        try:
+            base = QColor(rarity_color)
+        except Exception:
+            return QColor(60, 60, 70)
+        # If the rarity color is very light (greyscale), return as-is but
+        # with low alpha so it doesn't blow out the text.
+        lightness = (base.red() + base.green() + base.blue()) / 3
+        if lightness > 200:
+            return QColor(80, 80, 90, 120)
+        return QColor(base.red(), base.green(), base.blue(), 70)
+
+    def _get_box_drop_map(self) -> dict[int, list[dict[str, Any]]]:
+        """Lazy-load the box drop map (cached to disk). Empty dict if absent."""
+        return read_box_drop_cache(BOX_DROP_MAP_CACHE)
+
+    def _build_tooltip(
+        self, item: dict[str, Any], drop_map: dict[int, list[dict[str, Any]]]
+    ) -> str:
+        """Compose a multi-line HTML tooltip with item info + drop sources.
+
+        Format:
+          <b>{name}</b> · {rarity} · {level}<br>
+          <i>{type}</i><br>
+          <br>
+          {flavor if known}<br>
+          <br>
+          <b>Drops from:</b><br>
+          · {box_name} (Lv-{level_hint}, {rate})<br>
+          · ...
+        Returns plain "id · name" if no extra info is available.
+        """
+        item_id = item.get("id", 0)
+        name = item.get("name", "")
+        rarity = item.get("rarity", "")
+        level = item.get("level", "")
+        gear_type = item.get("type", "")
+        lines = [f"<b>{name}</b> · {rarity} · {level}"]
+        if gear_type:
+            lines.append(f"<i>{gear_type}</i>")
+        # Drops from — most useful info for the user's "where to grind" question.
+        drops = drop_map.get(int(item_id), []) if isinstance(item_id, int) else []
+        if drops:
+            lines.append("")
+            lines.append("<b>Drops from:</b>")
+            for d in drops[:5]:  # cap at 5 to keep tooltip manageable
+                box_name = d.get("box_name") or f"Box {d.get('box_id', '?')}"
+                box_id = d.get("box_id", "?")
+                rate = d.get("rate", "")
+                lines.append(f"· {box_name} (#{box_id}, {rate})")
+            if len(drops) > 5:
+                lines.append(f"· …and {len(drops) - 5} more")
+        else:
+            lines.append("")
+            lines.append("<i>(Drop source not in cache — re-scrape boxes to populate)</i>")
+        return "<br>".join(lines).replace("<br><br><br>", "<br><br>")
 
     @staticmethod
     def _parse_level(meta_level: str) -> int:

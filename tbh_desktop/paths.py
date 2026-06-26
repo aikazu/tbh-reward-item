@@ -17,3 +17,5 @@ RUN_PROXY_PATH = SRC_DIR / "run_proxy.py"
 DESKTOP_DIR = Path(__file__).resolve().parent
 GEAR_CACHE_DIR = DESKTOP_DIR / "gear_cache"
 BOX_LOOT_CACHE_DIR = DESKTOP_DIR / "box_loot_cache"
+ITEM_DETAIL_CACHE = DESKTOP_DIR / "item_detail_cache.json"
+BOX_DROP_MAP_CACHE = DESKTOP_DIR / "box_drop_map.json"

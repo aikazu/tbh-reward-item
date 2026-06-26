@@ -1,0 +1,182 @@
+[
+  {
+    "id": 407141,
+    "name": "Radiant Shield",
+    "rarity": "Celestial",
+    "type": "HP +482",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 407171,
+    "name": "Dimensional Shield",
+    "rarity": "Celestial",
+    "type": "HP +657",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 417141,
+    "name": "Haste Arrow",
+    "rarity": "Celestial",
+    "type": "ATK +116",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 417171,
+    "name": "Dimensional Arrow",
+    "rarity": "Celestial",
+    "type": "ATK +186",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 427141,
+    "name": "Ancient Orb",
+    "rarity": "Celestial",
+    "type": "ATK +116",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 427171,
+    "name": "Dimensional Orb",
+    "rarity": "Celestial",
+    "type": "ATK +186",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 437141,
+    "name": "Warrior's Tome",
+    "rarity": "Celestial",
+    "type": "BlockChance +12.9%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 437171,
+    "name": "Dimensional Tome",
+    "rarity": "Celestial",
+    "type": "BlockChance +16.8%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 447141,
+    "name": "Haste Bolt",
+    "rarity": "Celestial",
+    "type": "ATK +116",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 447171,
+    "name": "Dimensional Bolt",
+    "rarity": "Celestial",
+    "type": "ATK +186",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 407091,
+    "name": "Elite Shield",
+    "rarity": "Celestial",
+    "type": "ARM +2,046",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 417091,
+    "name": "Rune Arrow",
+    "rarity": "Celestial",
+    "type": "CRIT +26.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 427091,
+    "name": "Arcane Orb",
+    "rarity": "Celestial",
+    "type": "AreaOfEffect +23.1%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 437091,
+    "name": "Rune Tome",
+    "rarity": "Celestial",
+    "type": "DamageAbsorption +197",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 447091,
+    "name": "Rune Bolt",
+    "rarity": "Celestial",
+    "type": "ATK +52",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 407111,
+    "name": "Mystic Shield",
+    "rarity": "Celestial",
+    "type": "CDR +7.7%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 417111,
+    "name": "Fate Arrow",
+    "rarity": "Celestial",
+    "type": "ATK +50.3%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 427111,
+    "name": "Mystic Orb",
+    "rarity": "Celestial",
+    "type": "CDR +4.6%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 437111,
+    "name": "Fate Tome",
+    "rarity": "Celestial",
+    "type": "BlockChance +10.4%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 447111,
+    "name": "Fate Bolt",
+    "rarity": "Celestial",
+    "type": "ATK +78",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440011.png",
+    "rarity_color": "#6ccce4"
+  }
+]

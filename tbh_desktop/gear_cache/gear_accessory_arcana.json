@@ -1,0 +1,254 @@
+[
+  {
+    "id": 605041,
+    "name": "Gold Amulet",
+    "rarity": "Arcana",
+    "type": "CDR +3.3%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 605051,
+    "name": "Platinum Amulet",
+    "rarity": "Arcana",
+    "type": "CDR +3.4%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 605071,
+    "name": "Moonstone Pendant",
+    "rarity": "Arcana",
+    "type": "CDR +3.7%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 605091,
+    "name": "Ruby Pendant",
+    "rarity": "Arcana",
+    "type": "ASPD +12.8%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 605111,
+    "name": "Emerald Amulet",
+    "rarity": "Arcana",
+    "type": "ASPD +14.4%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 605141,
+    "name": "Eclipse Amulet",
+    "rarity": "Arcana",
+    "type": "ASPD +16.4%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 605171,
+    "name": "Ethereal Amulet",
+    "rarity": "Arcana",
+    "type": "ASPD +19.7%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 615041,
+    "name": "Gold Earring",
+    "rarity": "Arcana",
+    "type": "AreaOfEffect +6.3%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 615051,
+    "name": "Platinum Earring",
+    "rarity": "Arcana",
+    "type": "CRIT DMG +17.6%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 615071,
+    "name": "Emerald Earring",
+    "rarity": "Arcana",
+    "type": "SkillDurationIncrease +11%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 615091,
+    "name": "Tiger Eye Earring",
+    "rarity": "Arcana",
+    "type": "HpLeech +1%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 615111,
+    "name": "Sapphire Earring",
+    "rarity": "Arcana",
+    "type": "AreaOfEffect +12.3%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 615141,
+    "name": "Celestial Earring",
+    "rarity": "Arcana",
+    "type": "SkillDurationIncrease +16.4%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 615171,
+    "name": "Ethereal Earring",
+    "rarity": "Arcana",
+    "type": "MOVE +19.8%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 625041,
+    "name": "Gold Ring",
+    "rarity": "Arcana",
+    "type": "ASPD +5.8%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 625051,
+    "name": "Platinum Ring",
+    "rarity": "Arcana",
+    "type": "CDR +2.4%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 625071,
+    "name": "Amber Ring",
+    "rarity": "Arcana",
+    "type": "CDR +2.8%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 625091,
+    "name": "Amethyst Ring",
+    "rarity": "Arcana",
+    "type": "ASPD +8.3%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 625111,
+    "name": "Emerald Ring",
+    "rarity": "Arcana",
+    "type": "ASPD +9.4%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 625141,
+    "name": "Eclipse Ring",
+    "rarity": "Arcana",
+    "type": "ASPD +10.8%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 625171,
+    "name": "Ethereal Ring",
+    "rarity": "Arcana",
+    "type": "ASPD +12.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 635041,
+    "name": "Gold Bracer",
+    "rarity": "Arcana",
+    "type": "SkillHealIncrease +4.4%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 635051,
+    "name": "Platinum Bracer",
+    "rarity": "Arcana",
+    "type": "MOVE +6.5%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 635071,
+    "name": "Obsidian Bracer",
+    "rarity": "Arcana",
+    "type": "DodgeChance +4.7%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 635091,
+    "name": "Crimson Bracer",
+    "rarity": "Arcana",
+    "type": "DamageAbsorption +89",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 635111,
+    "name": "Emerald Bracer",
+    "rarity": "Arcana",
+    "type": "ARM +47.1%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 635141,
+    "name": "Eclipse Bracer",
+    "rarity": "Arcana",
+    "type": "MOVE +12.7%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 635171,
+    "name": "Ethereal Bracer",
+    "rarity": "Arcana",
+    "type": "DamageReduction +12.5%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630017.png",
+    "rarity_color": "#b40cfc"
+  }
+]

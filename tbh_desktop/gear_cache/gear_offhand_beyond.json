@@ -1,0 +1,227 @@
+[
+  {
+    "id": 406071,
+    "name": "War Shield",
+    "rarity": "Beyond",
+    "type": "ARM +790",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 406091,
+    "name": "Elite Shield",
+    "rarity": "Beyond",
+    "type": "CDR +5.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 406111,
+    "name": "Mystic Shield",
+    "rarity": "Beyond",
+    "type": "CDR +6.6%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 406141,
+    "name": "Radiant Shield",
+    "rarity": "Beyond",
+    "type": "ARM +3,428",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 406171,
+    "name": "Dimensional Shield",
+    "rarity": "Beyond",
+    "type": "ARM +5,507",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 416071,
+    "name": "Gale Arrow",
+    "rarity": "Beyond",
+    "type": "ATK +26.6%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 416091,
+    "name": "Rune Arrow",
+    "rarity": "Beyond",
+    "type": "ATK +39",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 416111,
+    "name": "Fate Arrow",
+    "rarity": "Beyond",
+    "type": "CRIT +27.4%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 416141,
+    "name": "Haste Arrow",
+    "rarity": "Beyond",
+    "type": "ATK +87",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 416171,
+    "name": "Dimensional Arrow",
+    "rarity": "Beyond",
+    "type": "ATK +138",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 426071,
+    "name": "Rune Orb",
+    "rarity": "Beyond",
+    "type": "ATK +21",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 426091,
+    "name": "Arcane Orb",
+    "rarity": "Beyond",
+    "type": "CAST +15.3%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 426111,
+    "name": "Mystic Orb",
+    "rarity": "Beyond",
+    "type": "AreaOfEffect +24.1%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 426141,
+    "name": "Ancient Orb",
+    "rarity": "Beyond",
+    "type": "ATK +87",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 426171,
+    "name": "Dimensional Orb",
+    "rarity": "Beyond",
+    "type": "CRIT +38%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 436071,
+    "name": "War Tome",
+    "rarity": "Beyond",
+    "type": "DamageAbsorption +125",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 436091,
+    "name": "Rune Tome",
+    "rarity": "Beyond",
+    "type": "BlockChance +7.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 436111,
+    "name": "Fate Tome",
+    "rarity": "Beyond",
+    "type": "SkillHealIncrease +24.1%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 436141,
+    "name": "Warrior's Tome",
+    "rarity": "Beyond",
+    "type": "SkillHealIncrease +28.9%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 436171,
+    "name": "Dimensional Tome",
+    "rarity": "Beyond",
+    "type": "SkillHealIncrease +36.3%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 446071,
+    "name": "Iron Bolt",
+    "rarity": "Beyond",
+    "type": "ATK +21",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 446091,
+    "name": "Rune Bolt",
+    "rarity": "Beyond",
+    "type": "ATK +39",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 446111,
+    "name": "Fate Bolt",
+    "rarity": "Beyond",
+    "type": "ATK +58",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 446141,
+    "name": "Haste Bolt",
+    "rarity": "Beyond",
+    "type": "ATK +87",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 446171,
+    "name": "Dimensional Bolt",
+    "rarity": "Beyond",
+    "type": "ATK +138",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440017.png",
+    "rarity_color": "#fc246c"
+  }
+]

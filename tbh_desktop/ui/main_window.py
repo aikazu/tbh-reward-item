@@ -85,10 +85,17 @@ class MainWindow(QMainWindow):
         self.btn_stop.setObjectName("btn_stop")
         self.btn_stop.setToolTip("Terminate the running proxy subprocess")
 
-        self.btn_refresh_gear = QPushButton("Scrape gear")
+        self.btn_refresh_gear = QPushButton("Scrape Data")
         self.btn_refresh_gear.setToolTip(
-            "Scrape full Legendary+ gear from the wiki using CloakBrowser.\n"
-            "Slow — launches a headless browser. Cache files are kept locally."
+            "Refresh gear cache (28 category-grade files via headless browser) "
+            "AND drops index (~190 items: materials, stage boxes). "
+            "Slow — first launch starts the browser. Subsequent scrapes are "
+            "fast since cached files are reused."
+        )
+        self.btn_check_data = QPushButton("Check Data")
+        self.btn_check_data.setToolTip(
+            "Show counts and freshness for gear cache + drops index. "
+            "Lets you see if a re-scrape is needed."
         )
 
         self.btn_save = QPushButton("Save config")
@@ -115,6 +122,7 @@ class MainWindow(QMainWindow):
         bar.addSeparator()
         # Group: config / scrape
         bar.addWidget(self.btn_refresh_gear)
+        bar.addWidget(self.btn_check_data)
         bar.addWidget(self.btn_save)
         bar.addWidget(self.btn_reset)
         bar.addSeparator()
@@ -127,6 +135,7 @@ class MainWindow(QMainWindow):
         self.btn_start.clicked.connect(self._start)
         self.btn_stop.clicked.connect(self.runner.stop)
         self.btn_refresh_gear.clicked.connect(self._refresh_gear)
+        self.btn_check_data.clicked.connect(self._check_data)
         self.btn_save.clicked.connect(self._save)
         self.btn_reset.clicked.connect(self._reset_config)
 
@@ -183,10 +192,33 @@ class MainWindow(QMainWindow):
         )
 
     def _refresh_gear(self) -> None:
+        """Single 'Scrape Data' button — runs gear scrape, then drops index.
+
+        Drops index fetch is fast (~1 request) so we run it inline after
+        kicking off the gear scrape. The gear scraper runs in its own
+        thread; the drops fetch happens in a separate thread to keep the UI
+        responsive.
+        """
         if self.gear_scraper.is_running():
             self._on_log("Scrape already running…")
             return
+        # Mark UI as scraping.
+        self._on_gear_scraping(True)
+        # Kick off gear scrape in its own thread.
         self.gear_scraper.start()
+        # Run drops index fetch in parallel — it doesn't depend on gear data.
+        import threading
+        def _fetch_drops_async() -> None:
+            try:
+                from tbh_desktop.paths import DROPS_INDEX_CACHE
+                from tbh_desktop.scraper import fetch_drops_index
+                items = fetch_drops_index(DROPS_INDEX_CACHE)
+                self._on_log(
+                    f"Drops index: {len(items)} items cached (materials + stage boxes)"
+                )
+            except Exception as exc:
+                self._on_log(f"Drops index fetch failed: {exc}")
+        threading.Thread(target=_fetch_drops_async, daemon=True).start()
 
     def _on_gear_scraping(self, scraping: bool) -> None:
         self.btn_refresh_gear.setEnabled(not scraping)
@@ -194,13 +226,96 @@ class MainWindow(QMainWindow):
             self._on_log("Scraping gear… (this may take a minute)")
             self.btn_refresh_gear.setText("Scraping…")
         else:
-            self.btn_refresh_gear.setText("Scrape gear")
+            self.btn_refresh_gear.setText("Scrape Data")
 
     def _on_gear_scraped(self, total: int, num_files: int) -> None:
         self._on_log(f"Gear scraped: {total} items across {num_files} category-grade files.")
 
     def _on_gear_error(self, msg: str) -> None:
         self._on_log(f"Gear scrape FAILED: {msg}")
+
+    def _check_data(self) -> None:
+        """Show what data is cached: counts + last fetched + disk usage."""
+        import datetime as _dt
+        import json
+
+        from tbh_desktop.paths import (
+            BOX_DROP_MAP_CACHE,
+            DROPS_INDEX_CACHE,
+            GEAR_CACHE_DIR,
+        )
+        from tbh_desktop.scraper import read_drops_index
+
+        # Drops index.
+        drops = read_drops_index(DROPS_INDEX_CACHE)
+        drops_count = len(drops)
+        drops_size = DROPS_INDEX_CACHE.stat().st_size if DROPS_INDEX_CACHE.exists() else 0
+        drops_mtime = (
+            DROPS_INDEX_CACHE.stat().st_mtime if DROPS_INDEX_CACHE.exists() else 0
+        )
+
+        # Gear cache: 28 files, one per (category, grade).
+        gear_files = (
+            sorted(GEAR_CACHE_DIR.glob("gear_*.json"))
+            if GEAR_CACHE_DIR.exists() else []
+        )
+        gear_total = 0
+        gear_latest_mtime = 0.0
+        for p in gear_files:
+            try:
+                items = json.loads(p.read_text(encoding="utf-8"))
+                gear_total += len(items) if isinstance(items, list) else 0
+                if p.stat().st_mtime > gear_latest_mtime:
+                    gear_latest_mtime = p.stat().st_mtime
+            except (OSError, json.JSONDecodeError):
+                pass
+        gear_total_size = sum(p.stat().st_size for p in gear_files)
+
+        # Box drop map.
+        box_drops_count = 0
+        if BOX_DROP_MAP_CACHE.exists():
+            try:
+                box_drops = json.loads(BOX_DROP_MAP_CACHE.read_text(encoding="utf-8"))
+                box_drops_count = len(box_drops) if isinstance(box_drops, dict) else 0
+            except (OSError, json.JSONDecodeError):
+                pass
+
+        def _fmt(ts: float) -> str:
+            if not ts:
+                return "(never)"
+            return _dt.datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M")
+
+        def _fmt_size(n: int) -> str:
+            if n < 1024:
+                return f"{n} B"
+            if n < 1024 * 1024:
+                return f"{n / 1024:.1f} KB"
+            return f"{n / (1024 * 1024):.1f} MB"
+
+        msg_lines = [
+            "Data cache status:",
+            "",
+            "Drops index",
+            f"  · items: {drops_count}",
+            f"  · last fetched: {_fmt(drops_mtime)}",
+            f"  · size: {_fmt_size(drops_size)}",
+            f"  · file: {DROPS_INDEX_CACHE.name}",
+            "",
+            "Gear cache",
+            f"  · files: {len(gear_files)}",
+            f"  · total items: {gear_total}",
+            f"  · last updated: {_fmt(gear_latest_mtime)}",
+            f"  · total size: {_fmt_size(gear_total_size)}",
+            "",
+            "Box drop map",
+            f"  · items tracked: {box_drops_count}",
+            "",
+        ]
+        if drops_count == 0 or not gear_files:
+            msg_lines.append("⚠  No cached data. Click 'Scrape Data' to populate.")
+        else:
+            msg_lines.append("✓ Data is present. Re-scrape to refresh.")
+        QMessageBox.information(self, "Data Status", "\n".join(msg_lines))
 
     def _start(self) -> None:
         saved_port = config_io.load_config(CONFIG_PATH).get("listen_port", 8877)

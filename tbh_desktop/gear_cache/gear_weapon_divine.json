@@ -1,0 +1,191 @@
+[
+  {
+    "id": 308141,
+    "name": "Vengeance Sword",
+    "rarity": "Divine",
+    "type": "ATK +306",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 308171,
+    "name": "Dimensional Sword",
+    "rarity": "Divine",
+    "type": "ATK +492",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 318141,
+    "name": "Limitless Bow",
+    "rarity": "Divine",
+    "type": "ATK +306",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 318171,
+    "name": "Shadow Bow",
+    "rarity": "Divine",
+    "type": "ATK +492",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 328141,
+    "name": "Sacred Staff",
+    "rarity": "Divine",
+    "type": "ATK +306",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 328171,
+    "name": "Tempest Staff",
+    "rarity": "Divine",
+    "type": "CRIT +4.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 338141,
+    "name": "Limitless Scepter",
+    "rarity": "Divine",
+    "type": "CDR +10%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 338171,
+    "name": "Dimensional Scepter",
+    "rarity": "Divine",
+    "type": "CAST +49.5%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 348141,
+    "name": "Limitless Crossbow",
+    "rarity": "Divine",
+    "type": "CDR +10%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 348171,
+    "name": "Dimensional Crossbow",
+    "rarity": "Divine",
+    "type": "ASPD +34.7%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 358141,
+    "name": "Limitless Axe",
+    "rarity": "Divine",
+    "type": "CDR +10%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 358171,
+    "name": "Dimensional Axe",
+    "rarity": "Divine",
+    "type": "ATK +492",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 458141,
+    "name": "Limitless Hatchet",
+    "rarity": "Divine",
+    "type": "ATK +153",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 458171,
+    "name": "Dimensional Hatchet",
+    "rarity": "Divine",
+    "type": "ATK +246",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 308111,
+    "name": "Fate Sword",
+    "rarity": "Divine",
+    "type": "ATK +115.5%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 318111,
+    "name": "Mystic Bow",
+    "rarity": "Divine",
+    "type": "ASPD +22.3%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 328111,
+    "name": "Void Staff",
+    "rarity": "Divine",
+    "type": "ATK +203",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 338111,
+    "name": "Fate Scepter",
+    "rarity": "Divine",
+    "type": "CRIT +2.9%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 348111,
+    "name": "Mystic Crossbow",
+    "rarity": "Divine",
+    "type": "CDR +8.7%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 358111,
+    "name": "Fate Axe",
+    "rarity": "Divine",
+    "type": "ASPD +22.3%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 458111,
+    "name": "Mystic Hatchet",
+    "rarity": "Divine",
+    "type": "ATK +58.7%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450011.png",
+    "rarity_color": "#fce454"
+  }
+]

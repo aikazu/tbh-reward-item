@@ -1,0 +1,182 @@
+[
+  {
+    "id": 506071,
+    "name": "War Helmet",
+    "rarity": "Beyond",
+    "type": "HP +67",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 506091,
+    "name": "Rune Helmet",
+    "rarity": "Beyond",
+    "type": "HP +94",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 506111,
+    "name": "Fate Helmet",
+    "rarity": "Beyond",
+    "type": "HP +119",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 506141,
+    "name": "Fighter's Helmet",
+    "rarity": "Beyond",
+    "type": "HP +152",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 506171,
+    "name": "Dimensional Helmet",
+    "rarity": "Beyond",
+    "type": "HP +204",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 516071,
+    "name": "War Armor",
+    "rarity": "Beyond",
+    "type": "HP +100",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 516091,
+    "name": "Rune Plate",
+    "rarity": "Beyond",
+    "type": "HP +147",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 516111,
+    "name": "Mystic Armor",
+    "rarity": "Beyond",
+    "type": "HP +189",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 516141,
+    "name": "Shine Armor",
+    "rarity": "Beyond",
+    "type": "HP +246",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 516171,
+    "name": "Dimensional Armor",
+    "rarity": "Beyond",
+    "type": "HP +336",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 526071,
+    "name": "War Gloves",
+    "rarity": "Beyond",
+    "type": "ATK +49",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 526091,
+    "name": "Rune Gloves",
+    "rarity": "Beyond",
+    "type": "HP +94",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 526111,
+    "name": "Mystic Gloves",
+    "rarity": "Beyond",
+    "type": "ATK +143",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 526141,
+    "name": "Shine Gloves",
+    "rarity": "Beyond",
+    "type": "ASPD +17.8%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 526171,
+    "name": "Dimensional Gloves",
+    "rarity": "Beyond",
+    "type": "ASPD +22.1%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 536071,
+    "name": "War Boots",
+    "rarity": "Beyond",
+    "type": "MOVE +67",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 536091,
+    "name": "Rune Boots",
+    "rarity": "Beyond",
+    "type": "MOVE +88",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 536111,
+    "name": "Mystic Boots",
+    "rarity": "Beyond",
+    "type": "MOVE +108",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 536141,
+    "name": "Shine Boots",
+    "rarity": "Beyond",
+    "type": "MOVE +134",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 536171,
+    "name": "Dimensional Boots",
+    "rarity": "Beyond",
+    "type": "MOVE +175",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530017.png",
+    "rarity_color": "#fc246c"
+  }
+]

@@ -1,0 +1,254 @@
+[
+  {
+    "id": 505041,
+    "name": "Knight Helmet",
+    "rarity": "Arcana",
+    "type": "HP +34",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 505051,
+    "name": "Chain Helmet",
+    "rarity": "Arcana",
+    "type": "HP +41",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 505071,
+    "name": "War Helmet",
+    "rarity": "Arcana",
+    "type": "HP +59",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 505091,
+    "name": "Rune Helmet",
+    "rarity": "Arcana",
+    "type": "HP +81",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 505111,
+    "name": "Fate Helmet",
+    "rarity": "Arcana",
+    "type": "HP +101",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 505141,
+    "name": "Fighter's Helmet",
+    "rarity": "Arcana",
+    "type": "HP +127",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 505171,
+    "name": "Dimensional Helmet",
+    "rarity": "Arcana",
+    "type": "HP +168",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 515041,
+    "name": "Chain Mail",
+    "rarity": "Arcana",
+    "type": "HP +44",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 515051,
+    "name": "Knight's Armor",
+    "rarity": "Arcana",
+    "type": "HP +56",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 515071,
+    "name": "War Armor",
+    "rarity": "Arcana",
+    "type": "HP +86",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 515091,
+    "name": "Rune Plate",
+    "rarity": "Arcana",
+    "type": "HP +125",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 515111,
+    "name": "Mystic Armor",
+    "rarity": "Arcana",
+    "type": "HP +159",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 515141,
+    "name": "Shine Armor",
+    "rarity": "Arcana",
+    "type": "HP +204",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 515171,
+    "name": "Dimensional Armor",
+    "rarity": "Arcana",
+    "type": "HP +274",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 525041,
+    "name": "Knight Gloves",
+    "rarity": "Arcana",
+    "type": "HP +34",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 525051,
+    "name": "Chain Gloves",
+    "rarity": "Arcana",
+    "type": "ASPD +8.7%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 525071,
+    "name": "War Gloves",
+    "rarity": "Arcana",
+    "type": "HP +59",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 525091,
+    "name": "Rune Gloves",
+    "rarity": "Arcana",
+    "type": "HP +81",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 525111,
+    "name": "Mystic Gloves",
+    "rarity": "Arcana",
+    "type": "ATK +108",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 525141,
+    "name": "Shine Gloves",
+    "rarity": "Arcana",
+    "type": "ATK +161",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 525171,
+    "name": "Dimensional Gloves",
+    "rarity": "Arcana",
+    "type": "ASPD +19.2%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 535041,
+    "name": "Knight Boots",
+    "rarity": "Arcana",
+    "type": "MOVE +41",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 535051,
+    "name": "Chain Boots",
+    "rarity": "Arcana",
+    "type": "MOVE +46",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 535071,
+    "name": "War Boots",
+    "rarity": "Arcana",
+    "type": "MOVE +60",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 535091,
+    "name": "Rune Boots",
+    "rarity": "Arcana",
+    "type": "MOVE +78",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 535111,
+    "name": "Mystic Boots",
+    "rarity": "Arcana",
+    "type": "MOVE +94",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 535141,
+    "name": "Shine Boots",
+    "rarity": "Arcana",
+    "type": "MOVE +114",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 535171,
+    "name": "Dimensional Boots",
+    "rarity": "Arcana",
+    "type": "MOVE +147",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530017.png",
+    "rarity_color": "#b40cfc"
+  }
+]

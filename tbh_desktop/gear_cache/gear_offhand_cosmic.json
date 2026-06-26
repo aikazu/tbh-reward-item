@@ -1,0 +1,92 @@
+[
+  {
+    "id": 409141,
+    "name": "Radiant Shield",
+    "rarity": "Cosmic",
+    "type": "HP +687",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 409171,
+    "name": "Dimensional Shield",
+    "rarity": "Cosmic",
+    "type": "ARM +10,000",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 419141,
+    "name": "Haste Arrow",
+    "rarity": "Cosmic",
+    "type": "CRIT +44.8%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 419171,
+    "name": "Dimensional Arrow",
+    "rarity": "Cosmic",
+    "type": "ATK +100%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 429141,
+    "name": "Ancient Orb",
+    "rarity": "Cosmic",
+    "type": "ATK +199",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 429171,
+    "name": "Dimensional Orb",
+    "rarity": "Cosmic",
+    "type": "CAST +30%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 439141,
+    "name": "Warrior's Tome",
+    "rarity": "Cosmic",
+    "type": "SkillHealIncrease +44%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 439171,
+    "name": "Dimensional Tome",
+    "rarity": "Cosmic",
+    "type": "SkillHealIncrease +50%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 449141,
+    "name": "Haste Bolt",
+    "rarity": "Cosmic",
+    "type": "CRIT +44.8%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 449171,
+    "name": "Dimensional Bolt",
+    "rarity": "Cosmic",
+    "type": "ATK +250",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440017.png",
+    "rarity_color": "#fcfcfc"
+  }
+]

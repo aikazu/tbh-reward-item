@@ -1,0 +1,146 @@
+[
+  {
+    "id": 607141,
+    "name": "Eclipse Amulet",
+    "rarity": "Celestial",
+    "type": "CDR +5.9%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 607171,
+    "name": "Ethereal Amulet",
+    "rarity": "Celestial",
+    "type": "ASPD +25.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 617141,
+    "name": "Celestial Earring",
+    "rarity": "Celestial",
+    "type": "AreaOfEffect +19.5%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 617171,
+    "name": "Ethereal Earring",
+    "rarity": "Celestial",
+    "type": "SkillDurationIncrease +25.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 627141,
+    "name": "Eclipse Ring",
+    "rarity": "Celestial",
+    "type": "ASPD +13.7%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 627171,
+    "name": "Ethereal Ring",
+    "rarity": "Celestial",
+    "type": "CDR +6.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 637141,
+    "name": "Eclipse Bracer",
+    "rarity": "Celestial",
+    "type": "DodgeChance +10%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 637171,
+    "name": "Ethereal Bracer",
+    "rarity": "Celestial",
+    "type": "BlockChance +16.8%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 607091,
+    "name": "Ruby Pendant",
+    "rarity": "Celestial",
+    "type": "ASPD +15.2%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 617091,
+    "name": "Tiger Eye Earring",
+    "rarity": "Celestial",
+    "type": "IncreaseExpAmount +8.6%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 627091,
+    "name": "Amethyst Ring",
+    "rarity": "Celestial",
+    "type": "ASPD +9.9%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 637091,
+    "name": "Crimson Bracer",
+    "rarity": "Celestial",
+    "type": "ARM +52.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 607111,
+    "name": "Emerald Amulet",
+    "rarity": "Celestial",
+    "type": "CDR +5.2%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 617111,
+    "name": "Sapphire Earring",
+    "rarity": "Celestial",
+    "type": "ATK +307",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 627111,
+    "name": "Emerald Ring",
+    "rarity": "Celestial",
+    "type": "ASPD +11.5%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 637111,
+    "name": "Emerald Bracer",
+    "rarity": "Celestial",
+    "type": "SkillHealIncrease +14.8%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630011.png",
+    "rarity_color": "#6ccce4"
+  }
+]

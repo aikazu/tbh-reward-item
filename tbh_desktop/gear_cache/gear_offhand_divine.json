@@ -1,0 +1,137 @@
+[
+  {
+    "id": 408141,
+    "name": "Radiant Shield",
+    "rarity": "Divine",
+    "type": "ARM +6,116",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 408171,
+    "name": "Dimensional Shield",
+    "rarity": "Divine",
+    "type": "CDR +14.8%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 418141,
+    "name": "Haste Arrow",
+    "rarity": "Divine",
+    "type": "ATK +153",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 418171,
+    "name": "Dimensional Arrow",
+    "rarity": "Divine",
+    "type": "ATK +99%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 428141,
+    "name": "Ancient Orb",
+    "rarity": "Divine",
+    "type": "AreaOfEffect +38.3%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 428171,
+    "name": "Dimensional Orb",
+    "rarity": "Divine",
+    "type": "ATK +246",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 438141,
+    "name": "Warrior's Tome",
+    "rarity": "Divine",
+    "type": "DamageAbsorption +369",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 438171,
+    "name": "Dimensional Tome",
+    "rarity": "Divine",
+    "type": "DamageAbsorption +495",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 448141,
+    "name": "Haste Bolt",
+    "rarity": "Divine",
+    "type": "CRIT DMG +74.3%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 448171,
+    "name": "Dimensional Bolt",
+    "rarity": "Divine",
+    "type": "CRIT DMG +99%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 408111,
+    "name": "Mystic Shield",
+    "rarity": "Divine",
+    "type": "ARM +4,054",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/shield/SHIELD_400011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 418111,
+    "name": "Fate Arrow",
+    "rarity": "Divine",
+    "type": "CRIT +33.6%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/arrow/ARROW_410011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 428111,
+    "name": "Mystic Orb",
+    "rarity": "Divine",
+    "type": "ATK +102",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 438111,
+    "name": "Fate Tome",
+    "rarity": "Divine",
+    "type": "DamageAbsorption +289",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/tome/TOME_430011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 448111,
+    "name": "Fate Bolt",
+    "rarity": "Divine",
+    "type": "CRIT +33.6%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bolt/BOLT_440011.png",
+    "rarity_color": "#fce454"
+  }
+]

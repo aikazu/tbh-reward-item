@@ -1,0 +1,128 @@
+[
+  {
+    "id": 309141,
+    "name": "Vengeance Sword",
+    "rarity": "Cosmic",
+    "type": "ASPD +31%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 309171,
+    "name": "Dimensional Sword",
+    "rarity": "Cosmic",
+    "type": "ATK +200%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 319141,
+    "name": "Limitless Bow",
+    "rarity": "Cosmic",
+    "type": "ATK +397",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 319171,
+    "name": "Shadow Bow",
+    "rarity": "Cosmic",
+    "type": "ATK +500",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 329141,
+    "name": "Sacred Staff",
+    "rarity": "Cosmic",
+    "type": "CDR +11%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 329171,
+    "name": "Tempest Staff",
+    "rarity": "Cosmic",
+    "type": "CDR +12%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 339141,
+    "name": "Limitless Scepter",
+    "rarity": "Cosmic",
+    "type": "CDR +11%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 339171,
+    "name": "Dimensional Scepter",
+    "rarity": "Cosmic",
+    "type": "AddHpPerHit +50",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 349141,
+    "name": "Limitless Crossbow",
+    "rarity": "Cosmic",
+    "type": "ASPD +31%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 349171,
+    "name": "Dimensional Crossbow",
+    "rarity": "Cosmic",
+    "type": "ATK +500",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 359141,
+    "name": "Limitless Axe",
+    "rarity": "Cosmic",
+    "type": "CDR +11%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 359171,
+    "name": "Dimensional Axe",
+    "rarity": "Cosmic",
+    "type": "ATK +500",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 459141,
+    "name": "Limitless Hatchet",
+    "rarity": "Cosmic",
+    "type": "ATK +199",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 459171,
+    "name": "Dimensional Hatchet",
+    "rarity": "Cosmic",
+    "type": "ATK +250",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450017.png",
+    "rarity_color": "#fcfcfc"
+  }
+]

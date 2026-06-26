@@ -1,0 +1,362 @@
+[
+  {
+    "id": 603011,
+    "name": "Copper Amulet",
+    "rarity": "Legendary",
+    "type": "CDR +3%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 603021,
+    "name": "Bronze Amulet",
+    "rarity": "Legendary",
+    "type": "ASPD +8.3%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 603031,
+    "name": "Silver Amulet",
+    "rarity": "Legendary",
+    "type": "ASPD +8.4%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 603041,
+    "name": "Gold Amulet",
+    "rarity": "Legendary",
+    "type": "CDR +3.1%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 603051,
+    "name": "Platinum Amulet",
+    "rarity": "Legendary",
+    "type": "ASPD +8.8%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 603071,
+    "name": "Moonstone Pendant",
+    "rarity": "Legendary",
+    "type": "ASPD +9.7%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 603091,
+    "name": "Ruby Pendant",
+    "rarity": "Legendary",
+    "type": "ASPD +10.9%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 603111,
+    "name": "Emerald Amulet",
+    "rarity": "Legendary",
+    "type": "ASPD +12.2%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 603141,
+    "name": "Eclipse Amulet",
+    "rarity": "Legendary",
+    "type": "CDR +4.2%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 603171,
+    "name": "Ethereal Amulet",
+    "rarity": "Legendary",
+    "type": "CDR +4.7%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 613011,
+    "name": "Copper Earring",
+    "rarity": "Legendary",
+    "type": "AreaOfEffect +5.2%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 613021,
+    "name": "Bronze Earring",
+    "rarity": "Legendary",
+    "type": "CRIT DMG +15.5%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 613031,
+    "name": "Silver Earring",
+    "rarity": "Legendary",
+    "type": "IncreaseExpAmount +3.3%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 613041,
+    "name": "Gold Earring",
+    "rarity": "Legendary",
+    "type": "SkillDurationIncrease +8.6%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 613051,
+    "name": "Platinum Earring",
+    "rarity": "Legendary",
+    "type": "ATK +12",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 613071,
+    "name": "Emerald Earring",
+    "rarity": "Legendary",
+    "type": "MOVE +14.9%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 613091,
+    "name": "Tiger Eye Earring",
+    "rarity": "Legendary",
+    "type": "CRIT DMG +19.7%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 613111,
+    "name": "Sapphire Earring",
+    "rarity": "Legendary",
+    "type": "SkillDurationIncrease +12.2%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 613141,
+    "name": "Celestial Earring",
+    "rarity": "Legendary",
+    "type": "MOVE +16.6%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 613171,
+    "name": "Ethereal Earring",
+    "rarity": "Legendary",
+    "type": "IncreaseExpAmount +8.7%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 623011,
+    "name": "Copper Ring",
+    "rarity": "Legendary",
+    "type": "CDR +2.1%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 623021,
+    "name": "Bronze Ring",
+    "rarity": "Legendary",
+    "type": "CDR +2.1%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 623031,
+    "name": "Silver Ring",
+    "rarity": "Legendary",
+    "type": "CDR +2.1%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 623041,
+    "name": "Gold Ring",
+    "rarity": "Legendary",
+    "type": "ASPD +5.4%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 623051,
+    "name": "Platinum Ring",
+    "rarity": "Legendary",
+    "type": "ASPD +5.6%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 623071,
+    "name": "Amber Ring",
+    "rarity": "Legendary",
+    "type": "CDR +2.5%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 623091,
+    "name": "Amethyst Ring",
+    "rarity": "Legendary",
+    "type": "CDR +2.8%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 623111,
+    "name": "Emerald Ring",
+    "rarity": "Legendary",
+    "type": "ASPD +7.8%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 623141,
+    "name": "Eclipse Ring",
+    "rarity": "Legendary",
+    "type": "CDR +3.4%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 623171,
+    "name": "Ethereal Ring",
+    "rarity": "Legendary",
+    "type": "CDR +4%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 633011,
+    "name": "Copper Bracer",
+    "rarity": "Legendary",
+    "type": "DamageReduction +4%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 633021,
+    "name": "Bronze Bracer",
+    "rarity": "Legendary",
+    "type": "DamageAbsorption +34",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 633031,
+    "name": "Silver Bracer",
+    "rarity": "Legendary",
+    "type": "BlockChance +3.3%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 633041,
+    "name": "Gold Bracer",
+    "rarity": "Legendary",
+    "type": "ARM +8.8%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 633051,
+    "name": "Platinum Bracer",
+    "rarity": "Legendary",
+    "type": "AreaOfEffect +6%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 633071,
+    "name": "Obsidian Bracer",
+    "rarity": "Legendary",
+    "type": "MOVE +6.6%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 633091,
+    "name": "Crimson Bracer",
+    "rarity": "Legendary",
+    "type": "DodgeChance +4.6%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 633111,
+    "name": "Emerald Bracer",
+    "rarity": "Legendary",
+    "type": "DamageAbsorption +81",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 633141,
+    "name": "Eclipse Bracer",
+    "rarity": "Legendary",
+    "type": "AreaOfEffect +10.9%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 633171,
+    "name": "Ethereal Bracer",
+    "rarity": "Legendary",
+    "type": "HpRegenPerSec +738",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630017.png",
+    "rarity_color": "#fc9c0c"
+  }
+]

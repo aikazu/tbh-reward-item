@@ -1,0 +1,443 @@
+[
+  {
+    "id": 305041,
+    "name": "Bastard Sword",
+    "rarity": "Arcana",
+    "type": "ATK +29.2%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 305051,
+    "name": "Great Sword",
+    "rarity": "Arcana",
+    "type": "ATK +33.4%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 305071,
+    "name": "Knight Sword",
+    "rarity": "Arcana",
+    "type": "ATK +32",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 305091,
+    "name": "Rune Sword",
+    "rarity": "Arcana",
+    "type": "ATK +59.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 305111,
+    "name": "Fate Sword",
+    "rarity": "Arcana",
+    "type": "ATK +87",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 305141,
+    "name": "Vengeance Sword",
+    "rarity": "Arcana",
+    "type": "ATK +129",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 305171,
+    "name": "Dimensional Sword",
+    "rarity": "Arcana",
+    "type": "ATK +115.4%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 315041,
+    "name": "Composite Bow",
+    "rarity": "Arcana",
+    "type": "ASPD +9.4%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 315051,
+    "name": "War Bow",
+    "rarity": "Arcana",
+    "type": "ATK +14",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 315071,
+    "name": "Dusk Bow",
+    "rarity": "Arcana",
+    "type": "ASPD +11.7%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 315091,
+    "name": "Elite Bow",
+    "rarity": "Arcana",
+    "type": "ATK +59",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 315111,
+    "name": "Mystic Bow",
+    "rarity": "Arcana",
+    "type": "ATK +87",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 315141,
+    "name": "Limitless Bow",
+    "rarity": "Arcana",
+    "type": "ATK +129",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 315171,
+    "name": "Shadow Bow",
+    "rarity": "Arcana",
+    "type": "CRIT +2.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 325041,
+    "name": "Witch Staff",
+    "rarity": "Arcana",
+    "type": "CDR +5.4%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 325051,
+    "name": "Azure Staff",
+    "rarity": "Arcana",
+    "type": "CDR +5.5%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 325071,
+    "name": "Sage Staff",
+    "rarity": "Arcana",
+    "type": "ATK +44.9%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 325091,
+    "name": "Comet Staff",
+    "rarity": "Arcana",
+    "type": "CDR +6.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 325111,
+    "name": "Void Staff",
+    "rarity": "Arcana",
+    "type": "ATK +87",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 325141,
+    "name": "Sacred Staff",
+    "rarity": "Arcana",
+    "type": "CDR +7.7%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 325171,
+    "name": "Tempest Staff",
+    "rarity": "Arcana",
+    "type": "ATK +203",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 335041,
+    "name": "Steel Scepter",
+    "rarity": "Arcana",
+    "type": "AddHpPerHit +2",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 335051,
+    "name": "Sacred Scepter",
+    "rarity": "Arcana",
+    "type": "CDR +5.5%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 335071,
+    "name": "Devout Scepter",
+    "rarity": "Arcana",
+    "type": "CRIT DMG +46.6%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 335091,
+    "name": "Rune Scepter",
+    "rarity": "Arcana",
+    "type": "CDR +6.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 335111,
+    "name": "Fate Scepter",
+    "rarity": "Arcana",
+    "type": "AddHpPerHit +9",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 335141,
+    "name": "Limitless Scepter",
+    "rarity": "Arcana",
+    "type": "ATK +129",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 335171,
+    "name": "Dimensional Scepter",
+    "rarity": "Arcana",
+    "type": "CRIT +2.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 345041,
+    "name": "Complete Crossbow",
+    "rarity": "Arcana",
+    "type": "ASPD +9.4%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 345051,
+    "name": "Exceptional Crossbow",
+    "rarity": "Arcana",
+    "type": "CDR +5.5%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 345071,
+    "name": "Iron Crossbow",
+    "rarity": "Arcana",
+    "type": "ATK +32",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 345091,
+    "name": "Elite Crossbow",
+    "rarity": "Arcana",
+    "type": "CDR +6.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 345111,
+    "name": "Mystic Crossbow",
+    "rarity": "Arcana",
+    "type": "ASPD +15.8%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 345141,
+    "name": "Limitless Crossbow",
+    "rarity": "Arcana",
+    "type": "ASPD +18.4%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 345171,
+    "name": "Dimensional Crossbow",
+    "rarity": "Arcana",
+    "type": "ATK +203",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 355041,
+    "name": "Steel Axe",
+    "rarity": "Arcana",
+    "type": "ASPD +9.4%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 355051,
+    "name": "War Axe",
+    "rarity": "Arcana",
+    "type": "ATK +14",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 355071,
+    "name": "Great Axe",
+    "rarity": "Arcana",
+    "type": "CDR +6%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 355091,
+    "name": "Rune Axe",
+    "rarity": "Arcana",
+    "type": "CDR +6.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 355111,
+    "name": "Fate Axe",
+    "rarity": "Arcana",
+    "type": "ASPD +15.8%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 355141,
+    "name": "Limitless Axe",
+    "rarity": "Arcana",
+    "type": "CDR +7.7%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 355171,
+    "name": "Dimensional Axe",
+    "rarity": "Arcana",
+    "type": "ASPD +22.3%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350017.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 455041,
+    "name": "Steel Hatchet",
+    "rarity": "Arcana",
+    "type": "CRIT +16.8%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450004.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 455051,
+    "name": "War Hatchet",
+    "rarity": "Arcana",
+    "type": "CRIT +17.6%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450005.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 455071,
+    "name": "Battle Hatchet",
+    "rarity": "Arcana",
+    "type": "CRIT +19.8%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450007.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 455091,
+    "name": "Elite Hatchet",
+    "rarity": "Arcana",
+    "type": "CRIT +22.7%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450009.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 455111,
+    "name": "Mystic Hatchet",
+    "rarity": "Arcana",
+    "type": "CRIT +25.2%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450011.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 455141,
+    "name": "Limitless Hatchet",
+    "rarity": "Arcana",
+    "type": "ATK +45.7%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450014.png",
+    "rarity_color": "#b40cfc"
+  },
+  {
+    "id": 455171,
+    "name": "Dimensional Hatchet",
+    "rarity": "Arcana",
+    "type": "ATK +58.6%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450017.png",
+    "rarity_color": "#b40cfc"
+  }
+]

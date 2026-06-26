@@ -1,0 +1,74 @@
+[
+  {
+    "id": 509141,
+    "name": "Fighter's Helmet",
+    "rarity": "Cosmic",
+    "type": "HP +258",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 509171,
+    "name": "Dimensional Helmet",
+    "rarity": "Cosmic",
+    "type": "HP +300",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 519141,
+    "name": "Shine Armor",
+    "rarity": "Cosmic",
+    "type": "HP +428",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 519171,
+    "name": "Dimensional Armor",
+    "rarity": "Cosmic",
+    "type": "HP +500",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 529141,
+    "name": "Shine Gloves",
+    "rarity": "Cosmic",
+    "type": "HP +258",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 529171,
+    "name": "Dimensional Gloves",
+    "rarity": "Cosmic",
+    "type": "HP +300",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 539141,
+    "name": "Shine Boots",
+    "rarity": "Cosmic",
+    "type": "MOVE +217",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 539171,
+    "name": "Dimensional Boots",
+    "rarity": "Cosmic",
+    "type": "MOVE +250",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530017.png",
+    "rarity_color": "#fcfcfc"
+  }
+]

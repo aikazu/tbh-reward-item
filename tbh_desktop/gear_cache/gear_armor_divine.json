@@ -1,0 +1,110 @@
+[
+  {
+    "id": 508141,
+    "name": "Fighter's Helmet",
+    "rarity": "Divine",
+    "type": "HP +218",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 508171,
+    "name": "Dimensional Helmet",
+    "rarity": "Divine",
+    "type": "HP +297",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 518141,
+    "name": "Shine Armor",
+    "rarity": "Divine",
+    "type": "HP +360",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 518171,
+    "name": "Dimensional Armor",
+    "rarity": "Divine",
+    "type": "HP +494",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 528141,
+    "name": "Shine Gloves",
+    "rarity": "Divine",
+    "type": "HP +218",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 528171,
+    "name": "Dimensional Gloves",
+    "rarity": "Divine",
+    "type": "HP +297",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 538141,
+    "name": "Shine Boots",
+    "rarity": "Divine",
+    "type": "MOVE +186",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 538171,
+    "name": "Dimensional Boots",
+    "rarity": "Divine",
+    "type": "MOVE +247",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 508111,
+    "name": "Fate Helmet",
+    "rarity": "Divine",
+    "type": "HP +169",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 518111,
+    "name": "Mystic Armor",
+    "rarity": "Divine",
+    "type": "HP +275",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 528111,
+    "name": "Mystic Gloves",
+    "rarity": "Divine",
+    "type": "ASPD +19.2%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 538111,
+    "name": "Mystic Boots",
+    "rarity": "Divine",
+    "type": "MOVE +147",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530011.png",
+    "rarity_color": "#fce454"
+  }
+]

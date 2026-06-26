@@ -1,0 +1,254 @@
+[
+  {
+    "id": 307141,
+    "name": "Vengeance Sword",
+    "rarity": "Celestial",
+    "type": "ATK +232",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 307171,
+    "name": "Dimensional Sword",
+    "rarity": "Celestial",
+    "type": "ASPD +29.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 317141,
+    "name": "Limitless Bow",
+    "rarity": "Celestial",
+    "type": "ASPD +23.7%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 317171,
+    "name": "Shadow Bow",
+    "rarity": "Celestial",
+    "type": "CRIT +4.2%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 327141,
+    "name": "Sacred Staff",
+    "rarity": "Celestial",
+    "type": "ATK +232",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 327171,
+    "name": "Tempest Staff",
+    "rarity": "Celestial",
+    "type": "ATK +166.1%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 337141,
+    "name": "Limitless Scepter",
+    "rarity": "Celestial",
+    "type": "CDR +9.1%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 337171,
+    "name": "Dimensional Scepter",
+    "rarity": "Celestial",
+    "type": "CDR +10.7%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 347141,
+    "name": "Limitless Crossbow",
+    "rarity": "Celestial",
+    "type": "ASPD +23.7%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 347171,
+    "name": "Dimensional Crossbow",
+    "rarity": "Celestial",
+    "type": "ASPD +29.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 357141,
+    "name": "Limitless Axe",
+    "rarity": "Celestial",
+    "type": "ASPD +23.7%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 357171,
+    "name": "Dimensional Axe",
+    "rarity": "Celestial",
+    "type": "CDR +10.7%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 457141,
+    "name": "Limitless Hatchet",
+    "rarity": "Celestial",
+    "type": "ATK +116",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 457171,
+    "name": "Dimensional Hatchet",
+    "rarity": "Celestial",
+    "type": "CRIT +43.4%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 307091,
+    "name": "Rune Sword",
+    "rarity": "Celestial",
+    "type": "ATK +78.9%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 317091,
+    "name": "Elite Bow",
+    "rarity": "Celestial",
+    "type": "ATK +103",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 327091,
+    "name": "Comet Staff",
+    "rarity": "Celestial",
+    "type": "ATK +103",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 337091,
+    "name": "Rune Scepter",
+    "rarity": "Celestial",
+    "type": "CDR +7.3%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 347091,
+    "name": "Elite Crossbow",
+    "rarity": "Celestial",
+    "type": "CDR +7.3%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 357091,
+    "name": "Rune Axe",
+    "rarity": "Celestial",
+    "type": "CDR +7.3%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 457091,
+    "name": "Elite Hatchet",
+    "rarity": "Celestial",
+    "type": "ATK +40.8%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 307111,
+    "name": "Fate Sword",
+    "rarity": "Celestial",
+    "type": "ASPD +19.8%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 317111,
+    "name": "Mystic Bow",
+    "rarity": "Celestial",
+    "type": "ASPD +19.8%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 327111,
+    "name": "Void Staff",
+    "rarity": "Celestial",
+    "type": "ATK +154",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 337111,
+    "name": "Fate Scepter",
+    "rarity": "Celestial",
+    "type": "ATK +154",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 347111,
+    "name": "Mystic Crossbow",
+    "rarity": "Celestial",
+    "type": "ASPD +19.8%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 357111,
+    "name": "Fate Axe",
+    "rarity": "Celestial",
+    "type": "ATK +154",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 457111,
+    "name": "Mystic Hatchet",
+    "rarity": "Celestial",
+    "type": "CRIT +30.2%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450011.png",
+    "rarity_color": "#6ccce4"
+  }
+]

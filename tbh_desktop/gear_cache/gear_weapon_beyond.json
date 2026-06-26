@@ -1,0 +1,317 @@
+[
+  {
+    "id": 306071,
+    "name": "Knight Sword",
+    "rarity": "Beyond",
+    "type": "ATK +50%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 306091,
+    "name": "Rune Sword",
+    "rarity": "Beyond",
+    "type": "ASPD +15.2%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 306111,
+    "name": "Fate Sword",
+    "rarity": "Beyond",
+    "type": "ATK +115",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 306141,
+    "name": "Vengeance Sword",
+    "rarity": "Beyond",
+    "type": "ATK +104.8%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 306171,
+    "name": "Dimensional Sword",
+    "rarity": "Beyond",
+    "type": "ATK +138.4%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 316071,
+    "name": "Dusk Bow",
+    "rarity": "Beyond",
+    "type": "ASPD +12.5%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 316091,
+    "name": "Elite Bow",
+    "rarity": "Beyond",
+    "type": "ATK +77",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 316111,
+    "name": "Mystic Bow",
+    "rarity": "Beyond",
+    "type": "ATK +115",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 316141,
+    "name": "Limitless Bow",
+    "rarity": "Beyond",
+    "type": "CRIT +2.6%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 316171,
+    "name": "Shadow Bow",
+    "rarity": "Beyond",
+    "type": "ASPD +25.8%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 326071,
+    "name": "Sage Staff",
+    "rarity": "Beyond",
+    "type": "CDR +6.2%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 326091,
+    "name": "Comet Staff",
+    "rarity": "Beyond",
+    "type": "ATK +77",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 326111,
+    "name": "Void Staff",
+    "rarity": "Beyond",
+    "type": "CRIT DMG +72.4%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 326141,
+    "name": "Sacred Staff",
+    "rarity": "Beyond",
+    "type": "CRIT +2.6%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 326171,
+    "name": "Tempest Staff",
+    "rarity": "Beyond",
+    "type": "ATK +276",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 336071,
+    "name": "Devout Scepter",
+    "rarity": "Beyond",
+    "type": "CAST +15%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 336091,
+    "name": "Rune Scepter",
+    "rarity": "Beyond",
+    "type": "ATK +77",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 336111,
+    "name": "Fate Scepter",
+    "rarity": "Beyond",
+    "type": "CDR +7.5%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 336141,
+    "name": "Limitless Scepter",
+    "rarity": "Beyond",
+    "type": "CAST +27.8%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 336171,
+    "name": "Dimensional Scepter",
+    "rarity": "Beyond",
+    "type": "CDR +9.6%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 346071,
+    "name": "Iron Crossbow",
+    "rarity": "Beyond",
+    "type": "ASPD +12.5%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 346091,
+    "name": "Elite Crossbow",
+    "rarity": "Beyond",
+    "type": "ATK +77",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 346111,
+    "name": "Mystic Crossbow",
+    "rarity": "Beyond",
+    "type": "CDR +7.5%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 346141,
+    "name": "Limitless Crossbow",
+    "rarity": "Beyond",
+    "type": "ATK +172",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 346171,
+    "name": "Dimensional Crossbow",
+    "rarity": "Beyond",
+    "type": "CDR +9.6%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 356071,
+    "name": "Great Axe",
+    "rarity": "Beyond",
+    "type": "CDR +6.2%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 356091,
+    "name": "Rune Axe",
+    "rarity": "Beyond",
+    "type": "CDR +6.9%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 356111,
+    "name": "Fate Axe",
+    "rarity": "Beyond",
+    "type": "ATK +115",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 356141,
+    "name": "Limitless Axe",
+    "rarity": "Beyond",
+    "type": "ASPD +20.7%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 356171,
+    "name": "Dimensional Axe",
+    "rarity": "Beyond",
+    "type": "ATK +276",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350017.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 456071,
+    "name": "Battle Hatchet",
+    "rarity": "Beyond",
+    "type": "ATK +21",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450007.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 456091,
+    "name": "Elite Hatchet",
+    "rarity": "Beyond",
+    "type": "ATK +39",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450009.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 456111,
+    "name": "Mystic Hatchet",
+    "rarity": "Beyond",
+    "type": "ATK +58",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450011.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 456141,
+    "name": "Limitless Hatchet",
+    "rarity": "Beyond",
+    "type": "ATK +87",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450014.png",
+    "rarity_color": "#fc246c"
+  },
+  {
+    "id": 456171,
+    "name": "Dimensional Hatchet",
+    "rarity": "Beyond",
+    "type": "CDR +5.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450017.png",
+    "rarity_color": "#fc246c"
+  }
+]

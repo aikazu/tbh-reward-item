@@ -1,0 +1,632 @@
+[
+  {
+    "id": 304011,
+    "name": "Long Sword",
+    "rarity": "Immortal",
+    "type": "ATK +22.7%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300001.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 304021,
+    "name": "Cutlas",
+    "rarity": "Immortal",
+    "type": "ATK +23.9%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300002.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 304031,
+    "name": "Rapier",
+    "rarity": "Immortal",
+    "type": "ATK +5",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300003.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 304041,
+    "name": "Bastard Sword",
+    "rarity": "Immortal",
+    "type": "ATK +7",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300004.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 304051,
+    "name": "Great Sword",
+    "rarity": "Immortal",
+    "type": "ATK +10",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300005.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 304071,
+    "name": "Knight Sword",
+    "rarity": "Immortal",
+    "type": "ATK +22",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300007.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 304091,
+    "name": "Rune Sword",
+    "rarity": "Immortal",
+    "type": "ASPD +12.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300009.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 304111,
+    "name": "Fate Sword",
+    "rarity": "Immortal",
+    "type": "ATK +60.2%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300011.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 304141,
+    "name": "Vengeance Sword",
+    "rarity": "Immortal",
+    "type": "ATK +90",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300014.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 304171,
+    "name": "Dimensional Sword",
+    "rarity": "Immortal",
+    "type": "ATK +94.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300017.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 314011,
+    "name": "Short Bow",
+    "rarity": "Immortal",
+    "type": "CRIT +0.6%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310001.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 314021,
+    "name": "Hunting Bow",
+    "rarity": "Immortal",
+    "type": "ASPD +8.6%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310002.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 314031,
+    "name": "Long Bow",
+    "rarity": "Immortal",
+    "type": "CRIT +0.6%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310003.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 314041,
+    "name": "Composite Bow",
+    "rarity": "Immortal",
+    "type": "ASPD +9%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310004.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 314051,
+    "name": "War Bow",
+    "rarity": "Immortal",
+    "type": "CRIT +0.8%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310005.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 314071,
+    "name": "Dusk Bow",
+    "rarity": "Immortal",
+    "type": "ATK +22",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310007.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 314091,
+    "name": "Elite Bow",
+    "rarity": "Immortal",
+    "type": "CRIT +1.3%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310009.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 314111,
+    "name": "Mystic Bow",
+    "rarity": "Immortal",
+    "type": "CRIT +1.5%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310011.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 314141,
+    "name": "Limitless Bow",
+    "rarity": "Immortal",
+    "type": "ATK +90",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310014.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 314171,
+    "name": "Shadow Bow",
+    "rarity": "Immortal",
+    "type": "ATK +144",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310017.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 324011,
+    "name": "Wooden Staff",
+    "rarity": "Immortal",
+    "type": "ATK +3",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320001.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 324021,
+    "name": "Herald Staff",
+    "rarity": "Immortal",
+    "type": "ATK +23.9%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320002.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 324031,
+    "name": "Long Staff",
+    "rarity": "Immortal",
+    "type": "ATK +5",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320003.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 324041,
+    "name": "Witch Staff",
+    "rarity": "Immortal",
+    "type": "CRIT +0.7%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320004.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 324051,
+    "name": "Azure Staff",
+    "rarity": "Immortal",
+    "type": "AddHpPerHit +2",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320005.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 324071,
+    "name": "Sage Staff",
+    "rarity": "Immortal",
+    "type": "CDR +5.7%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320007.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 324091,
+    "name": "Comet Staff",
+    "rarity": "Immortal",
+    "type": "ATK +41",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320009.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 324111,
+    "name": "Void Staff",
+    "rarity": "Immortal",
+    "type": "CDR +6.6%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320011.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 324141,
+    "name": "Sacred Staff",
+    "rarity": "Immortal",
+    "type": "CDR +7.1%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320014.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 324171,
+    "name": "Tempest Staff",
+    "rarity": "Immortal",
+    "type": "ATK +144",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320017.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 334011,
+    "name": "Novice Scepter",
+    "rarity": "Immortal",
+    "type": "CDR +5.1%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330001.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 334021,
+    "name": "Iron Scepter",
+    "rarity": "Immortal",
+    "type": "CDR +5.2%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330002.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 334031,
+    "name": "Blessed Scepter",
+    "rarity": "Immortal",
+    "type": "ATK +25.5%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330003.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 334041,
+    "name": "Steel Scepter",
+    "rarity": "Immortal",
+    "type": "CAST +9.6%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330004.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 334051,
+    "name": "Sacred Scepter",
+    "rarity": "Immortal",
+    "type": "ATK +10",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330005.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 334071,
+    "name": "Devout Scepter",
+    "rarity": "Immortal",
+    "type": "ATK +22",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330007.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 334091,
+    "name": "Rune Scepter",
+    "rarity": "Immortal",
+    "type": "ATK +41",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330009.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 334111,
+    "name": "Fate Scepter",
+    "rarity": "Immortal",
+    "type": "CAST +17.4%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330011.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 334141,
+    "name": "Limitless Scepter",
+    "rarity": "Immortal",
+    "type": "ATK +90",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330014.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 334171,
+    "name": "Dimensional Scepter",
+    "rarity": "Immortal",
+    "type": "ATK +144",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330017.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 344011,
+    "name": "Short Crossbow",
+    "rarity": "Immortal",
+    "type": "ATK +3",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340001.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 344021,
+    "name": "Leather Crossbow",
+    "rarity": "Immortal",
+    "type": "CDR +5.2%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340002.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 344031,
+    "name": "Long Crossbow",
+    "rarity": "Immortal",
+    "type": "ATK +5",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340003.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 344041,
+    "name": "Complete Crossbow",
+    "rarity": "Immortal",
+    "type": "ASPD +9%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340004.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 344051,
+    "name": "Exceptional Crossbow",
+    "rarity": "Immortal",
+    "type": "ASPD +9.5%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340005.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 344071,
+    "name": "Iron Crossbow",
+    "rarity": "Immortal",
+    "type": "CDR +5.7%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340007.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 344091,
+    "name": "Elite Crossbow",
+    "rarity": "Immortal",
+    "type": "ASPD +12.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340009.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 344111,
+    "name": "Mystic Crossbow",
+    "rarity": "Immortal",
+    "type": "CDR +6.6%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340011.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 344141,
+    "name": "Limitless Crossbow",
+    "rarity": "Immortal",
+    "type": "ATK +90",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340014.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 344171,
+    "name": "Dimensional Crossbow",
+    "rarity": "Immortal",
+    "type": "ASPD +19.2%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340017.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 354011,
+    "name": "Wooden Axe",
+    "rarity": "Immortal",
+    "type": "ATK +3",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350001.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 354021,
+    "name": "Iron Axe",
+    "rarity": "Immortal",
+    "type": "ATK +4",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350002.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 354031,
+    "name": "Battle Axe",
+    "rarity": "Immortal",
+    "type": "ATK +5",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350003.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 354041,
+    "name": "Steel Axe",
+    "rarity": "Immortal",
+    "type": "ASPD +9%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350004.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 354051,
+    "name": "War Axe",
+    "rarity": "Immortal",
+    "type": "CDR +5.4%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350005.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 354071,
+    "name": "Great Axe",
+    "rarity": "Immortal",
+    "type": "CDR +5.7%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350007.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 354091,
+    "name": "Rune Axe",
+    "rarity": "Immortal",
+    "type": "CDR +6.2%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350009.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 354111,
+    "name": "Fate Axe",
+    "rarity": "Immortal",
+    "type": "ATK +60",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350011.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 354141,
+    "name": "Limitless Axe",
+    "rarity": "Immortal",
+    "type": "CDR +7.1%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350014.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 354171,
+    "name": "Dimensional Axe",
+    "rarity": "Immortal",
+    "type": "CDR +7.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350017.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 454011,
+    "name": "Short Hatchet",
+    "rarity": "Immortal",
+    "type": "CRIT +15.5%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450001.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 454021,
+    "name": "Leather Hatchet",
+    "rarity": "Immortal",
+    "type": "CRIT DMG +13.9%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450002.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 454031,
+    "name": "Long Hatchet",
+    "rarity": "Immortal",
+    "type": "ATK +4",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450003.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 454041,
+    "name": "Steel Hatchet",
+    "rarity": "Immortal",
+    "type": "ATK +4",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450004.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 454051,
+    "name": "War Hatchet",
+    "rarity": "Immortal",
+    "type": "CRIT +17%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450005.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 454071,
+    "name": "Battle Hatchet",
+    "rarity": "Immortal",
+    "type": "CRIT +18.7%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450007.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 454091,
+    "name": "Elite Hatchet",
+    "rarity": "Immortal",
+    "type": "CRIT +20.9%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450009.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 454111,
+    "name": "Mystic Hatchet",
+    "rarity": "Immortal",
+    "type": "CRIT DMG +31.6%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450011.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 454141,
+    "name": "Limitless Hatchet",
+    "rarity": "Immortal",
+    "type": "ATK +46",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450014.png",
+    "rarity_color": "#fc2424"
+  },
+  {
+    "id": 454171,
+    "name": "Dimensional Hatchet",
+    "rarity": "Immortal",
+    "type": "CRIT +29.6%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450017.png",
+    "rarity_color": "#fc2424"
+  }
+]

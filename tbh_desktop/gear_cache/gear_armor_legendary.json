@@ -1,0 +1,362 @@
+[
+  {
+    "id": 503011,
+    "name": "Wooden Helmet",
+    "rarity": "Legendary",
+    "type": "ARM +8",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 503021,
+    "name": "Empire Helmet",
+    "rarity": "Legendary",
+    "type": "HP +24",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 503031,
+    "name": "Iron Helmet",
+    "rarity": "Legendary",
+    "type": "SkillRangeExpansion +9.5%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 503041,
+    "name": "Knight Helmet",
+    "rarity": "Legendary",
+    "type": "ARM +22",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 503051,
+    "name": "Chain Helmet",
+    "rarity": "Legendary",
+    "type": "HP +31",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 503071,
+    "name": "War Helmet",
+    "rarity": "Legendary",
+    "type": "ARM +83",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 503091,
+    "name": "Rune Helmet",
+    "rarity": "Legendary",
+    "type": "HP +57",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 503111,
+    "name": "Fate Helmet",
+    "rarity": "Legendary",
+    "type": "ARM +281",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 503141,
+    "name": "Fighter's Helmet",
+    "rarity": "Legendary",
+    "type": "HP +86",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 503171,
+    "name": "Dimensional Helmet",
+    "rarity": "Legendary",
+    "type": "ARM +635",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 513011,
+    "name": "Wooden Armor",
+    "rarity": "Legendary",
+    "type": "HpRegenPerSec +142",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 513021,
+    "name": "Empire Armor",
+    "rarity": "Legendary",
+    "type": "HP +7.6%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 513031,
+    "name": "Iron Plate",
+    "rarity": "Legendary",
+    "type": "HpRegenPerSec +190",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 513041,
+    "name": "Chain Mail",
+    "rarity": "Legendary",
+    "type": "HpRegenPerSec +230",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 513051,
+    "name": "Knight's Armor",
+    "rarity": "Legendary",
+    "type": "HP +38",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 513071,
+    "name": "War Armor",
+    "rarity": "Legendary",
+    "type": "HpRegenPerSec +483",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 513091,
+    "name": "Rune Plate",
+    "rarity": "Legendary",
+    "type": "HP +12.7%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 513111,
+    "name": "Mystic Armor",
+    "rarity": "Legendary",
+    "type": "HP +111",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 513141,
+    "name": "Shine Armor",
+    "rarity": "Legendary",
+    "type": "HP +134",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 513171,
+    "name": "Dimensional Armor",
+    "rarity": "Legendary",
+    "type": "HP +181",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 523011,
+    "name": "Leather Gloves",
+    "rarity": "Legendary",
+    "type": "ASPD +7.2%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 523021,
+    "name": "Empire Gloves",
+    "rarity": "Legendary",
+    "type": "ASPD +7.3%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 523031,
+    "name": "Iron Gloves",
+    "rarity": "Legendary",
+    "type": "ATK +3",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 523041,
+    "name": "Knight Gloves",
+    "rarity": "Legendary",
+    "type": "HP +27",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 523051,
+    "name": "Chain Gloves",
+    "rarity": "Legendary",
+    "type": "HP +31",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 523071,
+    "name": "War Gloves",
+    "rarity": "Legendary",
+    "type": "ASPD +8.8%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 523091,
+    "name": "Rune Gloves",
+    "rarity": "Legendary",
+    "type": "ASPD +10.1%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 523111,
+    "name": "Mystic Gloves",
+    "rarity": "Legendary",
+    "type": "ASPD +11.3%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 523141,
+    "name": "Shine Gloves",
+    "rarity": "Legendary",
+    "type": "HP +86",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 523171,
+    "name": "Dimensional Gloves",
+    "rarity": "Legendary",
+    "type": "HP +114",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 533011,
+    "name": "Wooden Boots",
+    "rarity": "Legendary",
+    "type": "HP +22",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 533021,
+    "name": "Empire Boots",
+    "rarity": "Legendary",
+    "type": "MOVE +33",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 533031,
+    "name": "Iron Boots",
+    "rarity": "Legendary",
+    "type": "ARM +10",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 533041,
+    "name": "Knight Boots",
+    "rarity": "Legendary",
+    "type": "MOVE +36",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 533051,
+    "name": "Chain Boots",
+    "rarity": "Legendary",
+    "type": "ARM +22",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 533071,
+    "name": "War Boots",
+    "rarity": "Legendary",
+    "type": "HP +42",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 533091,
+    "name": "Rune Boots",
+    "rarity": "Legendary",
+    "type": "MOVE +59",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 533111,
+    "name": "Mystic Boots",
+    "rarity": "Legendary",
+    "type": "MOVE +72",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 533141,
+    "name": "Shine Boots",
+    "rarity": "Legendary",
+    "type": "ARM +259",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 533171,
+    "name": "Dimensional Boots",
+    "rarity": "Legendary",
+    "type": "MOVE +104",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530017.png",
+    "rarity_color": "#fc9c0c"
+  }
+]

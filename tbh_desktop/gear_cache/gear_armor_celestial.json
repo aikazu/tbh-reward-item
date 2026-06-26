@@ -1,0 +1,146 @@
+[
+  {
+    "id": 507141,
+    "name": "Fighter's Helmet",
+    "rarity": "Celestial",
+    "type": "HP +183",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 507171,
+    "name": "Dimensional Helmet",
+    "rarity": "Celestial",
+    "type": "HP +247",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 517141,
+    "name": "Shine Armor",
+    "rarity": "Celestial",
+    "type": "HP +299",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 517171,
+    "name": "Dimensional Armor",
+    "rarity": "Celestial",
+    "type": "HP +410",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 527141,
+    "name": "Shine Gloves",
+    "rarity": "Celestial",
+    "type": "HP +183",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 527171,
+    "name": "Dimensional Gloves",
+    "rarity": "Celestial",
+    "type": "ASPD +25.7%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 537141,
+    "name": "Shine Boots",
+    "rarity": "Celestial",
+    "type": "MOVE +158",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530014.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 537171,
+    "name": "Dimensional Boots",
+    "rarity": "Celestial",
+    "type": "MOVE +209",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530017.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 507091,
+    "name": "Rune Helmet",
+    "rarity": "Celestial",
+    "type": "HP +112",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 517091,
+    "name": "Rune Plate",
+    "rarity": "Celestial",
+    "type": "HP +177",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 527091,
+    "name": "Rune Gloves",
+    "rarity": "Celestial",
+    "type": "ASPD +14.5%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 537091,
+    "name": "Rune Boots",
+    "rarity": "Celestial",
+    "type": "MOVE +102",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530009.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 507111,
+    "name": "Fate Helmet",
+    "rarity": "Celestial",
+    "type": "HP +142",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 517111,
+    "name": "Mystic Armor",
+    "rarity": "Celestial",
+    "type": "HP +229",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 527111,
+    "name": "Mystic Gloves",
+    "rarity": "Celestial",
+    "type": "ASPD +17%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520011.png",
+    "rarity_color": "#6ccce4"
+  },
+  {
+    "id": 537111,
+    "name": "Mystic Boots",
+    "rarity": "Celestial",
+    "type": "MOVE +126",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530011.png",
+    "rarity_color": "#6ccce4"
+  }
+]

@@ -1,0 +1,110 @@
+[
+  {
+    "id": 608141,
+    "name": "Eclipse Amulet",
+    "rarity": "Divine",
+    "type": "CDR +6.5%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 608171,
+    "name": "Ethereal Amulet",
+    "rarity": "Divine",
+    "type": "CDR +7.9%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 618141,
+    "name": "Celestial Earring",
+    "rarity": "Divine",
+    "type": "IncreaseExpAmount +15%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 618171,
+    "name": "Ethereal Earring",
+    "rarity": "Divine",
+    "type": "HpLeech +3%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 628141,
+    "name": "Eclipse Ring",
+    "rarity": "Divine",
+    "type": "CDR +6.2%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 628171,
+    "name": "Ethereal Ring",
+    "rarity": "Divine",
+    "type": "ASPD +19.8%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 638141,
+    "name": "Eclipse Bracer",
+    "rarity": "Divine",
+    "type": "DamageReduction +15.4%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630014.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 638171,
+    "name": "Ethereal Bracer",
+    "rarity": "Divine",
+    "type": "ARM +148.3%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630017.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 608111,
+    "name": "Emerald Amulet",
+    "rarity": "Divine",
+    "type": "ASPD +19.7%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 618111,
+    "name": "Sapphire Earring",
+    "rarity": "Divine",
+    "type": "MOVE +19.8%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 628111,
+    "name": "Emerald Ring",
+    "rarity": "Divine",
+    "type": "CDR +5.2%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620011.png",
+    "rarity_color": "#fce454"
+  },
+  {
+    "id": 638111,
+    "name": "Emerald Bracer",
+    "rarity": "Divine",
+    "type": "MOVE +15.6%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630011.png",
+    "rarity_color": "#fce454"
+  }
+]

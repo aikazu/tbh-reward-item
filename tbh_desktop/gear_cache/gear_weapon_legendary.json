@@ -1,0 +1,632 @@
+[
+  {
+    "id": 303011,
+    "name": "Long Sword",
+    "rarity": "Legendary",
+    "type": "ATK +3",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 303021,
+    "name": "Cutlas",
+    "rarity": "Legendary",
+    "type": "ASPD +8.4%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 303031,
+    "name": "Rapier",
+    "rarity": "Legendary",
+    "type": "ATK +4",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 303041,
+    "name": "Bastard Sword",
+    "rarity": "Legendary",
+    "type": "ATK +24.8%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 303051,
+    "name": "Great Sword",
+    "rarity": "Legendary",
+    "type": "ASPD +9%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 303071,
+    "name": "Knight Sword",
+    "rarity": "Legendary",
+    "type": "ASPD +10.1%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 303091,
+    "name": "Rune Sword",
+    "rarity": "Legendary",
+    "type": "ATK +44%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 303111,
+    "name": "Fate Sword",
+    "rarity": "Legendary",
+    "type": "ATK +54%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 303141,
+    "name": "Vengeance Sword",
+    "rarity": "Legendary",
+    "type": "ATK +62.7%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 303171,
+    "name": "Dimensional Sword",
+    "rarity": "Legendary",
+    "type": "ATK +80.5%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 313011,
+    "name": "Short Bow",
+    "rarity": "Legendary",
+    "type": "CRIT +0.5%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 313021,
+    "name": "Hunting Bow",
+    "rarity": "Legendary",
+    "type": "CRIT +0.6%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 313031,
+    "name": "Long Bow",
+    "rarity": "Legendary",
+    "type": "ATK +4",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 313041,
+    "name": "Composite Bow",
+    "rarity": "Legendary",
+    "type": "CRIT +0.6%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 313051,
+    "name": "War Bow",
+    "rarity": "Legendary",
+    "type": "CRIT +0.7%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 313071,
+    "name": "Dusk Bow",
+    "rarity": "Legendary",
+    "type": "ATK +15",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 313091,
+    "name": "Elite Bow",
+    "rarity": "Legendary",
+    "type": "CRIT +1.1%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 313111,
+    "name": "Mystic Bow",
+    "rarity": "Legendary",
+    "type": "ATK +48",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 313141,
+    "name": "Limitless Bow",
+    "rarity": "Legendary",
+    "type": "CRIT +1.6%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 313171,
+    "name": "Shadow Bow",
+    "rarity": "Legendary",
+    "type": "ASPD +17.1%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 323011,
+    "name": "Wooden Staff",
+    "rarity": "Legendary",
+    "type": "ATK +3",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 323021,
+    "name": "Herald Staff",
+    "rarity": "Legendary",
+    "type": "CDR +5.1%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 323031,
+    "name": "Long Staff",
+    "rarity": "Legendary",
+    "type": "CRIT DMG +32.2%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 323041,
+    "name": "Witch Staff",
+    "rarity": "Legendary",
+    "type": "CDR +5.2%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 323051,
+    "name": "Azure Staff",
+    "rarity": "Legendary",
+    "type": "CDR +5.3%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 323071,
+    "name": "Sage Staff",
+    "rarity": "Legendary",
+    "type": "ATK +15",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 323091,
+    "name": "Comet Staff",
+    "rarity": "Legendary",
+    "type": "CDR +5.9%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 323111,
+    "name": "Void Staff",
+    "rarity": "Legendary",
+    "type": "ATK +48",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 323141,
+    "name": "Sacred Staff",
+    "rarity": "Legendary",
+    "type": "AddHpPerHit +7",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 323171,
+    "name": "Tempest Staff",
+    "rarity": "Legendary",
+    "type": "ATK +107",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 333011,
+    "name": "Novice Scepter",
+    "rarity": "Legendary",
+    "type": "ATK +3",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 333021,
+    "name": "Iron Scepter",
+    "rarity": "Legendary",
+    "type": "ATK +3",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 333031,
+    "name": "Blessed Scepter",
+    "rarity": "Legendary",
+    "type": "CDR +5.1%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 333041,
+    "name": "Steel Scepter",
+    "rarity": "Legendary",
+    "type": "ATK +5",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 333051,
+    "name": "Sacred Scepter",
+    "rarity": "Legendary",
+    "type": "ATK +7",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 333071,
+    "name": "Devout Scepter",
+    "rarity": "Legendary",
+    "type": "CDR +5.6%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 333091,
+    "name": "Rune Scepter",
+    "rarity": "Legendary",
+    "type": "ATK +30",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 333111,
+    "name": "Fate Scepter",
+    "rarity": "Legendary",
+    "type": "CRIT DMG +52.6%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 333141,
+    "name": "Limitless Scepter",
+    "rarity": "Legendary",
+    "type": "CRIT +1.6%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 333171,
+    "name": "Dimensional Scepter",
+    "rarity": "Legendary",
+    "type": "CDR +7.4%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 343011,
+    "name": "Short Crossbow",
+    "rarity": "Legendary",
+    "type": "CDR +5.1%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 343021,
+    "name": "Leather Crossbow",
+    "rarity": "Legendary",
+    "type": "ASPD +8.4%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 343031,
+    "name": "Long Crossbow",
+    "rarity": "Legendary",
+    "type": "ASPD +8.5%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 343041,
+    "name": "Complete Crossbow",
+    "rarity": "Legendary",
+    "type": "ATK +5",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 343051,
+    "name": "Exceptional Crossbow",
+    "rarity": "Legendary",
+    "type": "ASPD +9%",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 343071,
+    "name": "Iron Crossbow",
+    "rarity": "Legendary",
+    "type": "CDR +5.6%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 343091,
+    "name": "Elite Crossbow",
+    "rarity": "Legendary",
+    "type": "CDR +5.9%",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 343111,
+    "name": "Mystic Crossbow",
+    "rarity": "Legendary",
+    "type": "ATK +48",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 343141,
+    "name": "Limitless Crossbow",
+    "rarity": "Legendary",
+    "type": "ATK +66",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 343171,
+    "name": "Dimensional Crossbow",
+    "rarity": "Legendary",
+    "type": "ATK +107",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 353011,
+    "name": "Wooden Axe",
+    "rarity": "Legendary",
+    "type": "ASPD +8.2%",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 353021,
+    "name": "Iron Axe",
+    "rarity": "Legendary",
+    "type": "CDR +5.1%",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 353031,
+    "name": "Battle Axe",
+    "rarity": "Legendary",
+    "type": "ATK +4",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 353041,
+    "name": "Steel Axe",
+    "rarity": "Legendary",
+    "type": "ATK +5",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 353051,
+    "name": "War Axe",
+    "rarity": "Legendary",
+    "type": "ATK +7",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 353071,
+    "name": "Great Axe",
+    "rarity": "Legendary",
+    "type": "ASPD +10.1%",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 353091,
+    "name": "Rune Axe",
+    "rarity": "Legendary",
+    "type": "ATK +30",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 353111,
+    "name": "Fate Axe",
+    "rarity": "Legendary",
+    "type": "CDR +6.3%",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 353141,
+    "name": "Limitless Axe",
+    "rarity": "Legendary",
+    "type": "ATK +66",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 353171,
+    "name": "Dimensional Axe",
+    "rarity": "Legendary",
+    "type": "CDR +7.4%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350017.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 453011,
+    "name": "Short Hatchet",
+    "rarity": "Legendary",
+    "type": "ATK +2",
+    "level": "Lv1",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450001.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 453021,
+    "name": "Leather Hatchet",
+    "rarity": "Legendary",
+    "type": "ATK +3",
+    "level": "Lv5",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450002.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 453031,
+    "name": "Long Hatchet",
+    "rarity": "Legendary",
+    "type": "CRIT DMG +13.6%",
+    "level": "Lv10",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450003.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 453041,
+    "name": "Steel Hatchet",
+    "rarity": "Legendary",
+    "type": "ATK +14.3%",
+    "level": "Lv15",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450004.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 453051,
+    "name": "War Hatchet",
+    "rarity": "Legendary",
+    "type": "ATK +4",
+    "level": "Lv20",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450005.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 453071,
+    "name": "Battle Hatchet",
+    "rarity": "Legendary",
+    "type": "ATK +8",
+    "level": "Lv30",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450007.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 453091,
+    "name": "Elite Hatchet",
+    "rarity": "Legendary",
+    "type": "ATK +16",
+    "level": "Lv40",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450009.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 453111,
+    "name": "Mystic Hatchet",
+    "rarity": "Legendary",
+    "type": "ATK +25",
+    "level": "Lv50",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450011.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 453141,
+    "name": "Limitless Hatchet",
+    "rarity": "Legendary",
+    "type": "CDR +3.4%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450014.png",
+    "rarity_color": "#fc9c0c"
+  },
+  {
+    "id": 453171,
+    "name": "Dimensional Hatchet",
+    "rarity": "Legendary",
+    "type": "CDR +4%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450017.png",
+    "rarity_color": "#fc9c0c"
+  }
+]

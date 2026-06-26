@@ -1,0 +1,74 @@
+[
+  {
+    "id": 609141,
+    "name": "Eclipse Amulet",
+    "rarity": "Cosmic",
+    "type": "CDR +7.3%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 609171,
+    "name": "Ethereal Amulet",
+    "rarity": "Cosmic",
+    "type": "ASPD +30%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 619141,
+    "name": "Celestial Earring",
+    "rarity": "Cosmic",
+    "type": "ATK +795",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 619171,
+    "name": "Ethereal Earring",
+    "rarity": "Cosmic",
+    "type": "AreaOfEffect +30%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 629141,
+    "name": "Eclipse Ring",
+    "rarity": "Cosmic",
+    "type": "ASPD +17.8%",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 629171,
+    "name": "Ethereal Ring",
+    "rarity": "Cosmic",
+    "type": "CDR +8%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/ring/RING_620017.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 639141,
+    "name": "Eclipse Bracer",
+    "rarity": "Cosmic",
+    "type": "DamageAbsorption +260",
+    "level": "Lv65",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630014.png",
+    "rarity_color": "#fcfcfc"
+  },
+  {
+    "id": 639171,
+    "name": "Ethereal Bracer",
+    "rarity": "Cosmic",
+    "type": "AreaOfEffect +30%",
+    "level": "Lv80",
+    "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630017.png",
+    "rarity_color": "#fcfcfc"
+  }
+]

@@ -2,6 +2,8 @@
 """Run src/run_proxy.py as subprocess, stream stdout via Qt signals."""
 from __future__ import annotations
 
+import os
+import signal
 import subprocess
 import sys
 import threading
@@ -26,6 +28,11 @@ class ProxyRunner(QObject):
     def start(self) -> None:
         if self.is_running():
             return
+        # start_new_session=True puts the child in its own process group so
+        # stop() can kill the entire group (parent + child + grandchild).
+        # Without this, SIGTERM only reaches the run_proxy.py wrapper and the
+        # mitmdump grandchild it spawned via subprocess.call() is orphaned —
+        # it keeps binding the listen port and the proxy "looks" still up.
         self._proc = subprocess.Popen(
             [sys.executable, str(RUN_PROXY_PATH)],
             cwd=str(REPO_ROOT),
@@ -33,6 +40,7 @@ class ProxyRunner(QObject):
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
+            start_new_session=True,
         )
         self.running.emit(True)
         self._reader = threading.Thread(target=self._read_loop, daemon=True)
@@ -60,14 +68,29 @@ class ProxyRunner(QObject):
     def stop(self) -> None:
         if not self.is_running() or self._proc is None:
             return
-        self._proc.terminate()
+        # Kill the entire process group (run_proxy.py + its mitmdump child)
+        # instead of just the parent. terminate()/kill() only signal the
+        # wrapper, leaving mitmdump orphaned on the listen port.
+        proc = self._proc
         try:
-            self._proc.wait(timeout=3)
-        except subprocess.TimeoutExpired:
+            pgid = os.getpgid(proc.pid)
+        except ProcessLookupError:
+            # Already gone — nothing to do.
+            return
+        try:
+            os.killpg(pgid, signal.SIGTERM)
             try:
-                self._proc.kill()
-            except ProcessLookupError:
-                # Process exited between terminate() and kill().
-                pass
-        # Note: running(False) is emitted by the reader thread, not here,
-        # to avoid double-toggle.
+                proc.wait(timeout=3)
+                return
+            except subprocess.TimeoutExpired:
+                # Polite timeout — escalate to SIGKILL on the whole group.
+                os.killpg(pgid, signal.SIGKILL)
+                try:
+                    proc.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    # Last resort: nothing more we can do from Python; log it.
+                    pass
+        except ProcessLookupError:
+            # Group already gone (e.g. mitmdump exited on its own and took the
+            # wrapper with it). Treat as a clean stop.
+            return

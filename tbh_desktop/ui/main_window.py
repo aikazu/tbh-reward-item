@@ -303,9 +303,9 @@ class MainWindow(QMainWindow):
             DROPS_INDEX_CACHE.stat().st_mtime if DROPS_INDEX_CACHE.exists() else 0
         )
 
-        # Gear cache: 28 files, one per (category, grade).
+        # Gear cache: 28 files, one per (category, grade), at gear/{cat}/{rarity}.json.
         gear_files = (
-            sorted(GEAR_CACHE_DIR.glob("gear_*.json"))
+            sorted(GEAR_CACHE_DIR.glob("*/*.json"))
             if GEAR_CACHE_DIR.exists() else []
         )
         gear_total = 0
@@ -466,7 +466,7 @@ class MainWindow(QMainWindow):
 
     def _pick_gear_for_rule(self) -> None:
         """Pick gear scoped to the selected rule's box (name + level filter)."""
-        if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("gear_*.json")):
+        if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("*/*.json")):
             self._on_log("No gear cache. Click 'Scrape gear' first.")
             return
         box_id = self.editor.selected_rule_item_id()
@@ -489,7 +489,7 @@ class MainWindow(QMainWindow):
 
     def _pick_gear_for_range(self) -> None:
         """Pick gear for range replacement (no box scope — shows all gear)."""
-        if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("gear_*.json")):
+        if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("*/*.json")):
             self._on_log("No gear cache. Click 'Scrape gear' first.")
             return
         dlg = GearPicker(GEAR_CACHE_DIR, self)

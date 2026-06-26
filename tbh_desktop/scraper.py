@@ -710,7 +710,7 @@ def refresh_gear_full(
 def _enrich_items_with_stats(
     items: list[dict[str, Any]],
     cancel_event: threading.Event | None = None,
-    max_workers: int = 4,
+    max_workers: int = 3,
 ) -> None:
     """Stamp BASE/INHERENT stats onto each item in *items* in place.
 
@@ -721,12 +721,16 @@ def _enrich_items_with_stats(
     :func:`write_gear_cache` — stats live in the same file as the rest
     of the item data, no separate per-item cache directory.
 
-    Uses a small thread pool to keep total time bounded — most combos
-    have 10-70 items and each detail fetch is a single HTTP GET. Network
-    errors and per-item failures are logged at ``info`` level and never
-    raise.
+    Uses a small thread pool (default 3) to be a polite citizen to the
+    wiki — concurrent load >4 triggers 500s. Each fetch retries up to
+    3 times on 5xx / connection errors with short exponential backoff.
+    404s (item genuinely not on the wiki) fail fast.
+
+    Network errors and per-item failures are logged at ``info`` level
+    and never raise.
     """
     from concurrent.futures import ThreadPoolExecutor, as_completed
+    import time as _time
 
     if not items:
         return
@@ -739,15 +743,25 @@ def _enrich_items_with_stats(
         if not isinstance(iid, int) or not name:
             return iid if isinstance(iid, int) else -1, []
         slug = _gear_slug_for(iid, name)
-        url = f"https://taskbarhero.wiki/items/{iid}-{slug}"
-        try:
-            resp = requests.get(url, timeout=30)
-            resp.raise_for_status()
-            detail = parse_gear_detail(resp.text)
-            return iid, detail.get("stats", [])
-        except Exception as exc:
-            log.info("gear detail %s failed: %s", iid, exc)
+        if not slug:
             return iid, []
+        url = f"https://taskbarhero.wiki/items/{iid}-{slug}"
+        last_exc: Exception | None = None
+        for attempt in range(3):
+            try:
+                resp = requests.get(url, timeout=30)
+                if resp.status_code == 404:
+                    return iid, []
+                resp.raise_for_status()
+                detail = parse_gear_detail(resp.text)
+                return iid, detail.get("stats", [])
+            except Exception as exc:
+                last_exc = exc
+                if attempt < 2:
+                    _time.sleep(0.4 * (2 ** attempt))
+                    continue
+        log.info("gear detail %s failed after 3 attempts: %s", iid, last_exc)
+        return iid, []
 
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [ex.submit(_worker, it) for it in items]
@@ -839,11 +853,15 @@ def parse_material_detail_wiki(html: str) -> dict[str, Any]:
                 table = inner_div.find("table")
                 if table is None:
                     continue
-                for tr in table.find_all("tr")[1:]:  # skip header row
-                    cells = [
-                        c.get_text(" ", strip=True)
-                        for c in tr.find_all(["th", "td"])
-                    ]
+                # Skip a leading row that contains <th> cells (the wiki
+                # always renders a "Stat | Chance | Value | Tier" header,
+                # but be defensive: only skip rows with th cells, so a
+                # headerless table still gets its data row parsed).
+                for tr in table.find_all("tr"):
+                    cell_elements = tr.find_all(["th", "td"])
+                    if any(c.name == "th" for c in cell_elements):
+                        continue
+                    cells = [c.get_text(" ", strip=True) for c in cell_elements]
                     if len(cells) < 4:
                         continue
                     stats.append({
@@ -1364,18 +1382,34 @@ def _fetch_material_detail_wiki(item_id: int, name: str) -> dict[str, Any]:
     """Fetch /items/{slug} on taskbarhero.wiki for a material. No on-disk
     cache — the parsed result is inlined into the per-(family,rarity)
     cache file by the caller. Returns ``{}`` on failure.
+
+    Retries up to 3 times on 5xx / connection errors with a short
+    exponential backoff. The wiki occasionally returns 500 or drops
+    the connection mid-stream (especially under concurrent load from
+    a thread pool) — one retry almost always succeeds.
     """
+    import time as _time
     slug = _material_slug_for(name)
     if not slug:
         return {}
-    try:
-        url = f"https://taskbarhero.wiki/items/{slug}"
-        resp = requests.get(url, timeout=30)
-        resp.raise_for_status()
-        return parse_material_detail_wiki(resp.text)
-    except Exception as exc:
-        log.info("material detail %s (%s) failed: %s", item_id, name, exc)
-        return {}
+    url = f"https://taskbarhero.wiki/items/{slug}"
+    last_exc: Exception | None = None
+    for attempt in range(3):
+        try:
+            resp = requests.get(url, timeout=30)
+            if resp.status_code == 404:
+                # Item genuinely not on the wiki (e.g. stage boxes).
+                # Don't retry — fail fast.
+                return {}
+            resp.raise_for_status()
+            return parse_material_detail_wiki(resp.text)
+        except Exception as exc:
+            last_exc = exc
+            if attempt < 2:
+                _time.sleep(0.4 * (2 ** attempt))
+                continue
+    log.info("material detail %s (%s) failed: %s", item_id, name, last_exc)
+    return {}
 
 
 def _write_item_cache(cache_path: Path, items: list[dict[str, Any]]) -> None:
@@ -1407,27 +1441,35 @@ def refresh_material_details(
     cancel_event: threading.Event | None = None,
     max_workers: int = 4,
 ) -> int:
-    """Fetch wiki material details for every item in *drops_index* and
-    inline the parsed info into the per-(family,rarity) files under
-    *item_dir*.
+    """Fetch wiki material details for every **material** item in
+    *drops_index* and inline the parsed info into the per-(family,
+    rarity) files under *item_dir*.
+
+    Filters to ``kind == "material"`` only — stage boxes and other
+    non-material kinds are skipped (they have no wiki detail page;
+    the wiki returns 404 for them and the per-(family,rarity) files
+    don't contain stage-box entries anyway).
 
     Each material item entry gets an ``info`` field with the parsed
     wiki data (effect, stats, crafting). The per-(family,rarity) files
-    are rewritten in place — no new directory. Existing items not
-    present in the drops index are left untouched (the per-(family,
-    rarity) files are read, items with id-matching ``info`` are
-    stamped, others kept as-is, then the file is written back).
+    are rewritten in place — no new directory.
 
     Returns the number of items successfully enriched. Network errors
     and per-item failures are logged at ``info`` and never raise.
     """
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    if not drops_index:
+    # Filter to materials only. The drops index has 174 entries (115
+    # materials + 59 stage boxes); only the materials have a wiki page.
+    materials = [
+        it for it in drops_index
+        if str(it.get("kind", "")).lower() == "material"
+    ]
+    if not materials:
         return 0
     log.info(
         "enriching %d material items with wiki details (effect/stats/crafting)",
-        len(drops_index),
+        len(materials),
     )
 
     def _worker(item: dict[str, Any]) -> tuple[int, dict[str, Any]]:
@@ -1439,7 +1481,7 @@ def refresh_material_details(
 
     info_by_id: dict[int, dict[str, Any]] = {}
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
-        futures = [ex.submit(_worker, it) for it in drops_index]
+        futures = [ex.submit(_worker, it) for it in materials]
         for fut in as_completed(futures):
             if cancel_event is not None and cancel_event.is_set():
                 break

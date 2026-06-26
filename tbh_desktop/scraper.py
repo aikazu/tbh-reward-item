@@ -104,13 +104,18 @@ def parse_gear_page(html: str) -> list[dict[str, Any]]:
 def parse_box_page(html: str, box_id: int = 0, box_name: str = "") -> list[dict[str, Any]]:
     """Parse box page HTML, return loot table items.
 
-    Each dict: {id, name, rate, box_id, box_name}. ID extracted from gear image path,
-    material image path, or href. Only rows inside the 'Loot table' section are
-    returned.
+    Each dict: {id, name, rate, box_id, box_name, kind, image}. ID extracted from
+    gear image path, material image path, or href. Only rows inside the 'Loot
+    table' section are returned.
 
     The box_id/box_name args are stamped onto every loot entry so the caller can
     build a reverse map (item_id -> boxes) without having to re-derive them.
     Pass them when you know them (e.g. from the URL you scraped); default 0/"".
+
+    *kind* is one of "gear" / "material" / "other", derived from which image
+    regex matched the src attribute. The BoxLootPicker uses this to filter
+    out gear (which lives in its own GearPicker dialog) and keep only
+    materials / consumables / quest items.
     """
     soup = BeautifulSoup(html, "lxml")
     loot: list[dict[str, Any]] = []
@@ -133,15 +138,49 @@ def parse_box_page(html: str, box_id: int = 0, box_name: str = "") -> list[dict[
         name_cell = cells[0]
         rate = cells[1].get_text(strip=True)
         name = name_cell.get_text(strip=True)
+        # Look for an image to classify as gear vs material + capture URL.
+        kind = "other"
+        image_url = ""
+        for img in name_cell.find_all("img"):
+            src = str(img.get("src", ""))
+            if GEAR_IMG_ID_RE.search(src):
+                kind = "gear"
+                image_url = src
+                break
+            if MATERIAL_IMG_ID_RE.search(src):
+                kind = "material"
+                image_url = src
+                break
+        # Normalize wiki-relative URLs to absolute.
+        if image_url.startswith("/"):
+            image_url = "https://taskbarhero.wiki" + image_url
+        # Fall back to href if no image — classify by ID range.
+        if not image_url:
+            href = name_cell.find("a")
+            if href is not None:
+                href_str = str(href.get("href", ""))
+                image_url = href_str
         item_id = _extract_item_id(name_cell)
         if item_id is None:
             continue
+        # ID-range fallback when no image matched.
+        # TBH ID prefixes (verified against /game/gear cache):
+        #   3xxxxx = weapon  · 4xxxxx = offhand  · 5xxxxx = armor  · 6xxxxx = accessory
+        #   1xxxxx = material · 2xxxxx = consumable/other
+        if kind == "other":
+            first_digit = str(item_id)[0]
+            if first_digit in ("3", "4", "5", "6"):
+                kind = "gear"
+            elif first_digit in ("1", "2"):
+                kind = "material"
         loot.append({
             "id": item_id,
             "name": name,
             "rate": rate,
             "box_id": box_id,
             "box_name": box_name,
+            "kind": kind,
+            "image": image_url,
         })
     return loot
 
@@ -647,6 +686,107 @@ def parse_item_detail(html: str) -> dict[str, Any]:
 
 
 ITEM_DETAIL_URL_TEMPLATE = "https://taskbarhero.org/en/items/{slug}/"
+
+DROPS_URL = "https://taskbarhero.org/en/tools/drops/"
+
+# Family ordering for the picker (rarity→family). Used to group items so the
+# box loot picker presents them in a stable, intuitive order.
+FAMILY_ORDER: tuple[str, ...] = (
+    "CRAFTING",
+    "DECORATION",
+    "ENGRAVING",
+    "INSCRIPTION",
+    "OFFERING",
+    "SOULSTONE",
+)
+
+RARITY_ORDER: tuple[str, ...] = (
+    "COMMON",
+    "UNCOMMON",
+    "RARE",
+    "LEGENDARY",
+    "IMMORTAL",
+    "ARCANA",
+    "BEYOND",
+    "CELESTIAL",
+    "DIVINE",
+    "COSMIC",
+)
+
+
+def parse_drops_page(html: str) -> list[dict[str, Any]]:
+    """Parse /en/tools/drops/ HTML and extract every item row.
+
+    Returns a list of dicts: {id, name, kind, rarity, family, search_text}.
+    The table rows have ``data-id``, ``data-name``, ``data-kind``,
+    ``data-rarity``, ``data-family``, ``data-search`` attributes that we
+    parse via BeautifulSoup. Used to populate the BoxLootPicker with ALL
+    non-gear items (materials, stage boxes, consumables) instead of having
+    the user pick a box first.
+    """
+    soup = BeautifulSoup(html, "lxml")
+    items: list[dict[str, Any]] = []
+    for tr in soup.select("tr[data-id]"):
+        item_id_str = str(tr.get("data-id", "")).strip()
+        if not item_id_str.isdigit():
+            continue
+        name = str(tr.get("data-name", "")).strip()
+        if not name:
+            continue
+        items.append({
+            "id": int(item_id_str),
+            "name": name,
+            "kind": str(tr.get("data-kind", "other")).strip(),
+            "rarity": str(tr.get("data-rarity", "COMMON")).strip(),
+            "family": str(tr.get("data-family", "")).strip(),
+            "search_text": str(tr.get("data-search", "")).strip(),
+        })
+    return items
+
+
+def write_drops_index(path: Path, items: list[dict[str, Any]]) -> None:
+    """Persist the parsed drops index. Keys are stringified ints (JSON limit)."""
+    payload = {
+        "fetched_at": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+        "items": items,
+    }
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def read_drops_index(path: Path) -> list[dict[str, Any]]:
+    """Load the drops index. Returns [] if missing or invalid."""
+    if not path.exists():
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (json.JSONDecodeError, OSError):
+        return []
+    if isinstance(payload, dict) and isinstance(payload.get("items"), list):
+        return payload["items"]
+    return []
+
+
+def fetch_drops_index(cache_path: Path, *, force: bool = False) -> list[dict[str, Any]]:
+    """Fetch /en/tools/drops/ and cache the parsed result.
+
+    Returns the cached items if cache exists and ``force`` is False. On
+    network failure, falls back to whatever's in the cache (even if stale).
+    """
+    if not force:
+        cached = read_drops_index(cache_path)
+        if cached:
+            return cached
+    try:
+        resp = requests.get(DROPS_URL, timeout=30)
+        resp.raise_for_status()
+        items = parse_drops_page(resp.text)
+        write_drops_index(cache_path, items)
+        log.info("drops index: %d items cached", len(items))
+        return items
+    except Exception as exc:
+        log.warning("drops index fetch failed: %s", exc)
+        # Last resort: return stale cache if we have it.
+        return read_drops_index(cache_path)
 
 
 def fetch_item_detail(item_id: int, slug: str, cache_path: Path) -> dict[str, Any]:

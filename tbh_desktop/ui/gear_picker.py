@@ -22,7 +22,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -40,8 +40,8 @@ from PySide6.QtWidgets import (
 
 from tbh_desktop.gear_filters import CATEGORY_DISPLAY, GRADE_DISPLAY
 from tbh_desktop.paths import BOX_DROP_MAP_CACHE
-from tbh_desktop.scraper import read_box_drop_cache
-from tbh_desktop.scraper import read_gear_cache
+from tbh_desktop.scraper import read_box_drop_cache, read_gear_cache
+from tbh_desktop.ui.image_cache import ImageCache
 
 # Inject the "All" pseudo-option (None slug means no filter).
 _CATEGORY_DISPLAY: dict[str, str | None] = {"All": None, **CATEGORY_DISPLAY}
@@ -154,7 +154,16 @@ class GearPicker(QDialog):
         self.list_widget = QListWidget()
         self.list_widget.setAlternatingRowColors(True)
         self.list_widget.setSelectionMode(QListWidget.SelectionMode.MultiSelection)
+        # Bigger icon size so gear thumbs are readable. Default is 16x16 in
+        # most styles; set an explicit size since QSize.width() can return -1
+        # on some styles and then *3 would also be negative.
+        self.list_widget.setIconSize(QSize(48, 48))
         layout.addWidget(self.list_widget)
+
+        # Async image cache (per-dialog). Icon-ready signals land on the GUI
+        # thread via Qt.AutoConnection; we apply them by item_id match.
+        self._image_cache = ImageCache(self)
+        self._image_cache.icon_ready.connect(self._apply_icon)
 
         self.count_label = QLabel()
         self.count_label.setStyleSheet("color: #7f849c; font-size: 11px;")
@@ -250,10 +259,10 @@ class GearPicker(QDialog):
             image_url = str(item.get("image", "")).strip()
             if image_url:
                 list_item.setToolTip(self._build_tooltip(item, drop_map))
-                # Note: not calling setIcon here — synchronously fetching 60+
-                # images on every rebuild would block the UI. Instead show a
-                # placeholder and let the user hover for the rich tooltip.
-                # (A future async-image-cache can replace this.)
+                # Async fetch the icon (lands later via _apply_icon).
+                item_id_int = int(item.get("id", 0))
+                if item_id_int:
+                    self._image_cache.request(image_url, item_id_int)
             else:
                 list_item.setToolTip(self._build_tooltip(item, drop_map))
             self.list_widget.addItem(list_item)
@@ -355,6 +364,18 @@ class GearPicker(QDialog):
     def _get_box_drop_map(self) -> dict[int, list[dict[str, Any]]]:
         """Lazy-load the box drop map (cached to disk). Empty dict if absent."""
         return read_box_drop_cache(BOX_DROP_MAP_CACHE)
+
+    def _apply_icon(self, item_id: int, icon) -> None:
+        """Apply an icon to the matching list item when the async fetch lands.
+
+        Linear scan is fine — the list is typically a few hundred items at
+        most, and icons arrive one at a time on the GUI thread.
+        """
+        for i in range(self.list_widget.count()):
+            li = self.list_widget.item(i)
+            if li.data(Qt.ItemDataRole.UserRole) == item_id:
+                li.setIcon(icon)
+                break
 
     def _build_tooltip(
         self, item: dict[str, Any], drop_map: dict[int, list[dict[str, Any]]]

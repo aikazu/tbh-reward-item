@@ -118,9 +118,10 @@ class ConfigEditor(QWidget):
         self.range_ids = QLineEdit()
         self.range_ids.setPlaceholderText("529191, 419191, 409191")
         self.btn_pick_gear_range = QPushButton("Pick gear")
-        self.btn_pick_loot_range = QPushButton("Pick from box")
+        self.btn_pick_loot_range = QPushButton("Pick item")
         self.btn_pick_loot_range.setToolTip(
-            "Pilih box, lalu pilih loot (item/material) dari box tersebut."
+            "Browse the wiki drops index (materials, stage boxes, consumables) "
+            "and add selected IDs to this range replacement."
         )
         range_form.addRow("Enabled", self.range_enabled)
         range_form.addRow("match_min_item_id", self.range_min)

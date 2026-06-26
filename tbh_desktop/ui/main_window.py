@@ -315,19 +315,27 @@ class MainWindow(QMainWindow):
             self.editor.add_ids_to_range(dlg.selected_ids())
 
     def _pick_box_loot_for_range(self) -> None:
-        """Pick box → loot (item/material) into range replacement IDs."""
-        dlg = BoxPicker(BOX_SLUG_CACHE, self)
-        if not dlg.exec():
+        """Pick reward IDs from the wiki drops index (materials, stage boxes,
+        consumables — everything except gear). Populates directly from the
+        cached drops index; no need to pick a box first.
+        """
+        from tbh_desktop.paths import DROPS_INDEX_CACHE
+        from tbh_desktop.scraper import fetch_drops_index
+        from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+
+        items = fetch_drops_index(DROPS_INDEX_CACHE)
+        if not items:
+            QMessageBox.warning(
+                self,
+                "Drops index empty",
+                "Could not load the drops index. Connect to the internet and "
+                "run the proxy once, or run the script: "
+                "`python -m tbh_desktop.scraper fetch_drops_index`.",
+            )
             return
-        box_id = dlg.selected_box_id()
-        if box_id is None:
-            return
-        loot = self._get_box_loot(box_id)
-        if not loot:
-            return
-        dlg2 = BoxLootPicker(box_id, loot, self)
-        if dlg2.exec():
-            self.editor.add_ids_to_range(dlg2.selected_ids())
+        dlg = BoxLootPicker(self, items=items)
+        if dlg.exec():
+            self.editor.add_ids_to_range(dlg.selected_ids())
 
     def closeEvent(self, event) -> None:  # type: ignore[override]
         if self.gear_scraper.is_running():

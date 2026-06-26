@@ -1,6 +1,7 @@
 """Tests for scraper."""
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -67,6 +68,107 @@ def test_parse_box_page_stamps_box_id_and_name() -> None:
     loot = scraper.parse_box_page(html, box_id=910801, box_name="Normal Monster Box Lv80")
     assert all(l["box_id"] == 910801 for l in loot)
     assert all(l["box_name"] == "Normal Monster Box Lv80" for l in loot)
+
+
+def test_parse_box_page_classifies_kind_and_extracts_image() -> None:
+    """parse_box_page now tags each loot entry with kind (gear vs material)
+    and the image URL. Gear entry comes from HELMET_*.png regex; material
+    entry from Item_*.png regex."""
+    html = (FIXTURES / "box_page.html").read_text(encoding="utf-8")
+    loot = scraper.parse_box_page(html, box_id=910801, box_name="Test Box")
+    helmet = next(l for l in loot if l["id"] == 500017)
+    bronze = next(l for l in loot if l["id"] == 141001)
+    # ID-range verification: 5xxxxx = armor (gear)
+    assert helmet["kind"] == "gear"
+    assert "HELMET_500017" in helmet["image"]
+    # 1xxxxx = material
+    assert bronze["kind"] == "material"
+    assert "Item_141001" in bronze["image"]
+
+
+def test_parse_box_page_kind_fallback_by_id_range() -> None:
+    """When no image matches, kind is inferred from the item ID prefix."""
+    # Minimal HTML with an href but no <img> — kind must fall back to id range.
+    html = """<html><body>
+    <h2>Loot table</h2>
+    <table><tbody>
+    <tr><td><a href="/items/123456789-test">Mystery</a></td><td>5%</td></tr>
+    </tbody></table></body></html>"""
+    loot = scraper.parse_box_page(html)
+    assert loot[0]["id"] == 123456789
+    # No image src matched — fall back to ID range.
+    assert loot[0]["kind"] == "material"
+
+
+def test_parse_drops_page_extracts_table_rows() -> None:
+    """parse_drops_page reads data-* attributes from each <tr> in the
+    /en/tools/drops/ table."""
+    html = (FIXTURES / "drops_page_mini.html").read_text(encoding="utf-8")
+    items = scraper.parse_drops_page(html)
+    assert len(items) >= 20
+    # Spot-check fields
+    ruby = next((it for it in items if it["id"] == 110001), None)
+    assert ruby is not None
+    assert ruby["name"] == "Minor Ruby"
+    assert ruby["kind"] == "material"
+    assert ruby["rarity"] == "COMMON"
+    assert ruby["family"] == "DECORATION"
+
+
+def test_parse_drops_page_round_trip() -> None:
+    """write_drops_index + read_drops_index preserves items as a list."""
+    import tempfile
+    html = (FIXTURES / "drops_page_mini.html").read_text(encoding="utf-8")
+    items = scraper.parse_drops_page(html)
+    with tempfile.TemporaryDirectory() as tmp:
+        p = Path(tmp) / "drops.json"
+        scraper.write_drops_index(p, items)
+        loaded = scraper.read_drops_index(p)
+        assert loaded == items
+        # Missing file → []
+        assert scraper.read_drops_index(Path(tmp) / "missing.json") == []
+
+
+def test_box_loot_picker_filters_gear() -> None:
+    """BoxLootPicker skips items with kind == 'gear'."""
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
+    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+    items = [
+        {"id": 110001, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
+        {"id": 910011, "name": "Box Lv1", "kind": "stage-box", "rarity": "COMMON", "family": "Normal Monster"},
+        {"id": 303011, "name": "Long Sword", "kind": "gear", "rarity": "Common", "family": ""},
+    ]
+    dlg = BoxLootPicker(items=items)
+    # Only non-gear shown
+    selectable = [
+        dlg.list_widget.item(i)
+        for i in range(dlg.list_widget.count())
+        if dlg.list_widget.item(i).data(__import__("PySide6").QtCore.Qt.ItemDataRole.UserRole) is not None
+    ]
+    assert len(selectable) == 2
+    ids = {item.data(__import__("PySide6").QtCore.Qt.ItemDataRole.UserRole) for item in selectable}
+    assert ids == {110001, 910011}
+
+
+def test_box_loot_picker_sorts_by_family_then_rarity() -> None:
+    """Items grouped: rarity COMMON → COSMIC within each family."""
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
+    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+    items = [
+        {"id": 200, "name": "X", "kind": "material", "rarity": "LEGENDARY", "family": "DECORATION"},
+        {"id": 100, "name": "Y", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
+        {"id": 300, "name": "Z", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
+    ]
+    dlg = BoxLootPicker(items=items)
+    # First selectable item should be id=100 (CRAFTING COMMON comes first).
+    selectable_ids = [
+        dlg.list_widget.item(i).data(__import__("PySide6").QtCore.Qt.ItemDataRole.UserRole)
+        for i in range(dlg.list_widget.count())
+        if dlg.list_widget.item(i).data(__import__("PySide6").QtCore.Qt.ItemDataRole.UserRole) is not None
+    ]
+    assert selectable_ids == [100, 300, 200]  # CRAFTING COMMON → DECORATION COMMON → DECORATION LEGENDARY
 
 
 def test_build_box_drop_map_groups_by_item() -> None:

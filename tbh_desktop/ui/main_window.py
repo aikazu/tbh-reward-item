@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, QObject, Signal
+from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
@@ -136,6 +137,14 @@ class MainWindow(QMainWindow):
             "Your current rules will be lost."
         )
 
+        self.btn_copy_steam = QPushButton("Copy Steam Launch Option")
+        self.btn_copy_steam.setObjectName("btn_copy_steam")
+        self.btn_copy_steam.setToolTip(
+            "Copy the Steam launch option string for the current proxy port "
+            "(HTTP_PROXY + HTTPS_PROXY + %command%) to the clipboard.\n"
+            "Paste into Steam → TaskBarHero → Properties → Launch Options."
+        )
+
         self.port_edit = QLineEdit()
         self.port_edit.setFixedWidth(70)
         self.port_edit.setPlaceholderText("port")
@@ -154,6 +163,7 @@ class MainWindow(QMainWindow):
         bar.addWidget(self.btn_check_data)
         bar.addWidget(self.btn_save)
         bar.addWidget(self.btn_reset)
+        bar.addWidget(self.btn_copy_steam)
         bar.addSeparator()
         # Group: port + status
         bar.addWidget(QLabel("Port:"))
@@ -167,6 +177,10 @@ class MainWindow(QMainWindow):
         self.btn_check_data.clicked.connect(self._check_data)
         self.btn_save.clicked.connect(self._save)
         self.btn_reset.clicked.connect(self._reset_config)
+        self.btn_copy_steam.clicked.connect(self._copy_steam_launch_option)
+        # Tooltip preview stays in sync with port edits (so user sees the
+        # exact string that will be copied before clicking).
+        self.port_edit.textChanged.connect(self._refresh_steam_copy_tooltip)
 
     def _build_menu(self) -> None:
         menubar = self.menuBar()
@@ -409,6 +423,56 @@ class MainWindow(QMainWindow):
             return int(self.port_edit.text().strip() or 8877)
         except ValueError:
             return 8877
+
+    # ------------------------------------------------------------------ steam
+    def _steam_launch_option(self, port: int | None = None) -> str:
+        """Build the Steam launch option string for the given (or current) port.
+
+        Mirrors the README recipe: Proton forwards these env vars into the
+        Wine process, where Unity's ``HttpClient`` picks them up.
+        """
+        if port is None:
+            port = self._parse_port()
+        return (
+            f"HTTP_PROXY=http://127.0.0.1:{port} "
+            f"HTTPS_PROXY=http://127.0.0.1:{port} %command%"
+        )
+
+    def _refresh_steam_copy_tooltip(self) -> None:
+        """Keep the Copy button tooltip in sync with the current port field.
+
+        Lets the user hover the button to preview exactly what would be copied
+        before clicking. Plain string concat, no Qt-specific concerns.
+        """
+        self.btn_copy_steam.setToolTip(
+            "Copy this Steam launch option to the clipboard:\n\n"
+            f"    {self._steam_launch_option()}\n\n"
+            "Paste into Steam → TaskBarHero → Properties → Launch Options."
+        )
+
+    def _copy_steam_launch_option(self) -> None:
+        """Copy the Steam launch option for the current port to clipboard.
+
+        Falls back to port 8877 if the field is empty/invalid (matches
+        ``_parse_port`` semantics). Surfaces success in both the status bar
+        (auto-clears) and the log panel (durable) — clipboard writes are
+        silent in Qt, so we must tell the user explicitly.
+        """
+        text = self._steam_launch_option()
+        clipboard = QGuiApplication.clipboard()
+        if clipboard is None:
+            QMessageBox.warning(
+                self,
+                "Clipboard unavailable",
+                "Could not access the system clipboard. Copy the string "
+                "manually from the README.",
+            )
+            return
+        clipboard.setText(text)
+        self._on_log(f"Steam launch option copied: {text}")
+        self.statusBar().showMessage(
+            "Steam launch option copied to clipboard", 3000
+        )
 
     # ------------------------------------------------------------------ pickers
     def _pick_box_id_for_rule(self) -> None:

@@ -362,6 +362,8 @@ Steam → klik kanan **TaskbarHero** → Properties → **Launch Options**, isi:
 HTTP_PROXY=http://127.0.0.1:8877 HTTPS_PROXY=http://127.0.0.1:8877 %command%
 ```
 
+![Steam Launch Options](steam-launch-options.webp)
+
 Proton meneruskan env var ini ke proses Wine, di mana `HttpClient` Unity membacanya.
 
 ### Trust CA di prefix Proton

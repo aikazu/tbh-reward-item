@@ -1895,7 +1895,29 @@
     "level": "Lv80",
     "stat": "CDR +7.9%",
     "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350017.png",
-    "rarity_color": "#fc2424"
+    "rarity_color": "#fc2424",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+792",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.20/s",
+        "kind": "base"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+7.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+2.4%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 454011,
@@ -1905,7 +1927,24 @@
     "level": "Lv1",
     "stat": "CRIT +15.5%",
     "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450001.png",
-    "rarity_color": "#fc2424"
+    "rarity_color": "#fc2424",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+26.5%",
+        "kind": "base"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+15.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+2.1%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 454021,
@@ -1915,7 +1954,24 @@
     "level": "Lv5",
     "stat": "CRIT DMG +13.9%",
     "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450002.png",
-    "rarity_color": "#fc2424"
+    "rarity_color": "#fc2424",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+32.2%",
+        "kind": "base"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+13.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+2.1%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 454031,
@@ -1925,7 +1981,24 @@
     "level": "Lv10",
     "stat": "ATK +4",
     "image": "https://taskbarhero.wiki/game/gear/hatchet/HATCHET_450003.png",
-    "rarity_color": "#fc2424"
+    "rarity_color": "#fc2424",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+37.9%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+4",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+16.1%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 454041,

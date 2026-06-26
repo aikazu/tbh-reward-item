@@ -1265,7 +1265,34 @@
     "level": "Lv80",
     "stat": "ATK +203",
     "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340017.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+1,213",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.24/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+203",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+93.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+2.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 355041,
@@ -1275,7 +1302,34 @@
     "level": "Lv15",
     "stat": "ASPD +9.4%",
     "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350004.png",
-    "rarity_color": "#b40cfc"
+    "rarity_color": "#b40cfc",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+57",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.24/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+9.4%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+0.7%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+36.1%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 355051,

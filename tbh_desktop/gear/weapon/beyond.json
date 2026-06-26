@@ -599,7 +599,34 @@
     "level": "Lv40",
     "stat": "ATK +77",
     "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330009.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+279",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.28/s",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+77",
+        "kind": "inherent"
+      },
+      {
+        "name": "Add HP Per Hit",
+        "value": "+8",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+61.9%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 336111,
@@ -609,7 +636,34 @@
     "level": "Lv50",
     "stat": "CDR +7.5%",
     "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330011.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Attack Damage",
+        "value": "+420",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Speed",
+        "value": "+0.28/s",
+        "kind": "base"
+      },
+      {
+        "name": "Cooldown Reduction",
+        "value": "+7.5%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+2.1%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Damage",
+        "value": "+72.4%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 336141,

@@ -655,7 +655,24 @@
     "level": "Lv20",
     "stat": "ATK +6",
     "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420005.png",
-    "rarity_color": "#fc2424"
+    "rarity_color": "#fc2424",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+13%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+6",
+        "kind": "inherent"
+      },
+      {
+        "name": "Area Of Effect",
+        "value": "+12.3%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 424071,
@@ -692,7 +709,24 @@
     "level": "Lv40",
     "stat": "ATK +21",
     "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420009.png",
-    "rarity_color": "#fc2424"
+    "rarity_color": "#fc2424",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+17%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+21",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+26.8%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 424111,
@@ -702,7 +736,24 @@
     "level": "Lv50",
     "stat": "ATK +31",
     "image": "https://taskbarhero.wiki/game/gear/orb/ORB_420011.png",
-    "rarity_color": "#fc2424"
+    "rarity_color": "#fc2424",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+19%",
+        "kind": "base"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+31",
+        "kind": "inherent"
+      },
+      {
+        "name": "Attack Damage",
+        "value": "+31.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 424141,

@@ -115,7 +115,24 @@
     "level": "Lv80",
     "stat": "CDR +6.3%",
     "image": "https://taskbarhero.wiki/game/gear/amulet/AMULET_600017.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "Cooldown Reduction",
+        "value": "+6.3%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Cast Speed",
+        "value": "+18.6%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Critical Chance",
+        "value": "+44.6%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 616071,
@@ -125,7 +142,24 @@
     "level": "Lv30",
     "stat": "HpLeech +0.9%",
     "image": "https://taskbarhero.wiki/game/gear/earing/EARING_610007.png",
-    "rarity_color": "#fc246c"
+    "rarity_color": "#fc246c",
+    "stats": [
+      {
+        "name": "HP Leech",
+        "value": "+0.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+15.8%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Skill Duration Increase",
+        "value": "+11.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 616091,

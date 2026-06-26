@@ -821,7 +821,19 @@
     "level": "Lv50",
     "stat": "DamageAbsorption +81",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630011.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Damage Absorption",
+        "value": "+81",
+        "kind": "inherent"
+      },
+      {
+        "name": "Area Of Effect",
+        "value": "+9.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 633141,
@@ -831,7 +843,19 @@
     "level": "Lv65",
     "stat": "AreaOfEffect +10.9%",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630014.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "Area Of Effect",
+        "value": "+10.9%",
+        "kind": "inherent"
+      },
+      {
+        "name": "Movement Speed",
+        "value": "+9.7%",
+        "kind": "inherent"
+      }
+    ]
   },
   {
     "id": 633171,
@@ -841,6 +865,18 @@
     "level": "Lv80",
     "stat": "HpRegenPerSec +738",
     "image": "https://taskbarhero.wiki/game/gear/bracer/BRACER_630017.png",
-    "rarity_color": "#fc9c0c"
+    "rarity_color": "#fc9c0c",
+    "stats": [
+      {
+        "name": "HP Regen Per Sec",
+        "value": "+738",
+        "kind": "inherent"
+      },
+      {
+        "name": "Damage Reduction",
+        "value": "+9.3%",
+        "kind": "inherent"
+      }
+    ]
   }
 ]

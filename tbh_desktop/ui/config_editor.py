@@ -64,12 +64,31 @@ class ConfigEditor(QWidget):
         )
         self.rules_table.setAlternatingRowColors(True)
         self.rules_table.verticalHeader().setVisible(False)
+        # Selecting ANY cell in a row marks the whole row as "active" — so
+        # when a picker dialog closes, add_ids_to_selected_rule writes back
+        # to the row the user actually clicked (not whatever happened to be
+        # currentRow before).
+        self.rules_table.setSelectionBehavior(
+            QTableWidget.SelectionBehavior.SelectRows
+        )
+        self.rules_table.setSelectionMode(
+            QTableWidget.SelectionMode.SingleSelection
+        )
         header = self.rules_table.horizontalHeader()
         header.setSectionResizeMode(COL_ENABLED, QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(COL_NAME, QHeaderView.ResizeMode.Stretch)
         header.setSectionResizeMode(COL_ITEM_ID, QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(COL_REPLACEMENT, QHeaderView.ResizeMode.Stretch)
         rules_layout.addWidget(self.rules_table)
+
+        # Persistent banner showing the row the picker will write to. Eliminates
+        # the "I selected row 2 but the data went to row 1" confusion — if the
+        # banner says "Row 1" the user knows their click didn't register.
+        self.active_row_label = QLabel("→ Pick target: (no row selected)")
+        self.active_row_label.setStyleSheet(
+            "color: #f0c674; font-weight: bold; padding: 4px 0;"
+        )
+        rules_layout.addWidget(self.active_row_label)
 
         rules_buttons = QHBoxLayout()
         rules_buttons.setSpacing(6)
@@ -102,6 +121,10 @@ class ConfigEditor(QWidget):
         self.btn_pick_gear_rule.setEnabled(False)
         self.btn_pick_gear_rule.setToolTip(TOOLTIP_PICK_GEAR_DISABLED)
         self.rules_table.itemSelectionChanged.connect(self._update_action_button_states)
+        # Refresh pick button state when user edits a cell (e.g. blanks item_id).
+        # Without this, typing into Box ID cell doesn't disable Pick-from-box-loot
+        # until the user re-clicks the row.
+        self.rules_table.cellChanged.connect(lambda r, c: self._update_action_button_states())
 
         layout.addWidget(rules_group)
 
@@ -181,7 +204,7 @@ class ConfigEditor(QWidget):
         )
 
     def _remove_rule(self) -> None:
-        row = self.rules_table.currentRow()
+        row = self._selected_row()
         if row < 0:
             return
         enabled_item = self.rules_table.item(row, COL_ENABLED)
@@ -202,7 +225,7 @@ class ConfigEditor(QWidget):
         """
         if self._loading:
             return
-        row = self.rules_table.currentRow()
+        row = self._selected_row()
         if row < 0:
             self.btn_remove.setEnabled(False)
             self.btn_remove.setToolTip(TOOLTIP_REMOVE_LOCKED)
@@ -212,6 +235,7 @@ class ConfigEditor(QWidget):
             self.btn_pick_box.setToolTip(TOOLTIP_PICK_BOX_DISABLED)
             self.btn_pick_gear_rule.setEnabled(False)
             self.btn_pick_gear_rule.setToolTip(TOOLTIP_PICK_GEAR_DISABLED)
+            self.active_row_label.setText("→ Pick target: (no row selected)")
             return
         enabled_item = self.rules_table.item(row, COL_ENABLED)
         locked = bool(enabled_item.data(LOCK_ROLE)) if enabled_item is not None else False
@@ -226,9 +250,26 @@ class ConfigEditor(QWidget):
         self.btn_pick_box.setToolTip("" if valid else TOOLTIP_PICK_BOX_DISABLED)
         self.btn_pick_gear_rule.setEnabled(True)
         self.btn_pick_gear_rule.setToolTip("")
+        # Banner reflects the row the picker will write to.
+        name_item = self.rules_table.item(row, COL_NAME)
+        label = name_item.text().strip() if name_item is not None else ""
+        display = f"Row {row + 1}" + (f" — {label}" if label else "")
+        self.active_row_label.setText(f"→ Pick target: {display}")
+
+    def _selected_row(self) -> int:
+        """Return the currently selected row, or -1.
+
+        Prefers ``selectedIndexes()`` (works regardless of selection mode)
+        over ``currentRow()`` (which can be stale after a child dialog
+        steals focus).
+        """
+        rows = {idx.row() for idx in self.rules_table.selectedIndexes()}
+        if rows:
+            return min(rows)
+        return self.rules_table.currentRow()
 
     def selected_rule_item_id(self) -> int | None:
-        row = self.rules_table.currentRow()
+        row = self._selected_row()
         if row < 0:
             return None
         item = self.rules_table.item(row, COL_ITEM_ID)
@@ -244,7 +285,7 @@ class ConfigEditor(QWidget):
         """Set the Item ID cell of the selected rule row and store the box
         level on the row (via ``LEVEL_ROLE``) so the gear picker can auto-filter.
         """
-        row = self.rules_table.currentRow()
+        row = self._selected_row()
         if row < 0:
             return
         item = self.rules_table.item(row, COL_ITEM_ID)
@@ -259,7 +300,7 @@ class ConfigEditor(QWidget):
 
     def selected_rule_level(self) -> int | None:
         """Return the box level stored on the selected rule row, or ``None``."""
-        row = self.rules_table.currentRow()
+        row = self._selected_row()
         if row < 0:
             return None
         enabled_item = self.rules_table.item(row, COL_ENABLED)
@@ -268,7 +309,7 @@ class ConfigEditor(QWidget):
         return enabled_item.data(LEVEL_ROLE)
 
     def add_ids_to_selected_rule(self, ids: list[int]) -> None:
-        row = self.rules_table.currentRow()
+        row = self._selected_row()
         if row < 0:
             return
         cell = self.rules_table.item(row, COL_REPLACEMENT)

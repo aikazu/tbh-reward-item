@@ -434,33 +434,63 @@ class MainWindow(QMainWindow):
         return loot
 
     def _pick_box_loot_for_rule(self) -> None:
-        """Pick reward IDs from the drops index, scoped to the selected rule's box.
+        """Pick reward IDs from THIS BOX's loot (not the full wiki drops index).
 
-        Opens BoxLootPicker in ``box_loot`` mode — shows ALL items in the
-        box (materials + stage-box + everything else, but no gear). Used
-        for a single specific_queue rule's replacement IDs.
+        Source of truth is the box's cached loot table (``read_box_cache``) —
+        whatever the box actually drops. Each entry is enriched with
+        ``family`` + ``rarity`` from the drops index (by id match) so the
+        picker can group rows by family + sort by rarity. Items not present
+        in the drops index (no family/rarity metadata available) still pass
+        through but show as "Other".
+
+        Gear is excluded from the loot picker — gear has its own GearPicker
+        dialog.
         """
         from tbh_desktop.paths import DROPS_INDEX_CACHE
-        from tbh_desktop.scraper import fetch_drops_index
+        from tbh_desktop.scraper import (
+            fetch_drops_index,
+            read_box_cache,
+        )
         from tbh_desktop.ui.box_loot_picker import BoxLootPicker
 
         box_id = self.editor.selected_rule_item_id()
-        scope_name: str | None = None
+        box_loot: list[dict] = []
+        box_name: str | None = None
         if box_id is not None:
-            cached_loot = self._get_box_loot(box_id)
-            if cached_loot:
-                scope_name = cached_loot[0].get("box_name")
-
-        items = fetch_drops_index(DROPS_INDEX_CACHE)
-        if not items:
+            box_loot = self._get_box_loot(box_id)
+            if box_loot:
+                box_name = box_loot[0].get("box_name") or None
+        if not box_loot:
             QMessageBox.warning(
                 self,
-                "Drops index empty",
-                "Could not load the drops index. Connect to the internet and "
-                "run the proxy once.",
+                "Box loot empty",
+                f"No loot data for box {box_id}. Pick a box first (Pick box "
+                f"ID) and make sure the box page was scraped.",
             )
             return
-        dlg = BoxLootPicker(self, items=items, scope_box_name=scope_name, mode="box_loot")
+        # Enrich each loot entry with family + rarity from drops index.
+        # Lookup by item id; cache the index once.
+        idx_items = fetch_drops_index(DROPS_INDEX_CACHE)
+        idx_by_id = {
+            it["id"]: it
+            for it in idx_items
+            if isinstance(it.get("id"), int)
+        }
+        for entry in box_loot:
+            iid = entry.get("id")
+            meta = idx_by_id.get(iid) if isinstance(iid, int) else None
+            if meta is not None:
+                entry.setdefault("family", meta.get("family", ""))
+                entry.setdefault("rarity", meta.get("rarity", "COMMON"))
+            else:
+                entry.setdefault("family", "")
+                entry.setdefault("rarity", "COMMON")
+        dlg = BoxLootPicker(
+            self,
+            items=box_loot,
+            scope_box_name=box_name,
+            mode="box_loot",
+        )
         if dlg.exec():
             self.editor.add_ids_to_selected_rule(dlg.selected_ids())
 

@@ -114,16 +114,20 @@ class GearPicker(QDialog):
         self.resize(540, 640)
         self._cache_dir = Path(cache_dir)
 
-        # Build a set of base gear names from the box loot table (if given).
+        # Build a set of GEAR names from the box loot table (if given).
         # Gear cache stores "Long Sword", loot stores "Dimensional Sword" etc.
-        # We match on the suffix after the last space-hyphen token, but the
-        # simplest robust match is: loot name == gear name exactly OR gear
-        # name ends with the "core" token of the loot name.  We keep it
-        # simple: exact name match (case-insensitive).
+        # Match on case-insensitive name equality. CRITICAL: we filter to
+        # kind=="gear" first — otherwise material names (e.g. "Minor Ruby")
+        # would clutter _loot_names and never match anything in the gear
+        # cache, but more importantly the user reading the picker sees a
+        # scoped-by-this-box filter that actually shows gear from any
+        # category sharing a base name.
         self._loot_names: set[str] | None = None
         if box_loot:
             self._loot_names = {
-                str(it.get("name", "")).strip().lower() for it in box_loot if it.get("name")
+                str(it.get("name", "")).strip().lower()
+                for it in box_loot
+                if str(it.get("kind", "")).lower() == "gear" and it.get("name")
             }
             # If the loot names are empty after filtering, treat as None.
             if not self._loot_names:
@@ -198,6 +202,21 @@ class GearPicker(QDialog):
         self.search.setClearButtonEnabled(True)
         self.search.textChanged.connect(self._apply_search)
         layout.addWidget(self.search)
+
+        # ── Scope banner (only shown when box_loot was supplied) ──────────
+        # Tells the user which item names from the box loot table are being
+        # used as the filter, and warns when the gear cache has no matches
+        # (which would make the picker look empty). Removes the "different
+        # boxes show the same content" confusion by making the scoping
+        # visible.
+        self.scope_banner = QLabel()
+        self.scope_banner.setWordWrap(True)
+        self.scope_banner.setStyleSheet(
+            "color: #f0c674; font-size: 11px; padding: 6px 8px; "
+            "background: rgba(240, 198, 116, 0.08); border-radius: 4px;"
+        )
+        self.scope_banner.setVisible(False)
+        layout.addWidget(self.scope_banner)
 
         # ── List + count ───────────────────────────────────────────────────
         self.list_widget = QListWidget()
@@ -338,6 +357,11 @@ class GearPicker(QDialog):
         self._apply_search(self.search.text())
         self._update_count()
 
+        # Update the scoped-loot banner so the user sees exactly which item
+        # names were extracted from the box — and warns when no gear in the
+        # cache matches any of them (so the picker would show 0 items).
+        self._update_scope_banner()
+
     def _update_count(self) -> None:
         visible = sum(1 for i in range(self.list_widget.count())
                       if not self.list_widget.item(i).isHidden())
@@ -346,6 +370,62 @@ class GearPicker(QDialog):
             self.count_label.setText(f"{total} items")
         else:
             self.count_label.setText(f"{visible} of {total} items")
+
+    def _update_scope_banner(self) -> None:
+        """Render the box-loot scope banner.
+
+        Shows the gear names extracted from the box loot table so the user
+        understands WHY certain items appear (and others don't). Warns when
+        the scope is on but the list is empty — the most common cause is
+        the box's gear names not matching any gear cache entries (e.g. the
+        loot uses base ids whose rarity variants live under different names).
+        """
+        if self._loot_names is None:
+            self.scope_banner.setVisible(False)
+            return
+        match_box = self.match_box_check.isChecked()
+        names_sorted = sorted(self._loot_names)
+        if not names_sorted:
+            self.scope_banner.setVisible(False)
+            return
+        # Cap displayed names to keep the banner tidy (full set in tooltip).
+        preview = ", ".join(names_sorted[:6])
+        if len(names_sorted) > 6:
+            preview += f", … (+{len(names_sorted) - 6} more)"
+        visible_count = sum(
+            1 for i in range(self.list_widget.count())
+            if not self.list_widget.item(i).isHidden()
+        )
+        if not match_box:
+            text = (
+                f"📦 Box loot scope OFF — checkbox below to filter. "
+                f"Box drops these gear: {preview}"
+            )
+            color = "#8a92a6"  # grey when scope disabled
+        elif visible_count == 0:
+            text = (
+                f"⚠ No gear cache entries match the box's loot names. "
+                f"Box drops: {preview}. "
+                f"Try 'Scrape gear' or uncheck the scope filter."
+            )
+            color = "#e06c75"  # red warning
+        else:
+            text = (
+                f"📦 Showing {visible_count} gear from box loot "
+                f"({len(names_sorted)} unique names): {preview}"
+            )
+            color = "#98c379"  # green when scope working
+        self.scope_banner.setText(text)
+        # Keep background tint, override only text color.
+        self.scope_banner.setStyleSheet(
+            f"color: {color}; font-size: 11px; padding: 6px 8px; "
+            f"background: rgba(127, 132, 156, 0.08); border-radius: 4px;"
+        )
+        self.scope_banner.setToolTip(
+            "Box loot gear names (case-insensitive match):\n  • "
+            + "\n  • ".join(names_sorted)
+        )
+        self.scope_banner.setVisible(True)
 
     # -------------------------------------------------------------- level ops
     def _populate_level_options(self) -> None:

@@ -154,7 +154,9 @@ class BoxLootPicker(QDialog):
                 it["info"] = info_by_id[iid]
         # Filter by mode.
         if mode == "materials":
-            # Range replacement picker: materials only, exclude SOULSTONE.
+            # Range replacement picker: materials from the wiki drops index,
+            # excludes SOULSTONE (bind-on-pickup crafting; unsafe as range
+            # replacement target).
             from tbh_desktop.scraper import FAMILY_ORDER as _FAMILY_ORDER
             safe_families = {f for f in _FAMILY_ORDER if f != "SOULSTONE"}
             filtered = [
@@ -163,18 +165,24 @@ class BoxLootPicker(QDialog):
                 and str(it.get("family", "")).upper() in safe_families
             ]
         else:  # "box_loot"
-            # Per-rule loot picker: everything non-gear from the box.
+            # Per-rule loot picker: the caller already passed the box's ACTUAL
+            # loot list (see main_window._pick_box_loot_for_rule). Just filter
+            # out gear — it has its own GearPicker dialog. We trust the input
+            # list as ground truth; do NOT widen to the drops index (that
+            # showed items like anniversary coins + soulstones for boxes that
+            # never drop them — see issue "box 40 ada offering paling rare").
             filtered = [
                 it for it in items
-                if str(it.get("kind", "")).lower() != "gear"
+                if str(it.get("kind", "")).lower() == "material"
             ]
 
-        # If scope_box_name given, pre-filter to items whose name contains it.
-        if scope_box_name:
-            needle = scope_box_name.lower()
-            scoped = [it for it in filtered if needle in it.get("name", "").lower()]
-            if scoped:
-                filtered = scoped
+        # NOTE: scope_box_name substring matching is intentionally REMOVED. It was a
+        # leftover from when the picker was fed the full drops index and tried
+        # to filter by box name in item names — but item names like "Bronze
+        # Ingot" never contain the box name, so the filter just truncated the
+        # list silently. The caller now passes the box's ACTUAL loot list,
+        # which is already scoped. scope_box_name is still accepted as a
+        # constructor arg only for the dialog title.
 
         # Sort by family rank, then rarity rank, then id. SOULSTONE never
         # appears in materials mode (filtered above).
@@ -401,24 +409,43 @@ class BoxLootPicker(QDialog):
                 break
 
     def _filter(self, text: str) -> None:
-        """Filter rows by text match (name, id, family, rarity). Headers stay
-        visible if any item in their group still matches; hide otherwise.
+        """Filter rows by text match (name, id). Headers stay visible as
+        long as any item in their group still matches; hide otherwise.
         """
         text = text.strip().lower()
-        # First pass: mark item rows as hidden/matched.
-        item_match: dict[int, bool] = {}
         for i in range(self.list_widget.count()):
             li = self.list_widget.item(i)
             item_id = li.data(Qt.ItemDataRole.UserRole)
             if item_id is None:
-                continue  # header row
-            label = li.text()
-            name = label.split(" · ", 1)[-1].rsplit(" (", 1)[0].strip() if " · " in label else ""
-            match = bool(text) and (
-                text in name.lower()
-                or text in str(item_id)
-                or text in (li.toolTip() or "").lower()
+                continue  # header row — keep visible (header hide handled below)
+            if not text:
+                li.setHidden(False)
+                continue
+            label = li.text().lower()
+            tip = (li.toolTip() or "").lower()
+            li.setHidden(
+                text not in label
+                and text not in str(item_id)
+                and text not in tip
             )
+        # Hide family headers whose group has no visible items.
+        visible_after_header: set[int] = set()
+        for i in range(self.list_widget.count()):
+            li = self.list_widget.item(i)
+            if li.data(Qt.ItemDataRole.UserRole) is not None and not li.isHidden():
+                visible_after_header.add(i)
+        # Walk: hide header if no following item rows are visible before next header.
+        next_header_idx: int | None = None
+        for i in range(self.list_widget.count() - 1, -1, -1):
+            li = self.list_widget.item(i)
+            if li.data(Qt.ItemDataRole.UserRole) is None:
+                next_header_idx = i
+                li.setHidden(True)
+                continue
+            if next_header_idx is not None and not li.isHidden():
+                self.list_widget.item(next_header_idx).setHidden(False)
+                next_header_idx = None
+        self._update_count()
     def _update_count(self) -> None:
         selectable = sum(
             1

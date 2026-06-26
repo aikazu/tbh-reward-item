@@ -143,6 +143,30 @@ class BoxLootPicker(QDialog):
                 )
         self.rarity_filter.currentIndexChanged.connect(self._apply_filters)
         filter_row.addWidget(self.rarity_filter)
+
+        # Family ("Type") filter — second dropdown, narrows to a specific
+        # crafting category: CRAFTING / DECORATION / ENGRAVING / INSCRIPTION /
+        # OFFERING. SOULSTONE excluded entirely in materials mode.
+        filter_row.addWidget(QLabel("Type:"))
+        self.family_filter = QComboBox()
+        self.family_filter.setToolTip(
+            "Filter by material type — Crafting / Decoration / Engraving / "
+            "Inscription / Offering"
+        )
+        family_counts: dict[str, int] = {}
+        for it in filtered:
+            f = str(it.get("family", "")).upper()
+            family_counts[f] = family_counts.get(f, 0) + 1
+        self.family_filter.addItem(f"All ({len(filtered)})", None)
+        # Family dropdown in canonical FAMILY_ORDER.
+        from tbh_desktop.scraper import FAMILY_ORDER as _FAMILY_ORDER_FOR_PICKER
+        for f in _FAMILY_ORDER_FOR_PICKER:
+            if f in family_counts:
+                self.family_filter.addItem(
+                    f"{f.title()} ({family_counts[f]})", f
+                )
+        self.family_filter.currentIndexChanged.connect(self._apply_filters)
+        filter_row.addWidget(self.family_filter)
         filter_row.addStretch()
         layout.addLayout(filter_row)
 
@@ -181,14 +205,17 @@ class BoxLootPicker(QDialog):
         self._apply_filters()
 
     def _apply_filters(self) -> None:
-        """Rebuild list with rarity filter + search text applied."""
+        """Rebuild list with rarity + family + search filters applied."""
         rarity = self.rarity_filter.currentData()  # None = all
+        family = self.family_filter.currentData()  # None = all
         text = self.search.text().strip().lower()
         self.list_widget.clear()
         # Track family boundaries so we can insert header rows.
         last_family: str | None = None
         for it in self._all_items:
             if rarity is not None and str(it.get("rarity", "")).upper() != rarity:
+                continue
+            if family is not None and str(it.get("family", "")).upper() != family:
                 continue
             if text:
                 name = str(it.get("name", "")).lower()

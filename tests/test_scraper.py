@@ -252,6 +252,57 @@ def test_box_loot_picker_rarity_filter() -> None:
     assert ids == [3]
 
 
+def test_box_loot_picker_family_filter() -> None:
+    """Family ('Type') dropdown narrows the list to a specific crafting category."""
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
+    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+    items = [
+        {"id": 1, "name": "Bronze Ingot", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
+        {"id": 2, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
+        {"id": 3, "name": "Obsidian Blade", "kind": "material", "rarity": "LEGENDARY", "family": "ENGRAVING"},
+        {"id": 4, "name": "Glyph", "kind": "material", "rarity": "EPIC", "family": "INSCRIPTION"},
+    ]
+    dlg = BoxLootPicker(items=items)
+    Qt = __import__("PySide6").QtCore.Qt
+    # Dropdown should have All + CRAFTING + DECORATION + ENGRAVING + INSCRIPTION
+    # (no OFFERING since none in the fixture).
+    assert dlg.family_filter.count() == 5
+    # Filter to ENGRAVING only.
+    eng_idx = dlg.family_filter.findData("ENGRAVING")
+    assert eng_idx > 0
+    dlg.family_filter.setCurrentIndex(eng_idx)
+    ids = [
+        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
+        for i in range(dlg.list_widget.count())
+        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
+    ]
+    assert ids == [3]
+
+
+def test_box_loot_picker_rarity_and_family_combined() -> None:
+    """Combined filter: rarity=COMMON AND family=DECORATION."""
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
+    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+    items = [
+        {"id": 1, "name": "Bronze Ingot", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
+        {"id": 2, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
+        {"id": 3, "name": "Ruby", "kind": "material", "rarity": "RARE", "family": "DECORATION"},
+    ]
+    dlg = BoxLootPicker(items=items)
+    Qt = __import__("PySide6").QtCore.Qt
+    dlg.rarity_filter.setCurrentIndex(dlg.rarity_filter.findData("COMMON"))
+    dlg.family_filter.setCurrentIndex(dlg.family_filter.findData("DECORATION"))
+    ids = [
+        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
+        for i in range(dlg.list_widget.count())
+        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
+    ]
+    # Only id=2 matches both filters.
+    assert ids == [2]
+
+
 def test_box_loot_picker_family_headers() -> None:
     """Material items grouped by family with non-selectable header rows."""
     from PySide6.QtWidgets import QApplication

@@ -652,59 +652,145 @@ def refresh_gear(cache_path: Path) -> list[dict[str, Any]]:
 
 
 def parse_item_detail(html: str) -> dict[str, Any]:
-    """Parse an item detail page (e.g. /items/300001-long-sword).
+    """Parse a material detail page on taskbarhero.org.
 
-    Extracts the wiki-provided flavor description and a stats dict. Field names
-    in the stats dict are whatever the wiki uses (varies per item type).
-    Returns an empty dict if the page has no parseable content.
+    The org-side wiki hosts per-item pages at e.g.
+    /en/items/materials/141001-bronze-ingot/ (Dec 2026 schema). The page has:
+    - <h1>ID · Name</h1>
+    - a key-value panel with ID, Rarity, Type, Stat group
+    - a "Material effects" section with the flavortext explaining what
+      the material does when used in Cube / crafting
+    - a "Chests that can contain this material" list with drop rates
 
-    The parser is intentionally lenient — many fields are missing or differently
-    named across item types (gear / material / consumable). Empty/missing fields
-    are silently skipped. Used to populate the picker's "more info" tooltip.
+    Returns dict: {id, name, rarity, type, stat_group, effect, sources}.
+
+    Note: gear detail pages are on the OLD wiki (taskbarhero.wiki), not
+    on org. The gear picker uses parse_gear_page from that wiki instead.
     """
     soup = BeautifulSoup(html, "lxml")
     result: dict[str, Any] = {}
 
-    # Flavor text: <meta name="description"> is the cheapest reliable source.
-    meta_desc = soup.find("meta", attrs={"name": "description"})
-    if meta_desc is not None:
-        content = meta_desc.get("content", "")
-        if isinstance(content, str):
-            content = content.strip()
-            if content:
-                result["flavor"] = content
+    # ID + Name from <h1>ID · Name</h1>.
+    h1 = soup.find("h1")
+    if h1:
+        text = h1.get_text(" ", strip=True)
+        m = re.match(r"(\d+)\s*·\s*(.+)", text)
+        if m:
+            try:
+                result["id"] = int(m.group(1))
+            except ValueError:
+                pass
+            result["name"] = m.group(2).strip()
 
-    # Stats: look for a <dl> or table with "Stats"/"Bonuses" heading, then
-    # collect the dt/dd pairs (or table rows) under it. Best-effort: if the
-    # page doesn't follow that structure, stats stays empty.
-    def _stats_heading(tag: Any) -> bool:
-        if tag.name not in ("h2", "h3", "h4"):
-            return False
-        # Match words like "Stats", "Bonuses", "Effects" — \b doesn't work
-        # for "Stats" because of the trailing 's'. Use explicit alternation.
-        return bool(
-            re.search(
-                r"\b(?:stats?|bonuses?|effects?)\b",
-                tag.get_text(strip=True),
-                re.IGNORECASE,
+    # Meta description as a fallback for flavor text.
+    meta = soup.find("meta", attrs={"name": "description"})
+    if meta and meta.get("content"):
+        result["meta_description"] = str(meta["content"]).strip()
+
+    # Key-value panel: "ID 141001 Rarity Uncommon Type Crafting Stat group —".
+    panel_text = ""
+    panel = soup.select_one(".panel")
+    if panel:
+        panel_text = panel.get_text(" ", strip=True)
+
+    key_map = {
+        "rarity": "rarity",
+        "type": "type",
+        "stat group": "stat_group",
+        "slot": "slot",
+        "level": "level",
+    }
+    panel_lower = panel_text.lower()
+    for needle, our_key in key_map.items():
+        idx = panel_lower.find(needle)
+        if idx >= 0:
+            tail = panel_text[idx + len(needle):].strip()
+            # Stop at next known key.
+            for stopper in ("ID ", "Rarity", "Type", "Stat group", "Slot", "Level"):
+                tail = tail.split(stopper)[0]
+            value = tail.strip(" :")
+            if value and value != "—":
+                result[our_key] = value
+
+    # Material effects section (h2/h3 with "effect" in title).
+    h2_effects = None
+    for h in soup.find_all(["h2", "h3"]):
+        if "effect" in h.get_text(strip=True).lower():
+            h2_effects = h
+            break
+    if h2_effects:
+        nxt = h2_effects.find_next("p")
+        if nxt:
+            text = nxt.get_text(" ", strip=True)
+            if text and len(text) > 8:
+                result["effect"] = text
+
+    # Sources — list of {box, rate, stage_ids} under
+    # "Chests that can contain this material".
+    h2_sources = None
+    for h in soup.find_all(["h2", "h3"]):
+        if "chests that can contain" in h.get_text(strip=True).lower():
+            h2_sources = h
+            break
+    if h2_sources:
+        sources: list[dict[str, Any]] = []
+        for sib in h2_sources.find_all_next("div", class_="panel"):
+            text = sib.get_text(" ", strip=True)
+            m = re.match(
+                r"(.+?)\s*([\d.]+%)\s*to contain\s*([\d\s]+)",
+                text,
             )
-        )
-
-    stats_heading = soup.find(_stats_heading)
-    if stats_heading is not None:
-        stats: dict[str, str] = {}
-        # Try <dl> format first.
-        dl = stats_heading.find_next("dl")
-        if dl is not None:
-            for dt, dd in zip(dl.find_all("dt"), dl.find_all("dd")):
-                k = dt.get_text(strip=True)
-                v = dd.get_text(strip=True)
-                if k:
-                    stats[k] = v
-        if stats:
-            result["stats"] = stats
+            if m:
+                sources.append({
+                    "box": m.group(1).strip(),
+                    "rate": m.group(2).strip(),
+                    "stage_ids": [
+                        int(x) for x in m.group(3).split() if x.isdigit()
+                    ],
+                })
+            elif sources:
+                # Hit a non-source panel → stop.
+                break
+        if sources:
+            result["sources"] = sources[:20]  # cap
 
     return result
+
+
+def fetch_material_detail(
+    item_id: int,
+    slug: str,
+    cache_dir: Path,
+) -> dict[str, Any]:
+    """Fetch /en/items/materials/{id}-{slug}/ and cache the parsed result.
+
+    cache_dir is the parent directory; the per-item file is named
+    material_{item_id}.json. Caches indefinitely (the wiki is stable).
+    Returns parsed dict; empty dict on failure.
+    """
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_path = cache_dir / f"material_{item_id}.json"
+    if cache_path.exists():
+        try:
+            cached = json.loads(cache_path.read_text(encoding="utf-8-sig"))
+            if isinstance(cached, dict):
+                return cached
+        except (json.JSONDecodeError, OSError):
+            pass
+    try:
+        url = f"https://taskbarhero.org/en/items/materials/{item_id}-{slug}/"
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        detail = parse_item_detail(resp.text)
+        detail["slug"] = slug
+        cache_path.write_text(
+            json.dumps(detail, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        log.info("material detail cached: %d %s", item_id, slug)
+        return detail
+    except Exception as exc:
+        log.warning("material detail fetch failed: %d %s (%s)", item_id, slug, exc)
+        return {}
 
 
 ITEM_DETAIL_URL_TEMPLATE = "https://taskbarhero.org/en/items/{slug}/"
@@ -809,6 +895,105 @@ def fetch_drops_index(cache_path: Path, *, force: bool = False) -> list[dict[str
         log.warning("drops index fetch failed: %s", exc)
         # Last resort: return stale cache if we have it.
         return read_drops_index(cache_path)
+
+
+def parse_gear_detail(html: str) -> dict[str, Any]:
+    """Parse a gear detail page on the WIKI (taskbarhero.wiki).
+
+    Schema (Dec 2026):
+    - <h1>Name</h1>
+    - <div class="flex flex-wrap ..."> panel with span children labeled
+      "Type" / "Slot" / "Lv". Each label span is followed by a value span.
+    - <div class="stat-tile"> tiles — each tile has 1-2 spans:
+        * Alchemy Gold / Cube EXP — name + value
+        * Attack Speed INHERENT / Cooldown Reduction INHERENT — name has
+          "INHERENT" suffix, value is "+13.6%" / "+8%" etc.
+    - Drop locations (further down the page).
+
+    Returns dict: {name, type, slot, level, stats: [{name, value, inherent}], resell}.
+    Empty dict on parse failure.
+    """
+    soup = BeautifulSoup(html, "lxml")
+    result: dict[str, Any] = {}
+
+    # Name from h1.
+    h1 = soup.find("h1")
+    if h1:
+        result["name"] = h1.get_text(strip=True)
+
+    # Meta panel: each label+value pair is concatenated into a single
+    # <span>: "TypeGear", "SlotAmulet", "Lv80". Split by the label
+    # boundary to extract the value.
+    for div in soup.find_all("div"):
+        for sp in div.find_all("span", recursive=False):
+            text = sp.get_text(strip=True)
+            if text.startswith("Type") and len(text) > 4:
+                result["type"] = text[4:]
+            elif text.startswith("Slot") and len(text) > 4:
+                result["slot"] = text[4:]
+            elif text.startswith("Lv") and len(text) > 2:
+                result["level"] = text  # keep "Lv80" format
+        if "type" in result and "slot" in result and "level" in result:
+            break
+
+    # Stat tiles: walk each <div class="stat-tile">. Top-level structure:
+    # <span class="k">Name [INHERENT]</span>
+    # <span class="v">value</span>
+    # Tiles WITHOUT the INHERENT badge are resell value (Alchemy Gold, Cube
+    # EXP) — skipped. Tiles WITH INHERENT are the rolled status bonuses.
+    status: list[dict[str, str]] = []
+    for tile in soup.find_all("div", class_="stat-tile"):
+        k_span = tile.find("span", class_="k")
+        v_span = tile.find("span", class_="v")
+        if not (k_span and v_span):
+            continue
+        k_text = k_span.get_text(" ", strip=True)
+        if "INHERENT" not in k_text:
+            continue  # skip resell tiles (Alchemy Gold, Cube EXP)
+        clean_name = k_text.replace("INHERENT", "").strip()
+        value_text = v_span.get_text(strip=True)
+        status.append({
+            "name": clean_name,
+            "value": value_text,
+        })
+    if status:
+        result["status"] = status
+
+    return result
+
+
+def fetch_gear_detail(
+    item_id: int,
+    slug: str,
+    cache_dir: Path,
+) -> dict[str, Any]:
+    """Fetch /items/{id}-{slug} on taskbarhero.wiki and cache the parsed result.
+
+    cache_dir is the parent directory; per-item file is gear_{item_id}.json.
+    """
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_path = cache_dir / f"gear_{item_id}.json"
+    if cache_path.exists():
+        try:
+            cached = json.loads(cache_path.read_text(encoding="utf-8-sig"))
+            if isinstance(cached, dict):
+                return cached
+        except (json.JSONDecodeError, OSError):
+            pass
+    try:
+        url = f"https://taskbarhero.wiki/items/{item_id}-{slug}"
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        detail = parse_gear_detail(resp.text)
+        detail["slug"] = slug
+        cache_path.write_text(
+            json.dumps(detail, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        log.info("gear detail cached: %d %s", item_id, slug)
+        return detail
+    except Exception as exc:
+        log.warning("gear detail fetch failed: %d %s (%s)", item_id, slug, exc)
+        return {}
 
 
 def fetch_item_detail(item_id: int, slug: str, cache_path: Path) -> dict[str, Any]:

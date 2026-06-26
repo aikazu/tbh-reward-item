@@ -129,6 +129,47 @@ def test_parse_drops_page_round_trip() -> None:
         assert scraper.read_drops_index(Path(tmp) / "missing.json") == []
 
 
+def test_parse_gear_detail_extracts_status_and_resell() -> None:
+    """parse_gear_detail splits tiles into status (INHERENT) only."""
+    html = (FIXTURES / "wiki_gear_detail_ethereal_amulet.html").read_text(encoding="utf-8")
+    detail = scraper.parse_gear_detail(html)
+    assert detail["name"] == "Ethereal Amulet"
+    assert detail["type"] == "Gear"
+    assert detail["slot"] == "Amulet"
+    assert detail["level"] == "Lv80"
+    # status: only INHERENT tiles (rolled bonuses).
+    assert len(detail["status"]) == 1
+    attack_speed = detail["status"][0]
+    assert attack_speed["name"] == "Attack Speed"
+    assert attack_speed["value"] == "+13.6%"
+    # resell NOT extracted.
+    assert "resell" not in detail
+    assert "inherent" not in attack_speed  # field dropped — only status kept
+
+
+def test_parse_item_detail_minor_ruby() -> None:
+    """parse_item_detail on Minor Ruby (Decoration material) extracts effect text."""
+    html = (FIXTURES / "material_detail_minor_ruby.html").read_text(encoding="utf-8")
+    detail = scraper.parse_item_detail(html)
+    assert detail["id"] == 110001
+    assert detail["name"] == "Minor Ruby"
+    assert detail["rarity"] == "Common"
+    assert detail["type"] == "Decoration"
+    assert detail["stat_group"] == "1100011"
+    assert "effect" in detail
+    assert "Cube Decoration" in detail["effect"]
+
+
+def test_parse_item_detail_bronze_ingot() -> None:
+    """parse_item_detail on Bronze Ingot (Crafting, no effect)."""
+    html = (FIXTURES / "material_detail_bronze_ingot.html").read_text(encoding="utf-8")
+    detail = scraper.parse_item_detail(html)
+    assert detail["id"] == 141001
+    assert detail["name"] == "Bronze Ingot"
+    assert detail["rarity"] == "Uncommon"
+    assert detail["type"] == "Crafting"
+
+
 def test_box_loot_picker_filters_to_materials_only() -> None:
     """BoxLootPicker is materials-only. Stage-box and gear never appear
     even though the source drops index has them."""
@@ -384,14 +425,12 @@ def test_box_drop_cache_round_trip(tmp_path: Path) -> None:
 
 
 def test_parse_item_detail_extracts_flavor_and_stats() -> None:
-    """parse_item_detail extracts meta description as flavor and <dl> pairs as stats."""
+    """parse_item_detail falls back to meta_description when no effect section."""
     html = (FIXTURES / "item_detail.html").read_text(encoding="utf-8")
     detail = scraper.parse_item_detail(html)
-    assert "flavor" in detail
-    assert "sturdy iron blade" in detail["flavor"]
-    assert "stats" in detail
-    assert detail["stats"]["Attack"] == "+3"
-    assert detail["stats"]["Required Level"] == "1"
+    # Old fixture doesn't have the new schema, so parser returns meta_description.
+    assert "meta_description" in detail
+    assert "sturdy iron blade" in detail["meta_description"]
 
 
 def test_parse_item_detail_empty_on_minimal_html() -> None:

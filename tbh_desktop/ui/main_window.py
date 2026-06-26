@@ -94,6 +94,12 @@ class MainWindow(QMainWindow):
         self.btn_save = QPushButton("Save config")
         self.btn_save.setToolTip("Validate and atomically write config.json")
 
+        self.btn_reset = QPushButton("Reset config")
+        self.btn_reset.setToolTip(
+            "Reset config.json back to the default template (config.default.json). "
+            "Your current rules will be lost."
+        )
+
         self.port_edit = QLineEdit()
         self.port_edit.setFixedWidth(70)
         self.port_edit.setPlaceholderText("port")
@@ -110,6 +116,7 @@ class MainWindow(QMainWindow):
         # Group: config / scrape
         bar.addWidget(self.btn_refresh_gear)
         bar.addWidget(self.btn_save)
+        bar.addWidget(self.btn_reset)
         bar.addSeparator()
         # Group: port + status
         bar.addWidget(QLabel("Port:"))
@@ -121,6 +128,7 @@ class MainWindow(QMainWindow):
         self.btn_stop.clicked.connect(self.runner.stop)
         self.btn_refresh_gear.clicked.connect(self._refresh_gear)
         self.btn_save.clicked.connect(self._save)
+        self.btn_reset.clicked.connect(self._reset_config)
 
     def _build_menu(self) -> None:
         menubar = self.menuBar()

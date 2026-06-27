@@ -11,7 +11,7 @@ SRC_DIR = REPO_ROOT / "src"
 # of truth also used by the mitmproxy addon). Adds src/ to sys.path first.
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
-from config_setup import CONFIG_PATH  # type: ignore[reportUnusedImport]  # noqa: E402  # re-exported for main.py + ui/main_window.py
+from config_setup import CONFIG_PATH  # pyright: ignore[reportUnusedImport]  # noqa: E402  # re-exported for main.py + ui/main_window.py
 
 RUN_PROXY_PATH = SRC_DIR / "run_proxy.py"
 DESKTOP_DIR = Path(__file__).resolve().parent

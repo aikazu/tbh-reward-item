@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 import pytest
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 # Force offscreen so we never open a real window during CI.
@@ -22,7 +23,7 @@ def workdir(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr("tbh_desktop.paths.CONFIG_PATH", cfg)
 
 
-def test_main_window_has_four_zones(_qapp: QApplication, workdir) -> None:
+def test_main_window_has_four_zones(qapp: QApplication, workdir) -> None:
     win = MainWindow()
     assert win.findChild(type(win.editor.rule_list())) is not None
     assert win.findChild(type(win.left_rail)) is not None
@@ -31,7 +32,7 @@ def test_main_window_has_four_zones(_qapp: QApplication, workdir) -> None:
     win.close()
 
 
-def test_main_window_screenshot(qapp: QApplication, workdir, _tmp_path: Path) -> None:
+def test_main_window_screenshot(qapp: QApplication, workdir, tmp_path: Path) -> None:
     win = MainWindow()
     win.resize(1400, 800)
     win.show()
@@ -45,7 +46,7 @@ def test_main_window_screenshot(qapp: QApplication, workdir, _tmp_path: Path) ->
     win.close()
 
 
-def test_main_window_toolbar_has_three_zones(_qapp: QApplication, workdir) -> None:
+def test_main_window_toolbar_has_three_zones(qapp: QApplication, workdir) -> None:
     """Arsenal directive: toolbar groups buttons into primary (Start/Stop),
     secondary (Scrape/Check/Save/Reset), and ghost (Copy Steam) zones,
     each declared via toolbar_zone property so QSS styles them differently."""
@@ -60,14 +61,14 @@ def test_main_window_toolbar_has_three_zones(_qapp: QApplication, workdir) -> No
     win.close()
 
 
-def test_main_window_toolbar_port_field_is_mono(_qapp: QApplication, workdir) -> None:
+def test_main_window_toolbar_port_field_is_mono(qapp: QApplication, workdir) -> None:
     win = MainWindow()
     families = " ".join(win.port_edit.font().families()).lower()
     assert "mono" in families or "jetbrains" in families
     win.close()
 
 
-def test_main_window_status_dot_object_name(_qapp: QApplication, workdir) -> None:
+def test_main_window_status_dot_object_name(qapp: QApplication, workdir) -> None:
     """Status dot must declare objectName='status_dot_pulse' so the QSS
     pulsing animation can target it (and so left_rail.status_dot can also
     use it)."""

@@ -49,3 +49,77 @@ def test_collect_skips_items_without_image(sample_json_tree: Path):
 def test_collect_empty_tree_returns_empty(tmp_path: Path):
     """No JSON files = empty dict, no raise."""
     assert collect_images(tmp_path) == {}
+
+from unittest.mock import MagicMock, patch
+
+from dev_tools.scrape_pipeline.errors import ImageMissingError
+from dev_tools.scrape_pipeline.image_stage import _process_one_image
+
+
+def test_process_one_image_success(tmp_path: Path, fake_image_bytes: bytes):
+    """Successful download + convert writes a WebP file at expected path."""
+    dest = tmp_path / "out.webp"
+    with patch("dev_tools.scrape_pipeline.image_stage._download") as dl:
+        dl.return_value = fake_image_bytes
+        result = _process_one_image(300001, "https://x/sword.png", dest)
+    assert result == "downloaded"
+    assert dest.exists()
+    assert dest.stat().st_size > 0
+
+
+def test_process_one_image_skips_existing(tmp_path: Path):
+    """If dest already exists, skip without re-downloading."""
+    dest = tmp_path / "exists.webp"
+    dest.write_bytes(b"already here")
+    with patch("dev_tools.scrape_pipeline.image_stage._download") as dl:
+        dl.return_value = b""  # would fail decode; should not be called
+        result = _process_one_image(300001, "https://x/sword.png", dest)
+    assert result == "skipped"
+    assert dest.read_bytes() == b"already here"  # unchanged
+
+
+def test_process_one_image_http_404_raises_image_missing(tmp_path: Path):
+    """HTTP 404 must raise ImageMissingError so caller logs + skips."""
+    dest = tmp_path / "out.webp"
+    fake_resp = MagicMock()
+    fake_resp.status_code = 404
+    fake_resp.raise_for_status.side_effect = Exception("404")
+    with patch("dev_tools.scrape_pipeline.image_stage._download") as dl:
+        dl.side_effect = ImageMissingError("404 not found")
+        try:
+            _process_one_image(300001, "https://x/missing.png", dest)
+        except ImageMissingError:
+            pass
+        else:
+            raise AssertionError("expected ImageMissingError")
+    assert not dest.exists()
+
+
+def test_process_one_image_network_error_raises_image_error(tmp_path: Path):
+    """Network failures raise ImageError so caller logs + skips."""
+    from dev_tools.scrape_pipeline.errors import ImageError
+    dest = tmp_path / "out.webp"
+    with patch("dev_tools.scrape_pipeline.image_stage._download") as dl:
+        dl.side_effect = ImageError("connection refused")
+        try:
+            _process_one_image(300001, "https://x/down.png", dest)
+        except ImageError:
+            pass
+        else:
+            raise AssertionError("expected ImageError")
+    assert not dest.exists()
+
+
+def test_process_one_image_corrupt_bytes_raises(tmp_path: Path, fake_corrupt_bytes: bytes):
+    """Non-image bytes raise (caller logs + skips)."""
+    from dev_tools.scrape_pipeline.errors import ImageError
+    dest = tmp_path / "out.webp"
+    with patch("dev_tools.scrape_pipeline.image_stage._download") as dl:
+        dl.return_value = fake_corrupt_bytes
+        try:
+            _process_one_image(300001, "https://x/bad.png", dest)
+        except ImageError:
+            pass
+        else:
+            raise AssertionError("expected ImageError on corrupt bytes")
+    assert not dest.exists()

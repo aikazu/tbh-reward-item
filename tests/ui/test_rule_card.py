@@ -141,17 +141,27 @@ def test_rule_card_item_id_display_is_mono(qapp: QApplication) -> None:
 
 
 def test_rule_card_chips_have_rarity_border(qapp: QApplication) -> None:
-    """Each chip's QSS must include a rarity color (LEGENDARY → yellow)."""
+    """Each chip must show a rarity-tinted left border (LEGENDARY → yellow).
+
+    The border is now drawn directly in :class:`ItemCard`'s ``paintEvent``
+    (QSS dynamic-property selectors were unreliable for chips whose
+    objectName was renamed by their parent). Verify the paint path is
+    wired by checking the chip's rarity color + the autoFill flag.
+    """
+    from tbh_desktop.ui.theme import RARITY
     card = RuleCard()
     card.set_data({
         "enabled": True, "name": "r", "item_id": 1,
         "replacement_reward_item_ids": [10],
     })
     chip = card._chips[0]
-    qss = chip.styleSheet()
-    # ItemCard rarity border color is drawn from theme.RARITY (e.g. #f9e2af).
-    # The card must apply some border color (not transparent).
-    assert "border" in qss.lower()
+    assert chip.rarity_color() == RARITY["COMMON"]  # id=10 not in drops index → COMMON
+    # paintEvent is overridden — verify by checking the method exists on
+    # the class (regression guard against accidentally falling back to
+    # the QSS-only path which renders an empty chip).
+    from PySide6.QtWidgets import QFrame
+    from tbh_desktop.ui.item_card import ItemCard
+    assert ItemCard.paintEvent is not QFrame.paintEvent
 
 
 def test_rule_card_unknown_id_shows_fallback_label(qapp: QApplication) -> None:

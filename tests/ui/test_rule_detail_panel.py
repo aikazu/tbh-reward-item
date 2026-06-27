@@ -52,9 +52,39 @@ def test_panel_set_rule_data_handles_no_item_id(qapp) -> None:
     )
     assert panel.form.isVisibleTo(panel) is True
     assert panel.item_id_value.text() == "—"
-    assert panel.level_value.text() == "—"
+    # When level is unknown we hide the whole level cell (label + value)
+    # instead of showing a broken "—" — cleaner UX, less noise.
+    # Use isHidden() rather than isVisible(): the latter requires the
+    # parent window to be shown, which isn't the case in headless tests.
+    assert panel.level_value.isHidden() is True
+    assert panel.level_label.isHidden() is True
     assert "0 IDs" in panel.chip_count_label.text()
     assert panel.chip_row._chips == []
+
+
+def test_panel_set_rule_data_hides_level_when_none(qapp) -> None:
+    """Level field is opt-in: only shown when the rule actually has one."""
+    panel = RuleDetailPanel()
+    # Without a level: hidden.
+    panel.set_rule_data(name="r", item_id=100, level=None, replacement_ids=[])
+    assert panel.level_value.isHidden() is True
+    assert panel.level_label.isHidden() is True
+    # With a level: visible.
+    panel.set_rule_data(name="r", item_id=100, level=5, replacement_ids=[])
+    assert panel.level_value.isHidden() is False
+    assert panel.level_label.isHidden() is False
+    assert panel.level_value.text() == "5"
+
+
+def test_panel_banner_hides_item_id_when_none(qapp) -> None:
+    """The banner's item-id chip disappears when no item id is set,
+    so the layout doesn't read as 'missing value'."""
+    panel = RuleDetailPanel()
+    panel.set_rule_data(name="r", item_id=None, level=None, replacement_ids=[])
+    assert panel.banner_id.isHidden() is True
+    panel.set_rule_data(name="r", item_id=42, level=None, replacement_ids=[])
+    assert panel.banner_id.isHidden() is False
+    assert panel.banner_id.text() == "42"
 
 
 def test_panel_pick_buttons_emit_signals(qapp) -> None:

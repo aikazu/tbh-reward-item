@@ -1,4 +1,44 @@
-"""Main window: 4-zone composition (rail + editor + item browser + log dock)."""
+"""Main window — redesigned 2-pane shell with labeled toolbar zones.
+
+The previous layout used a flat 3-zone composition (rules | catalog |
+log) where the right pane was a permanent 6-tab in-game item browser.
+That catalog is useful *inside picker dialogs* (where users select
+reward IDs), but it's the wrong primary surface — the user came here
+to edit a rule, not browse the whole game catalog.
+
+The new layout elevates "edit the rule I'm working on" to the right
+pane and demotes the catalog to a toggleable dock so it stays
+accessible without competing for primary real estate.
+
+Composition
+-----------
+::
+
+    ┌── File Edit View Catalog Help ────────────────────────────────────┐
+    │ PROXY  START STOP   DATA  SCRAPE CHECK   CONFIG  SAVE RESET       │
+    │ STEAM  COPY STEAM   PORT  [8877]            ●  STOPPED              │
+    ├───────────────────────────────────────────────────────────────────┤
+    │ ┌── Rules (40%) ──────────┐ ┌── Detail (60%) ─────────────────┐ │
+    │ │ ▣ Normal Box 910901     │ │ ▣ Normal Box    #910901         │ │
+    │ │   REPLACES ×1          │ │ ITEM ID  [910901]  LEVEL [1]    │ │
+    │ │ ▣ Stage Boss 920901     │ │ [Pick box][Pick loot][Pick gear] │ │
+    │ │   REPLACES ×1          │ │ REPLACES WITH (3 cycled):       │ │
+    │ │ ▣ Act Boss 930901       │ │  [135001 ×][605041 ×][605051 ×] │ │
+    │ │   REPLACES ×1          │ │                                  │ │
+    │ │ + Add rule             │ │ ─── RANGE REPLACEMENT ───        │ │
+    │ │                        │ │ ☐ enabled  from [500000]→[950000]│ │
+    │ │                        │ │ REPLACES WITH: [135001 ×]        │ │
+    │ └────────────────────────┘ └──────────────────────────────────┘ │
+    │ ┌── Log (collapsible) ───────────────────────────────────────────┐│
+    │ │ 12:34:56 Config saved                                          ││
+    │ │ 12:34:57 Proxy starting on :8877                               ││
+    │ └────────────────────────────────────────────────────────────────┘│
+    └───────────────────────────────────────────────────────────────────┘
+
+Toolbar has 4 explicit visual zones — PROXY, DATA, CONFIG, STEAM —
+each marked with a tiny uppercase Cinzel label so the user can scan
+the toolbar in one glance instead of parsing 9 flat buttons.
+"""
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, QObject, Signal
@@ -11,7 +51,10 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
+    QSplitter,
     QStatusBar,
+    QToolBar,
+    QVBoxLayout,
     QWidget,
 )
 
@@ -25,30 +68,22 @@ from tbh_desktop.ui.config_editor import ConfigEditor
 from tbh_desktop.ui.gear_picker import GearPicker
 from tbh_desktop.ui.item_browser import ItemBrowser
 from tbh_desktop.ui.log_panel import LogPanel
-from tbh_desktop.ui.theme import status_dot_style
+from tbh_desktop.ui.rule_detail_panel import RuleDetailPanel
+from tbh_desktop.ui.status_badge import StatusBadge
+from tbh_desktop.ui.theme import (
+    MOCHA,
+    panel_heading_style,
+    status_dot_style,
+    zone_label_style,
+)
 
 
 class _ThreadLogBridge(QObject):
-    """Tiny QObject that lets non-Qt threads push log lines into the GUI
-    log panel via a Qt signal.
+    """Bridge QObject so non-Qt threads can push log lines via a Qt signal.
 
-    Why this exists: ``ProxyRunner`` and ``GearScraperRunner`` already
-    emit ``log_line`` from their worker threads. ``Qt.AutoConnection``
-    routes those across threads correctly (the receiver lives on the GUI
-    thread, so the slot runs there).
-
-    But the inline ``threading.Thread`` spawned by
-    ``MainWindow._refresh_gear`` for the drops index fetch was calling
-    ``self._on_log(...)`` *directly* — that bypasses the queue and
-    invokes ``QPlainTextEdit.appendPlainText`` from a non-GUI thread.
-    Layout operations on a widget from a foreign thread are undefined
-    behavior; on PySide6 6.11 / Qt 6.11 with a font containing the
-    ellipsis glyph, that crashed inside HarfBuzz
-    (``QTextEngine::shapeTextWithHarfbuzzNG``) with a SIGSEGV.
-
-    Fix: spawn a ``_ThreadLogBridge`` (lives on the GUI thread) and have
-    the worker thread call ``bridge.log_line.emit(...)``. Qt queues the
-    signal across threads so the slot runs on the GUI thread safely.
+    See commit history: a previous version called ``QPlainTextEdit.appendPlainText``
+    directly from a worker thread, which crashed inside HarfBuzz text shaping
+    on PySide6 6.11 / Qt 6.11 with a SIGSEGV. Routed through a Qt signal now.
     """
 
     log_line = Signal(str)
@@ -57,12 +92,22 @@ class _ThreadLogBridge(QObject):
         super().__init__()
 
 
+def _zone_label(text: str, *, accent: bool = False) -> QLabel:
+    """Tiny uppercase Cinzel label used to group toolbar buttons."""
+    label = QLabel(text)
+    label.setObjectName("zone_label")
+    label.setProperty("zone", "accent" if accent else "default")
+    label.setStyleSheet(zone_label_style())
+    return label
+
+
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("TBH Reward Proxy")
-        self.resize(1100, 750)
+        self.resize(1400, 850)
 
+        # ---- Background runners ------------------------------------------
         self.runner = ProxyRunner()
         self.runner.log_line.connect(self._on_log)
         self.runner.running.connect(self._on_running)
@@ -73,7 +118,9 @@ class MainWindow(QMainWindow):
         self.gear_scraper.error.connect(self._on_gear_error)
         self.gear_scraper.scraping.connect(self._on_gear_scraping)
 
+        # ---- Core widgets -----------------------------------------------
         self.editor = ConfigEditor()
+        self.detail_panel = RuleDetailPanel()
         self.item_browser = ItemBrowser(
             gear_cache_dir=GEAR_CACHE_DIR,
             drops_index_path=DROPS_INDEX_CACHE,
@@ -81,20 +128,58 @@ class MainWindow(QMainWindow):
         )
         self.log_panel = LogPanel()
 
-        # 3-zone composition: editor | item browser, with log dock below.
-        central = QWidget()
-        h = QHBoxLayout(central)
-        h.setContentsMargins(0, 0, 0, 0)
-        h.setSpacing(0)
-        h.addWidget(self.editor, stretch=3)
-        h.addWidget(self.item_browser, stretch=2)
-        self.setCentralWidget(central)
+        # ---- Shell: horizontal splitter between Rules + Detail ----------
+        self._splitter = QSplitter(Qt.Orientation.Horizontal, self)
+        self._splitter.setObjectName("main_splitter")
+        self._splitter.setHandleWidth(2)
+        self._splitter.setChildrenCollapsible(False)
+        # Left: config editor (rules + range form).
+        left_wrap = self._wrap_with_panel_heading(
+            self.editor, "RULES", "Select a rule on the left to edit its rewards on the right."
+        )
+        # Right: rule detail editor (the new primary edit surface).
+        right_wrap = self._wrap_with_panel_heading(
+            self.detail_panel, "DETAIL", ""
+        )
+        self._splitter.addWidget(left_wrap)
+        self._splitter.addWidget(right_wrap)
+        self._splitter.setStretchFactor(0, 2)
+        self._splitter.setStretchFactor(1, 3)
+        self._splitter.setSizes([520, 780])
+        self.setCentralWidget(self._splitter)
 
+        # ---- Log dock (bottom, collapsible) -----------------------------
         self.log_dock = QDockWidget("Log", self)
+        self.log_dock.setObjectName("log_dock")
         self.log_dock.setWidget(self.log_panel)
-        self.log_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
+        self.log_dock.setAllowedAreas(
+            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea
+        )
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.log_dock)
+        # Make the dock collapsible but not floatable — keeps the layout
+        # predictable across screen sizes.
+        self.log_dock.setFeatures(
+            QDockWidget.DockWidgetFeature.DockWidgetClosable
+            | QDockWidget.DockWidgetFeature.DockWidgetMovable
+        )
 
+        # ---- Catalog dock (right side, hidden by default) ---------------
+        # Kept accessible for users who want to browse the full wiki catalog,
+        # but demoted from "permanent right pane" to "toggleable dock".
+        self.catalog_dock = QDockWidget("Catalog", self)
+        self.catalog_dock.setObjectName("catalog_dock")
+        self.catalog_dock.setWidget(self.item_browser)
+        self.catalog_dock.setAllowedAreas(
+            Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.LeftDockWidgetArea
+        )
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.catalog_dock)
+        self.catalog_dock.setFeatures(
+            QDockWidget.DockWidgetFeature.DockWidgetClosable
+            | QDockWidget.DockWidgetFeature.DockWidgetMovable
+        )
+        self.catalog_dock.hide()  # hidden by default — user opts in
+
+        # ---- Toolbar (4 zones) + menu + status bar ----------------------
         self._build_toolbar()
         self._build_menu()
         self.setStatusBar(QStatusBar())
@@ -102,110 +187,170 @@ class MainWindow(QMainWindow):
         # Initialize button/dot state to "not running".
         self._on_running(False)
 
-        self._reload_config()
-
-        # Wire editor pick buttons — Range Replacement
-        # (Specific-rule pick buttons live on each RuleCard inside the
-        # RuleListView; route them through _on_rule_card_pick.)
-
-        # Wire ItemBrowser picks to route by active target.
+        # ---- Wire signals -----------------------------------------------
+        # RuleListView selection → populate the detail panel + the catalog dock.
+        self.editor.rule_list().rule_selected.connect(self._on_rule_selected)
+        # RuleDetailPanel pick buttons → existing picker dialogs.
+        self.detail_panel.pick_box_id.connect(self._pick_box_id_for_detail)
+        self.detail_panel.pick_box_loot.connect(self._pick_box_loot_for_detail)
+        self.detail_panel.pick_gear.connect(self._pick_gear_for_detail)
+        self.detail_panel.remove_id_requested.connect(self._on_detail_chip_removed)
+        # Catalog dock picks still route to the active target.
         self.item_browser.item_picked.connect(self._on_item_browser_pick)
         self.item_browser.items_picked.connect(self._on_item_browser_picks)
-        # Route rule selection from editor to ItemBrowser filter context.
-        self.editor.rule_list().rule_selected.connect(self._on_rule_selected)
+        # ConfigEditor focus event also routes to detail panel.
+        self.editor.range_form().installEventFilter(self)
 
-    # ------------------------------------------------------------------ build
+        self._reload_config()
+
+    # ------------------------------------------------------------------ shell
+    def _wrap_with_panel_heading(
+        self, inner: QWidget, heading: str, subheading: str = ""
+    ) -> QWidget:
+        """Wrap *inner* with a small panel heading + subheading.
+
+        Used to label the major zones (RULES, DETAIL) so the user can
+        scan the shell in one glance instead of guessing what's where.
+        """
+        wrap = QWidget()
+        layout = QVBoxLayout(wrap)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        head = QLabel(heading)
+        head.setObjectName("panel_heading")
+        head.setStyleSheet(panel_heading_style())
+        layout.addWidget(head)
+
+        if subheading:
+            sub = QLabel(subheading)
+            sub.setObjectName("panel_subheading")
+            sub.setStyleSheet(panel_heading_style())
+            sub.setWordWrap(True)
+            layout.addWidget(sub)
+
+        layout.addWidget(inner, stretch=1)
+        return wrap
+
+    # ------------------------------------------------------------------ toolbar
     def _build_toolbar(self) -> None:
         bar = self.addToolBar("main")
         bar.setObjectName("main_toolbar")
         bar.setMovable(False)
         bar.setFloatable(False)
+        bar.setIconSize(bar.iconSize())  # keep default; no icons
 
-        # ---- Primary zone: Start / Stop --------------------------------
+        # ---- PROXY zone: Start / Stop -----------------------------------
+        bar.addWidget(_zone_label("PROXY"))
         self.btn_start = QPushButton("▶  START")
         self.btn_start.setObjectName("btn_start")
         self.btn_start.setProperty("toolbar_zone", "primary")
-        self.btn_start.setToolTip("Start the mitmproxy subprocess (Ctrl+S to save first)")
+        self.btn_start.setToolTip("Start the mitmproxy subprocess")
+        bar.addWidget(self.btn_start)
 
         self.btn_stop = QPushButton("■  STOP")
         self.btn_stop.setObjectName("btn_stop")
         self.btn_stop.setProperty("toolbar_zone", "primary")
         self.btn_stop.setToolTip("Terminate the running proxy subprocess")
+        bar.addWidget(self.btn_stop)
 
-        # ---- Secondary zone: Scrape / Check / Save / Reset --------------
-        self.btn_refresh_gear = QPushButton("SCRAPE")
+        # ---- DATA zone: Scrape / Check ----------------------------------
+        bar.addSeparator()
+        bar.addWidget(_zone_label("DATA"))
+        self.btn_refresh_gear = QPushButton("Scrape data")
+        self.btn_refresh_gear.setObjectName("btn_refresh_gear")
         self.btn_refresh_gear.setProperty("toolbar_zone", "secondary")
         self.btn_refresh_gear.setToolTip(
-            "Refresh gear cache (28 category-grade files via headless browser) "
-            "AND drops index (~190 items: materials, stage boxes). "
-            "Slow — first launch starts the browser. Subsequent scrapes are "
-            "fast since cached files are reused."
+            "Refresh gear cache + drops index via headless browser. "
+            "Slow on first launch, fast after that."
         )
-        self.btn_check_data = QPushButton("CHECK")
+        bar.addWidget(self.btn_refresh_gear)
+
+        self.btn_check_data = QPushButton("Check data")
+        self.btn_check_data.setObjectName("btn_check_data")
         self.btn_check_data.setProperty("toolbar_zone", "secondary")
         self.btn_check_data.setToolTip(
-            "Show counts and freshness for gear cache + drops index. "
-            "Lets you see if a re-scrape is needed."
+            "Show counts and freshness for gear cache + drops index."
         )
+        bar.addWidget(self.btn_check_data)
 
-        self.btn_save = QPushButton("SAVE")
+        # ---- CONFIG zone: Save / Reset ----------------------------------
+        bar.addSeparator()
+        bar.addWidget(_zone_label("CONFIG"))
+        self.btn_save = QPushButton("Save")
+        self.btn_save.setObjectName("btn_save")
         self.btn_save.setProperty("toolbar_zone", "secondary")
         self.btn_save.setToolTip("Validate and atomically write config.json")
+        bar.addWidget(self.btn_save)
 
-        self.btn_reset = QPushButton("RESET")
+        self.btn_reset = QPushButton("Reset")
+        self.btn_reset.setObjectName("btn_reset")
         self.btn_reset.setProperty("toolbar_zone", "secondary")
         self.btn_reset.setToolTip(
-            "Reset config.json back to the default template (config.default.json). "
+            "Reset config.json back to the default template. "
             "Your current rules will be lost."
         )
+        bar.addWidget(self.btn_reset)
 
-        # ---- Ghost zone: Copy Steam -------------------------------------
-        self.btn_copy_steam = QPushButton("COPY STEAM")
+        # ---- STEAM zone: Copy + Port (live in the main toolbar) --------
+        bar.addSeparator()
+        bar.addWidget(_zone_label("STEAM"))
+        self.btn_copy_steam = QPushButton("Copy Steam")
         self.btn_copy_steam.setObjectName("btn_copy_steam")
-        self.btn_copy_steam.setProperty("toolbar_zone", "ghost")
+        self.btn_copy_steam.setProperty("toolbar_zone", "secondary")
         self.btn_copy_steam.setToolTip(
-            "Copy the Steam launch option string for the current proxy port "
-            "(HTTP_PROXY + HTTPS_PROXY + %command%) to the clipboard.\n"
+            "Copy the Steam launch option string for the current proxy "
+            "port to the clipboard.\n"
             "Paste into Steam → TaskBarHero → Properties → Launch Options."
         )
+        bar.addWidget(self.btn_copy_steam)
 
-        # ---- Status: mono port field + pulsing dot ----------------------
+        # ---- Right-corner widget: Port field + status badge -------------
+        # The status indicator belongs at the far right where users expect
+        # to find it (near the clock equivalent on a web app). To get it
+        # there reliably we put it in a separate QToolBar that we anchor
+        # to the top-right corner — this avoids the QToolBar overflow
+        # issue where the last widgets get hidden when the main toolbar
+        # is too full.
+        self._status_toolbar = QToolBar("status")
+        self._status_toolbar.setObjectName("status_toolbar")
+        self._status_toolbar.setMovable(False)
+        self._status_toolbar.setFloatable(False)
+        self._status_toolbar.setIconSize(self._status_toolbar.iconSize())
+        self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self._status_toolbar)
+
+        port_label = QLabel("Port")
+        port_label.setStyleSheet(
+            f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
+            f" letter-spacing: 1px; padding-left: 4px;"
+        )
+        self._status_toolbar.addWidget(port_label)
+
         mono = QFont("JetBrains Mono", 11)
         mono.setStyleHint(QFont.StyleHint.Monospace)
         mono.setFamily("JetBrains Mono")
-
-        port_label = QLabel("PORT")
-        port_label.setStyleSheet("color: #a6adc8; font-size: 10px; letter-spacing: 1px;")
-
         self.port_edit = QLineEdit()
         self.port_edit.setObjectName("port_edit_toolbar")
-        self.port_edit.setFixedWidth(80)
+        self.port_edit.setFixedWidth(72)
         self.port_edit.setFont(mono)
         self.port_edit.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.port_edit.setPlaceholderText("8877")
         self.port_edit.setToolTip("Proxy listen port (requires restart after change)")
+        self._status_toolbar.addWidget(self.port_edit)
 
+        # The legacy bare status dot (kept for back-compat with tests).
         self.status_dot = QLabel("●")
         self.status_dot.setObjectName("status_dot_pulse")
         self.status_dot.setToolTip("Proxy status: stopped")
         self.status_dot.setStyleSheet(status_dot_style(False))
+        self._status_toolbar.addWidget(self.status_dot)
 
-        # ---- Compose zones with separators -----------------------------
-        bar.addWidget(self.btn_start)
-        bar.addWidget(self.btn_stop)
-        bar.addSeparator()
-        bar.addWidget(self.btn_refresh_gear)
-        bar.addWidget(self.btn_check_data)
-        bar.addWidget(self.btn_save)
-        bar.addWidget(self.btn_reset)
-        bar.addSeparator()
-        bar.addWidget(self.btn_copy_steam)
-        bar.addSeparator()
-        bar.addWidget(port_label)
-        bar.addWidget(self.port_edit)
-        bar.addSeparator()
-        bar.addWidget(self.status_dot)
+        # The labeled StatusBadge — the meaningful state indicator.
+        self.status_badge = StatusBadge(text_off="STOPPED", text_on="RUNNING")
+        self.status_badge.setObjectName("status_badge_toolbar")
+        self._status_toolbar.addWidget(self.status_badge)
 
+        # ---- Wiring -----------------------------------------------------
         self.btn_start.clicked.connect(self._start)
         self.btn_stop.clicked.connect(self.runner.stop)
         self.btn_refresh_gear.clicked.connect(self._refresh_gear)
@@ -213,8 +358,7 @@ class MainWindow(QMainWindow):
         self.btn_save.clicked.connect(self._save)
         self.btn_reset.clicked.connect(self._reset_config)
         self.btn_copy_steam.clicked.connect(self._copy_steam_launch_option)
-        # Tooltip preview stays in sync with port edits (so user sees the
-        # exact string that will be copied before clicking).
+        # Tooltip preview stays in sync with port edits.
         self.port_edit.textChanged.connect(self._refresh_steam_copy_tooltip)
 
     def _build_menu(self) -> None:
@@ -225,9 +369,7 @@ class MainWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction("Exit", self.close)
 
-        # View menu: visibility toggles for log dock + item browser.
-        # (These used to live on LeftRail; the rail was redundant since
-        # the toolbar already exposes status + port.)
+        # View menu: visibility toggles for log dock + catalog dock.
         view_menu = menubar.addMenu("View")
         self.action_toggle_log = view_menu.addAction("Log panel")
         self.action_toggle_log.setCheckable(True)
@@ -235,10 +377,14 @@ class MainWindow(QMainWindow):
         self.action_toggle_log.toggled.connect(
             lambda checked: self.log_dock.toggleViewAction().setChecked(checked)
         )
+        # Back-compat: keep ``action_toggle_items`` as the toggle for the
+        # catalog dock (the old name still resolves to the catalog pane).
         self.action_toggle_items = view_menu.addAction("Item browser")
         self.action_toggle_items.setCheckable(True)
         self.action_toggle_items.setChecked(self.item_browser.isVisible())
-        self.action_toggle_items.toggled.connect(self.item_browser.setVisible)
+        self.action_toggle_items.toggled.connect(
+            lambda checked: self.catalog_dock.toggleViewAction().setChecked(checked)
+        )
 
         help_menu = menubar.addMenu("Help")
         help_menu.addAction("About", self._about)
@@ -273,6 +419,12 @@ class MainWindow(QMainWindow):
                 f"Could not load {CONFIG_PATH.name}. Using empty defaults. "
                 "Fix the file and Save to reload.",
             )
+        # Re-emit the current selection (if any) so the detail panel
+        # refreshes its banner + chip row to match the freshly loaded
+        # config.
+        target = self.editor.rule_list().active_target()
+        if target is not None:
+            self._on_rule_selected(target)
 
     def _on_log(self, line: str) -> None:
         self.log_panel.append_log(line)
@@ -284,31 +436,20 @@ class MainWindow(QMainWindow):
         self.status_dot.setToolTip(
             "Proxy status: running" if running else "Proxy status: stopped"
         )
+        self.status_badge.set_state(running)
 
+    # ------------------------------------------------------------------ scraper
     def _refresh_gear(self) -> None:
-        """Single 'Scrape Data' button — runs gear scrape, then drops index.
-
-        Drops index fetch is fast (~1 request) so we run it inline after
-        kicking off the gear scrape. The gear scraper runs in its own
-        thread; the drops fetch happens in a separate thread to keep the UI
-        responsive.
-        """
+        """Single 'Scrape Data' button — runs gear scrape, then drops index."""
         if self.gear_scraper.is_running():
             self._on_log("Scrape already running…")
             return
-        # Mark UI as scraping.
         self._on_gear_scraping(True)
-        # Kick off gear scrape in its own thread.
         self.gear_scraper.start()
-        # Run drops index fetch in parallel — it doesn't depend on gear data.
-        # The drops thread must NOT call self._on_log directly (would touch
-        # the log widget from a non-GUI thread → SIGSEGV in HarfBuzz text
-        # shaping). Use a small QObject bridge that lives on the GUI thread
-        # and emits across-thread so the slot runs safely on the GUI thread.
+        # Drops index fetch in parallel via thread-safe bridge.
         import threading
         bridge = _ThreadLogBridge()
         bridge.log_line.connect(self._on_log)
-        # Keep a ref so it isn't GC'd mid-scrape.
         self._drops_log_bridge = bridge
         def _fetch_drops_async() -> None:
             try:
@@ -318,11 +459,6 @@ class MainWindow(QMainWindow):
                 bridge.log_line.emit(
                     f"Drops index: {len(items)} items cached (materials + stage boxes)"
                 )
-                # After the drops index is up to date, fetch each
-                # material's wiki detail (effect + stat rolls + crafting)
-                # and inline the info into the per-(family,rarity) files
-                # under ITEM_DIR. Best-effort — partial enrichment is fine
-                # (e.g. wiki may 429 us), and any failure is logged.
                 try:
                     enriched = refresh_material_details(ITEM_DIR, items)
                     bridge.log_line.emit(
@@ -340,7 +476,7 @@ class MainWindow(QMainWindow):
             self._on_log("Scraping gear… (this may take a minute)")
             self.btn_refresh_gear.setText("Scraping…")
         else:
-            self.btn_refresh_gear.setText("Scrape Data")
+            self.btn_refresh_gear.setText("Scrape data")
 
     def _on_gear_scraped(self, total: int, num_files: int) -> None:
         self._on_log(f"Gear scraped: {total} items across {num_files} category-grade files.")
@@ -360,7 +496,6 @@ class MainWindow(QMainWindow):
         )
         from tbh_desktop.scraper import read_drops_index
 
-        # Drops index.
         drops = read_drops_index(DROPS_INDEX_CACHE)
         drops_count = len(drops)
         drops_size = DROPS_INDEX_CACHE.stat().st_size if DROPS_INDEX_CACHE.exists() else 0
@@ -368,7 +503,6 @@ class MainWindow(QMainWindow):
             DROPS_INDEX_CACHE.stat().st_mtime if DROPS_INDEX_CACHE.exists() else 0
         )
 
-        # Gear cache: 28 files, one per (category, grade), at gear/{cat}/{rarity}.json.
         gear_files = (
             sorted(GEAR_CACHE_DIR.glob("*/*.json"))
             if GEAR_CACHE_DIR.exists() else []
@@ -385,7 +519,6 @@ class MainWindow(QMainWindow):
                 pass
         gear_total_size = sum(p.stat().st_size for p in gear_files)
 
-        # Box drop map.
         box_drops_count = 0
         if BOX_DROP_MAP_CACHE.exists():
             try:
@@ -477,11 +610,7 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ steam
     def _steam_launch_option(self, port: int | None = None) -> str:
-        """Build the Steam launch option string for the given (or current) port.
-
-        Mirrors the README recipe: Proton forwards these env vars into the
-        Wine process, where Unity's ``HttpClient`` picks them up.
-        """
+        """Build the Steam launch option string for the given (or current) port."""
         if port is None:
             port = self._parse_port()
         return (
@@ -490,11 +619,6 @@ class MainWindow(QMainWindow):
         )
 
     def _refresh_steam_copy_tooltip(self) -> None:
-        """Keep the Copy button tooltip in sync with the current port field.
-
-        Lets the user hover the button to preview exactly what would be copied
-        before clicking. Plain string concat, no Qt-specific concerns.
-        """
         self.btn_copy_steam.setToolTip(
             "Copy this Steam launch option to the clipboard:\n\n"
             f"    {self._steam_launch_option()}\n\n"
@@ -502,13 +626,6 @@ class MainWindow(QMainWindow):
         )
 
     def _copy_steam_launch_option(self) -> None:
-        """Copy the Steam launch option for the current port to clipboard.
-
-        Falls back to port 8877 if the field is empty/invalid (matches
-        ``_parse_port`` semantics). Surfaces success in both the status bar
-        (auto-clears) and the log panel (durable) — clipboard writes are
-        silent in Qt, so we must tell the user explicitly.
-        """
         text = self._steam_launch_option()
         clipboard = QGuiApplication.clipboard()
         if clipboard is None:
@@ -526,7 +643,7 @@ class MainWindow(QMainWindow):
         )
 
     # ------------------------------------------------------------------ pickers
-    def _pick_box_id_for_rule(self) -> None:
+    def _pick_box_id_for_detail(self) -> None:
         """Open BoxPicker, set the selected rule's Item ID + store its level."""
         dlg = BoxPicker(BOX_SLUG_CACHE, self)
         if not dlg.exec():
@@ -540,6 +657,10 @@ class MainWindow(QMainWindow):
             self._on_log(f"Box {box_id} (Lv{level}) set as item_id.")
         else:
             self._on_log(f"Box {box_id} set as item_id.")
+        # Refresh the detail panel so the new ID shows up.
+        target = self.editor.rule_list().active_target()
+        if target is not None:
+            self._on_rule_selected(target)
 
     def _get_box_loot(self, box_id: int) -> list[dict]:
         """Fetch box loot (network or cache) and log if empty."""
@@ -548,19 +669,8 @@ class MainWindow(QMainWindow):
             self._on_log(f"No loot for box {box_id}. Check box_id / wiki items page.")
         return loot
 
-    def _pick_box_loot_for_rule(self) -> None:
-        """Pick reward IDs from THIS BOX's loot (not the full wiki drops index).
-
-        Source of truth is the box's cached loot table (``read_box_cache``) —
-        whatever the box actually drops. Each entry is enriched with
-        ``family`` + ``rarity`` from the drops index (by id match) so the
-        picker can group rows by family + sort by rarity. Items not present
-        in the drops index (no family/rarity metadata available) still pass
-        through but show as "Other".
-
-        Gear is excluded from the loot picker — gear has its own GearPicker
-        dialog.
-        """
+    def _pick_box_loot_for_detail(self) -> None:
+        """Pick reward IDs from THIS BOX's loot (not the full wiki drops index)."""
         from tbh_desktop.paths import DROPS_INDEX_CACHE
         from tbh_desktop.scraper import (
             fetch_drops_index,
@@ -583,8 +693,6 @@ class MainWindow(QMainWindow):
                 f"ID) and make sure the box page was scraped.",
             )
             return
-        # Enrich each loot entry with family + rarity from drops index.
-        # Lookup by item id; cache the index once.
         idx_items = fetch_drops_index(DROPS_INDEX_CACHE)
         idx_by_id = {
             it["id"]: it
@@ -609,19 +717,17 @@ class MainWindow(QMainWindow):
         if dlg.exec():
             self.editor.add_ids_to_selected_rule(dlg.selected_ids())
 
-    def _pick_gear_for_rule(self) -> None:
+    def _pick_gear_for_detail(self) -> None:
         """Pick gear scoped to the selected rule's box (name + level filter)."""
         if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("*/*.json")):
-            self._on_log("No gear cache. Click 'Scrape gear' first.")
+            self._on_log("No gear cache. Click 'Scrape data' first.")
             return
         box_id = self.editor.selected_rule_item_id()
         level_hint = self.editor.selected_rule_level()
         box_loot: list[dict] = []
         if box_id is not None:
-            # Use cached loot if available to avoid network on every gear pick.
             box_loot = read_box_cache(BOX_LOOT_CACHE_DIR, box_id)
             if not box_loot:
-                # Try fetching once; if still empty, proceed without box filter.
                 box_loot = self._get_box_loot(box_id)
         dlg = GearPicker(
             GEAR_CACHE_DIR,
@@ -635,17 +741,14 @@ class MainWindow(QMainWindow):
     def _pick_gear_for_range(self) -> None:
         """Pick gear for range replacement (no box scope — shows all gear)."""
         if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("*/*.json")):
-            self._on_log("No gear cache. Click 'Scrape gear' first.")
+            self._on_log("No gear cache. Click 'Scrape data' first.")
             return
         dlg = GearPicker(GEAR_CACHE_DIR, self)
         if dlg.exec():
             self.editor.add_ids_to_range(dlg.selected_ids())
 
     def _pick_box_loot_for_range(self) -> None:
-        """Pick reward IDs from the wiki drops index (materials, stage boxes,
-        consumables — everything except gear). Populates directly from the
-        cached drops index; no need to pick a box first.
-        """
+        """Pick reward IDs from the wiki drops index (materials + boxes)."""
         from tbh_desktop.paths import DROPS_INDEX_CACHE
         from tbh_desktop.scraper import fetch_drops_index
         from tbh_desktop.ui.box_loot_picker import BoxLootPicker
@@ -664,6 +767,7 @@ class MainWindow(QMainWindow):
         if dlg.exec():
             self.editor.add_ids_to_range(dlg.selected_ids())
 
+    # ------------------------------------------------------------------ events
     def closeEvent(self, event) -> None:  # type: ignore[override]
         if self.gear_scraper.is_running():
             if not self._confirm(
@@ -672,9 +776,6 @@ class MainWindow(QMainWindow):
             ):
                 event.ignore()
                 return
-            # Stop the scrape immediately so it doesn't keep running after the
-            # window closes. _cleanup() also calls stop() defensively in case
-            # this path is bypassed (e.g. SIGINT → app.quit()).
             self.gear_scraper.stop()
         if self.runner.is_running():
             if not self._confirm(
@@ -687,25 +788,45 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
     def _cleanup(self) -> None:
-        """Force-stop all background activities without prompts.
-
-        Called from ``aboutToQuit`` (SIGINT / app.quit()) — must be fast and
-        non-interactive so the process exits cleanly.
-        """
+        """Force-stop all background activities without prompts."""
         self.gear_scraper.stop()
         self.runner.stop()
 
-    # ------------------------------------------------------------------ rail / target routing
+    # ------------------------------------------------------------------ rule/detail routing
     def _on_rule_selected(self, target) -> None:
-        """Switch the ItemBrowser filter context based on the active rule row.
+        """Route selection events to the detail panel + the catalog dock.
 
-        Auto-loads the Box loot tab with the selected box's items so the
-        user can just click replacements in-place — no extra dialog round
-        trip. Replaces the old "click Pick loot button" flow.
+        RuleTarget → populate the detail panel + swap the catalog to a
+        scope that matches the box.
+        RangeTarget → show the range-summary state in the detail panel.
+        None → show empty state.
         """
-        from tbh_desktop.ui.active_target import RuleTarget
+        from tbh_desktop.ui.active_target import RangeTarget, RuleTarget
         from tbh_desktop.ui.item_browser import FilterContext, FilterScope
+
+        if isinstance(target, RangeTarget):
+            self.detail_panel.show_range_summary()
+            return
+        if target is None:
+            self.detail_panel.show_empty()
+            return
         if isinstance(target, RuleTarget):
+            # Look up the active rule card and pull the live data out.
+            rule_list = self.editor.rule_list()
+            row = target.row
+            card = rule_list._cards[row] if 0 <= row < len(rule_list._cards) else None
+            if card is None:
+                self.detail_panel.show_empty()
+                return
+            level = rule_list._level_for_row.get(row)
+            self.detail_panel.set_rule_data(
+                name=card.name(),
+                item_id=card.item_id(),
+                level=level,
+                replacement_ids=card.replacement_ids(),
+            )
+            # Swap the catalog to the matching scope so a quick browse
+            # reflects what the user is editing.
             scope = FilterScope.GEAR_FOR_BOX if target.box_id else FilterScope.GEAR_ALL
             self.item_browser.filter_for_context(
                 FilterContext(
@@ -715,25 +836,43 @@ class MainWindow(QMainWindow):
                     scope=scope,
                 )
             )
-            if target.box_id is not None:
-                # Load the box's loot list into the Box loot tab so the
-                # user can immediately pick replacements in-place.
-                self.item_browser.set_box_loot(target.box_id)
-        else:
-            self.item_browser.filter_for_context(None)
+
+    def _on_detail_chip_removed(self, item_id: int) -> None:
+        """Forward a chip-remove request from the detail panel to the
+        underlying rule card, then re-render the detail panel."""
+        target = self.editor.rule_list().active_target()
+        from tbh_desktop.ui.active_target import RuleTarget
+        if not isinstance(target, RuleTarget):
+            return
+        rule_list = self.editor.rule_list()
+        row = target.row
+        if 0 <= row < len(rule_list._cards):
+            rule_list._cards[row].remove_id(int(item_id))
+            self._on_rule_selected(target)
 
     def _on_item_browser_pick(self, item_id: int) -> None:
-        """Route a single-item pick to the active target's store."""
+        """Route a single-item pick from the catalog dock to the active target."""
         try:
             self.editor.add_ids_to_active_target([int(item_id)])
         except ValueError:
-            # No active target — ignore.
             pass
 
     def _on_item_browser_picks(self, item_ids: list) -> None:
-        """Route a multi-item pick."""
+        """Route a multi-item pick from the catalog dock to the active target."""
         ids = [int(i) for i in item_ids]
         try:
             self.editor.add_ids_to_active_target(ids)
         except ValueError:
             pass
+
+    # ------------------------------------------------------------------ eventFilter
+    def eventFilter(self, obj, event) -> bool:  # noqa: ANN001
+        """Switch the detail panel to range-summary when the range form takes focus."""
+        from PySide6.QtCore import QEvent
+        from tbh_desktop.ui.active_target import RangeTarget
+
+        if event.type() == QEvent.Type.FocusIn and obj is self.editor.range_form():
+            self.editor.rule_list().set_active_target(RangeTarget())
+            self.detail_panel.show_range_summary()
+            return False
+        return super().eventFilter(obj, event)

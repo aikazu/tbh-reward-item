@@ -165,12 +165,20 @@ class RuleCard(QFrame):
         row2.addStretch()
         outer.addLayout(row2)
 
-        # ---- Row 3: REPLACES divider + label ----------------------------
+        # ---- Row 3: REPLACES divider + count + peek -------------------
         divider_row = QHBoxLayout()
         divider_row.setSpacing(8)
         self.section_heading = QLabel("REPLACES")
         self.section_heading.setObjectName("section_heading")
         divider_row.addWidget(self.section_heading)
+        self.replace_count = QLabel("0")
+        self.replace_count.setObjectName("replace_count")
+        self.replace_count.setStyleSheet(
+            f"color: {MOCHA['overlay1']}; font-size: 11px;"
+            f" background: {MOCHA['surface0']};"
+            f" border-radius: 8px; padding: 1px 8px;"
+        )
+        divider_row.addWidget(self.replace_count)
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
         line.setFrameShadow(QFrame.Shadow.Plain)
@@ -179,10 +187,14 @@ class RuleCard(QFrame):
         divider_row.addWidget(line, stretch=1)
         outer.addLayout(divider_row)
 
-        # ---- Row 4: chip wrap -------------------------------------------
+        # ---- Row 4: chip peek (compact, wraps) -------------------------
+        # The full chip strip lives in the detail panel — the rule card
+        # only shows a peek so the user can tell at a glance what rewards
+        # the rule cycles through. Chips are clipped if they overflow
+        # rather than expanding the card height.
         self._chip_row = QHBoxLayout()
         self._chip_row.setContentsMargins(0, 0, 0, 0)
-        self._chip_row.setSpacing(6)
+        self._chip_row.setSpacing(4)
         self._chip_row.addStretch()
         outer.addLayout(self._chip_row)
 
@@ -253,19 +265,47 @@ class RuleCard(QFrame):
             chip.setParent(None)
             chip.deleteLater()
         self._chips.clear()
-        # add new
-        for i, item_id in enumerate(self._replacement_ids):
+        # Limit peek to first 6 chips — the full strip lives in the detail
+        # panel; the rule card just gives an at-a-glance preview.
+        peek_ids = self._replacement_ids[:6]
+        n_total = len(self._replacement_ids)
+        n_more = n_total - len(peek_ids)
+        for i, item_id in enumerate(peek_ids):
             label, rarity = resolve_item_label(item_id)
             chip = ItemCard(self)
             chip.set_compact(True)
             chip.setObjectName(f"chip_{item_id}")
+            # ItemCard self-styles via QPalette (background) + a single
+            # setStyleSheet call in _refresh_style for the border. Don't
+            # override its stylesheet here — overriding with a separate
+            # chip_style() QSS turns off autoFillBackground and the chip
+            # renders as an empty rectangle.
             chip.set_data({"id": item_id, "name": label, "rarity": rarity})
-            chip.setStyleSheet(chip_style(rarity, compact=True))
             chip.setToolTip(f"{label} (#{item_id}) — click to remove")
-            # Click to remove (kept for back-compat with existing tests).
-            chip.mousePressEvent = lambda _e, _id=item_id: self.remove_id(_id)  # type: ignore[method-assign]
+            # Click → request removal. Wrap in default-arg capture so the
+            # bound id doesn't change if more chips are added later.
+            chip.mousePressEvent = (
+                lambda _e, _id=item_id: self.remove_id(_id)
+            )
             self._chip_row.insertWidget(i, chip)
             self._chips.append(chip)
+        # "+N more" badge if the peek is truncated.
+        if n_more > 0:
+            from PySide6.QtWidgets import QLabel as _QL
+            more = _QL(f"+{n_more} more")
+            more.setObjectName("chip_more")
+            more.setStyleSheet(
+                f"color: {MOCHA['overlay1']}; font-size: 11px;"
+                f" padding: 2px 8px; background: {MOCHA['surface0']};"
+                f" border-radius: 8px;"
+            )
+            self._chip_row.insertWidget(len(peek_ids), more)
+            self._chips.append(more)  # type: ignore[arg-type]
+        # Update the count badge.
+        self.replace_count.setText(str(n_total))
+        self.replace_count.setToolTip(
+            f"{n_total} reward ID{'s' if n_total != 1 else ''} (cycled in order)"
+        )
 
     # ---- active state ------------------------------------------------
     def set_active(self, active: bool) -> None:

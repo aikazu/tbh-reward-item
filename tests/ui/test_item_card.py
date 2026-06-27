@@ -59,6 +59,9 @@ def test_item_card_compact_icon_no_overflow(qapp: QApplication) -> None:
     card.set_icon_pixmap(big_pixmap)
     assert card._icon_label.pixmap().size().width() <= 40
     assert card._icon_label.pixmap().size().height() <= 40
-    # The actual card size in compact mode must be 96x48.
-    assert card.size().width() == 96
+    # The actual card size in compact mode: 120x48 (96 icon + 24 name column).
+    assert card.size().width() == 120
     assert card.size().height() == 48
+    # Name label is visible in compact mode so the chip is identifiable
+    # without hover-tooltip (was hidden in the previous design).
+    assert card._name_label.isHidden() is False

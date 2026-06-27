@@ -57,18 +57,45 @@ def test_main_window_screenshot(qapp, workdir, tmp_path: Path) -> None:
     win.close()
 
 
-def test_main_window_toolbar_has_three_zones(qapp, workdir) -> None:
-    """Arsenal directive: toolbar groups buttons into primary (Start/Stop),
-    secondary (Scrape/Check/Save/Reset), and ghost (Copy Steam) zones,
-    each declared via toolbar_zone property so QSS styles them differently."""
+def test_main_window_toolbar_has_four_zones(qapp, workdir) -> None:
+    """Arsenal directive: toolbar groups buttons into 4 intent zones
+    (PROXY, DATA, CONFIG, STEAM). Each zone is demarcated by a
+    ``QLabel#zone_label`` so the user can scan the toolbar in one
+    glance. Buttons inside each zone declare ``toolbar_zone='primary'``
+    or ``'secondary'`` so QSS can style them per-tier."""
     win = MainWindow()
+    # Primary tier (single big pill — Start / Stop).
     assert win.btn_start.property("toolbar_zone") == "primary"
     assert win.btn_stop.property("toolbar_zone") == "primary"
+    # Secondary tier (flat outline — everything else in the toolbar).
     assert win.btn_refresh_gear.property("toolbar_zone") == "secondary"
     assert win.btn_check_data.property("toolbar_zone") == "secondary"
     assert win.btn_save.property("toolbar_zone") == "secondary"
     assert win.btn_reset.property("toolbar_zone") == "secondary"
-    assert win.btn_copy_steam.property("toolbar_zone") == "ghost"
+    assert win.btn_copy_steam.property("toolbar_zone") == "secondary"
+    # Zone label widgets — 4 of them (PROXY · DATA · CONFIG · STEAM).
+    from PySide6.QtWidgets import QLabel
+    zone_labels = win.findChildren(QLabel, "zone_label")
+    zone_texts = [z.text() for z in zone_labels]
+    assert "PROXY" in zone_texts
+    assert "DATA" in zone_texts
+    assert "CONFIG" in zone_texts
+    assert "STEAM" in zone_texts
+
+
+def test_main_window_toolbar_has_status_badge(qapp, workdir) -> None:
+    """The toolbar exposes a labeled StatusBadge (dot + STOPPED/RUNNING
+    text) in addition to the legacy bare status dot. The badge is the
+    meaningful state indicator; the dot is kept for visual continuity."""
+    from tbh_desktop.ui.status_badge import StatusBadge
+
+    win = MainWindow()
+    assert isinstance(win.status_badge, StatusBadge)
+    assert win.status_badge.is_running() is False
+    # Drive a state change and confirm both widgets reflect it.
+    win.status_badge.set_state(True)
+    assert win.status_badge.is_running() is True
+    assert "RUNNING" in win.status_badge._label.text()
     win.close()
 
 

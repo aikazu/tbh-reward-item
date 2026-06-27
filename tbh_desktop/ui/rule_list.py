@@ -84,7 +84,10 @@ class _RuleCardModel(QAbstractItemModel):
 class _RuleCardDelegate(QStyledItemDelegate):
     """Paints one `RuleCard` per row at a fixed height."""
 
-    CARD_HEIGHT = 220  # RuleCard preferred height (4 rows + REPLACES divider + padding)
+    CARD_HEIGHT = 158  # RuleCard preferred height — keeps all 3 default rules
+    # visible at typical 1400x850 window size without scrolling.
+    # See commit history: 220 was too tall — only 1 card visible at default
+    # window size. 158 leaves room for header + 3 cards in the left pane.
 
     def sizeHint(self, option: QStyleOptionViewItem, index) -> QSize:  # noqa: ANN001
         return QSize(option.rect.width() or 600, self.CARD_HEIGHT)

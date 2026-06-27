@@ -1,10 +1,29 @@
-"""Single in-game item card with rarity-bordered frame."""
+"""Single in-game item card with rarity-bordered frame.
+
+Self-painted: the chip's background color is drawn directly in
+``paintEvent`` rather than relying on QSS or QPalette, both of which
+proved unreliable for chips that get reparented (rule cards rename
+each chip to ``chip_<id>`` so multiple chips don't collide in QSS
+lookups — but that also breaks ``#item_card`` selectors, and QPalette
+backgrounds get clobbered by inherited parent palettes).
+
+What you get:
+- rarity-tinted background (low-alpha tint of the rarity color)
+- rarity-colored left-border accent + neutral 1px border on the
+  other three sides
+- selected state: blue border + surface0 background (no tint)
+"""
 from __future__ import annotations
 
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QRect, QSize, Qt
+from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 
 from tbh_desktop.ui.theme import MOCHA, RARITY, rarity_tint
+
+
+def _hex(c: str) -> QColor:
+    return QColor(c)
 
 
 class ItemCard(QFrame):
@@ -79,15 +98,24 @@ class ItemCard(QFrame):
             return
         self._compact = compact
         if compact:
-            self.setFixedSize(self.SIZE_COMPACT * 2, self.SIZE_COMPACT)
-            self._name_label.setVisible(False)
+            self.setFixedSize(self.SIZE_COMPACT * 2 + 24, self.SIZE_COMPACT)
+            # Keep the name label visible in compact mode but render
+            # it as a small inline label so the chip is identifiable
+            # without needing to hover for the tooltip.
+            self._name_label.setVisible(True)
+            self._name_label.setStyleSheet(
+                "font-size: 10px; color: #cdd6f4; padding-left: 4px;"
+            )
         else:
             self.setFixedSize(self.SIZE_FULL, self.SIZE_FULL)
             self._name_label.setVisible(True)
+            self._name_label.setStyleSheet(
+                "font-size: 11px; color: #cdd6f4;"
+            )
 
     def sizeHint(self) -> QSize:
         if self._compact:
-            return QSize(self.SIZE_COMPACT * 2, self.SIZE_COMPACT)
+            return QSize(self.SIZE_COMPACT * 2 + 24, self.SIZE_COMPACT)
         return QSize(self.SIZE_FULL, self.SIZE_FULL)
 
     def set_icon_pixmap(self, pixmap) -> None:
@@ -102,16 +130,46 @@ class ItemCard(QFrame):
 
     # ---- internals ---------------------------------------------------
     def _refresh_style(self) -> None:
-        border_color = MOCHA["blue"] if self._selected else self.rarity_color()
-        border_width = 2 if self._selected else 1
-        bg = MOCHA["surface0"] if self._selected else rarity_tint(self.rarity_color())
-        self.setStyleSheet(
-            f"#item_card {{"
-            f"  background-color: {bg};"
-            f"  border: {border_width}px solid {border_color};"
-            f"  border-radius: 8px;"
-            f"}}"
+        # No-op: styling is now applied in paintEvent so the chip renders
+        # correctly regardless of where it's been reparented. Kept as a
+        # method so callers that called ``set_data`` don't need to change.
+        self.update()  # schedule a repaint with the new rarity/selection
+
+    def paintEvent(self, event) -> None:  # noqa: ANN001
+        """Draw background + border + contents manually.
+
+        This bypasses QSS/QPalette entirely so the chip looks the same
+        wherever it ends up in the tree (including after ``setParent``
+        renames the objectName).
+        """
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        rect = QRect(0, 0, self.width(), self.height())
+
+        # Background — rarity tint or surface0 if selected.
+        bg = (
+            _hex(MOCHA["surface0"])
+            if self._selected
+            else _hex(rarity_tint(self.rarity_color()))
         )
+        painter.fillRect(rect, QBrush(bg))
+
+        # Left border accent (rarity color, 2px wide).
+        accent_color = _hex(MOCHA["blue"] if self._selected else self.rarity_color())
+        painter.fillRect(QRect(0, 0, 2, self.height()), QBrush(accent_color))
+
+        # Outer border (1px neutral surface1, or 2px blue if selected).
+        border_color = accent_color if self._selected else _hex(MOCHA["surface1"])
+        border_width = 2 if self._selected else 1
+        pen = QPen(border_color)
+        pen.setWidth(border_width)
+        painter.setPen(pen)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawRect(rect.adjusted(0, 0, -1, -1))
+
+        # Let QFrame paint the child widgets (icon + name) on top.
+        super().paintEvent(event)
+        painter.end()
 
     @staticmethod
     def _truncate(text: str, max_len: int) -> str:

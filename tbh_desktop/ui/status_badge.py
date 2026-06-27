@@ -42,8 +42,16 @@ class StatusBadge(QFrame):
         self._text_on = text_on
         self._running: bool = False
 
+        # QToolBar stretches widgets to fill available height by default;
+        # force a fixed maximum height so the badge stays a slim pill.
+        from PySide6.QtWidgets import QSizePolicy
+        self.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
+        self.setFixedHeight(22)
+        self.setMinimumWidth(96)
+        self.setMaximumWidth(160)
+
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 4, 12, 4)
+        layout.setContentsMargins(10, 0, 12, 0)
         layout.setSpacing(6)
 
         self._dot = QLabel("●")

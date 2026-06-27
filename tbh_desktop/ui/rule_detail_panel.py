@@ -110,8 +110,10 @@ class _ChipRow(QWidget):
             chip = ItemCard(self)
             chip.set_compact(True)
             chip.setObjectName(f"detail_chip_{item_id}")
+            # ItemCard self-styles via QPalette + QSS. Don't override its
+            # stylesheet here — that turns off autoFillBackground and the
+            # chip renders as an empty rectangle.
             chip.set_data({"id": item_id, "name": label, "rarity": rarity})
-            chip.setStyleSheet(chip_style(rarity, compact=True))
             chip.setToolTip(f"{label} (#{item_id}) — click to remove")
             # Click → request removal. Wrap in default-arg capture so the
             # bound id doesn't change if more chips are added later.
@@ -254,8 +256,8 @@ class RuleDetailPanel(QWidget):
         id_row.addLayout(id_col, stretch=2)
 
         level_col = QVBoxLayout()
-        level_label = QLabel("LEVEL")
-        level_label.setStyleSheet(
+        self.level_label = QLabel("LEVEL")
+        self.level_label.setStyleSheet(
             f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
             f" letter-spacing: 1px;"
         )
@@ -269,7 +271,7 @@ class RuleDetailPanel(QWidget):
         )
         self.level_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.level_value.setFixedWidth(80)
-        level_col.addWidget(level_label)
+        level_col.addWidget(self.level_label)
         level_col.addWidget(self.level_value)
         id_row.addLayout(level_col)
         form_layout.addLayout(id_row)
@@ -305,30 +307,35 @@ class RuleDetailPanel(QWidget):
         )
         form_layout.addWidget(replaces_label)
 
-        # Count badge + chip row in a vertical layout so the chips wrap.
-        chips_container = QWidget()
-        chips_layout = QVBoxLayout(chips_container)
-        chips_layout.setContentsMargins(0, 0, 0, 0)
-        chips_layout.setSpacing(6)
-
+        # Count badge + chip row.
         self.chip_count_label = QLabel("0 IDs (click chip to remove)")
         self.chip_count_label.setObjectName("chip_count_label")
         self.chip_count_label.setStyleSheet(
             f"color: {MOCHA['overlay1']}; font-size: 10px;"
         )
-        chips_layout.addWidget(self.chip_count_label)
+        form_layout.addWidget(self.chip_count_label)
 
+        # The chip row itself is a simple QHBoxLayout — QFlowLayout isn't
+        # shipped with PySide6, and the manual flow-wrap we tried before
+        # didn't trigger paint on first show. A flat horizontal strip is
+        # easier to reason about and works fine for typical use (1-10
+        # IDs per rule). When many chips are added the row scrolls
+        # horizontally inside the panel.
+        chip_container = QWidget()
+        chip_layout = QHBoxLayout(chip_container)
+        chip_layout.setContentsMargins(0, 0, 0, 0)
+        chip_layout.setSpacing(6)
         self.chip_row = _ChipRow()
         self.chip_row.remove_requested.connect(self.remove_id_requested)
-        chips_layout.addWidget(self.chip_row)
-
-        # Wrap-friendly container so chips overflow gracefully on narrow
-        # windows instead of pushing the panel width to infinity.
-        # Use a custom FlowLayout (PySide6 doesn't ship QFlowLayout).
-        self._chip_wrap = _FlowWrap(self.chip_row)
-        chips_layout.addWidget(self._chip_wrap)
-
-        form_layout.addWidget(chips_container)
+        chip_layout.addWidget(self.chip_row)
+        # Don't addStretch — the chip row should size to its content so
+        # the strip stays at the top of the form instead of being
+        # stretched to fill the remaining vertical space (which would
+        # push chips off-screen if there are many of them).
+        # Limit the chip row height to one row of chips.
+        chip_container.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        chip_container.setMaximumHeight(60)
+        form_layout.addWidget(chip_container)
 
         # Initially hidden — empty state shows first.
         self.form.setVisible(False)
@@ -413,75 +420,31 @@ class RuleDetailPanel(QWidget):
         # Banner: rule name + dot + item id.
         self.banner_name.setText(self._rule_name or "(unnamed rule)")
         self.banner_dot.setStyleSheet(f"color: {MOCHA['green']}; font-size: 14px;")
-        self.banner_id.setVisible(True)
-        self.banner_id.setText(
-            f"#{self._item_id}" if self._item_id is not None else "no item ID"
-        )
+        if self._item_id is not None:
+            self.banner_id.setVisible(True)
+            self.banner_id.setText(str(self._item_id))
+        else:
+            self.banner_id.setVisible(False)
         self.subtitle_label.setText(
             "Edit this rule's item ID, level, and the rewards it cycles through."
         )
-        # Form fields.
+        # Form fields. Show "—" only for fields that exist conceptually
+        # (item_id always exists for a rule); hide level entirely when
+        # unknown so the layout doesn't read as "broken empty field".
         self.item_id_value.setText(
             str(self._item_id) if self._item_id is not None else "—"
         )
-        self.level_value.setText(
-            str(self._level) if self._level is not None else "—"
-        )
+        if self._level is not None:
+            self.level_value.setVisible(True)
+            self.level_label.setVisible(True)
+            self.level_value.setText(str(self._level))
+        else:
+            # Hide the level cell — it adds noise when no level is set.
+            self.level_value.setVisible(False)
+            self.level_label.setVisible(False)
         # Chip row.
         self.chip_row.set_ids(self._replacement_ids)
         n = len(self._replacement_ids)
         self.chip_count_label.setText(
             f"{n} ID{'s' if n != 1 else ''} (cycled in order · click to remove)"
         )
-
-
-class _FlowWrap(QWidget):
-    """Minimal flow layout that wraps children to the next row on overflow.
-
-    PySide6 doesn't ship ``QFlowLayout`` (Qt 6.10+ only, not in the
-    stable releases we target). This widget manually relayouts its
-    children to wrap when the row width exceeds the available width.
-    Sized to its tallest single row so it doesn't grow vertically
-    beyond what the chips need.
-    """
-
-    def __init__(self, child: QWidget | None = None, parent: QWidget | None = None) -> None:
-        super().__init__(parent)
-        self._children: list[QWidget] = []
-        self._spacing = 6
-        if child is not None:
-            child.setParent(self)
-            self._children.append(child)
-
-    def addWidget(self, w: QWidget) -> None:
-        w.setParent(self)
-        self._children.append(w)
-        self._relayout()
-
-    def setSpacing(self, spacing: int) -> None:
-        self._spacing = spacing
-        self._relayout()
-
-    def resizeEvent(self, event) -> None:  # noqa: ANN001
-        super().resizeEvent(event)
-        self._relayout()
-
-    def _relayout(self) -> None:
-        if not self._children:
-            self.setMinimumHeight(0)
-            return
-        x, y = 0, 0
-        row_height = 0
-        avail = max(self.width(), 100)
-        for w in self._children:
-            hint = w.sizeHint()
-            if x + hint.width() > avail and x > 0:
-                # Wrap to next row.
-                x = 0
-                y += row_height + self._spacing
-                row_height = 0
-            w.move(x, y)
-            w.resize(hint.width(), hint.height())
-            x += hint.width() + self._spacing
-            row_height = max(row_height, hint.height())
-        self.setMinimumHeight(y + row_height)

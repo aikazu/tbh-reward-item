@@ -9,7 +9,7 @@ from pathlib import Path
 import requests
 from PIL import Image
 
-from dev_tools.scrape_pipeline.errors import ImageError, ImageMissingError, categorize
+from dev_tools.scrape_pipeline.errors import ImageError, categorize
 
 log = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ def collect_images(root: Path) -> dict[int, str]:
 
 
 def _download(url: str, *, timeout: int = 30) -> bytes:
-    """Download image bytes. Raises ImageError / ImageMissingError on failure."""
+    """Download image bytes. Raises ImageError on failure."""
     try:
         resp = requests.get(url, timeout=timeout)
         resp.raise_for_status()
@@ -79,8 +79,8 @@ def _process_one_image(item_id: int, url: str, dest: Path) -> str:
         img = Image.open(io.BytesIO(raw))
         img.load()  # force decode to fail fast on corrupt bytes
     except Exception as exc:
-        raise ImageError(f"decode failed for {url}: {exc}") from exc
-    resized = img.resize(IMAGE_SIZE, Image.LANCZOS)
+        raise ImageError(f"image {item_id}: decode failed for {url}: {exc}") from exc
+    resized = img.resize(IMAGE_SIZE, Image.Resampling.LANCZOS)
     dest.parent.mkdir(parents=True, exist_ok=True)
     resized.save(dest, "WEBP", quality=IMAGE_QUALITY, method=6)
     return "downloaded"

@@ -130,21 +130,23 @@ def test_parse_drops_page_round_trip() -> None:
 
 
 def test_parse_gear_detail_extracts_status_and_resell() -> None:
-    """parse_gear_detail splits tiles into status (INHERENT) only."""
+    """parse_gear_detail splits tiles into BASE/INHERENT stats + resell tiles."""
     html = (FIXTURES / "wiki_gear_detail_ethereal_amulet.html").read_text(encoding="utf-8")
     detail = scraper.parse_gear_detail(html)
     assert detail["name"] == "Ethereal Amulet"
     assert detail["type"] == "Gear"
     assert detail["slot"] == "Amulet"
     assert detail["level"] == "Lv80"
-    # status: only INHERENT tiles (rolled bonuses).
-    assert len(detail["status"]) == 1
-    attack_speed = detail["status"][0]
+    # stats: every stat-tile with BASE/INHERENT badge is kept, tagged by kind.
+    # Fixture has exactly one INHERENT tile (no BASE tiles).
+    assert len(detail["stats"]) == 1
+    attack_speed = detail["stats"][0]
     assert attack_speed["name"] == "Attack Speed"
     assert attack_speed["value"] == "+13.6%"
-    # resell NOT extracted.
-    assert "resell" not in detail
-    assert "inherent" not in attack_speed  # field dropped — only status kept
+    assert attack_speed["kind"] == "inherent"
+    # resell: tiles WITHOUT a kind badge (Alchemy Gold, Cube EXP).
+    resell_names = {r["name"] for r in detail["resell"]}
+    assert resell_names == {"Alchemy Gold", "Cube EXP"}
 
 
 def test_parse_item_detail_minor_ruby() -> None:
@@ -372,7 +374,11 @@ def test_box_loot_picker_family_headers() -> None:
     assert rows[3] == ("item", 2)
 
 def test_box_loot_picker_scope_filter() -> None:
-    """scope_box_name pre-filters to items whose name contains it."""
+    """scope_box_name only affects the window title; the picker no longer
+    substring-filters items by it (item names don't contain the box name,
+    so the old filter silently truncated the list — see BoxLootView ctor).
+    The caller is expected to pass the box's actual loot list instead.
+    """
     from PySide6.QtWidgets import QApplication
     app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
     from tbh_desktop.ui.box_loot_picker import BoxLootPicker
@@ -389,8 +395,10 @@ def test_box_loot_picker_scope_filter() -> None:
         for i in range(dlg.list_widget.count())
         if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
     ]
-    assert ids == [1, 3]
-    # Window title reflects scope.
+    # All material-kind items survive (stage-box filtered by kind, not by name).
+    # Sort order: family rank (CRAFTING < DECORATION < ENGRAVING), then id.
+    assert ids == [2, 1, 3]
+    # Window title still reflects scope for UX.
     assert "Obsidian" in dlg.windowTitle()
 
 

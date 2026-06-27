@@ -175,14 +175,11 @@ class MainWindow(QMainWindow):
         self.log_dock.setFeatures(
             QDockWidget.DockWidgetFeature.DockWidgetClosable
         )
-        # Pin the dock to a small fixed size when expanded. Both min
-        # AND max prevent Qt from auto-expanding to fill available
-        # vertical space (Qt's default dock expansion when content
-        # grows or the parent window resizes). Max ≈ 90px = the title
-        # bar (~28px) + room for ~3 log lines at monospace 12px — keep
-        # the dock a slim footer strip rather than a half-window panel.
-        self.log_dock.setMinimumHeight(24)
-        self.log_dock.setMaximumHeight(90)
+        # Pin the dock to a small fixed size — Qt's title-bar floor
+        # (~85px) limits how small we can go, so 80px max stays the
+        # dock at the absolute minimum regardless of content.
+        self.log_dock.setMinimumHeight(80)
+        self.log_dock.setMaximumHeight(80)
         # Collapse the dock by default — Qt's toggleViewAction is the
         # canonical way to set the dock's visibility state. We flip it
         # off after addDockWidget so the dock starts hidden and only

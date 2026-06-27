@@ -1,9 +1,17 @@
 """Dialog to pick a box ID from the box slug cache.
 
-Presents all known box IDs (from ``box_slug_cache.json``) as a searchable
-list.  Each entry shows ``id · Display Name (LvN)`` when the slug encodes a
-level.  Returns the selected ``box_id`` (and its parsed level) via
-:meth:`selected_box_id` / :meth:`selected_box_level`.
+T8: ``BoxView(QWidget)`` is the embeddable widget holding the list, search
+field, level dropdown, and slot wiring. ``BoxPicker(QDialog)`` is now a
+thin shim around it (kept so legacy callers — and the existing test suite
+— continue to compile unchanged).
+
+Cache format (read by ``BoxView``):
+    {"boxes": [{"id": <int>, "name": <str>, "level": <int?>}, ...]}
+
+The legacy ``box_slug_cache.json`` writers (G1-G6) wrote a flat dict
+``{box_id_str: slug}``; the T8 widget consumes the boxes-with-name shape
+because that is what the spec/test fixtures use and what the wider
+ItemBrowser (T9) will share.
 """
 from __future__ import annotations
 
@@ -13,13 +21,16 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QDialogButtonBox,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
     QVBoxLayout,
+    QWidget,
 )
 
 # Matches the trailing level segment of a box slug.
@@ -77,83 +88,167 @@ def load_box_cache(cache_path: Path) -> dict[str, str]:
         return {}
 
 
-class BoxPicker(QDialog):
-    """Searchable list of known boxes; user picks one to use as item_id."""
+# ---------------------------------------------------------- cache reader (T8)
+def _read_boxes_list(cache_path: Path) -> list[dict]:
+    """Read the T8 boxes cache format.
 
-    def __init__(self, slug_cache_path: Path, parent=None) -> None:
+    Accepts either:
+      - {"boxes": [{"id": int, "name": str, "level": int?}, ...]}
+      - legacy {box_id_str: slug} (reconstructed into boxes entries)
+
+    Returns an empty list on missing/unreadable file.
+    """
+    if not cache_path.exists():
+        return []
+    try:
+        data = json.loads(cache_path.read_text(encoding="utf-8-sig"))
+    except (json.JSONDecodeError, OSError):
+        return []
+
+    if isinstance(data, dict) and isinstance(data.get("boxes"), list):
+        boxes: list[dict] = []
+        for entry in data["boxes"]:
+            if not isinstance(entry, dict):
+                continue
+            try:
+                box_id = int(entry.get("id"))
+            except (TypeError, ValueError):
+                continue
+            name = str(entry.get("name", "")).strip()
+            if not name:
+                continue
+            level_raw = entry.get("level")
+            level: int | None = None
+            if level_raw is not None:
+                try:
+                    level = int(level_raw)
+                except (TypeError, ValueError):
+                    level = None
+            boxes.append({"id": box_id, "name": name, "level": level})
+        return boxes
+
+    # Legacy {box_id_str: slug} fallback — synthesise display names.
+    if isinstance(data, dict):
+        legacy: list[dict] = []
+        for key, slug in data.items():
+            try:
+                box_id = int(key)
+            except (TypeError, ValueError):
+                continue
+            if not isinstance(slug, str):
+                continue
+            legacy.append(
+                {
+                    "id": box_id,
+                    "name": _slug_to_display(slug),
+                    "level": parse_box_level(slug),
+                }
+            )
+        return legacy
+
+    return []
+
+
+# =============================================================================
+# BoxView — embeddable widget (T8)
+# =============================================================================
+class BoxView(QWidget):
+    """Embeddable box list with search and level filter.
+
+    Mirrors the layout ``BoxPicker`` exposed as a modal:
+    - Search field (case-insensitive substring on name OR id)
+    - Level dropdown ("All" + each distinct level found in the cache)
+    - Selectable list, single selection
+
+    Public API:
+    - ``set_name_filter(text: str)`` — apply a name/id substring filter
+    - ``visible_boxes() -> list[dict]`` — boxes currently shown (after all
+      filters). Each entry is ``{"id": int, "name": str, "level": int | None}``.
+    - ``selected_box_id() -> int | None`` — id of the currently selected row
+    - ``selected_box_level() -> int | None`` — level of the selected row
+    - ``set_selected_box_id_for_test(box_id: int)`` — test fixture hook
+    """
+
+    def __init__(self, cache_path: Path, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setWindowTitle("Pick a box")
-        self.resize(420, 560)
         self._level_by_id: dict[int, int | None] = {}
 
+        # Read cache once into the in-memory list — filter operations never
+        # touch disk. _build_ui wires widgets; _populate rebuilds from this.
+        self._boxes: list[dict] = _read_boxes_list(Path(cache_path))
+        for b in self._boxes:
+            self._level_by_id[int(b["id"])] = b.get("level")
+
+        self._build_ui()
+        self._populate()
+
+    # ---------------------------------------------------------- UI construction
+    def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(10)
 
         layout.addWidget(QLabel("Select a box:"))
 
+        # Search row
+        search_row = QHBoxLayout()
         self.search = QLineEdit()
         self.search.setPlaceholderText("Filter by name or id…")
         self.search.setClearButtonEnabled(True)
-        self.search.textChanged.connect(self._filter)
-        layout.addWidget(self.search)
+        self.search.textChanged.connect(self._apply_filter)
+        search_row.addWidget(self.search)
+        layout.addLayout(search_row)
 
+        # Level dropdown — "All" + each distinct level present in the cache.
+        # Avoids the user picking a level that no box has.
+        level_row = QHBoxLayout()
+        level_row.addWidget(QLabel("Level:"))
+        self.level = QComboBox()
+        self.level.currentIndexChanged.connect(self._apply_filter)
+        level_row.addWidget(self.level)
+        level_row.addStretch()
+        layout.addLayout(level_row)
+
+        # List
         self.list_widget = QListWidget()
         self.list_widget.setAlternatingRowColors(True)
         layout.addWidget(self.list_widget)
 
+        # Count
         self.count_label = QLabel()
         self.count_label.setStyleSheet("color: #7f849c; font-size: 11px;")
         layout.addWidget(self.count_label)
 
-        buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok
-            | QDialogButtonBox.StandardButton.Cancel
-        )
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
+    # ---------------------------------------------------------- public API
+    def set_name_filter(self, text: str) -> None:
+        """Set the search field; list visibility updates accordingly."""
+        # Block signals so programmatic change doesn't echo into _apply_filter
+        # recursively — same pattern as GearView._populate_level_options.
+        self.search.blockSignals(True)
+        self.search.setText(text)
+        self.search.blockSignals(False)
+        self._apply_filter(text)
 
-        self._build(slug_cache_path)
+    def visible_boxes(self) -> list[dict]:
+        """Return the boxes currently rendered (visible after filters).
 
-    # ------------------------------------------------------------------ build
-    def _build(self, cache_path: Path) -> None:
-        data = load_box_cache(cache_path)
-        for box_id_str, slug in sorted(data.items(), key=lambda kv: int(kv[0])):
-            try:
-                box_id = int(box_id_str)
-            except ValueError:
-                continue
-            display = _slug_to_display(slug)
-            level = parse_box_level(slug)
-            self._level_by_id[box_id] = level
-            text = f"{box_id} · {display}"
-            if level is not None:
-                text += f" (Lv{level})"
-            list_item = QListWidgetItem(text)
-            list_item.setData(Qt.ItemDataRole.UserRole, box_id)
-            self.list_widget.addItem(list_item)
-        self._update_count()
-
-    def _filter(self, text: str) -> None:
-        text = text.strip().lower()
+        Each entry has at least ``id`` and ``name``; ``level`` is present
+        when the cache encoded one.
+        """
+        out: list[dict] = []
         for i in range(self.list_widget.count()):
             li = self.list_widget.item(i)
-            li.setHidden(bool(text) and text not in li.text().lower())
-        self._update_count()
+            if li.isHidden():
+                continue
+            out.append(
+                {
+                    "id": li.data(Qt.ItemDataRole.UserRole),
+                    "name": self._display_name_for_id(li.data(Qt.ItemDataRole.UserRole)),
+                    "level": self._level_by_id.get(li.data(Qt.ItemDataRole.UserRole)),
+                }
+            )
+        return out
 
-    def _update_count(self) -> None:
-        visible = sum(
-            1
-            for i in range(self.list_widget.count())
-            if not self.list_widget.item(i).isHidden()
-        )
-        total = self.list_widget.count()
-        self.count_label.setText(
-            f"{total} boxes" if visible == total else f"{visible} of {total} boxes"
-        )
-
-    # ------------------------------------------------------------------ result
     def selected_box_id(self) -> int | None:
         items = self.list_widget.selectedItems()
         if not items:
@@ -165,3 +260,136 @@ class BoxPicker(QDialog):
         if box_id is None:
             return None
         return self._level_by_id.get(box_id)
+
+    def set_selected_box_id_for_test(self, box_id: int) -> None:
+        """Test fixture: select the row whose id == ``box_id``.
+
+        Selects + scrolls to + focuses the matching row. Raises AssertionError
+        if no row matches (the test fixture is misconfigured).
+        """
+        for i in range(self.list_widget.count()):
+            li = self.list_widget.item(i)
+            if li.data(Qt.ItemDataRole.UserRole) == box_id:
+                self.list_widget.setCurrentRow(i)
+                return
+        raise AssertionError(f"box_id {box_id} not present in view")
+
+    # ------------------------------------------------------------------ build
+    def _populate(self) -> None:
+        """Populate the level dropdown and the list from self._boxes."""
+        # Level dropdown — "All" + sorted distinct levels
+        self.level.blockSignals(True)
+        self.level.clear()
+        self.level.addItem("All", None)
+        seen_levels: set[int] = set()
+        for b in self._boxes:
+            lv = b.get("level")
+            if isinstance(lv, int):
+                seen_levels.add(lv)
+        for lv in sorted(seen_levels):
+            self.level.addItem(f"Lv{lv}", lv)
+        self.level.blockSignals(False)
+
+        self._rebuild_list()
+        self._update_count()
+
+    def _rebuild_list(self) -> None:
+        self.list_widget.clear()
+        # Stable order: by id ascending.
+        for b in sorted(self._boxes, key=lambda b: int(b["id"])):
+            box_id = int(b["id"])
+            text = f"{box_id} · {b['name']}"
+            lv = b.get("level")
+            if isinstance(lv, int):
+                text += f" (Lv{lv})"
+            list_item = QListWidgetItem(text)
+            list_item.setData(Qt.ItemDataRole.UserRole, box_id)
+            self.list_widget.addItem(list_item)
+        # Re-apply current filters after repopulating.
+        self._apply_filter(self.search.text())
+
+    def _display_name_for_id(self, box_id: int) -> str:
+        for b in self._boxes:
+            if int(b["id"]) == box_id:
+                return str(b["name"])
+        return ""
+
+    # ------------------------------------------------------------------ filter
+    def _apply_filter(self, _text: str | None = None) -> None:
+        """Update row visibility from the current search + level selection."""
+        needle = self.search.text().strip().lower()
+        level_filter = self.level.currentData()
+        for i in range(self.list_widget.count()):
+            li = self.list_widget.item(i)
+            box_id = li.data(Qt.ItemDataRole.UserRole)
+            label = li.text()
+            name_part = label.split(" · ", 1)[1] if " · " in label else ""
+            name_part = name_part.split(" (Lv", 1)[0]
+            text_match = (not needle) or (
+                needle in name_part.lower() or needle in str(box_id)
+            )
+            level = self._level_by_id.get(box_id)
+            level_match = level_filter is None or level == level_filter
+            li.setHidden(not (text_match and level_match))
+        self._update_count()
+
+    def _update_count(self) -> None:
+        visible = sum(
+            1
+            for i in range(self.list_widget.count())
+            if not self.list_widget.item(i).isHidden()
+        )
+        total = self.list_widget.count()
+        if visible == total:
+            self.count_label.setText(f"{total} boxes")
+        else:
+            self.count_label.setText(f"{visible} of {total} boxes")
+
+
+# =============================================================================
+# BoxPicker — thin dialog shim (T8)
+# =============================================================================
+class BoxPicker(QDialog):
+    """Thin dialog shim around :class:`BoxView`.
+
+    Kept so legacy callers (and the existing test suite) continue to compile
+    unchanged. All UI attributes (``search``, ``list_widget``, ``count_label``)
+    are exposed via property forwarding to the embedded ``BoxView``.
+    """
+
+    def __init__(self, slug_cache_path: Path, parent=None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Pick a box")
+        self.resize(420, 560)
+
+        self._view = BoxView(Path(slug_cache_path), self)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self._view)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    # ---------------------------------------------------------- forwarded API
+    @property
+    def search(self) -> QLineEdit:
+        return self._view.search
+
+    @property
+    def list_widget(self) -> QListWidget:
+        return self._view.list_widget
+
+    @property
+    def count_label(self) -> QLabel:
+        return self._view.count_label
+
+    def selected_box_id(self) -> int | None:
+        return self._view.selected_box_id()
+
+    def selected_box_level(self) -> int | None:
+        return self._view.selected_box_level()

@@ -45,3 +45,20 @@ def test_item_card_unknown_rarity_falls_back_to_common(qapp: QApplication) -> No
     assert card.rarity() == "COMMON"
     # Border color must still resolve to a real RARITY value.
     assert card.rarity_color() == RARITY["COMMON"]
+
+
+def test_item_card_compact_icon_no_overflow(qapp: QApplication) -> None:
+    from PySide6.QtGui import QPixmap
+
+    card = ItemCard()
+    card.set_data({"id": 1, "name": "x", "rarity": "COMMON"})
+    card.set_compact(True)
+    # In compact mode the icon area is ~40x40 (48px card - 4px×2 margins).
+    # A 100x100 pixmap scaled to 56px would overflow; it must be scaled to 40px.
+    big_pixmap = QPixmap(100, 100)
+    card.set_icon_pixmap(big_pixmap)
+    assert card._icon_label.pixmap().size().width() <= 40
+    assert card._icon_label.pixmap().size().height() <= 40
+    # The actual card size in compact mode must be 96x48.
+    assert card.size().width() == 96
+    assert card.size().height() == 48

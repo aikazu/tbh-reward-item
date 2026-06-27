@@ -45,8 +45,12 @@ class ItemCard(QFrame):
         self._item_id = int(item.get("id", 0))
         self._name = str(item.get("name", ""))
         raw_rarity = str(item.get("rarity", "COMMON")).upper()
-        self._rarity = raw_rarity if raw_rarity in RARITY else "COMMON"
-        self._name_label.setText(self._truncate(self._name, 14))
+        new_rarity = raw_rarity if raw_rarity in RARITY else "COMMON"
+        new_truncated = self._truncate(self._name, 14)
+        if new_rarity == self._rarity and new_truncated == self._name_label.text():
+            return  # no visible change
+        self._rarity = new_rarity
+        self._name_label.setText(new_truncated)
         self._refresh_style()
 
     def item_id(self) -> int:
@@ -80,7 +84,6 @@ class ItemCard(QFrame):
         else:
             self.setFixedSize(self.SIZE_FULL, self.SIZE_FULL)
             self._name_label.setVisible(True)
-        self._refresh_style()
 
     def sizeHint(self) -> QSize:
         if self._compact:
@@ -90,8 +93,9 @@ class ItemCard(QFrame):
     def set_icon_pixmap(self, pixmap) -> None:
         """Optional: assign a QPixmap once ImageCache resolves the URL."""
         if pixmap is not None and not pixmap.isNull():
+            size = self.SIZE_COMPACT - 8 if self._compact else 56
             self._icon_label.setPixmap(pixmap.scaled(
-                56, 56,
+                size, size,
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation,
             ))

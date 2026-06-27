@@ -1,19 +1,69 @@
-"""One rule: enabled, name, item_id, three Pick buttons, replacement chip row."""
+"""One rule: enabled, name, item_id, three Pick buttons, replacement chip row.
+
+Arsenal-console layout — sharp corners, monospace IDs, rarity-bordered chips.
+"""
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QCheckBox,
     QFrame,
     QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
+    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
 
+from tbh_desktop.paths import DROPS_INDEX_CACHE
 from tbh_desktop.ui.item_card import ItemCard
-from tbh_desktop.ui.theme import MOCHA
+from tbh_desktop.ui.theme import MOCHA, RARITY, chip_style, section_heading_style
+
+# Path that resolve_item_label reads on each call. Patchable in tests.
+_DROPS_INDEX_PATH: Path = DROPS_INDEX_CACHE
+
+
+def resolve_item_label(item_id: int) -> tuple[str, str]:
+    """Return (display_label, rarity) for an item_id.
+
+    Reads the cached drops index synchronously (the file is small — a few
+    hundred items). Falls back to ``("Unknown #<id>", "COMMON")`` when the
+    cache is missing or the id isn't in it.
+    """
+    try:
+        if _DROPS_INDEX_PATH.exists():
+            data = json.loads(_DROPS_INDEX_PATH.read_text(encoding="utf-8"))
+            items = data.get("items") if isinstance(data, dict) else data
+            if isinstance(items, list):
+                for it in items:
+                    if isinstance(it, dict) and it.get("id") == item_id:
+                        name = str(it.get("name") or f"#{item_id}")
+                        rarity = str(it.get("rarity") or "COMMON").upper()
+                        if rarity not in RARITY:
+                            rarity = "COMMON"
+                        return name, rarity
+    except (OSError, ValueError):
+        pass
+    return f"Unknown #{item_id}", "COMMON"
+
+
+_MONO_FONT = QFont("JetBrains Mono", 11)
+_MONO_FONT.setStyleHint(QFont.StyleHint.Monospace)
+_MONO_FONT.setFamily("JetBrains Mono")
+
+
+def _make_mono_label(text: str = "", *, object_name: str | None = None) -> QLabel:
+    label = QLabel(text)
+    label.setFont(_MONO_FONT)
+    if object_name:
+        label.setObjectName(object_name)
+    return label
 
 
 class RuleCard(QFrame):
@@ -26,6 +76,7 @@ class RuleCard(QFrame):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setObjectName("rule_card")
+        self.setProperty("active", False)
         self._locked: bool = False
         self._active: bool = False
         self._name: str = ""
@@ -34,53 +85,109 @@ class RuleCard(QFrame):
         self._chips: list[ItemCard] = []
 
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(10, 8, 10, 8)
-        outer.setSpacing(6)
+        outer.setContentsMargins(12, 10, 12, 10)
+        outer.setSpacing(8)
 
-        # Row 1: enabled + name
+        # ---- Row 1: status dot + name + actions -------------------------
         row1 = QHBoxLayout()
+        row1.setSpacing(8)
+        self.status_dot = QLabel("●")
+        self.status_dot.setObjectName("status_dot")
+        self.status_dot.setFixedWidth(14)
+        self.status_dot.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        row1.addWidget(self.status_dot)
+
         self.chk_enabled = QCheckBox()
+        self.chk_enabled.setToolTip("Enable this rule")
         self.chk_enabled.toggled.connect(self.edited)
         row1.addWidget(self.chk_enabled)
+
         self.edit_name = QLineEdit()
         self.edit_name.setPlaceholderText("Rule name")
         self.edit_name.textChanged.connect(self._on_name_changed)
         row1.addWidget(self.edit_name, stretch=1)
+
+        self.btn_remove = QPushButton("✕")
+        self.btn_remove.setObjectName("btn_remove_rule")
+        self.btn_remove.setToolTip("Remove rule")
+        self.btn_remove.setFixedWidth(32)
+        self.btn_remove.setProperty("toolbar_zone", "ghost")
+        self.btn_remove.clicked.connect(self.remove)
+        row1.addWidget(self.btn_remove)
+
+        self.btn_settings = QPushButton("⚙")
+        self.btn_settings.setObjectName("btn_rule_settings")
+        self.btn_settings.setToolTip("Rule settings")
+        self.btn_settings.setFixedWidth(32)
+        self.btn_settings.setProperty("toolbar_zone", "ghost")
+        self.btn_settings.setEnabled(False)  # reserved for future menu
+        row1.addWidget(self.btn_settings)
+
         outer.addLayout(row1)
 
-        # Row 2: item_id + pick buttons
+        # ---- Row 2: ID + 3 pick buttons (mono + ghost) -----------------
         row2 = QHBoxLayout()
+        row2.setSpacing(8)
+
+        id_label = QLabel("ID")
+        id_label.setStyleSheet(f"color: {MOCHA['overlay1']}; font-size: 11px;")
+        row2.addWidget(id_label)
+
+        self.item_id_display = _make_mono_label("—", object_name="item_id_display")
+        self.item_id_display.setMinimumWidth(96)
+        self.item_id_display.setStyleSheet(
+            f"color: {MOCHA['text']}; background: {MOCHA['crust']};"
+            f" border: 1px solid {MOCHA['surface1']}; border-radius: 2px;"
+            f" padding: 4px 8px;"
+        )
+        row2.addWidget(self.item_id_display)
+
         self.edit_item_id = QLineEdit()
         self.edit_item_id.setPlaceholderText("box / item id")
-        self.edit_item_id.setFixedWidth(110)
+        self.edit_item_id.setFixedWidth(96)
+        self.edit_item_id.setFont(_MONO_FONT)
         self.edit_item_id.textChanged.connect(self._on_item_id_changed)
         row2.addWidget(self.edit_item_id)
+
+        row2.addSpacing(8)
         self.btn_pick_box_id = QPushButton("Pick box")
+        self.btn_pick_box_id.setProperty("toolbar_zone", "ghost")
         self.btn_pick_box_id.clicked.connect(self.pick_box_id)
         row2.addWidget(self.btn_pick_box_id)
         self.btn_pick_box_loot = QPushButton("Pick loot")
+        self.btn_pick_box_loot.setProperty("toolbar_zone", "ghost")
         self.btn_pick_box_loot.clicked.connect(self.pick_box_loot)
         row2.addWidget(self.btn_pick_box_loot)
         self.btn_pick_gear = QPushButton("Pick gear")
+        self.btn_pick_gear.setProperty("toolbar_zone", "ghost")
         self.btn_pick_gear.clicked.connect(self.pick_gear)
         row2.addWidget(self.btn_pick_gear)
         row2.addStretch()
         outer.addLayout(row2)
 
-        # Row 3: chip wrap
+        # ---- Row 3: REPLACES divider + label ----------------------------
+        divider_row = QHBoxLayout()
+        divider_row.setSpacing(8)
+        self.section_heading = QLabel("REPLACES")
+        self.section_heading.setObjectName("section_heading")
+        divider_row.addWidget(self.section_heading)
+        line = QFrame()
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Plain)
+        line.setStyleSheet(f"color: {MOCHA['surface1']}; background: {MOCHA['surface1']};")
+        line.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        divider_row.addWidget(line, stretch=1)
+        outer.addLayout(divider_row)
+
+        # ---- Row 4: chip wrap -------------------------------------------
         self._chip_row = QHBoxLayout()
-        self._chip_row.setSpacing(4)
+        self._chip_row.setContentsMargins(0, 0, 0, 0)
+        self._chip_row.setSpacing(6)
         self._chip_row.addStretch()
         outer.addLayout(self._chip_row)
 
-        # Row 4: remove
-        row4 = QHBoxLayout()
-        row4.addStretch()
-        self.btn_remove = QPushButton("Remove")
-        self.btn_remove.clicked.connect(self.remove)
-        row4.addWidget(self.btn_remove)
-        outer.addLayout(row4)
-
+        # Pre-apply section heading QSS so first paint shows correct font.
+        self.section_heading.setStyleSheet(section_heading_style())
         self._refresh_style()
 
     # ---- data --------------------------------------------------------
@@ -98,6 +205,7 @@ class RuleCard(QFrame):
             self.chk_enabled.setChecked(bool(rule.get("enabled", False)))
             self.edit_name.setText(self._name)
             self.edit_item_id.setText("" if self._item_id is None else str(self._item_id))
+            self._refresh_item_id_display()
         finally:
             for w in (self.chk_enabled, self.edit_name, self.edit_item_id):
                 w.blockSignals(False)
@@ -147,10 +255,14 @@ class RuleCard(QFrame):
         self._chips.clear()
         # add new
         for i, item_id in enumerate(self._replacement_ids):
+            label, rarity = resolve_item_label(item_id)
             chip = ItemCard(self)
             chip.set_compact(True)
-            chip.set_data({"id": item_id, "name": str(item_id), "rarity": "COMMON"})
-            chip.setToolTip(f"item_id {item_id} — click to remove")
+            chip.setObjectName(f"chip_{item_id}")
+            chip.set_data({"id": item_id, "name": label, "rarity": rarity})
+            chip.setStyleSheet(chip_style(rarity, compact=True))
+            chip.setToolTip(f"{label} (#{item_id}) — click to remove")
+            # Click to remove (kept for back-compat with existing tests).
             chip.mousePressEvent = lambda _e, _id=item_id: self.remove_id(_id)  # type: ignore[method-assign]
             self._chip_row.insertWidget(i, chip)
             self._chips.append(chip)
@@ -175,15 +287,24 @@ class RuleCard(QFrame):
             self._item_id = int(text.strip()) if text.strip() else None
         except ValueError:
             self._item_id = None
+        self._refresh_item_id_display()
         self.edited.emit()
 
+    def _refresh_item_id_display(self) -> None:
+        self.item_id_display.setText("—" if self._item_id is None else str(self._item_id))
+
     def _refresh_style(self) -> None:
-        left_border = MOCHA["blue"] if self._active else MOCHA["surface0"]
-        self.setStyleSheet(
-            f"#rule_card {{"
-            f"  background-color: {MOCHA['mantle']};"
-            f"  border: 1px solid {MOCHA['surface0']};"
-            f"  border-left: 4px solid {left_border};"
-            f"  border-radius: 8px;"
-            f"}}"
-        )
+        enabled = self.chk_enabled.isChecked()
+        if self._active:
+            dot_color = MOCHA["sapphire"]
+        elif enabled:
+            dot_color = MOCHA["green"]
+        else:
+            dot_color = MOCHA["overlay0"]
+        self.status_dot.setStyleSheet(f"color: {dot_color}; font-size: 14px;")
+        self.setProperty("active", self._active)
+        # Re-apply inline stylesheet so QSS dynamic property [active='true']
+        # can resolve. Qt only reads the stylesheet on setStyleSheet, not on
+        # setProperty, so we re-set it.
+        self.style().unpolish(self)
+        self.style().polish(self)

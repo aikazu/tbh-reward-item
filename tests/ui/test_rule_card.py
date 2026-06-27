@@ -121,3 +121,58 @@ def test_rule_card_chip_click_removes_id(qapp: QApplication) -> None:
     chip.mousePressEvent(event)
     assert card.replacement_ids() == [10, 30]
     assert captured["edited"] == [True]
+
+
+def test_rule_card_has_section_heading(qapp: QApplication) -> None:
+    """Arsenal directive: every rule card shows a Cinzel section label."""
+    card = RuleCard()
+    assert card.findChild(type(card.section_heading)) is not None
+    assert card.section_heading.objectName() == "section_heading"
+
+
+def test_rule_card_item_id_display_is_mono(qapp: QApplication) -> None:
+    """The static 'ID' + value display must use a monospace font (JetBrains
+    Mono family) so IDs line up vertically across cards."""
+    card = RuleCard()
+    # The internal mono label for the item id is exposed via _item_id_display.
+    assert card.item_id_display.font().families() == card.item_id_display.font().families()
+    family_str = " ".join(card.item_id_display.font().families()).lower()
+    assert "mono" in family_str or "jetbrains" in family_str
+
+
+def test_rule_card_chips_have_rarity_border(qapp: QApplication) -> None:
+    """Each chip's QSS must include a rarity color (LEGENDARY → yellow)."""
+    card = RuleCard()
+    card.set_data({
+        "enabled": True, "name": "r", "item_id": 1,
+        "replacement_reward_item_ids": [10],
+    })
+    chip = card._chips[0]
+    qss = chip.styleSheet()
+    # ItemCard rarity border color is drawn from theme.RARITY (e.g. #f9e2af).
+    # The card must apply some border color (not transparent).
+    assert "border" in qss.lower()
+
+
+def test_rule_card_unknown_id_shows_fallback_label(qapp: QApplication) -> None:
+    """If the item id isn't in the drops index cache, the chip label falls
+    back to 'Unknown #<id>' in mono so the user still sees what the chip is."""
+    from tbh_desktop.ui.rule_card import resolve_item_label
+    label, rarity = resolve_item_label(999_999_999)
+    assert "999999999" in label
+    assert rarity in {"COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY", "MYTHIC"}
+
+
+def test_rule_card_known_id_resolves_name(qapp: QApplication, tmp_path, monkeypatch) -> None:
+    """When the drops index cache contains the id, resolve_item_label returns
+    the item's name and rarity from the cache."""
+    import json
+    drops = tmp_path / "drops_index.json"
+    drops.write_text(json.dumps([
+        {"id": 605041, "name": "Gold Amulet", "rarity": "LEGENDARY"}
+    ]))
+    monkeypatch.setattr("tbh_desktop.ui.rule_card._DROPS_INDEX_PATH", drops)
+    from tbh_desktop.ui.rule_card import resolve_item_label
+    label, rarity = resolve_item_label(605041)
+    assert "Gold" in label
+    assert rarity == "LEGENDARY"

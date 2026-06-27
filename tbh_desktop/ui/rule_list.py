@@ -65,7 +65,7 @@ class _RuleCardModel(QAbstractItemModel):
 class _RuleCardDelegate(QStyledItemDelegate):
     """Paints one `RuleCard` per row at a fixed height."""
 
-    CARD_HEIGHT = 188  # RuleCard preferred height (rows 1+2+3+4 with padding)
+    CARD_HEIGHT = 220  # RuleCard preferred height (4 rows + REPLACES divider + padding)
 
     def sizeHint(self, option: QStyleOptionViewItem, index) -> QSize:  # noqa: ANN001
         return QSize(option.rect.width() or 600, self.CARD_HEIGHT)

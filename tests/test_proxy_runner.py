@@ -1,10 +1,17 @@
 # tests/test_proxy_runner.py
-"""Tests for proxy_runner."""
+"""Tests for proxy_runner.
+
+Skipped by default (mark.gui); run with `pytest -m gui`.
+"""
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from tbh_desktop import proxy_runner
+
+pytestmark = pytest.mark.gui
 
 
 def test_runner_emits_log_lines(qtbot) -> None:

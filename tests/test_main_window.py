@@ -1,4 +1,4 @@
-"""Tests for main_window."""
+"""Tests for main_window. Skipped by default (mark.gui); run with `pytest -m gui`."""
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -8,6 +8,8 @@ from PySide6.QtWidgets import QMessageBox
 
 from tbh_desktop.paths import GEAR_CACHE_DIR
 from tbh_desktop.ui.main_window import MainWindow
+
+pytestmark = pytest.mark.gui
 
 
 @pytest.fixture

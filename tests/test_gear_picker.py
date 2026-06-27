@@ -1,4 +1,7 @@
-"""Tests for GearPicker (G3: category+grade+level filters from cache dir)."""
+"""Tests for GearPicker (G3: category+grade+level filters from cache dir).
+
+Skipped by default (mark.gui); run with `pytest -m gui`.
+"""
 from __future__ import annotations
 
 import json
@@ -6,6 +9,8 @@ import json
 import pytest
 
 from tbh_desktop.ui.gear_picker import GearPicker
+
+pytestmark = pytest.mark.gui
 
 
 def _write_cache(cache_dir, cat: str, grade: str, items: list[dict]) -> None:

@@ -302,6 +302,11 @@ class GearView(QWidget):
         Rebuilds the loot-names set from the new items and triggers a rebuild
         so the list reflects the new filter. ``level_hint`` is optional;
         pass ``None`` to leave the previous level dropdown selection alone.
+
+        Also reveals the scope checkbox (hidden at init when no loot was
+        supplied) and checks it by default so the user lands on a scoped
+        view the moment a rule is selected — the previous "scope OFF but
+        checkbox hidden" UX trap is gone.
         """
         if box_loot:
             self._loot_names = {
@@ -313,6 +318,15 @@ class GearView(QWidget):
                 self._loot_names = None
         else:
             self._loot_names = None
+        # Reveal + default-on the scope checkbox whenever the box actually
+        # drops gear. (Init hides it because _loot_names is None at that
+        # point; this method runs after the user selects a rule.)
+        if self._loot_names is not None:
+            self.match_box_check.setVisible(True)
+            self.match_box_check.setChecked(True)
+        else:
+            self.match_box_check.setVisible(False)
+            self.match_box_check.setChecked(False)
         if level_hint is not None:
             self._level_hint = level_hint
             self._apply_level_hint(level_hint)

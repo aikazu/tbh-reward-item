@@ -414,7 +414,16 @@ class BoxLootView(QWidget):
         rarity = str(item.get("rarity", "")).title()
         family = str(item.get("family", "")).title()
         rate_part = f" ({rate})" if rate else ""
-        line1 = f"  {item_id} · {name}{rate_part}"
+        # Inline badges: rarity + family shown next to the name so the user
+        # can scan rows without hovering. Lowercase to read as metadata,
+        # not part of the item name.
+        tags: list[str] = []
+        if rarity:
+            tags.append(rarity.upper())
+        if family:
+            tags.append(family)
+        tags_part = f"  [{' · '.join(tags)}]" if tags else ""
+        line1 = f"  {item_id} · {name}{tags_part}{rate_part}"
         # Inline info: effect + stat rolls (one per slot type). If the
         # item has no info yet (never re-scraped), just show the name line.
         info_line = _format_info_inline(item.get("info"))

@@ -73,3 +73,25 @@ def test_set_items_with_mode_filter(qapp: QApplication) -> None:
     ])
     # box_loot mode keeps materials only.
     assert {it["id"] for it in view._all_items} == {11, 12}
+
+
+def test_row_label_shows_rarity_and_family(qapp: QApplication) -> None:
+    """Arsenal directive: rows must surface rarity + family inline so the
+    user can scan the list without hovering every item. Tooltip-only
+    metadata was the 'looks like all other items' complaint."""
+    view = BoxLootView(
+        items=[
+            {"id": 1, "name": "Bronze Ingot", "kind": "material",
+             "rarity": "UNCOMMON", "family": "CRAFTING"},
+        ],
+        mode="materials",
+    )
+    # Row 0 is the family header ("── Crafting ──"); the data row is next.
+    data_row = next(
+        i for i in range(view.list_widget.count())
+        if view.list_widget.item(i).data(0x0100) is not None
+    )
+    text = view.list_widget.item(data_row).text()
+    assert "UNCOMMON" in text, f"rarity missing from row: {text!r}"
+    assert "Crafting" in text, f"family missing from row: {text!r}"
+    assert "Bronze Ingot" in text

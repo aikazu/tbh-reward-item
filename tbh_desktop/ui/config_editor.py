@@ -241,6 +241,14 @@ class ConfigEditor(QWidget):
     def add_ids_to_selected_rule(self, ids: list[int]) -> None:
         self._rule_list.add_ids_to_selected_rule(ids)
 
+    def add_ids_to_active_target(self, ids: list[int]) -> None:
+        """Route ids to whichever target is currently active (rule or range)."""
+        target = self._rule_list.active_target()
+        if isinstance(target, RangeTarget):
+            self.add_ids_to_range(ids)
+        else:
+            self.add_ids_to_selected_rule(ids)
+
     def add_ids_to_range(self, ids: list[int]) -> None:
         # Route through the active-target system for symmetry.
         self._rule_list.set_active_target(RangeTarget())

@@ -5,3 +5,4 @@ lxml>=5.0
 pytest-qt>=4.3
 playwright>=1.40
 cloakbrowser>=0.4
+Pillow>=10.0  # dev_tools/scrape_pipeline only (not used at runtime by binary)

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "scrape_completed_at": "2026-06-27T11:58:45",
+  "scrape_started_at": "2026-06-27T11:52:20",
+  "scrape": {},
+  "images": {
+    "images_total": 980,
+    "downloaded": 820,
+    "skipped": 0,
+    "failed": 160,
+    "bytes_total": 8815352,
+    "duration_s": 384.2
+  }
+}

@@ -156,9 +156,15 @@ class MainWindow(QMainWindow):
         self._splitter.setStretchFactor(0, 30)
         self._splitter.setStretchFactor(1, 70)
         self._splitter.setSizes([420, 980])
-        self.setCentralWidget(self._splitter)
-
-        # ---- Log dock (bottom, collapsible) -----------------------------
+        self.setCentralWidget(self._splitter)        # ---- Log dock (bottom, collapsible) -----------------------------
+        # Log dock starts COLLAPSED — the panel only opens when the user
+        # explicitly clicks the View → Log panel menu item. Default-open
+        # log panels eat ~50% of the window at launch (Qt's default
+        # dock height), forcing the user to drag the dock border back
+        # up to recover the main workspace. Collapsed-by-default means
+        # the app launches with the full main area visible and the log
+        # appears as a one-line dock header that can be expanded when
+        # the user actually wants to see traffic.
         self.log_dock = QDockWidget("Log", self)
         self.log_dock.setObjectName("log_dock")
         self.log_dock.setWidget(self.log_panel)
@@ -166,13 +172,23 @@ class MainWindow(QMainWindow):
             Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea
         )
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.log_dock)
-        # Make the dock collapsible but not floatable / movable — keeps
-        # the layout predictable across screen sizes and prevents the
-        # user from accidentally dragging it out into a floating
-        # top-level window.
         self.log_dock.setFeatures(
             QDockWidget.DockWidgetFeature.DockWidgetClosable
         )
+        # Pin the dock to a small fixed size when expanded — ~80px
+        # collapsed (the dock title bar alone) up to ~140px when open
+        # (room for ~5 log lines + the placeholder hint). Both min
+        # AND max prevent Qt from auto-expanding to fill available
+        # vertical space (Qt's default dock expansion when content
+        # grows or the parent window resizes).
+        self.log_dock.setMinimumHeight(24)
+        self.log_dock.setMaximumHeight(140)
+        # Collapse the dock by default — Qt's toggleViewAction is the
+        # canonical way to set the dock's visibility state. We flip it
+        # off after addDockWidget so the dock starts hidden and only
+        # appears when the user clicks View → Log panel.
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(0, lambda: self.log_dock.toggleViewAction().setChecked(False))
 
         # ---- Catalog dock (right side, hidden by default) ---------------
         # Kept accessible for users who want to browse the full wiki catalog,
@@ -411,7 +427,10 @@ class MainWindow(QMainWindow):
         view_menu = menubar.addMenu("View")
         self.action_toggle_log = view_menu.addAction("Log panel")
         self.action_toggle_log.setCheckable(True)
-        self.action_toggle_log.setChecked(True)
+        # Default UNCHECKED — the log dock is collapsed by default so
+        # the main workspace gets the full window height at launch.
+        # The dock auto-collapses via QTimer.singleShot in __init__.
+        self.action_toggle_log.setChecked(False)
         self.action_toggle_log.toggled.connect(
             lambda checked: self.log_dock.toggleViewAction().setChecked(checked)
         )

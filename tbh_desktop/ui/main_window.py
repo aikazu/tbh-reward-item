@@ -180,12 +180,20 @@ class MainWindow(QMainWindow):
         # dock at the absolute minimum regardless of content.
         self.log_dock.setMinimumHeight(80)
         self.log_dock.setMaximumHeight(80)
-        # Collapse the dock by default — Qt's toggleViewAction is the
-        # canonical way to set the dock's visibility state. We flip it
-        # off after addDockWidget so the dock starts hidden and only
-        # appears when the user clicks View → Log panel.
+        # Collapse the dock by default. Use show()/hide() (rather than
+        # setVisible) so Qt's toggleViewAction state stays consistent
+        # with the menu action's checkable state. setVisible() on a
+        # freshly-added dock sometimes leaves the dock in a half-shown
+        # state where subsequent toggle actions don't fire the
+        # visibilityChanged signal reliably. Guard against teardown
+        # race where the dock C++ object is already destroyed.
         from PySide6.QtCore import QTimer
-        QTimer.singleShot(0, lambda: self.log_dock.toggleViewAction().setChecked(False))
+        def _safe_hide():
+            try:
+                self.log_dock.hide()
+            except RuntimeError:
+                pass
+        QTimer.singleShot(0, _safe_hide)
 
         # ---- Catalog dock (right side, hidden by default) ---------------
         # Kept accessible for users who want to browse the full wiki catalog,
@@ -200,8 +208,12 @@ class MainWindow(QMainWindow):
         self.catalog_dock.setFeatures(
             QDockWidget.DockWidgetFeature.DockWidgetClosable
         )
-        self.catalog_dock.hide()  # hidden by default — user opts in
-
+        # Catalog dock starts VISIBLE — the user can collapse it via
+        # the toolbar Catalog button (or View → Item browser) if they
+        # don't want it. Showing it by default surfaces the in-game
+        # catalog right away so the user can browse gear + drops
+        # without having to dig into menus first.
+        self.catalog_dock.show()
         # ---- Toolbar (4 zones) + menu + status bar ----------------------
         self._build_toolbar()
         self._build_menu()
@@ -379,7 +391,7 @@ class MainWindow(QMainWindow):
         )
         bar.addWidget(self.btn_reset)
 
-        # ---- STEAM zone: Copy + Port (live in the main toolbar) --------
+        # ---- STEAM zone: Copy + Catalog toggle (live in the main toolbar) -
         bar.addSeparator()
         bar.addWidget(_zone_label("STEAM"))
         self.btn_copy_steam = QPushButton("Copy Steam")
@@ -391,6 +403,28 @@ class MainWindow(QMainWindow):
             "Paste into Steam → TaskBarHero → Properties → Launch Options."
         )
         bar.addWidget(self.btn_copy_steam)
+
+        # Catalog toggle button — pinned on the toolbar (next to Copy
+        # Steam in the STEAM zone) so users don't have to dig through
+        # the View menu to find it. Connected via ``clicked`` (not
+        # ``toggled``) so the toggle handler only fires once per click
+        # — using ``toggled`` causes a recursion loop because Qt re-
+        # fires ``toggled`` whenever we call ``setChecked`` to sync.
+        self.btn_catalog = QPushButton("Catalog")
+        self.btn_catalog.setObjectName("btn_catalog")
+        self.btn_catalog.setProperty("toolbar_zone", "secondary")
+        self.btn_catalog.setToolTip(
+            "Show / hide the Item catalog browser (right dock with gear + "
+            "drops index tabs)"
+        )
+        self.btn_catalog.setCheckable(True)
+        # The catalog dock is shown by default (see __init__ below);
+        # the toolbar is built before that show() takes effect so
+        # isVisible() may still read False here — force the checked
+        # state to True so the toolbar button matches the dock.
+        self.btn_catalog.setChecked(True)
+        self.btn_catalog.clicked.connect(self._toggle_catalog_dock)
+        bar.addWidget(self.btn_catalog)
 
         # ---- Right-side: Port field + status badge (in main toolbar) ---
         # The status indicator belongs at the far right where users expect
@@ -421,29 +455,55 @@ class MainWindow(QMainWindow):
         file_menu.addAction("Exit", self.close)
 
         # View menu: visibility toggles for log dock + catalog dock.
+        # Click handler flips the dock's current visibility. The menu
+        # action's checked state is set BEFORE setVisible so Qt renders
+        # the checkmark from the action's own state — no
+        # dock.visibilityChanged → action.setChecked round-trip needed
+        # (avoids a teardown GC crash where the action's C++ object
+        # is already deleted when the dock emits its final signal).
         view_menu = menubar.addMenu("View")
         self.action_toggle_log = view_menu.addAction("Log panel")
         self.action_toggle_log.setCheckable(True)
-        # Default UNCHECKED — the log dock is collapsed by default so
-        # the main workspace gets the full window height at launch.
-        # The dock auto-collapses via QTimer.singleShot in __init__.
-        self.action_toggle_log.setChecked(False)
-        self.action_toggle_log.toggled.connect(
-            lambda checked: self.log_dock.toggleViewAction().setChecked(checked)
-        )
-        # Back-compat: keep ``action_toggle_items`` as the toggle for the
-        # catalog dock (the old name still resolves to the catalog pane).
+        # Log dock starts hidden (see __init__) — menu reflects that.
+        self.action_toggle_log.setChecked(self.log_dock.isVisible())
+        self.action_toggle_log.triggered.connect(self._toggle_log_dock)
+        # Catalog dock starts VISIBLE — force menu checked to match
+        # (build_menu runs before the dock's show() takes effect).
         self.action_toggle_items = view_menu.addAction("Item browser")
         self.action_toggle_items.setCheckable(True)
-        self.action_toggle_items.setChecked(self.item_browser.isVisible())
-        self.action_toggle_items.toggled.connect(
-            lambda checked: self.catalog_dock.toggleViewAction().setChecked(checked)
-        )
+        self.action_toggle_items.setChecked(True)
+        self.action_toggle_items.triggered.connect(self._toggle_catalog_dock)
 
         help_menu = menubar.addMenu("Help")
         help_menu.addAction("About", self._about)
 
     # ------------------------------------------------------------------ misc
+    # ------------------------------------------------------------------ dock toggles
+    def _toggle_log_dock(self) -> None:
+        # Flip log dock visibility. The View menu action is the
+        # authoritative source for the log dock state (toolbar has
+        # no log button), so update it to match. Done as a method (not
+        # a lambda) so the QAction ref isn't captured in a closure
+        # that survives past QAction destruction during teardown.
+        new_vis = not self.log_dock.isVisible()
+        self.log_dock.setVisible(new_vis)
+        self.action_toggle_log.setChecked(new_vis)
+
+    def _toggle_catalog_dock(self, _checked: bool = False) -> None:
+        # Flip catalog dock visibility. The toolbar btn_catalog is the
+        # source for the catalog dock (more discoverable than View
+        # menu), so we sync BOTH the toolbar button and the View menu
+        # action to match. Qt's toggle signal passes the new checked
+        # state as the arg; we ignore it and read the actual dock
+        # visibility to avoid race conditions with Qt's own state
+        # updates during initial dock setup.
+        new_vis = not self.catalog_dock.isVisible()
+        self.catalog_dock.setVisible(new_vis)
+        # Sync both control surfaces so the checkmark + button stay
+        # in agreement regardless of which one the user clicked.
+        self.btn_catalog.setChecked(new_vis)
+        self.action_toggle_items.setChecked(new_vis)
+
     def _about(self) -> None:
         QMessageBox.about(
             self,

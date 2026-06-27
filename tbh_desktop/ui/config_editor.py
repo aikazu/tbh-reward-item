@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
+    QSplitter,
     QSizePolicy,
     QVBoxLayout,
     QWidget,
@@ -196,41 +197,67 @@ class _RangeForm(QWidget):
 class ConfigEditor(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        # Vertical splitter between rules list (top, larger) and range
+        # form (bottom, smaller). The splitter handle is draggable so
+        # users can resize either pane; default sizes give rules the
+        # dominant share but range form is ALWAYS visible — no toggle
+        # to click through (toggles are annoying "2x checklist to
+        # enable" friction).
+        from PySide6.QtWidgets import QSplitter
+        from tbh_desktop.ui.theme import MOCHA
+
         outer = QVBoxLayout(self)
         outer.setContentsMargins(8, 8, 8, 8)
-        outer.setSpacing(8)
+        outer.setSpacing(0)
+
+        self._splitter = QSplitter(Qt.Orientation.Vertical, self)
+        self._splitter.setObjectName("rules_range_splitter")
+        self._splitter.setHandleWidth(6)
+        self._splitter.setChildrenCollapsible(False)
+
         self._rule_list = RuleListView()
-        # Range form sits at the BOTTOM of the Rules panel behind a
-        # horizontal separator-style toggle header. Clicking the
-        # header expands the range form (collapsible QToolBox-style);
-        # default collapsed so the rules get the full height and the
-        # user sees "Range replacement ▸" as a thin divider near the
-        # bottom — discoverable but not in the way.
-        from tbh_desktop.ui.theme import MOCHA
-        self._range_toggle = QCheckBox("Range replacement")
-        self._range_toggle.setChecked(False)
-        self._range_toggle.setStyleSheet(
-            f"QCheckBox {{"
-            f"  color: {MOCHA['overlay1']}; font-size: 11px; font-weight: 700;"
-            f"  letter-spacing: 1px; padding: 6px 8px;"
-            f"  background: {MOCHA['mantle']};"
-            f"  border-top: 1px solid {MOCHA['surface0']};"
-            f"  border-bottom: 1px solid {MOCHA['surface0']};"
-            f"  margin-top: 4px;"
-            f"}}"
-            f"QCheckBox::indicator {{ width: 12px; height: 12px; }}"
-            f"QCheckBox::indicator:checked {{"
-            f"  background: {MOCHA['blue']}; border-color: {MOCHA['blue']};"
-            f"}}"
-        )
         self._range_form = _RangeForm()
-        self._range_form.setVisible(False)
-        self._range_toggle.toggled.connect(self._range_form.setVisible)
-        # Rules get all the vertical space; toggle + range form pinned
-        # at the bottom as a collapsible section.
-        outer.addWidget(self._rule_list, stretch=1)
-        outer.addWidget(self._range_toggle)
-        outer.addWidget(self._range_form, stretch=0)
+
+        # Wrap range form in a labelled container so users see what it is.
+        self._range_wrap = QWidget()
+        range_layout = QVBoxLayout(self._range_wrap)
+        range_layout.setContentsMargins(0, 4, 0, 0)
+        range_layout.setSpacing(4)
+        range_heading = QLabel("RANGE REPLACEMENT")
+        range_heading.setObjectName("panel_heading")
+        range_heading.setStyleSheet(
+            f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
+            f" letter-spacing: 2px; padding: 0 4px;"
+        )
+        range_layout.addWidget(range_heading)
+        range_layout.addWidget(self._range_form)
+
+        self._splitter.addWidget(self._rule_list)
+        self._splitter.addWidget(self._range_wrap)
+        # Rules get the dominant share (stretch 4) — range form gets 1.
+        # setStretchFactor controls resize proportionality; setSizes is the
+        # initial pixel split but only takes effect if it fits in the
+        # available height — the actual split gets computed on first
+        # resize/show. We defer the setSizes call to after show via
+        # _apply_initial_sizes below.
+        self._splitter.setStretchFactor(0, 4)
+        self._splitter.setStretchFactor(1, 1)
+        self._splitter.setSizes([520, 180])
+        outer.addWidget(self._splitter)
+        # Apply the requested sizes once the widget is visible — without
+        # this the initial paint uses Qt's default 50/50 split and the
+        # user sees range form eating half the panel even though our
+        # intent was 75/25. Guard with try/except — Qt's C++ splitter
+        # can be deleted before the singleShot fires during teardown
+        # (test teardown, window close), raising RuntimeError.
+        from PySide6.QtCore import QTimer
+        def _apply_split_sizes():
+            try:
+                self._splitter.setSizes([520, 180])
+            except RuntimeError:
+                pass  # splitter already destroyed
+        QTimer.singleShot(0, _apply_split_sizes)
+
         # Make the range form focus set the active target to RangeTarget.
         for w in (
             self._range_form.chk_enabled,

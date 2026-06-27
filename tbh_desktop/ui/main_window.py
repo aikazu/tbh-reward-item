@@ -67,7 +67,6 @@ from tbh_desktop.scraper import BOX_SLUG_CACHE, read_box_cache
 from tbh_desktop.ui.box_picker import BoxPicker
 from tbh_desktop.ui.config_editor import ConfigEditor
 from tbh_desktop.ui.gear_picker import GearPicker
-from tbh_desktop.ui.item_browser import ItemBrowser
 from tbh_desktop.ui.log_panel import LogPanel
 from tbh_desktop.ui.rule_detail_panel import RuleDetailPanel
 from tbh_desktop.ui.status_badge import StatusBadge
@@ -75,7 +74,6 @@ from tbh_desktop.ui.theme import (
     MOCHA,
     panel_heading_style,
     status_dot_style,
-    zone_label_style,
 )
 
 
@@ -91,15 +89,6 @@ class _ThreadLogBridge(QObject):
 
     def __init__(self) -> None:
         super().__init__()
-
-
-def _zone_label(text: str, *, accent: bool = False) -> QLabel:
-    """Tiny uppercase Cinzel label used to group toolbar buttons."""
-    label = QLabel(text)
-    label.setObjectName("zone_label")
-    label.setProperty("zone", "accent" if accent else "default")
-    label.setStyleSheet(zone_label_style())
-    return label
 
 
 class MainWindow(QMainWindow):
@@ -122,11 +111,19 @@ class MainWindow(QMainWindow):
         # ---- Core widgets -----------------------------------------------
         self.editor = ConfigEditor()
         self.detail_panel = RuleDetailPanel()
-        self.item_browser = ItemBrowser(
+        # Catalog: popup instead of dock. The ItemBrowser is owned by the
+        # popup (so it has a parent for paint events); MainWindow keeps
+        # a reference and forwards item_picked / items_picked to the
+        # active-target router identically to the old dock version.
+        from tbh_desktop.scraper import BOX_SLUG_CACHE
+        from tbh_desktop.ui.catalog_popup import CatalogPopup
+        self.catalog_popup = CatalogPopup(
             gear_cache_dir=GEAR_CACHE_DIR,
             drops_index_path=DROPS_INDEX_CACHE,
             box_slug_cache_path=BOX_SLUG_CACHE,
+            parent=self,
         )
+        self.item_browser = self.catalog_popup.content
         self.log_panel = LogPanel()
 
         # ---- Shell: horizontal splitter between Rules + Detail ----------
@@ -195,25 +192,12 @@ class MainWindow(QMainWindow):
                 pass
         QTimer.singleShot(0, _safe_hide)
 
-        # ---- Catalog dock (right side, hidden by default) ---------------
-        # Kept accessible for users who want to browse the full wiki catalog,
-        # but demoted from "permanent right pane" to "toggleable dock".
-        self.catalog_dock = QDockWidget("Catalog", self)
-        self.catalog_dock.setObjectName("catalog_dock")
-        self.catalog_dock.setWidget(self.item_browser)
-        self.catalog_dock.setAllowedAreas(
-            Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.LeftDockWidgetArea
-        )
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.catalog_dock)
-        self.catalog_dock.setFeatures(
-            QDockWidget.DockWidgetFeature.DockWidgetClosable
-        )
-        # Catalog dock starts VISIBLE — the user can collapse it via
-        # the toolbar Catalog button (or View → Item browser) if they
-        # don't want it. Showing it by default surfaces the in-game
-        # catalog right away so the user can browse gear + drops
-        # without having to dig into menus first.
-        self.catalog_dock.show()
+        # ---- Catalog popup (triggered from toolbar Catalog button) ------
+        # Catalog is no longer a docked panel — it's a QMenu popup that
+        # appears anchored at the toolbar button when the user clicks.
+        # Auto-dismisses on outside click so it never takes screen space
+        # the user isn't actively using.
+
         # ---- Toolbar (4 zones) + menu + status bar ----------------------
         self._build_toolbar()
         self._build_menu()
@@ -340,7 +324,6 @@ class MainWindow(QMainWindow):
         bar.setIconSize(bar.iconSize())  # keep default; no icons
 
         # ---- PROXY zone: Start / Stop -----------------------------------
-        bar.addWidget(_zone_label("PROXY"))
         self.btn_start = QPushButton("▶  START")
         self.btn_start.setObjectName("btn_start")
         self.btn_start.setProperty("toolbar_zone", "primary")
@@ -355,7 +338,6 @@ class MainWindow(QMainWindow):
 
         # ---- DATA zone: Scrape / Check ----------------------------------
         bar.addSeparator()
-        bar.addWidget(_zone_label("DATA"))
         self.btn_refresh_gear = QPushButton("Scrape data")
         self.btn_refresh_gear.setObjectName("btn_refresh_gear")
         self.btn_refresh_gear.setProperty("toolbar_zone", "secondary")
@@ -375,7 +357,6 @@ class MainWindow(QMainWindow):
 
         # ---- CONFIG zone: Save / Reset ----------------------------------
         bar.addSeparator()
-        bar.addWidget(_zone_label("CONFIG"))
         self.btn_save = QPushButton("Save")
         self.btn_save.setObjectName("btn_save")
         self.btn_save.setProperty("toolbar_zone", "secondary")
@@ -391,9 +372,8 @@ class MainWindow(QMainWindow):
         )
         bar.addWidget(self.btn_reset)
 
-        # ---- STEAM zone: Copy + Catalog toggle (live in the main toolbar) -
+        # ---- STEAM zone: Copy + Catalog popup -------------------------
         bar.addSeparator()
-        bar.addWidget(_zone_label("STEAM"))
         self.btn_copy_steam = QPushButton("Copy Steam")
         self.btn_copy_steam.setObjectName("btn_copy_steam")
         self.btn_copy_steam.setProperty("toolbar_zone", "secondary")
@@ -404,26 +384,18 @@ class MainWindow(QMainWindow):
         )
         bar.addWidget(self.btn_copy_steam)
 
-        # Catalog toggle button — pinned on the toolbar (next to Copy
-        # Steam in the STEAM zone) so users don't have to dig through
-        # the View menu to find it. Connected via ``clicked`` (not
-        # ``toggled``) so the toggle handler only fires once per click
-        # — using ``toggled`` causes a recursion loop because Qt re-
-        # fires ``toggled`` whenever we call ``setChecked`` to sync.
+        # Catalog popup trigger — clicking opens a CatalogPopup below
+        # the button (anchored at the button's bottom-left). Catalog
+        # is no longer a docked panel; it's opt-in via this button.
         self.btn_catalog = QPushButton("Catalog")
         self.btn_catalog.setObjectName("btn_catalog")
         self.btn_catalog.setProperty("toolbar_zone", "secondary")
         self.btn_catalog.setToolTip(
-            "Show / hide the Item catalog browser (right dock with gear + "
-            "drops index tabs)"
+            "Browse the in-game item catalog (search + filter chips + "
+            "flat result list). Click outside to dismiss."
         )
-        self.btn_catalog.setCheckable(True)
-        # The catalog dock is shown by default (see __init__ below);
-        # the toolbar is built before that show() takes effect so
-        # isVisible() may still read False here — force the checked
-        # state to True so the toolbar button matches the dock.
-        self.btn_catalog.setChecked(True)
-        self.btn_catalog.clicked.connect(self._toggle_catalog_dock)
+        self.btn_catalog.setCheckable(False)
+        self.btn_catalog.clicked.connect(self._show_catalog_popup)
         bar.addWidget(self.btn_catalog)
 
         # ---- Right-side: Port field + status badge (in main toolbar) ---
@@ -471,8 +443,8 @@ class MainWindow(QMainWindow):
         # (build_menu runs before the dock's show() takes effect).
         self.action_toggle_items = view_menu.addAction("Item browser")
         self.action_toggle_items.setCheckable(True)
-        self.action_toggle_items.setChecked(True)
-        self.action_toggle_items.triggered.connect(self._toggle_catalog_dock)
+        self.action_toggle_items.setChecked(False)
+        self.action_toggle_items.triggered.connect(self._show_catalog_popup)
 
         help_menu = menubar.addMenu("Help")
         help_menu.addAction("About", self._about)
@@ -489,20 +461,17 @@ class MainWindow(QMainWindow):
         self.log_dock.setVisible(new_vis)
         self.action_toggle_log.setChecked(new_vis)
 
-    def _toggle_catalog_dock(self, _checked: bool = False) -> None:
-        # Flip catalog dock visibility. The toolbar btn_catalog is the
-        # source for the catalog dock (more discoverable than View
-        # menu), so we sync BOTH the toolbar button and the View menu
-        # action to match. Qt's toggle signal passes the new checked
-        # state as the arg; we ignore it and read the actual dock
-        # visibility to avoid race conditions with Qt's own state
-        # updates during initial dock setup.
-        new_vis = not self.catalog_dock.isVisible()
-        self.catalog_dock.setVisible(new_vis)
-        # Sync both control surfaces so the checkmark + button stay
-        # in agreement regardless of which one the user clicked.
-        self.btn_catalog.setChecked(new_vis)
-        self.action_toggle_items.setChecked(new_vis)
+    def _show_catalog_popup(self) -> None:
+        # Anchor the catalog popup just below the toolbar Catalog
+        # button. Reuse the same popup instance across clicks — Qt
+        # re-shows it cleanly via QMenu.popup() without rebuilding
+        # the ItemBrowser contents.
+        btn = self.btn_catalog
+        global_pos = btn.mapToGlobal(btn.rect().bottomLeft())
+        self.catalog_popup.popup_at(global_pos)
+        # The popup is independent (no checked state), but if the user
+        # closed it via Esc / outside-click, the toolbar button still
+        # reads as not-pressed — no sync needed.
 
     def _about(self) -> None:
         QMessageBox.about(
@@ -916,7 +885,6 @@ class MainWindow(QMainWindow):
         None → show empty state.
         """
         from tbh_desktop.ui.active_target import RangeTarget, RuleTarget
-        from tbh_desktop.ui.item_browser import FilterContext, FilterScope
 
         if isinstance(target, RangeTarget):
             self.detail_panel.show_range_summary()
@@ -939,17 +907,10 @@ class MainWindow(QMainWindow):
                 level=level,
                 replacement_ids=card.replacement_ids(),
             )
-            # Swap the catalog to the matching scope so a quick browse
-            # reflects what the user is editing.
-            scope = FilterScope.GEAR_FOR_BOX if target.box_id else FilterScope.GEAR_ALL
-            self.item_browser.filter_for_context(
-                FilterContext(
-                    box_id=target.box_id,
-                    box_name=None,
-                    level=target.level,
-                    scope=scope,
-                )
-            )
+            # No catalog auto-swap — the catalog popup is a single
+            # search-first surface; user opens it via the toolbar
+            # button when they want to browse, no need to mirror the
+            # selected rule's scope there.
 
     def _on_detail_chip_removed(self, item_id: int) -> None:
         """Forward a chip-remove request from the detail panel to the

@@ -1,28 +1,32 @@
-"""Main window: toolbar, splitter (editor + log), proxy runner wiring."""
+"""Main window: 4-zone composition (rail + editor + item browser + log dock)."""
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import (
+    QDockWidget,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QMainWindow,
     QMessageBox,
     QPushButton,
-    QSplitter,
     QStatusBar,
     QToolBar,
+    QWidget,
 )
 
 from tbh_desktop import config_io, scraper
 from tbh_desktop.gear_scraper_runner import GearScraperRunner
-from tbh_desktop.paths import BOX_LOOT_CACHE_DIR, CONFIG_PATH, GEAR_CACHE_DIR
+from tbh_desktop.paths import BOX_LOOT_CACHE_DIR, CONFIG_PATH, DROPS_INDEX_CACHE, GEAR_CACHE_DIR
 from tbh_desktop.proxy_runner import ProxyRunner
 from tbh_desktop.scraper import BOX_SLUG_CACHE, read_box_cache
 from tbh_desktop.ui.box_loot_picker import BoxLootPicker
 from tbh_desktop.ui.box_picker import BoxPicker
 from tbh_desktop.ui.config_editor import ConfigEditor
 from tbh_desktop.ui.gear_picker import GearPicker
+from tbh_desktop.ui.item_browser import ItemBrowser
+from tbh_desktop.ui.left_rail import Action, LeftRail
 from tbh_desktop.ui.log_panel import LogPanel
 from tbh_desktop.ui.theme import status_dot_style
 
@@ -73,15 +77,28 @@ class MainWindow(QMainWindow):
         self.gear_scraper.scraping.connect(self._on_gear_scraping)
 
         self.editor = ConfigEditor()
+        self.left_rail = LeftRail()
+        self.item_browser = ItemBrowser(
+            gear_cache_dir=GEAR_CACHE_DIR,
+            drops_index_path=DROPS_INDEX_CACHE,
+            box_slug_cache_path=BOX_SLUG_CACHE,
+        )
         self.log_panel = LogPanel()
 
-        splitter = QSplitter(Qt.Orientation.Horizontal)
-        splitter.addWidget(self.editor)
-        splitter.addWidget(self.log_panel)
-        splitter.setStretchFactor(0, 3)
-        splitter.setStretchFactor(1, 2)
-        splitter.setHandleWidth(2)
-        self.setCentralWidget(splitter)
+        # 4-zone composition: rail | editor | item browser, with log dock below.
+        central = QWidget()
+        h = QHBoxLayout(central)
+        h.setContentsMargins(0, 0, 0, 0)
+        h.setSpacing(0)
+        h.addWidget(self.left_rail)
+        h.addWidget(self.editor, stretch=3)
+        h.addWidget(self.item_browser, stretch=2)
+        self.setCentralWidget(central)
+
+        self.log_dock = QDockWidget("Log", self)
+        self.log_dock.setWidget(self.log_panel)
+        self.log_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
+        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.log_dock)
 
         self._build_toolbar()
         self._build_menu()
@@ -92,14 +109,18 @@ class MainWindow(QMainWindow):
 
         self._reload_config()
 
-        # Wire editor pick buttons — Specific Queue Rules
-        self.editor.btn_pick_box_id.clicked.connect(self._pick_box_id_for_rule)
-        self.editor.btn_pick_box.clicked.connect(self._pick_box_loot_for_rule)
-        self.editor.btn_pick_gear_rule.clicked.connect(self._pick_gear_for_rule)
-
         # Wire editor pick buttons — Range Replacement
-        self.editor.btn_pick_gear_range.clicked.connect(self._pick_gear_for_range)
-        self.editor.btn_pick_loot_range.clicked.connect(self._pick_box_loot_for_range)
+        # (Specific-rule pick buttons live on each RuleCard inside the
+        # RuleListView; route them through _on_rule_card_pick.)
+
+        # Wire LeftRail actions to existing slots.
+        self.left_rail.action.connect(self._on_rail_action)
+
+        # Wire ItemBrowser picks to route by active target.
+        self.item_browser.item_picked.connect(self._on_item_browser_pick)
+        self.item_browser.items_picked.connect(self._on_item_browser_picks)
+        # Route rule selection from editor to ItemBrowser filter context.
+        self.editor.rule_list().rule_selected.connect(self._on_rule_selected)
 
     # ------------------------------------------------------------------ build
     def _build_toolbar(self) -> None:
@@ -643,3 +664,58 @@ class MainWindow(QMainWindow):
         """
         self.gear_scraper.stop()
         self.runner.stop()
+
+    # ------------------------------------------------------------------ rail / target routing
+    def _on_rail_action(self, action: Action) -> None:
+        """Dispatch a LeftRail button click to the existing slot."""
+        if action is Action.START:
+            self._start()
+        elif action is Action.STOP:
+            self.runner.stop()
+        elif action is Action.SAVE:
+            self._save()
+        elif action is Action.RESET:
+            self._reset_config()
+        elif action is Action.SCRAPE:
+            self._refresh_gear()
+        elif action is Action.CHECK_DATA:
+            self._check_data()
+        elif action is Action.COPY_STEAM:
+            self._copy_steam_launch_option()
+        elif action is Action.TOGGLE_LOG:
+            self.log_dock.toggleViewAction().trigger()
+        elif action is Action.TOGGLE_ITEMS:
+            self.item_browser.setVisible(not self.item_browser.isVisible())
+
+    def _on_rule_selected(self, target) -> None:
+        """Switch the ItemBrowser filter context based on the active rule row."""
+        from tbh_desktop.ui.active_target import RuleTarget
+        from tbh_desktop.ui.item_browser import FilterContext, FilterScope
+        if isinstance(target, RuleTarget):
+            scope = FilterScope.GEAR_FOR_BOX if target.box_id else FilterScope.GEAR_ALL
+            self.item_browser.filter_for_context(
+                FilterContext(
+                    box_id=target.box_id,
+                    box_name=None,
+                    level=target.level,
+                    scope=scope,
+                )
+            )
+        else:
+            self.item_browser.filter_for_context(None)
+
+    def _on_item_browser_pick(self, item_id: int) -> None:
+        """Route a single-item pick to the active target's store."""
+        try:
+            self.editor.add_ids_to_active_target([int(item_id)])
+        except ValueError:
+            # No active target — ignore.
+            pass
+
+    def _on_item_browser_picks(self, item_ids: list) -> None:
+        """Route a multi-item pick."""
+        ids = [int(i) for i in item_ids]
+        try:
+            self.editor.add_ids_to_active_target(ids)
+        except ValueError:
+            pass

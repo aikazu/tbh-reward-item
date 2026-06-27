@@ -148,9 +148,15 @@ class ItemBrowser(QWidget):
         if not self._drops_index_path.exists():
             return []
         try:
-            return json.loads(self._drops_index_path.read_text(encoding="utf-8"))
+            data = json.loads(self._drops_index_path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             return []
+        # Cache file may be either a flat list of items or a {"items": [...]} dict.
+        if isinstance(data, dict):
+            return list(data.get("items") or [])
+        if isinstance(data, list):
+            return data
+        return []
 
     def _read_box_loot_for(self, box_id: int) -> list[dict[str, Any]]:
         # Reuse the existing scraper helper that knows the cache layout.

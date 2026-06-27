@@ -8,7 +8,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import QAbstractItemModel, QModelIndex, QSize, Qt, Signal
+from PySide6.QtCore import (
+    QAbstractItemModel,
+    QModelIndex,
+    QPersistentModelIndex,
+    QSize,
+    Qt,
+    Signal,
+)
 from PySide6.QtWidgets import (
     QListView,
     QStyledItemDelegate,
@@ -33,21 +40,33 @@ class _RuleCardModel(QAbstractItemModel):
         self._n = n
         self.endResetModel()
 
-    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: B008
+    def rowCount(self, parent: QModelIndex | QPersistentModelIndex = QModelIndex()) -> int:  # noqa: B008
         return 0 if parent.isValid() else self._n
 
-    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: B008
+    def columnCount(self, parent: QModelIndex | QPersistentModelIndex = QModelIndex()) -> int:  # noqa: B008
         return 0 if parent.isValid() else 1
 
-    def index(self, row, column, parent: QModelIndex = QModelIndex()):  # noqa: ANN001
+    def index(  # noqa: ANN001
+        self,
+        row: int,
+        column: int,
+        parent: QModelIndex | QPersistentModelIndex = QModelIndex(),
+    ):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
         return self.createIndex(row, column)
 
-    def parent(self, index):  # noqa: ANN001
+    def parent(self, index: QModelIndex | QPersistentModelIndex) -> QModelIndex:  # type: ignore[reportIncompatibleMethodOverride]  # noqa: ANN001
+        # PySide6 stubs incorrectly declare QAbstractItemModel.parent as
+        # taking no args and returning QObject. The real Qt signature is
+        # `(self, QModelIndex) -> QModelIndex`.
         return QModelIndex()
 
-    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole):  # noqa: ANN001
+    def data(  # noqa: ANN001
+        self,
+        index: QModelIndex | QPersistentModelIndex,
+        role: int = Qt.ItemDataRole.DisplayRole,
+    ):
         # setIndexWidget is the sole paint path; Qt still queries data() for
         # hit-testing, accessibility tree, and selection bookkeeping. Return
         # None (invalid QVariant) so Qt uses defaults instead of crashing on
@@ -56,7 +75,7 @@ class _RuleCardModel(QAbstractItemModel):
             return None
         return None
 
-    def flags(self, index: QModelIndex) -> Qt.ItemFlag:  # noqa: ANN001
+    def flags(self, index: QModelIndex | QPersistentModelIndex) -> Qt.ItemFlag:  # noqa: ANN001
         if not index.isValid():
             return Qt.ItemFlag.NoItemFlags
         return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
@@ -90,7 +109,7 @@ class RuleListView(QListView):
         self._range: dict[str, Any] = {}
         self._active_target: ActiveTarget | None = None
         self._cards: list[RuleCard] = []
-        self._level_for_row: dict[int, int] = {}
+        self._level_for_row: dict[int, int | None] = {}
 
         # Set up a model up front so selectionModel() is non-None and we can
         # wire currentRowChanged. _rebuild_cards() replaces it as needed.

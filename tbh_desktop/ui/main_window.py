@@ -45,6 +45,7 @@ from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtGui import QFont, QGuiApplication
 from PySide6.QtWidgets import (
     QDockWidget,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -156,11 +157,12 @@ class MainWindow(QMainWindow):
             Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea
         )
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.log_dock)
-        # Make the dock collapsible but not floatable — keeps the layout
-        # predictable across screen sizes.
+        # Make the dock collapsible but not floatable / movable — keeps
+        # the layout predictable across screen sizes and prevents the
+        # user from accidentally dragging it out into a floating
+        # top-level window.
         self.log_dock.setFeatures(
             QDockWidget.DockWidgetFeature.DockWidgetClosable
-            | QDockWidget.DockWidgetFeature.DockWidgetMovable
         )
 
         # ---- Catalog dock (right side, hidden by default) ---------------
@@ -175,7 +177,6 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.catalog_dock)
         self.catalog_dock.setFeatures(
             QDockWidget.DockWidgetFeature.DockWidgetClosable
-            | QDockWidget.DockWidgetFeature.DockWidgetMovable
         )
         self.catalog_dock.hide()  # hidden by default — user opts in
 
@@ -233,6 +234,70 @@ class MainWindow(QMainWindow):
         return wrap
 
     # ------------------------------------------------------------------ toolbar
+    def _build_right_cluster(self) -> QWidget:
+        """Build the right-aligned cluster (Port + status badge).
+
+        Packaged into one widget so the main toolbar's right side reads
+        as a single unit: ``Port [8877]  ●  [STOPPED]``. The cluster sits
+        after an expanding spacer that pushes it flush to the right
+        edge of the toolbar.
+        """
+        cluster = QWidget()
+        cluster.setObjectName("toolbar_right_cluster")
+        layout = QHBoxLayout(cluster)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(6)
+
+        # Expanding spacer — eats the remaining toolbar width so the
+        # cluster (and only the cluster) sits at the right edge.
+        spacer = QWidget()
+        from PySide6.QtWidgets import QSizePolicy
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        spacer.setMinimumWidth(1)
+        layout.addWidget(spacer, stretch=1)
+
+        # Port label + input.
+        port_label = QLabel("Port")
+        port_label.setStyleSheet(
+            f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
+            f" letter-spacing: 1px; padding-left: 4px;"
+        )
+        layout.addWidget(port_label)
+
+        mono = QFont("JetBrains Mono", 11)
+        mono.setStyleHint(QFont.StyleHint.Monospace)
+        mono.setFamily("JetBrains Mono")
+        self.port_edit = QLineEdit()
+        self.port_edit.setObjectName("port_edit_toolbar")
+        self.port_edit.setFixedWidth(72)
+        self.port_edit.setFont(mono)
+        self.port_edit.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.port_edit.setPlaceholderText("8877")
+        self.port_edit.setToolTip("Proxy listen port (requires restart after change)")
+        layout.addWidget(self.port_edit)
+
+        # Vertical divider for visual separation.
+        sep = QFrame()
+        sep.setFrameShape(QFrame.Shape.VLine)
+        sep.setFrameShadow(QFrame.Shadow.Plain)
+        sep.setStyleSheet(f"color: {MOCHA['surface0']}; background: {MOCHA['surface0']};")
+        sep.setFixedWidth(1)
+        layout.addWidget(sep)
+
+        # Legacy bare status dot (back-compat with existing tests).
+        self.status_dot = QLabel("●")
+        self.status_dot.setObjectName("status_dot_pulse")
+        self.status_dot.setToolTip("Proxy status: stopped")
+        self.status_dot.setStyleSheet(status_dot_style(False))
+        layout.addWidget(self.status_dot)
+
+        # Labeled StatusBadge — the meaningful state indicator.
+        self.status_badge = StatusBadge(text_off="STOPPED", text_on="RUNNING")
+        self.status_badge.setObjectName("status_badge_toolbar")
+        layout.addWidget(self.status_badge)
+
+        return cluster
+
     def _build_toolbar(self) -> None:
         bar = self.addToolBar("main")
         bar.setObjectName("main_toolbar")
@@ -305,50 +370,14 @@ class MainWindow(QMainWindow):
         )
         bar.addWidget(self.btn_copy_steam)
 
-        # ---- Right-corner widget: Port field + status badge -------------
+        # ---- Right-side: Port field + status badge (in main toolbar) ---
         # The status indicator belongs at the far right where users expect
-        # to find it (near the clock equivalent on a web app). To get it
-        # there reliably we put it in a separate QToolBar that we anchor
-        # to the top-right corner — this avoids the QToolBar overflow
-        # issue where the last widgets get hidden when the main toolbar
-        # is too full.
-        self._status_toolbar = QToolBar("status")
-        self._status_toolbar.setObjectName("status_toolbar")
-        self._status_toolbar.setMovable(False)
-        self._status_toolbar.setFloatable(False)
-        self._status_toolbar.setIconSize(self._status_toolbar.iconSize())
-        self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self._status_toolbar)
-
-        port_label = QLabel("Port")
-        port_label.setStyleSheet(
-            f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
-            f" letter-spacing: 1px; padding-left: 4px;"
-        )
-        self._status_toolbar.addWidget(port_label)
-
-        mono = QFont("JetBrains Mono", 11)
-        mono.setStyleHint(QFont.StyleHint.Monospace)
-        mono.setFamily("JetBrains Mono")
-        self.port_edit = QLineEdit()
-        self.port_edit.setObjectName("port_edit_toolbar")
-        self.port_edit.setFixedWidth(72)
-        self.port_edit.setFont(mono)
-        self.port_edit.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.port_edit.setPlaceholderText("8877")
-        self.port_edit.setToolTip("Proxy listen port (requires restart after change)")
-        self._status_toolbar.addWidget(self.port_edit)
-
-        # The legacy bare status dot (kept for back-compat with tests).
-        self.status_dot = QLabel("●")
-        self.status_dot.setObjectName("status_dot_pulse")
-        self.status_dot.setToolTip("Proxy status: stopped")
-        self.status_dot.setStyleSheet(status_dot_style(False))
-        self._status_toolbar.addWidget(self.status_dot)
-
-        # The labeled StatusBadge — the meaningful state indicator.
-        self.status_badge = StatusBadge(text_off="STOPPED", text_on="RUNNING")
-        self.status_badge.setObjectName("status_badge_toolbar")
-        self._status_toolbar.addWidget(self.status_badge)
+        # to find it. Previous designs put it in a separate QToolBar at
+        # RightToolBarArea, which rendered as a sparse second toolbar row
+        # under the main one — looked like a separate empty window. Now
+        # they're appended to the same main toolbar with an expanding
+        # spacer before them so they sit flush right.
+        bar.addWidget(self._build_right_cluster())
 
         # ---- Wiring -----------------------------------------------------
         self.btn_start.clicked.connect(self._start)

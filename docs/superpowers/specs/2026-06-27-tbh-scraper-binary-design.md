@@ -11,7 +11,8 @@
 1. Scraper reliability improvements: error categorization, exponential backoff with jitter, resume-on-startup via cache mtime check
 2. New image acquisition stage: download images referenced in scraped JSON, resize to 256×256, encode as WebP q=70
 3. New manifest file (`tbh_desktop/manifest.json`) tracking scrape + image stats
-4. New CLI entry point: `python -m dev_tools.scrape_pipeline {scrape,bundle,all}` with `--resume` / `--max-cache-age` / `--concurrency` / `--dry-run` flags
+4. New CLI entry point: `python -m dev_tools.scrape_pipeline {scrape,bundle,all}` with `--resume` / `--max-cache-age` / `--workers` / `--dry-run` flags
+5. **Gear scope: 6 end-game rarities only** — IMMORTAL, ARCANA, BEYOND, CELESTIAL, DIVINE, COSMIC. LEGENDARY excluded. Materials + boxes still all-inclusive.
 
 ### Out of scope (separate specs, later phases)
 
@@ -32,6 +33,7 @@
 - Per-item failures are isolated and don't abort the whole pipeline
 - Output is reproducible: same wiki state produces same byte-identical JSON caches + WebP files
 - All new code has unit test coverage ≥ 80%
+- **Gear bundle contains end-game items only** (6 rarities). Estimated ~780-1560 gear + 115 materials + 59 stage boxes ≈ ~1000-1700 total items.
 
 ### Non-goals
 
@@ -73,6 +75,7 @@ tbh_desktop/
 
 - `dev_tools/` is **outside** the PyInstaller bundle path. The GUI binary does not include scraping code or its dependencies (Pillow is allowed since it's already pulled by PySide6).
 - Existing scraper public API is preserved. `tbh_desktop.scraper.refresh_gear_full(...)` and friends keep their signatures. Reliability changes are internal.
+- **Gear scrape scope is end-game rarities only** (IMMORTAL through COSMIC). A new `ENDGAME_GEAR_GRADES` constant lives in `dev_tools/scrape_pipeline/scrape_stage.py`; `LEGENDARY_UP_GRADES` in the existing scraper is left untouched for backwards compatibility (the GUI's "Scrape Data" button still uses it).
 
 ## 4. Data layout
 
@@ -370,6 +373,7 @@ No existing constants changed.
 - **Manifest versioning policy**: hard cut on schema break. Bump `SCHEMA_VERSION`, reader raises on mismatch.
 - **WebP fallback**: not in v1. If a user reports display issues, address in a follow-up (likely add PNG mirror or runtime conversion). YAGNI for now.
 - **Test execution speed**: integration test marked slow; CI can skip with `-m "not integration"` if needed.
+- **LEGENDARY gear**: dropped from binary bundle scope. LEGENDARY-suffixed JSON caches from prior scrapes will remain on disk if they exist; maintainer can `rm tbh_desktop/gear/*/legendary.json` before building if a clean bundle is desired. Not automated in v1 (YAGNI).
 
 ## 12. Migration / rollout
 

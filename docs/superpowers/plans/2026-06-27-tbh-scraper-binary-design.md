@@ -1277,6 +1277,18 @@ log = logging.getLogger(__name__)
 
 SECONDS_PER_DAY = 86400
 
+# End-game gear rarities only. LEGENDARY excluded from binary bundle scope.
+# IMMORTAL through COSMIC = 6 rarities. ~780-1560 gear items total.
+ENDGAME_GEAR_GRADES: tuple[str, ...] = (
+    "IMMORTAL",
+    "ARCANA",
+    "BEYOND",
+    "CELESTIAL",
+    "DIVINE",
+    "COSMIC",
+)
+
+
 
 def cache_fresh(path: Path, max_age_days: int) -> bool:
     """Return True if *path* exists and its mtime is within *max_age_days*."""
@@ -1288,8 +1300,8 @@ def cache_fresh(path: Path, max_age_days: int) -> bool:
 
 def _gear_combos() -> list[tuple[str, str]]:
     """Import existing scraper constants; return [(cat, grade), ...]."""
-    from tbh_desktop.scraper import GEAR_CATEGORIES, LEGENDARY_UP_GRADES
-    return [(cat, grade) for cat in GEAR_CATEGORIES for grade in LEGENDARY_UP_GRADES]
+    from tbh_desktop.scraper import GEAR_CATEGORIES
+    return [(cat, grade) for cat in GEAR_CATEGORIES for grade in ENDGAME_GEAR_GRADES]
 
 
 def _material_combos() -> list[tuple[str, str]]:
@@ -1821,7 +1833,7 @@ Expected: prints intent, no files written
 - [ ] **Step 2: Run scrape stage first (allows cancel if wiki is down)**
 
 Run: `python -m dev_tools.scrape_pipeline scrape --resume 2>&1 | tee /tmp/scrape.log`
-Expected: scrape completes (may take 30-60 minutes for full wiki); logs show per-combo done
+Expected: scrape completes (may take 15-30 minutes for end-game gear + materials + boxes); logs show per-combo done
 
 - [ ] **Step 3: Verify scrape output**
 

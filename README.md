@@ -537,7 +537,7 @@ tbh-reward-item/
 
 Scripts use absolute paths (`REPO_ROOT` in shell, `%~dp0..` in bat) so they work from any cwd. Source files (`src/`) reference siblings via `Path(__file__).resolve().parent`, so keep `tbh_reward_hook.py`, `run_proxy.py`, and `config.json` together.
 
-The desktop app's `tbh_desktop/gear/` (per category×rarity gear JSON, nested), `tbh_desktop/item/` (per family×rarity material JSON, nested), `tbh_desktop/box_slug_cache.json` (box_id → slug map), and `tbh_desktop/box_loot_cache/` are generated and gitignored — delete them to force a re-fetch from the wiki. The legacy flat-file layout `tbh_desktop/gear/{category}_{rarity}.json` (single-level directory) is superseded by the nested `gear/{category}/{rarity}.json` layout and is no longer written by the picker.
+The desktop app's `tbh_desktop/gear/` (per category×rarity gear JSON, nested), `tbh_desktop/item/` (per family×rarity material JSON, nested), `tbh_desktop/box_slug_cache.json` (box_id → slug map), and `tbh_desktop/box_loot_cache/` are generated but **tracked in git** so fresh deploys skip the initial scrape. Delete them to force a re-fetch from the wiki. The legacy flat-file layout `tbh_desktop/gear/{category}_{rarity}.json` (single-level directory) is superseded by the nested `gear/{category}/{rarity}.json` layout and is no longer written by the picker.
 
 ---
 

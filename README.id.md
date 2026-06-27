@@ -536,7 +536,7 @@ tbh-reward-item/
 
 Skrip memakai path absolut (`REPO_ROOT` di shell, `%~dp0..` di bat) sehingga jalan dari cwd mana pun. File source (`src/`) saling mereferensikan via `Path(__file__).resolve().parent`, jadi `tbh_reward_hook.py`, `run_proxy.py`, dan `config.json` harus tetap satu direktori.
 
-Cache `tbh_desktop/gear/` (JSON gear per kategori×rarity, nested), `tbh_desktop/item/` (JSON material per family×rarity, nested), `tbh_desktop/box_slug_cache.json` (map box_id → slug), dan `tbh_desktop/box_loot_cache/` pada aplikasi desktop bersifat generated dan masuk `.gitignore` — hapus untuk memaksa re-fetch dari wiki. Layout lama flat-file `tbh_desktop/gear/{category}_{rarity}.json` (direktori satu-level) sudah digantikan oleh layout nested `gear/{category}/{rarity}.json` dan tidak lagi ditulis oleh picker.
+Cache `tbh_desktop/gear/` (JSON gear per kategori×rarity, nested), `tbh_desktop/item/` (JSON material per family×rarity, nested), `tbh_desktop/box_slug_cache.json` (map box_id → slug), dan `tbh_desktop/box_loot_cache/` pada aplikasi desktop bersifat generated tapi **di-track di git** agar deploy baru tidak perlu scrape ulang. Hapus untuk memaksa re-fetch dari wiki. Layout lama flat-file `tbh_desktop/gear/{category}_{rarity}.json` (direktori satu-level) sudah digantikan oleh layout nested `gear/{category}/{rarity}.json` dan tidak lagi ditulis oleh picker.
 
 ---
 

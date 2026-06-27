@@ -77,10 +77,29 @@ class ItemBrowser(QWidget):
         # Embedded views
         self._view_gear_all = GearView(self._gear_cache_dir)
         self._view_gear_scoped = GearView(self._gear_cache_dir)
-        self._view_box_loot = BoxLootView(items=[])
-        self._view_drops = BoxLootView(items=self._read_drops_index(), mode="drops_index")
+
+        # Loads index is the catalog of every material/box/consumable the
+        # scraper has seen. Shared across the three BoxLootView tabs so
+        # they all have data on first launch (no empty QFrame surprise).
+        drops = self._read_drops_index()
+
+        # Browse all: full catalog, no kind filter — the user explicitly
+        # asked for an "everything" view. Replaces the prior QFrame
+        # placeholder that always rendered as 0 items.
+        self._view_browse = BoxLootView(items=list(drops), mode="browse_all")
+
+        # Box loot: default state (no rule selected) shows the full drops
+        # index filtered to materials — better than an empty tab while
+        # the user decides what to do. Once a rule is active, MainWindow
+        # calls set_box_loot(box_id) and the view swaps to the box-scoped
+        # loot list.
+        self._view_box_loot = BoxLootView(items=list(drops), mode="box_loot")
+
+        # Drops index: same data, kept as its own tab per the original T9
+        # spec so users can search across the whole catalog.
+        self._view_drops = BoxLootView(items=list(drops), mode="drops_index")
+
         self._view_boxes = BoxView(self._box_slug_cache_path)
-        self._view_browse = QFrame()  # placeholder; combines gear + drops in one grid
 
         for label, scope in _TAB_LABELS:
             page = self._build_page_for_scope(scope)

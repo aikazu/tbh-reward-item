@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import random
+from typing import cast
 
 
 def backoff(
@@ -15,8 +16,7 @@ def backoff(
     Formula: ``min(cap, base * 2 ** attempt) + uniform(0, 0.25 * that_delay)``.
     Pass ``rng`` to make output deterministic in tests.
     """
-    if rng is None:
-        rng = random
+    rng = rng if rng is not None else cast(random.Random, random)
     raw = min(cap, base * (2 ** attempt))
     jitter = rng.uniform(0, raw * 0.25)
     return raw + jitter

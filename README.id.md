@@ -13,65 +13,40 @@
 
 [Bahasa Indonesia](README.id.md) · [English](README.md)
 
-Man-in-the-middle proxy yang me-rewrite field `rewardItemId` pada response backend game TBH. Berjalan di atas [mitmproxy](https://mitmproxy.org/), dengan opsi GUI desktop [PySide6](https://www.qt.io/) untuk edit config visual dan pemilihan reward-ID.
+Man-in-the-middle proxy yang me-rewrite field `rewardItemId` pada response
+backend game TBH. Berjalan di atas [mitmproxy](https://mitmproxy.org/),
+dengan opsi GUI desktop [PySide6](https://www.qt.io/) untuk edit rule
+visual, pemilihan reward-ID dari wiki, dan kontrol proxy live.
 
-Mengintercept response POST ke endpoint tertentu, mengganti reward item sesuai aturan pada `config.json`, lalu meneruskan hasil modifikasi ke klien.
+Addon berada di antara klien game dan backend TBH — menukar reward item
+sesuai aturan di `config.json`, lalu meneruskan response yang sudah
+dimodifikasi kembali. Tanpa patching, tanpa injeksi — murni proxy
+jaringan.
 
 ---
 
 ## Daftar Isi
 
-- [Komponen](#komponen)
 - [Cara Kerja](#cara-kerja)
-- [Persyaratan](#persyaratan)
-- [Instalasi](#instalasi)
-  - [Linux (Arch / CachyOS)](#linux-arch--cachyos)
-  - [Windows](#windows)
+- [Mulai Cepat](#mulai-cepat)
 - [Konfigurasi](#konfigurasi)
-  - [Rule Spesifik (specific_queue_rules)](#rule-spesifik-specific_queue_rules)
-  - [Rule Range (range_replacement)](#rule-range-range_replacement)
+  - [Rule Spesifik](#rule-spesifik)
+  - [Rule Range](#rule-range)
 - [Menjalankan Proxy](#menjalankan-proxy)
-  - [Reload config](#reload-config)
+  - [Hot Reload](#hot-reload)
 - [Aplikasi Desktop](#aplikasi-desktop)
   - [Instalasi & Menjalankan](#desktop-install-id)
-  - [Fitur](#desktop-features-id)
-  - [Interaksi Hot-Reload](#desktop-hot-reload-id)
-  - [Keterbatasan](#desktop-limitations-id)
-- [Setup Klien Steam (TaskBarHero via Proton)](#setup-klien-steam-taskbarhero-via-proton)
+  - [Tur UI](#ui-tour-id)
+  - [Fitur](#fitur)
+  - [Interaksi Hot-Reload](#interaksi-hot-reload)
+  - [Keterbatasan](#keterbatasan)
+- [Setup Klien Steam (TaskBarHero via Proton)](#setup-klien-steam)
 - [Sertifikat CA](#sertifikat-ca)
-  - [Linux (system trust)](#linux-system-trust)
-  - [Windows (system trust)](#windows-system-trust)
-  - [Firefox](#firefox)
-  - [Chromium / Chrome](#chromium--chrome)
-  - [Klien Lain](#klien-lain)
 - [Self-Test](#self-test)
 - [Pemecahan Masalah](#pemecahan-masalah)
 - [Peringatan Keamanan](#peringatan-keamanan)
 - [Struktur File](#struktur-file)
 - [Ucapan Terima Kasih](#ucapan-terima-kasih)
-
----
-
-## Komponen
-
-| File | Fungsi |
-|---|---|
-| `tbh_reward_hook.py` | Addon mitmproxy. Logika intercept + rewrite. Platform-agnostic, pure Python stdlib. |
-| `config.json` | Aturan rewrite: port dengar, filter URL, rule spesifik, rule range. |
-| `run_proxy.py` | Launcher: cari `mitmdump`, fallback ke modul `mitmproxy.tools.main`. |
-| `run_proxy.sh` / `run_proxy.bat` | Wrapper shell menjalankan `run_proxy.py`. |
-| `install_requirements.sh` / `.bat` | Install dependensi (`mitmproxy`). |
-| `self_test.sh` / `.bat` | Jalankan tes rewrite offline (tanpa proxy berjalan). |
-| `install_cert.sh` | Install CA mitmproxy ke system trust store (Linux). |
-| `windows/install_cert.bat` | Install CA mitmproxy ke Windows Trusted Root store (auto-elevate ke admin). |
-| `remove_cert.sh` | Hapus CA mitmproxy dari system trust store (Linux). |
-| `scripts/launch_desktop.sh` | Readiness-check launcher untuk aplikasi desktop (Linux). |
-| `windows/launch_desktop.bat` | Readiness-check launcher untuk aplikasi desktop (Windows). |
-| `requirements.txt` | Dependensi: `mitmproxy`. |
-| `requirements-desktop.txt` | Dep opsional desktop: `PySide6`, `requests`, `beautifulsoup4`, `lxml`, `pytest-qt`, `playwright`, `cloakbrowser`. |
-| `tbh_desktop/` | GUI PySide6 opsional: edit `config.json`, pilih reward ID, jalankan/stop proxy, stream log. Lihat [Aplikasi Desktop](#aplikasi-desktop). |
-| `tests/` | Suite pytest untuk aplikasi desktop (`config_io`, `scraper`, `proxy_runner`). |
-| `docs/` | Specs + implementation plans. |
 
 ---
 
@@ -96,54 +71,39 @@ Klien --POST--> [mitmproxy:8877] --forward--> Backend TBH
 Klien <--mod response-- [mitmproxy:8877]
 ```
 
-Regex menggunakan escape backslash untuk menangani JSON yang mungkin ter-escape (`\"itemId\"` maupun `"itemId"`).
+Prioritas rule: **rule spesifik dulu, baru range**. Rule spesifik cocokkan
+`itemId` persis; range cocokkan rentang `[match_min_item_id, match_max_item_id]`.
+
+Regex memakai escape backslash untuk menangani JSON yang mungkin ter-escape
+(`\"itemId\"` maupun `"itemId"`).
 
 ---
 
-## Persyaratan
-
-- Python 3.10+ (typing modern `dict[str, Any]`, `tuple[str, ...]`).
-- `mitmproxy` 10+ (dites pada 12.2.3).
-- Akses sudo (Linux) untuk install cert + dependensi.
-
----
-
-## Instalasi
-
-### Linux (Arch / CachyOS)
-
-Dependensi `mitmproxy` tersedia di repo `extra`:
+## Mulai Cepat
 
 ```bash
+# 1. Install mitmproxy (Arch / CachyOS)
 sudo pacman -S mitmproxy
-```
 
-Atau lewat skrip (otomatis cek + install via pip bila `mitmdump` tidak ada — pada Arch pip diblokir PEP 668, jadi pacman lebih disarankan):
-
-```bash
-./scripts/install_requirements.sh
-```
-
-Verifikasi:
-
-```bash
+# 2. Verifikasi
 mitmdump --version
 python3 src/tbh_reward_hook.py --self-test
+
+# 3. Jalankan proxy
+mitmdump -s src/tbh_reward_hook.py --listen-port 8877 \
+    --set block_global=false -q
+
+# 4. Arahkan klien game ke 127.0.0.1:8877 (HTTP/HTTPS proxy)
 ```
 
-### Windows
-
-```bat
-windows\install_requirements.bat
-```
-
-Memakai `py` bila ada, fallback `python`. Install `mitmproxy` via pip.
+Untuk alur kerja visual dengan edit rule dan pemilihan reward-ID, lihat
+[Aplikasi Desktop](#aplikasi-desktop).
 
 ---
 
 ## Konfigurasi
 
-Edit `config.json`. Format:
+Edit `src/config.json`. Bentuk:
 
 ```json
 {
@@ -154,9 +114,10 @@ Edit `config.json`. Format:
   "specific_queue_rules": [
     {
       "enabled": true,
-      "name": "White box",
-      "item_id": 910801,
-      "replacement_reward_item_ids": [519171, 519171, 519171]
+      "name": "Normal Box",
+      "item_id": 910901,
+      "level": 12,
+      "replacement_reward_item_ids": [135001, 605041, 605051]
     }
   ],
   "range_replacement": {
@@ -164,20 +125,28 @@ Edit `config.json`. Format:
     "name": "Range replacement",
     "match_min_item_id": 500000,
     "match_max_item_id": 950000,
-    "replacement_reward_item_ids": [529191, 419191, 409191, 619191, 429191, 509191]
+    "replacement_reward_item_ids": [529191, 419191, 409191]
   }
 }
 ```
 
-### Rule Spesifik (specific_queue_rules)
+`level` opsional (dipakai picker desktop untuk mencocokkan gear ke rentang
+level box; addon-nya sendiri mengabaikannya).
 
-Cocokkan `itemId` secara persis. Setiap match mengonsumsi satu nilai dari `replacement_reward_item_ids` secara siklis (index modulo panjang list).
+### Rule Spesifik
 
-Contoh: White box `910801` → ganti reward jadi `519171`. Bila ada 3 box White, semuanya jadi `519171` (list punya 3 elemen identik).
+Cocokkan `itemId` secara persis. Setiap match mengonsumsi satu nilai dari
+`replacement_reward_item_ids` secara siklis (index modulo panjang list).
 
-### Rule Range (range_replacement)
+Contoh: Normal Box `910901` dengan replacements `[135001, 605041, 605051]`.
+Hit Normal Box pertama jadi `135001`, kedua `605041`, ketiga `605051`,
+keempat wrap kembali ke `135001`, dan seterusnya.
 
-`enabled: false` default. Bila aktif, cocokkan `itemId` dalam rentang `[match_min_item_id, match_max_item_id]`. Prioritas: rule spesifik dievaluasi lebih dulu; bila tidak match, cek range.
+### Rule Range
+
+`enabled: false` default. Bila aktif, cocokkan `itemId` dalam rentang
+`[match_min_item_id, match_max_item_id]`. Prioritas: rule spesifik
+dievaluasi dulu; bila tidak cocok, cek range.
 
 Siklis sama: satu nilai per match, modulo panjang list.
 
@@ -193,66 +162,85 @@ windows\run_proxy.bat           # Windows
 Atau langsung:
 
 ```bash
-mitmdump -s src/tbh_reward_hook.py --listen-port 8877 --set block_global=false -q
+mitmdump -s src/tbh_reward_hook.py --listen-port 8877 \
+    --set block_global=false -q
 ```
 
-Output (hanya log TBH):
+Contoh output:
 
 ```
 [TBH] TBH Reward Proxy loaded: 2 queue rules, range mode=off.
-[TBH] TBH Reward Proxy replaced White box: itemId=910801, rewardItemId=1001->519171
+[TBH] TBH Reward Proxy replaced Normal Box: itemId=910901, rewardItemId=1001->135001
 [TBH] TBH Reward Proxy wrote 3 replacement(s).
 ```
 
-Stop: `Ctrl+C`.
+Stop dengan `Ctrl+C`. Arahkan klien target ke proxy `127.0.0.1:8877`.
 
-Arahkan klien target ke proxy `127.0.0.1:8877` (HTTP/HTTPS proxy).
+### Hot Reload
 
-### Reload config (hot reload)
+`config.json` di-**hot-reload** — tanpa restart proxy. Addon cek mtime
+file di setiap response yang di-intercept dan reload otomatis saat
+berubah.
 
-`config.json` di-**hot-reload** — tanpa restart proxy. Addon cek mtime file di setiap response yang di-intercept dan reload otomatis saat berubah.
+- Edit `config.json`, simpan → request berikutnya pakai rule baru. Log:
+  `TBH Reward Proxy reloaded: ...`.
+- Reload manual tanpa edit: `pkill -HUP -f mitmdump`.
+- **Safety config corrupt**: bila `config.json` invalid (JSON rusak,
+  tipe salah), addon tetap pakai **config terakhir yang valid** dan log
+  `kept previous config (config.json invalid)`. Edit salah tidak pernah
+  mematikan intercept aktif. Perbaiki file lalu simpan untuk reload.
+- Bila `config.json` hilang/corrupt saat startup, proxy start dengan
+  fallback config kosong (tanpa rule) dan log `using fallback empty config`.
 
-- Edit `config.json`, simpan → request berikutnya pakai rule baru. Log: `TBH Reward Proxy reloaded: ...`.
-- Reload manual tanpa edit: `pkill -HUP -f mitmdump` (kirim SIGHUP).
-- **Safety config corrupt**: bila `config.json` invalid (JSON rusak, tipe salah), addon tetap pakai **config terakhir yang valid** dan log `kept previous config (config.json invalid)`. Edit salah tidak pernah mematikan intercept aktif. Perbaiki file lalu simpan untuk reload.
-- Bila `config.json` hilang/corrupt saat startup, proxy start dengan fallback config kosong (tanpa rule) dan log `using fallback empty config`.
-
-Restart proxy hanya perlu untuk mengganti `listen_port` (mitmproxy bind port saat startup).
+Restart proxy hanya perlu untuk mengganti `listen_port` (mitmproxy bind
+port saat startup).
 
 ---
 
 ## Aplikasi Desktop
 
-GUI PySide6 opsional yang membungkus `config.json` dan `run_proxy.py` yang sama dengan CLI. Memungkinkan mengedit rule secara visual, memilih reward ID dari wiki/loot table TBH, dan menjalankan proxy tanpa meninggalkan window.
+GUI PySide6 opsional yang membungkus `config.json` dan `run_proxy.py`
+yang sama dengan CLI. Memungkinkan mengedit rule secara visual, memilih
+reward ID dari wiki/loot table TBH, dan menjalankan proxy tanpa
+meninggalkan window.
 
-![Desktop App](desktop-app.webp)
-
-GUI **tidak** menggantikan addon proxy — ia menjalankan `src/run_proxy.py` sebagai subprocess dan me-stream stdout-nya. Aturan hot-reload yang sama tetap berlaku.
+GUI **tidak** menggantikan addon proxy — ia menjalankan `src/run_proxy.py`
+sebagai subprocess dan me-stream stdout-nya. Aturan hot-reload yang sama
+tetap berlaku.
 
 ### Instalasi & Menjalankan <a id="desktop-install-id"></a>
 
-Dependensi desktop sengaja dipisah dari `requirements.txt` (mitmproxy) agar install proxy tetap ringan. Aplikasi desktop butuh: PySide6 (GUI), requests + beautifulsoup4 (scraping wiki), playwright + cloakbrowser (stealth browser untuk gear scrape), pytest-qt (tests).
+Dependensi desktop sengaja dipisah dari `requirements.txt` (mitmproxy)
+agar install proxy tetap ringan. Aplikasi desktop butuh:
+
+| Paket | Fungsi |
+|---|---|
+| `PySide6` | Framework GUI |
+| `requests` + `beautifulsoup4` + `lxml` | Scraping HTML wiki |
+| `playwright` + `cloakbrowser` | Engine browser stealth untuk gear scrape |
+| `pytest-qt` | Tes GUI |
+| `Pillow` | Image cache (untuk ikon ItemCard) |
 
 #### Linux (Arch / CachyOS / distro apapun dengan venv)
 
 **Langkah 1 — Buat virtual environment + install deps:**
 
 ```bash
-cd tbh-reward-item
+cd TBH
 python -m venv .venv
 .venv/bin/pip install -r requirements-desktop.txt
 ```
 
-Ini menginstall PySide6, requests, bs4, pytest-qt, playwright, dan cloakbrowser dalam satu langkah.
-
 **Langkah 2 — Jalankan via script readiness-check (direkomendasikan):**
 
 ```bash
-./scripts/launch_desktop.sh          # cek venv, deps, mitmproxy, config — lalu jalankan
+./scripts/launch_desktop.sh          # cek + jalankan
 ./scripts/launch_desktop.sh --check  # cek saja, tidak menjalankan
 ```
 
-Launcher memverifikasi venv, deps, mitmproxy, `config.json`, dan binary CloakBrowser sebelum memulai. Bila ada yang kurang, ia menampilkan command fix yang tepat.
+Launcher memverifikasi venv, deps, mitmproxy, `config.json`, dan binary
+CloakBrowser sebelum memulai. Bila ada yang kurang, ia menampilkan
+command fix yang tepat.
 
 **Atau jalankan manual** (lewati readiness check):
 
@@ -262,25 +250,33 @@ Launcher memverifikasi venv, deps, mitmproxy, `config.json`, dan binary CloakBro
 
 **Langkah 3 — (Opsional) Install browser engine Playwright untuk fallback:**
 
-CloakBrowser mengunduh binary Chromium stealth-nya sendiri saat first launch (~200 MB, di-cache lokal). Kamu hanya perlu `playwright install chromium` jika ingin fallback stock-Playwright (dipakai saat CloakBrowser tidak terinstall):
+CloakBrowser mengunduh binary Chromium stealth-nya sendiri saat first
+launch (~200 MB, di-cache lokal). Kamu hanya perlu `playwright install
+chromium` jika ingin fallback stock-Playwright (dipakai saat CloakBrowser
+tidak terinstall):
 
 ```bash
 .venv/bin/playwright install chromium
 ```
 
-> **Catatan untuk Arch users:** PySide6, python-requests, dan python-beautifulsoup4 juga tersedia via pacman (`sudo pacman -S pyside6 python-requests python-beautifulsoup4`), tapi memakai venv lebih simpel dan menghindari masalah PEP 668. `playwright` dan `cloakbrowser` hanya tersedia via pip — tidak ada paket pacman.
+> **Catatan untuk Arch users:** PySide6, python-requests, dan
+> python-beautifulsoup4 juga tersedia via pacman (`sudo pacman -S
+> pyside6 python-requests python-beautifulsoup4`), tapi memakai venv
+> lebih simpel dan menghindari masalah PEP 668. `playwright` dan
+> `cloakbrowser` hanya tersedia via pip — tidak ada paket pacman.
 
 #### Windows
 
 **Langkah 1 — Buat virtual environment + install deps:**
 
 ```bat
-cd tbh-reward-item
+cd TBH
 python -m venv .venv
 .venv\Scripts\pip install -r requirements-desktop.txt
 ```
 
-> Jika `python` tidak ditemukan, coba `py -3 -m venv .venv` (memakai py launcher).
+> Jika `python` tidak ditemukan, coba `py -3 -m venv .venv` (memakai py
+> launcher).
 
 **Langkah 2 — Jalankan via script readiness-check (direkomendasikan):**
 
@@ -301,11 +297,19 @@ windows\launch_desktop.bat --check   :: cek saja
 .venv\Scripts\playwright install chromium
 ```
 
-Sama seperti Linux — hanya dibutuhkan untuk fallback stock-Playwright. CloakBrowser mengelola binary-nya sendiri.
+Sama seperti Linux — hanya dibutuhkan untuk fallback stock-Playwright.
+CloakBrowser mengelola binary-nya sendiri.
 
 #### CloakBrowser (mesin stealth scraping)
 
-Mulai v0.4+, gear scraper memakai [CloakBrowser](https://github.com/CloakHQ/CloakBrowser) — build Chromium stealth dengan 58 patch anti-detection level C++ source — sebagai mesin scraping. Drop-in replacement untuk `chromium.launch()` Playwright dan mengunduh binary patched-nya sendiri saat first use (~200 MB, di-cache lokal, Ed25519-verified). Tidak perlu `playwright install` terpisah untuk CloakBrowser, tapi paket `playwright` Python tetap harus terinstall (CloakBrowser bergantung padanya untuk API kompatibel-Playwright).
+Mulai v0.4+, gear scraper memakai
+[CloakBrowser](https://github.com/CloakHQ/CloakBrowser) — build Chromium
+stealth dengan 58 patch anti-detection level C++ source — sebagai mesin
+scraping. Drop-in replacement untuk `chromium.launch()` Playwright dan
+mengunduh binary patched-nya sendiri saat first use (~200 MB, di-cache
+lokal, Ed25519-verified). Tidak perlu `playwright install` terpisah
+untuk CloakBrowser, tapi paket `playwright` Python tetap harus terinstall
+(CloakBrowser bergantung padanya untuk API kompatibel-Playwright).
 
 Keunggulan CloakBrowser dibanding Playwright biasa untuk scraping:
 
@@ -314,53 +318,203 @@ Keunggulan CloakBrowser dibanding Playwright biasa untuk scraping:
 - `navigator.webdriver` di-patch ke `false` di level C++ source
 - TLS fingerprint identik dengan Chrome asli (ja3n/ja4/akamai match)
 
-Bila CloakBrowser tidak terinstall (`pip install cloakbrowser`), scraper otomatis fallback ke stock Playwright `chromium.launch()`. Langkah `playwright install chromium` hanya dibutuhkan untuk fallback tersebut.
+Bila CloakBrowser tidak terinstall (`pip install cloakbrowser`), scraper
+otomatis fallback ke stock Playwright `chromium.launch()`. Langkah
+`playwright install chromium` hanya dibutuhkan untuk fallback tersebut.
 
-Addon proxy (`requirements.txt` / `mitmproxy`) tetap dibutuhkan agar Start/Stop berfungsi — lihat [Instalasi](#instalasi) di atas.
+Addon proxy (`requirements.txt` / `mitmproxy`) tetap dibutuhkan agar
+Start/Stop berfungsi — lihat [Mulai Cepat](#mulai-cepat) di atas.
 
-Setelah diluncurkan, main window punya toolbar (Start / Stop / Scrape gear / Save config / port / status dot) dan layout dua panel: editor di kiri, log live di kanan.
+### Tur UI <a id="ui-tour-id"></a>
 
-### Fitur <a id="desktop-features-id"></a>
+![Aplikasi Desktop — main window](desktop-app.webp)
 
-- **Dark theme** — palet Catppuccin Mocha diterapkan ke seluruh app. Warna konsisten untuk tombol, tabel, list, input, log panel, dan picker. Log panel memakai font monospace FiraCode/JetBrainsMono di atas background crust yang lebih gelap untuk keterbacaan terminal-like.
-- **Edit `src/config.json` visual**
-  - Tabel `specific_queue_rules` — kolom enabled / name / item_id / replacement IDs. Tambah / Hapus baris.
-  - `range_replacement` — enabled, min/max item_id, replacement IDs.
-  - `listen_port` — field toolbar.
-  - Field advanced (`only_post`, `require_boxes_marker`, `url_contains`) **tidak** diekspos di GUI tapi **dipertahankan** saat save: editor membaca file sebagai raw dict dan hanya menyentuh field yang ia miliki.
-- **Save atomic** — memvalidasi dengan `ProxyConfig.load` sebelum dan sesudah tulis. Backup file sebelumnya sebagai `config.json.bak`, tulis via temp + rename, restore dari backup bila re-validasi gagal. Save yang gagal tidak pernah mematikan intercept aktif.
-- **Pilih reward ID** — setiap cell `Replacement IDs` mendukung input manual, ditambah:
-  - **Pick from box loot** — menyelesaikan slug box dengan mencari `box_id` di tabel items wiki (`https://taskbarhero.org/en/items` tabel "Stage chests"), fetch loot table per-box dari `https://taskbarhero.org/en/items/chests/<id>-<slug>/`, parse, dan izinkan multi-select. Map id→slug di-cache di `tbh_desktop/box_slug_cache.json`; loot di-cache per-box di `tbh_desktop/box_loot_cache/<box_id>.json`. Menyelesaikan slug via id (bukan menurunkannya dari `name` rule) memperbaiki 404 saat slug heuristik tidak cocok dengan slug asli wiki.
-  - **Pick gear** — membaca dari file cache per-kategori×rarity di `tbh_desktop/gear/` (layout nested: `tbh_desktop/gear/{category}/{rarity}.json`, mis. `tbh_desktop/gear/weapon/legendary.json`). Picker punya tiga filter: **Kategori** (Weapon / Off-hand / Armor / Accessory / All), **Grade** (Legendary / Immortal / Arcana / Beyond / Celestial / Divine / Cosmic / All — Legendary ke atas saja), dan **Rentang level** (min/max 1-100). Multi-select list dan search box dipertahankan.
-- **Scrape gear** (sebelumnya "Refresh gear") — memicu scrape penuh berbasis CloakBrowser: membuka wiki headless, mengklik chip rarity untuk tiap grade Legendary+ dan chip type untuk tiap kategori, mencentang "Obtainable only", dan mengklik "LOAD MORE" sampai habis, lalu menulis satu file cache per kategori×grade. Lambat (meluncurkan stealth browser). Log total count saat selesai. Fallback ke file cache yang ada bila terjadi error per-combo atau saat launch. Bila CloakBrowser tidak terinstall, fallback ke stock Playwright.
-- **Start / Stop proxy** — jalankan `src/run_proxy.py` sebagai subprocess (cwd = repo root). Status dot berubah hijau saat berjalan. Stdout ter-stream (stderr digabung) ke log panel via Qt signal — real-time, FIFO capped di 10k baris. Stop kirim SIGTERM, escalate ke SIGKILL setelah 3 detik. Bila field port toolbar berbeda dari `listen_port` yang tersimpan saat Start diklik, app memprompt "Port changed. Save config first?" — Yes simpan lalu start, No batalkan. Ini mencegah desync senyap di mana proxy berjalan di port lama sementara UI menampilkan port baru.
-- **Save config** — atomic, tervalidasi (lihat di atas). mtime-based hot-reload yang sama seperti edit manual.
-- **Close confirm** — bila proxy berjalan, menutup window akan konfirmasi sebelum menghentikannya.
-- **Menu** — File (Save config, Exit). Help (About).
+Shell tersusun dari empat zone, masing-masing dengan tugas berbeda:
 
-### Interaksi Hot-Reload <a id="desktop-hot-reload-id"></a>
+| Zone | Lokasi | Fungsi |
+|---|---|---|
+| **Toolbar** | Atas | Start/Stop proxy · Scrape data · Check data · Save · Reset · Copy Steam launch option · Buka catalog popup · Field port · Status badge |
+| **Panel RULES** (kiri) | Splitter 30% | Daftar `specific_queue_rules` sebagai kartu, plus form `range_replacement` di bawah. Klik rule untuk memuatnya ke panel detail. |
+| **Panel DETAIL** (kanan) | Splitter 70% | Editor per-rule: item ID, level, tiga tombol Pick (box / loot / gear), dan baris chip replacement-ID. Klik chip untuk menghapus ID tersebut. |
+| **Log dock** | Bawah (collapsible, 80px max) | Stdout ter-stream dari subprocess proxy + event scrape. Toggle via `View → Log panel`. |
 
-GUI mengedit **`config.json` yang sama** yang dibaca addon. Save dari GUI mengubah mtime file, sehingga cek mtime per-response addon langsung mengambil rule baru pada request berikutnya — tanpa restart proxy.
+**Status badge** (kanan-atas toolbar) adalah indikator state proxy yang
+otoritatif: dot berwarna + label `STOPPED` / `RUNNING`. Tombol Start
+hanya aktif saat proxy berhenti; Stop hanya aktif saat proxy berjalan.
 
-Pengecualian: `listen_port`. Field toolbar menulis ke `config.json`, tapi mitmproxy bind port saat startup, jadi menggantinya perlu restart proxy (Stop → Start). Tombol Start sekarang menjaga terhadap desync: bila port toolbar berbeda dari `listen_port` yang tersimpan saat Start diklik, ia memprompt untuk save dulu (Yes simpan lalu start, No batalkan) alih-alih start di port tersimpan yang basi.
+![Aplikasi Desktop — Catalog popup](desktop-app-catalog.webp)
 
-### Keterbatasan <a id="desktop-limitations-id"></a>
+**Catalog popup** adalah browser item catalog in-game satu-halaman dengan
+search-first. Klik tombol `Catalog` di toolbar untuk membukanya; klik di
+luar untuk menutup. Ia menggabungkan tiga sumber data menjadi satu list
+datar:
 
-- **Box loot butuh `item_id` valid** di baris rule yang dipilih, dan box harus ada di tabel "Stage chests" wiki di `https://taskbarhero.org/en/items`. Slug diselesaikan via lookup `box_id` terhadap tabel tersebut (di-cache di `tbh_desktop/box_slug_cache.json`), sehingga `name` yang cocok tidak lagi dibutuhkan. Box langka atau baru yang belum ada di wiki akan gagal lookup — fallback dengan mengetik ID langsung di cell.
-- **Scrape gear butuh CloakBrowser + browser engine** terinstall (`pip install cloakbrowser`). CloakBrowser mengunduh binary Chromium patched ~200 MB saat first launch (di-cache lokal). Tanpa itu, scraper fallback ke stock Playwright (`playwright install chromium` dibutuhkan).
-- **Scrape gear hanya mencakup grade Legendary ke atas** (Legendary / Immortal / Arcana / Beyond / Celestial / Divine / Cosmic) pada empat kategori (Weapon / Off-hand / Armor / Accessory). Grade lebih rendah (Common / Uncommon / Rare) tidak di-scrape GUI — ketik ID-nya langsung bila perlu.
-- **Picker butuh network** untuk fetch data segar; fallback ke cache bila fetch gagal (silent — lihat log panel untuk warning-nya).
-- GUI hanya-baca terhadap config di disk; edit bersamaan dari tool lain tidak terdeteksi. Bila kamu edit file di luar GUI saat ia terbuka, restart app untuk membaca ulang.
+- Gear cache (`tbh_desktop/gear/{category}/{rarity}.json`)
+- Drops index (`tbh_desktop/drops_index.json` — materials + boxes)
+- Box slug cache (`tbh_desktop/box_slug_cache.json`)
+
+Chip filter (`All` / `Gear` / `Materials` / `Boxes`) mempersempit list
+hasil. Baris diurutkan berdasarkan rarity (Cosmic → Common) dan di-tint
+berdasarkan rarity agar drop high-tier tampak visual. Klik tunggal atau
+double-click baris untuk route ID item ke target aktif (rule yang sedang
+diedit, atau form range bila form tersebut punya fokus).
+
+### Fitur
+
+- **Dark theme** — palet Catppuccin Mocha diterapkan ke seluruh app.
+  Warna konsisten untuk tombol, tabel, list, input, log panel, dan
+  picker. Log panel memakai font monospace FiraCode/JetBrainsMono di
+  atas background crust yang lebih gelap untuk keterbacaan
+  terminal-like.
+
+- **Shell 2-pane** — `RULES` (kiri, ~30%) + `DETAIL` (kanan, ~70%)
+  dengan splitter draggable 6px. Drag untuk resize; splitter punya
+  background surface1 yang terlihat agar benar-benar bisa di-grab
+  (handle default 4px invisible Qt membingungkan user yang menganggap
+  layout-nya fixed).
+
+- **Detail panel** — permukaan edit utama. Berisi nama rule yang
+  dipilih, item ID, level, dan baris chip replacement. Tiga tombol Pick
+  membuka picker modal terkait:
+  - **Pick box** → `BoxPicker` (pilih stage chest via id)
+  - **Pick loot** → `BoxLootPicker` scoped ke drop table box tersebut
+  - **Pick gear** → `GearPicker` difilter berdasarkan rentang level box
+
+- **Rule list** — setiap rule adalah `RuleCard` mandiri dengan toggle
+  enable, field name, field item_id, badge REPLACES, dan baris chip.
+  Baris chip mirror apa yang ada di detail panel — keduanya tetap sinkron
+  karena berbagi sumber data `RuleCard` yang sama.
+
+- **Range form** — berada di bawah panel kiri (tunggal, karena
+  `range_replacement` adalah singleton). Fokuskan form untuk
+  mengalihkan panel detail ke state summary "Range replacement".
+
+- **Save atomic** — memvalidasi dengan `ProxyConfig.load` sebelum dan
+  sesudah tulis. Backup file sebelumnya sebagai `config.json.bak`,
+  tulis via temp + rename, restore dari backup bila re-validasi gagal.
+  Save yang gagal tidak pernah mematikan intercept aktif.
+
+- **Edit `src/config.json` visual** — editor hanya mengelola
+  `specific_queue_rules` dan `range_replacement`. Field advanced
+  (`only_post`, `require_boxes_marker`, `url_contains`) **tidak**
+  diekspos di GUI tapi **dipertahankan** saat save: editor membaca file
+  sebagai raw dict dan hanya menyentuh field yang ia miliki.
+
+- **Pilih reward ID** — setiap cell `Replacement IDs` mendukung input
+  manual, ditambah:
+  - **Pick box loot** — menyelesaikan slug box dengan mencari `box_id`
+    di tabel items wiki (`https://taskbarhero.org/en/items` tabel
+    "Stage chests"), fetch loot table per-box dari
+    `https://taskbarhero.org/en/items/chests/<id>-<slug>/`, parse, dan
+    izinkan multi-select. Map id→slug di-cache di
+    `tbh_desktop/box_slug_cache.json`; loot di-cache per-box di
+    `tbh_desktop/box_loot_cache/<box_id>.json`.
+  - **Pick gear** — membaca dari file cache per-kategori×rarity di
+    `tbh_desktop/gear/` (layout nested:
+    `tbh_desktop/gear/{category}/{rarity}.json`, mis.
+    `tbh_desktop/gear/weapon/legendary.json`). Tiga filter:
+    **Kategori** (Weapon / Off-hand / Armor / Accessory / All),
+    **Grade** (Legendary / Immortal / Arcana / Beyond / Celestial /
+    Divine / Cosmic / All — Legendary ke atas saja), dan **Rentang
+    level** (min/max 1-100). Multi-select list dan search box
+    dipertahankan.
+  - **Pick dari catalog** — popup `Catalog` toolbar menggabungkan gear
+    + drops index + box slugs menjadi satu list search-first dengan
+    chip filter rarity. Klik baris untuk route ID-nya ke target aktif
+    seperti picker khusus.
+
+- **Scrape data** — satu tombol yang menjalankan gear scrape (stealth
+  browser, semua grade Legendary+ × semua kategori, "Obtainable only")
+  dan fetch drops index secara paralel. Log total count saat selesai.
+  Fallback ke stock Playwright bila CloakBrowser tidak terinstall.
+
+- **Check data** — menampilkan count, timestamp last-fetched, dan
+  penggunaan disk untuk tiap cache (drops index, gear cache, box drop
+  map) tanpa scrape. Berguna untuk "apa perlu re-scrape?" secara
+  sekilas.
+
+- **Start / Stop proxy** — jalankan `src/run_proxy.py` sebagai
+  subprocess (cwd = repo root, process group sendiri). Status badge
+  jadi `RUNNING` dengan dot hijau; log dock stream stdout secara real
+  time (FIFO capped di 10k baris). Stop kirim SIGTERM ke seluruh
+  process group, escalate ke SIGKILL setelah 3 detik. Bila field port
+  toolbar berbeda dari `listen_port` yang tersimpan saat Start diklik,
+  app memprompt "Port changed. Save config first?" — Yes simpan lalu
+  start, No batalkan. Ini mencegah desync senyap di mana proxy
+  berjalan di port lama sementara UI menampilkan port baru.
+
+- **Copy Steam launch option** — menyalin port saat ini ke string
+  `HTTP_PROXY=... HTTPS_PROXY=... %command%`, siap di-paste ke Steam →
+  TaskBarHero → Properties → Launch Options. Tooltip update live saat
+  kamu edit port.
+
+- **Save config** — atomic, tervalidasi (lihat di atas). mtime-based
+  hot-reload yang sama seperti edit manual.
+
+- **Reset config** — kembalikan template default (setelah prompt
+  konfirmasi). Bila proxy berjalan, tanya untuk menghentikannya dulu.
+
+- **Close confirm** — bila proxy atau gear scraper berjalan, menutup
+  window akan konfirmasi sebelum menghentikannya.
+
+- **Menu** — File (Save config, Reset config to default, Exit). View
+  (toggle Log panel, Item browser — buka Catalog popup). Help (About).
+
+### Interaksi Hot-Reload
+
+GUI mengedit **`config.json` yang sama** yang dibaca addon. Save dari
+GUI mengubah mtime file, sehingga cek mtime per-response addon langsung
+mengambil rule baru pada request berikutnya — tanpa restart proxy.
+
+Pengecualian: `listen_port`. Field toolbar menulis ke `config.json`,
+tapi mitmproxy bind port saat startup, jadi menggantinya perlu restart
+proxy (Stop → Start). Tombol Start sekarang menjaga terhadap desync:
+bila port toolbar berbeda dari `listen_port` yang tersimpan saat Start
+diklik, ia memprompt untuk save dulu (Yes simpan lalu start, No
+batalkan) alih-alih start di port tersimpan yang basi.
+
+### Keterbatasan
+
+- **Box loot butuh `item_id` valid** di baris rule yang dipilih, dan
+  box harus ada di tabel "Stage chests" wiki di
+  `https://taskbarhero.org/en/items`. Slug diselesaikan via lookup
+  `box_id` terhadap tabel tersebut (di-cache di
+  `tbh_desktop/box_slug_cache.json`), sehingga `name` yang cocok tidak
+  lagi dibutuhkan. Box langka atau baru yang belum ada di wiki akan
+  gagal lookup — fallback dengan mengetik ID langsung di cell.
+
+- **Scrape data butuh CloakBrowser + browser engine** terinstall (`pip
+  install cloakbrowser`). CloakBrowser mengunduh binary Chromium
+  patched ~200 MB saat first launch (di-cache lokal). Tanpa itu,
+  scraper fallback ke stock Playwright (`playwright install chromium`
+  dibutuhkan).
+
+- **Gear scrape hanya mencakup grade Legendary ke atas** (Legendary /
+  Immortal / Arcana / Beyond / Celestial / Divine / Cosmic) pada empat
+  kategori (Weapon / Off-hand / Armor / Accessory). Grade lebih rendah
+  (Common / Uncommon / Rare) tidak di-scrape GUI — ketik ID-nya
+  langsung bila perlu.
+
+- **Picker butuh network** untuk fetch data segar; fallback ke cache
+  bila fetch gagal (silent — lihat log panel untuk warning-nya).
+
+- GUI hanya-baca terhadap config di disk; edit bersamaan dari tool lain
+  tidak terdeteksi. Bila kamu edit file di luar GUI saat ia terbuka,
+  restart app untuk membaca ulang.
 
 ---
 
-## Setup Klien Steam (TaskBarHero via Proton)
+## Setup Klien Steam <a id="setup-klien-steam"></a>
 
-TaskBarHero adalah game Unity Windows (Steam AppId 3678970) yang berjalan via Proton + SteamLinuxRuntime_4 + pressure-vessel di Linux. Sandbox mengisolasi network namespace dan tidak meneruskan env proxy host secara default.
+TaskBarHero adalah game Unity Windows (Steam AppId 3678970) yang berjalan
+via Proton + SteamLinuxRuntime_4 + pressure-vessel di Linux. Sandbox
+mengisolasi network namespace dan tidak meneruskan env proxy host
+secara default.
 
 ### Metode yang berhasil: Steam Launch Options (dites, konfirmasi jalan)
 
-Steam → klik kanan **TaskbarHero** → Properties → **Launch Options**, isi:
+Steam → klik kanan **TaskbarHero** → Properties → **Launch Options**,
+isi:
 
 ```
 HTTP_PROXY=http://127.0.0.1:8877 HTTPS_PROXY=http://127.0.0.1:8877 %command%
@@ -368,18 +522,24 @@ HTTP_PROXY=http://127.0.0.1:8877 HTTPS_PROXY=http://127.0.0.1:8877 %command%
 
 ![Steam Launch Options](steam-launch-options.webp)
 
-Proton meneruskan env var ini ke proses Wine, di mana `HttpClient` Unity membacanya.
+Proton meneruskan env var ini ke proses Wine, di mana `HttpClient` Unity
+membacanya.
+
+Tombol `Copy Steam` di aplikasi desktop menyalin string yang sama untuk
+port toolbar saat ini — tanpa edit manual.
 
 ### Trust CA di prefix Proton
 
-Unity/Proton memakai **cert store Wine/Proton Windows**, bukan Linux system trust. Install CA mitmproxy ke prefix Proton (AppId 3678970):
+Unity/Proton memakai **cert store Wine/Proton Windows**, bukan Linux
+system trust. Install CA mitmproxy ke prefix Proton (AppId 3678970):
 
 ```bash
 WINEPREFIX=~/.local/share/Steam/steamapps/compatdata/3678970/pfx \
   wine certmgr -add -c -root ~/.mitmproxy/mitmproxy-ca-cert.cer
 ```
 
-Bila `certmgr` tidak tersedia di prefix tersebut, salin cert ke direktori CA Wine:
+Bila `certmgr` tidak tersedia di prefix tersebut, salin cert ke
+direktori CA Wine:
 
 ```bash
 PFX=~/.local/share/Steam/steamapps/compatdata/3678970/pfx
@@ -388,15 +548,23 @@ cp ~/.mitmproxy/mitmproxy-ca-cert.cer "$PFX/drive_c/windows/system32/cert/CA/"
 
 ### Catatan
 
-- Native Unity socket (bukan HttpClient) bisa mengabaikan env proxy terlepas dari metode.
-- AppId 3678970 adalah judul Steam komersial — intercept/modifikasi traffic-nya dapat melanggar ToS Steam dan/atau game. Hanya untuk akun sendiri di environment terkontrol.
-- Bila env Launch Options diabaikan, alternatif: transparent iptables redirect (host layer, perlu bypass isolasi network pressure-vessel) atau Wine proxy registry (`HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings`).
+- Native Unity socket (bukan HttpClient) bisa mengabaikan env proxy
+  terlepas dari metode.
+- AppId 3678970 adalah judul Steam komersial — intercept/modifikasi
+  traffic-nya dapat melanggar ToS Steam dan/atau game. Hanya untuk akun
+  sendiri di environment terkontrol.
+- Bila env Launch Options diabaikan, alternatif: transparent iptables
+  redirect (host layer, perlu bypass isolasi network pressure-vessel)
+  atau Wine proxy registry
+  (`HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings`).
 
 ---
 
 ## Sertifikat CA
 
-mitmproxy intercept HTTPS dengan CA miliknya sendiri. Klien harus trust CA ini, jika tidak akan muncul error sertifikat. CA di-generate otomatis saat `mitmdump` pertama jalan, lokasi `~/.mitmproxy/`.
+mitmproxy intercept HTTPS dengan CA miliknya sendiri. Klien harus trust
+CA ini, jika tidak akan muncul error sertifikat. CA di-generate otomatis
+saat `mitmdump` pertama jalan, lokasi `~/.mitmproxy/`.
 
 ### Linux (system trust)
 
@@ -406,7 +574,8 @@ Install:
 ./scripts/install_cert.sh
 ```
 
-Script auto re-exec via sudo, pakai `trust anchor --store` + `update-ca-trust extract`. Verifikasi:
+Script auto re-exec via sudo, pakai `trust anchor --store` +
+`update-ca-trust extract`. Verifikasi:
 
 ```bash
 trust list | grep -i mitmproxy
@@ -426,15 +595,21 @@ Install (auto-elevate ke admin via prompt UAC):
 windows\install_cert.bat
 ```
 
-Pakai `certutil -addstore -f "Root"` untuk menambah cert (default: `%USERPROFILE%\.mitmproxy\mitmproxy-ca-cert.cer`) ke store Trusted Root Certification Authorities. Override path cert via env var `MITMPROXY_CA_CERT`. Verifikasi:
+Pakai `certutil -addstore -f "Root"` untuk menambah cert (default:
+`%USERPROFILE%\.mitmproxy\mitmproxy-ca-cert.cer`) ke store Trusted Root
+Certification Authorities. Override path cert via env var
+`MITMPROXY_CA_CERT`. Verifikasi:
 
 ```bat
 certutil -store Root | findstr /i mitmproxy
 ```
 
-Kalau PowerShell tidak tersedia dan script belum elevated, script akan print instruksi untuk klik kanan → "Run as administrator".
+Kalau PowerShell tidak tersedia dan script belum elevated, script akan
+print instruksi untuk klik kanan → "Run as administrator".
 
-> Catatan: belum ada `windows\remove_cert.bat` — untuk hapus, buka `certmgr.msc` → Trusted Root Certification Authorities → Certificates → cari `mitmproxy` → Delete.
+> Catatan: belum ada `windows\remove_cert.bat` — untuk hapus, buka
+> `certmgr.msc` → Trusted Root Certification Authorities →
+> Certificates → cari `mitmproxy` → Delete.
 
 ### Firefox
 
@@ -442,11 +617,13 @@ Firefox punya store sendiri dan tidak baca system trust.
 
 1. `about:preferences#privacy`
 2. Certificates → View Certificates → tab **Authorities**
-3. Import → `%USERPROFILE%\.mitmproxy\mitmproxy-ca-cert.cer`
+3. Import → `~/.mitmproxy/mitmproxy-ca-cert.pem`
+4. Centang "Trust this CA to identify websites" → OK
 
 ### Chromium / Chrome
 
-Membaca system trust (langkah Linux di atas cukup). Atau bypass via flag:
+Membaca system trust (langkah Linux di atas cukup). Atau bypass via
+flag:
 
 ```bash
 chromium --ignore-certificate-errors-spki-list=$(openssl x509 -in ~/.mitmproxy/mitmproxy-ca-cert.pem -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64)
@@ -463,20 +640,23 @@ chromium --ignore-certificate-errors-spki-list=$(openssl x509 -in ~/.mitmproxy/m
 
 ## Self-Test
 
-Tes rewrite offline tanpa proxy berjalan. Memvalidasi logika regex + rule terhadap `config.json`.
+Tes rewrite offline tanpa proxy berjalan. Memvalidasi logika regex + rule
+terhadap fixture internal (TIDAK membaca `config.json` live):
 
 ```bash
 ./scripts/self_test.sh          # Linux
 windows\self_test.bat           # Windows
 ```
 
-Output sukses (satu baris — self-test pakai fixture config internal dan tidak memuat `config.json`):
+Output sukses (satu baris):
 
 ```
 Self-test OK.
 ```
 
-Self-test membaca `config.json` dan membandingkan hasil rewrite dengan expected value. Bila mengubah rule di config, perbarui expected value di fungsi `run_self_test()` (`tbh_reward_hook.py`) agar test tetap relevan.
+Self-test memakai fixture hard-coded untuk menguji rule engine end-to-end.
+Perbarui `run_self_test()` di `src/tbh_reward_hook.py` bila mengubah
+logika rule agar test tetap relevan.
 
 ---
 
@@ -487,59 +667,101 @@ Self-test membaca `config.json` dan membandingkan hasil rewrite dengan expected 
 | `ModuleNotFoundError: mitmproxy` | mitmproxy belum terinstall | `sudo pacman -S mitmproxy` / `./scripts/install_requirements.sh` |
 | Proxy jalan tapi response tidak berubah | URL/body tidak match filter | Cek `url_contains`, pastikan body mengandung `"boxes"`. Lihat log `[TBH] matched URL but found no replaceable` |
 | Klien error sertifikat HTTPS | CA belum di-trust | Jalankan `./scripts/install_cert.sh` (lihat [Sertifikat CA](#sertifikat-ca)) |
-| `AssertionError` di self-test | Expected value tidak match config | Sejajarkan expected di `run_self_test()` dengan `config.json` |
+| `AssertionError` di self-test | Fixture mismatch setelah ubah rule | Perbarui expected value di `run_self_test()` |
 | Port 8877 dipakai | Konflik port | Ubah `listen_port` di `config.json` |
 | Firefox tetap error | Store terpisah | Import manual via `about:preferences#privacy` |
 | `sudo: a terminal is required` | sudo non-interaktif tanpa TTY | Jalankan via prefix `!` di prompt, atau `echo PASS \| sudo -S ...` |
+| GUI desktop crash saat launch di Plasma Wayland | Bug PySide6 / driver Xe | Selalu export `QT_QPA_PLATFORM=offscreen` di CachyOS meski jalan interaktif |
 
 Debug verbose (tanpa `-q`):
 
 ```bash
-mitmdump -s src/tbh_reward_hook.py --listen-port 8877 --set block_global=false --flow-detail 2
+mitmdump -s src/tbh_reward_hook.py --listen-port 8877 \
+    --set block_global=false --flow-detail 2
 ```
 
 ---
 
 ## Peringatan Keamanan
 
-**CA mitmproxy bisa menandatangani HTTPS apapun.** Bila mesin ini trust CA tersebut, siapa pun yang menjalankan proxy di mesin ini bisa intercept seluruh traffic terenkripsi.
+**CA mitmproxy bisa menandatangani HTTPS apapun.** Bila mesin ini trust
+CA tersebut, siapa pun yang menjalankan proxy di mesin ini bisa
+intercept seluruh traffic terenkripsi.
 
 - Hanya install CA pada environment yang kamu kontrol (dev/test).
 - Hapus CA setelah tidak dipakai: `./scripts/remove_cert.sh`.
 - Jangan commit file `~/.mitmproxy/mitmproxy-ca*.pem` ke repo apapun.
 - Jangan bagikan CA private key (`mitmproxy-ca.pem`, `mitmproxy-ca.p12`).
-- Penggunaan pada layanan/game pihak ketiga dapat melanggar ToS. Tanggung jawab pengguna.
+- Penggunaan pada layanan/game pihak ketiga dapat melanggar ToS.
+  Tanggung jawab pengguna.
 
 ---
 
 ## Struktur File
 
 ```
-tbh-reward-item/
-├── src/                    # mitmproxy addon (tbh_reward_hook.py, run_proxy.py, config.json)
-├── scripts/                # Linux wrappers (run_proxy, install_reqs, self_test, launch_desktop)
-├── windows/                # Windows wrappers (run_proxy, install_reqs, self_test, launch_desktop, install_cert)
-├── tbh_desktop/            # PySide6 desktop GUI (opsional)
-│   ├── main.py             # entry point
-│   ├── config_io.py        # load/save config (atomic + validate)
-│   ├── scraper.py          # gear wiki + box loot scrape, cache
-│   ├── proxy_runner.py     # subprocess + stdout stream
-│   ├── paths.py            # path resolution
-│   └── ui/                 # main_window, config_editor, gear_picker, box_picker, box_loot_picker, image_cache, log_panel, theme
-├── tests/                  # pytest (config_io, proxy_runner, gear_picker, config_editor, main_window, scraper)
-├── docs/                   # specs + plans
-├── requirements.txt            # mitmproxy
-├── requirements-desktop.txt    # PySide6, requests, bs4, lxml, pytest-qt, playwright, cloakbrowser
+TBH/
+├── src/                              # addon mitmproxy (pure stdlib + mitmproxy)
+│   ├── tbh_reward_hook.py            # TBHRewardHook + RewardRewriter (regex engine)
+│   ├── tbh_proxy_config.py           # dataclass ProxyConfig / QueueRule / RangeRule
+│   ├── run_proxy.py                  # launcher (mitmdump atau python -m mitmproxy)
+│   ├── config_setup.py               # ensure_config() — copy default → live
+│   ├── config.default.json           # template seed
+│   └── config.json                   # di-generate first run, hot-reloaded
+├── tbh_desktop/                      # GUI PySide6 opsional
+│   ├── main.py                       # entry: QApplication + theme + handler SIGINT
+│   ├── paths.py                      # re-export dari src/config_setup.py
+│   ├── config_io.py                  # load/save (validate → atomic temp+rename → re-validate → restore .bak)
+│   ├── proxy_runner.py               # subprocess + group SIGTERM/SIGKILL + stdout→Qt signal
+│   ├── scraper.py                    # gear + box loot + drops index scrape
+│   ├── gear_scraper_runner.py        # wrapper thread QObject di sekitar scraper.refresh_gear_full
+│   └── ui/
+│       ├── main_window.py            # shell 2-pane (RULES + DETAIL) + toolbar + menu
+│       ├── config_editor.py          # membungkus RuleListView + RangeForm
+│       ├── rule_list.py              # list scrollable widget RuleCard
+│       ├── rule_card.py              # rule tunggal: toggle, name, id, baris chip
+│       ├── rule_detail_panel.py      # editor panel kanan untuk rule aktif
+│       ├── active_target.py          # union RuleTarget | RangeTarget
+│       ├── item_browser.py           # konten catalog (di-embed di popup)
+│       ├── catalog_popup.py          # wrapper QMenu yang meng-host ItemBrowser
+│       ├── item_card.py              # chip item tunggal border rarity
+│       ├── gear_picker.py            # GearView (GearPicker dialog = shim)
+│       ├── box_picker.py             # BoxView
+│       ├── box_loot_picker.py        # BoxLootView
+│       ├── status_badge.py           # pill dot berlabel (STOPPED / RUNNING)
+│       ├── log_panel.py              # dock bawah, monospace
+│       ├── theme.py                  # palet Catppuccin Mocha + rarity + ornament
+│       └── image_cache.py            # loader ikon async
+├── scripts/                          # run_proxy, install_requirements, self_test,
+│                                     #   install_cert, remove_cert, launch_desktop
+├── windows/                          # ekuivalen Windows + install_cert.bat
+├── tests/                            # config_io, scraper, proxy_runner,
+│                                     #   gear_picker, main_window (bertanda gui)
+├── docs/                             # specs + plans superpowers
+├── requirements.txt                  # mitmproxy
+├── requirements-desktop.txt          # PySide6, requests, bs4, lxml, pytest-qt,
+│                                     #   playwright, cloakbrowser, Pillow
+├── desktop-app.webp                  # screenshot hero main window
+├── desktop-app-catalog.webp          # screenshot catalog popup
+├── steam-launch-options.webp         # referensi Steam launch options
 ├── README.md
 └── README.id.md
 ```
 
-Skrip memakai path absolut (`REPO_ROOT` di shell, `%~dp0..` di bat) sehingga jalan dari cwd mana pun. File source (`src/`) saling mereferensikan via `Path(__file__).resolve().parent`, jadi `tbh_reward_hook.py`, `run_proxy.py`, dan `config.json` harus tetap satu direktori.
-
-Cache `tbh_desktop/gear/` (JSON gear per kategori×rarity, nested), `tbh_desktop/item/` (JSON material per family×rarity, nested), `tbh_desktop/box_slug_cache.json` (map box_id → slug), dan `tbh_desktop/box_loot_cache/` pada aplikasi desktop bersifat generated tapi **di-track di git** agar deploy baru tidak perlu scrape ulang. Hapus untuk memaksa re-fetch dari wiki. Layout lama flat-file `tbh_desktop/gear/{category}_{rarity}.json` (direktori satu-level) sudah digantikan oleh layout nested `gear/{category}/{rarity}.json` dan tidak lagi ditulis oleh picker.
+Cache `tbh_desktop/gear/` (JSON gear per kategori×rarity, nested),
+`tbh_desktop/item/` (JSON material per family×rarity, nested),
+`tbh_desktop/box_slug_cache.json` (map box_id → slug), dan
+`tbh_desktop/box_loot_cache/` pada aplikasi desktop bersifat generated
+tapi **di-track di git** agar deploy baru tidak perlu scrape ulang. Hapus
+untuk memaksa re-fetch dari wiki. Layout lama flat-file
+`tbh_desktop/gear/{category}_{rarity}.json` sudah digantikan oleh layout
+nested `gear/{category}/{rarity}.json` dan tidak lagi ditulis oleh
+picker.
 
 ---
 
 ## Ucapan Terima Kasih
 
-Proyek ini dibangun di atas teknik **Persistent Reward Item Generator** yang diteliti dan dibagikan oleh komunitas UnknownCheats. Thread asli: [TBH - Persistent Reward Item Generator](https://www.unknowncheats.me/forum/other-games/758547-tbh-persistent-reward-item-generator.html).
+Proyek ini dibangun di atas teknik **Persistent Reward Item Generator**
+yang diteliti dan dibagikan oleh komunitas UnknownCheats. Thread asli:
+[TBH - Persistent Reward Item Generator](https://www.unknowncheats.me/forum/other-games/758547-tbh-persistent-reward-item-generator.html).

@@ -1,12 +1,11 @@
-"""Smoke test: launch MainWindow in offscreen mode, verify the four zones exist."""
+"""Smoke test: launch MainWindow in offscreen mode, verify the three zones
++ view menu exist."""
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
 import pytest
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication
 
 # Force offscreen so we never open a real window during CI.
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -23,16 +22,28 @@ def workdir(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr("tbh_desktop.paths.CONFIG_PATH", cfg)
 
 
-def test_main_window_has_four_zones(qapp: QApplication, workdir) -> None:
+def test_main_window_has_three_zones(qapp, workdir) -> None:
     win = MainWindow()
     assert win.findChild(type(win.editor.rule_list())) is not None
-    assert win.findChild(type(win.left_rail)) is not None
     assert win.findChild(type(win.item_browser)) is not None
     assert win.findChild(type(win.log_dock.widget())) is not None
+    # LeftRail is gone — assert nothing with that objectName exists anywhere.
+    assert win.findChild(type(win.editor), name="left_rail") is None
     win.close()
 
 
-def test_main_window_screenshot(qapp: QApplication, workdir, tmp_path: Path) -> None:
+def test_main_window_has_view_menu_toggles(qapp, workdir) -> None:
+    """The view-toggle buttons that used to live on LeftRail moved to the
+    View menu (checkable QActions)."""
+    win = MainWindow()
+    assert win.action_toggle_log.isCheckable() is True
+    assert win.action_toggle_items.isCheckable() is True
+    assert win.action_toggle_log.text() == "Log panel"
+    assert win.action_toggle_items.text() == "Item browser"
+    win.close()
+
+
+def test_main_window_screenshot(qapp, workdir, tmp_path: Path) -> None:
     win = MainWindow()
     win.resize(1400, 800)
     win.show()
@@ -46,7 +57,7 @@ def test_main_window_screenshot(qapp: QApplication, workdir, tmp_path: Path) -> 
     win.close()
 
 
-def test_main_window_toolbar_has_three_zones(qapp: QApplication, workdir) -> None:
+def test_main_window_toolbar_has_three_zones(qapp, workdir) -> None:
     """Arsenal directive: toolbar groups buttons into primary (Start/Stop),
     secondary (Scrape/Check/Save/Reset), and ghost (Copy Steam) zones,
     each declared via toolbar_zone property so QSS styles them differently."""
@@ -61,17 +72,16 @@ def test_main_window_toolbar_has_three_zones(qapp: QApplication, workdir) -> Non
     win.close()
 
 
-def test_main_window_toolbar_port_field_is_mono(qapp: QApplication, workdir) -> None:
+def test_main_window_toolbar_port_field_is_mono(qapp, workdir) -> None:
     win = MainWindow()
     families = " ".join(win.port_edit.font().families()).lower()
     assert "mono" in families or "jetbrains" in families
     win.close()
 
 
-def test_main_window_status_dot_object_name(qapp: QApplication, workdir) -> None:
+def test_main_window_status_dot_object_name(qapp, workdir) -> None:
     """Status dot must declare objectName='status_dot_pulse' so the QSS
-    pulsing animation can target it (and so left_rail.status_dot can also
-    use it)."""
+    pulsing animation can target it."""
     win = MainWindow()
     assert win.status_dot.objectName() == "status_dot_pulse"
     win.close()

@@ -24,7 +24,6 @@ from tbh_desktop.ui.box_picker import BoxPicker
 from tbh_desktop.ui.config_editor import ConfigEditor
 from tbh_desktop.ui.gear_picker import GearPicker
 from tbh_desktop.ui.item_browser import ItemBrowser
-from tbh_desktop.ui.left_rail import Action, LeftRail
 from tbh_desktop.ui.log_panel import LogPanel
 from tbh_desktop.ui.theme import status_dot_style
 
@@ -75,7 +74,6 @@ class MainWindow(QMainWindow):
         self.gear_scraper.scraping.connect(self._on_gear_scraping)
 
         self.editor = ConfigEditor()
-        self.left_rail = LeftRail()
         self.item_browser = ItemBrowser(
             gear_cache_dir=GEAR_CACHE_DIR,
             drops_index_path=DROPS_INDEX_CACHE,
@@ -83,12 +81,11 @@ class MainWindow(QMainWindow):
         )
         self.log_panel = LogPanel()
 
-        # 4-zone composition: rail | editor | item browser, with log dock below.
+        # 3-zone composition: editor | item browser, with log dock below.
         central = QWidget()
         h = QHBoxLayout(central)
         h.setContentsMargins(0, 0, 0, 0)
         h.setSpacing(0)
-        h.addWidget(self.left_rail)
         h.addWidget(self.editor, stretch=3)
         h.addWidget(self.item_browser, stretch=2)
         self.setCentralWidget(central)
@@ -110,9 +107,6 @@ class MainWindow(QMainWindow):
         # Wire editor pick buttons — Range Replacement
         # (Specific-rule pick buttons live on each RuleCard inside the
         # RuleListView; route them through _on_rule_card_pick.)
-
-        # Wire LeftRail actions to existing slots.
-        self.left_rail.action.connect(self._on_rail_action)
 
         # Wire ItemBrowser picks to route by active target.
         self.item_browser.item_picked.connect(self._on_item_browser_pick)
@@ -230,6 +224,22 @@ class MainWindow(QMainWindow):
         file_menu.addAction("Reset config to default", self._reset_config)
         file_menu.addSeparator()
         file_menu.addAction("Exit", self.close)
+
+        # View menu: visibility toggles for log dock + item browser.
+        # (These used to live on LeftRail; the rail was redundant since
+        # the toolbar already exposes status + port.)
+        view_menu = menubar.addMenu("View")
+        self.action_toggle_log = view_menu.addAction("Log panel")
+        self.action_toggle_log.setCheckable(True)
+        self.action_toggle_log.setChecked(True)
+        self.action_toggle_log.toggled.connect(
+            lambda checked: self.log_dock.toggleViewAction().setChecked(checked)
+        )
+        self.action_toggle_items = view_menu.addAction("Item browser")
+        self.action_toggle_items.setCheckable(True)
+        self.action_toggle_items.setChecked(self.item_browser.isVisible())
+        self.action_toggle_items.toggled.connect(self.item_browser.setVisible)
+
         help_menu = menubar.addMenu("Help")
         help_menu.addAction("About", self._about)
 
@@ -686,14 +696,6 @@ class MainWindow(QMainWindow):
         self.runner.stop()
 
     # ------------------------------------------------------------------ rail / target routing
-    def _on_rail_action(self, action: Action) -> None:
-        """Dispatch a LeftRail view-toggle click. Action buttons live in the
-        top toolbar (LeftRail is status + port + view toggles only)."""
-        if action is Action.TOGGLE_LOG:
-            self.log_dock.toggleViewAction().trigger()
-        elif action is Action.TOGGLE_ITEMS:
-            self.item_browser.setVisible(not self.item_browser.isVisible())
-
     def _on_rule_selected(self, target) -> None:
         """Switch the ItemBrowser filter context based on the active rule row."""
         from tbh_desktop.ui.active_target import RuleTarget

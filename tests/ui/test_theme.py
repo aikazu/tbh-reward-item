@@ -37,10 +37,13 @@ def test_register_fonts_loads_cinzel_and_jetbrains(qapp: QApplication) -> None:
 
 def test_chip_style_returns_qss_with_rarity_border(qapp: QApplication) -> None:
     qss = chip_style(rarity="LEGENDARY")
-    assert "#item_card" in qss
     assert RARITY["LEGENDARY"] in qss
     # Square corners (arsenal directive: 2-4px).
     assert "border-radius: 2px" in qss
+    # The QSS now only applies the border (background is painted via
+    # QPalette inside ItemCard) — verify the border-left accent is still
+    # rarity-tinted so the visual identity survives.
+    assert "border-left: 2px solid" in qss
 
 
 def test_chip_style_compact_is_smaller(qapp: QApplication) -> None:

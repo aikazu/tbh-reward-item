@@ -511,26 +511,29 @@ def shell_splitter_style() -> str:
 
 
 def chip_style(rarity: str, *, compact: bool = False) -> str:
-    """Arsenal-style chip QSS for an :class:`ItemCard` instance.
+    """Border-only QSS for an :class:`ItemCard` instance.
 
-    Sharp corners (2px), rarity-tinted left border, no rounded corners. The
-    ``rarity`` argument picks a 2px border color from :data:`RARITY` (falls
-    back to COMMON). Compact mode tightens padding for use inside rule cards.
+    The background color is now applied via QPalette inside ItemCard
+    itself (palette paints deterministically regardless of where the
+    chip is reparented or what its objectName is — QSS dynamic-property
+    selectors were unreliable for chips whose objectName got renamed
+    by their parent layout).
+
+    This function only returns the border (rarity-tinted left + neutral
+    all-around) so callers can re-apply the QSS on rebuilds without
+    overwriting the palette-managed background.
     """
     border_color = RARITY.get(rarity.upper(), RARITY["COMMON"])
     padding = "2px 6px" if compact else "4px 8px"
     note = " (compact)" if compact else ""
     return (
-        f"#item_card{{"
-        f"  background-color: {MOCHA['surface0']};"
+        f"QFrame {{"
         f"  border: 1px solid {MOCHA['surface1']};"
         f"  border-left: 2px solid {border_color};"
         f"  border-radius: 2px;"
+        f"  background: transparent;"
         f"  padding: {padding};"
         f"  /* chip{note} */"
-        f"}}"
-        f"#item_card:hover {{"
-        f"  background-color: {MOCHA['surface1']};"
         f"}}"
     )
 

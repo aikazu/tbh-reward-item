@@ -14,6 +14,11 @@ G7:
   CRAFTING → DECORATION → ENGRAVING → INSCRIPTION → OFFERING → SOULSTONE.
 - Group headers (e.g. "── Legendary Crafting ──") break up the list visually.
 - Tooltip shows box_id + kind + family when applicable.
+
+T7: BoxLootView (QWidget) extracted from BoxLootPicker (QDialog). The
+dialog is now a thin shim around the view + OK/Cancel buttons. UI state
+(filters, search, list) lives on the view so it can be embedded in a
+larger panel (T9) without the dialog chrome.
 """
 from __future__ import annotations
 
@@ -31,6 +36,7 @@ from PySide6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QVBoxLayout,
+    QWidget,
 )
 
 from tbh_desktop.ui.image_cache import ImageCache
@@ -94,46 +100,37 @@ def _format_info_inline(info: dict[str, Any] | None) -> str:
     return " · ".join(parts)
 
 
-class BoxLootPicker(QDialog):
-    """Pick reward IDs from the wiki drops index (everything non-gear)."""
+class BoxLootView(QWidget):
+    """Embeddable material picker (non-dialog). Filter + list + search UI.
+
+    Two modes (see ``__init__``):
+    - ``"materials"`` (default): range-replacement picker. Materials only,
+      SOULSTONE excluded.
+    - ``"box_loot"``: per-rule loot picker scoped to a specific box.
+      Materials only; gear has its own GearPicker.
+
+    Public API:
+    - ``visible_items() -> list[dict]`` — items currently rendered (raw
+      dicts after all filters, in display order). Header rows excluded.
+    - ``selected_ids() -> list[int]`` — ids of currently selected rows.
+    - ``set_family_filter(name)`` — set the family filter (None / "" =
+      clear). Triggers a rebuild.
+    - ``set_selected_ids_for_test(ids)`` — test hook to mark rows as
+      selected without simulating user interaction.
+    """
 
     def __init__(
         self,
-        parent=None,
+        parent: QWidget | None = None,
         *,
         items: list[dict[str, Any]] | None = None,
         cache_path: Any | None = None,
         scope_box_name: str | None = None,
-        mode: str = "materials",  # "materials" | "box_loot"
+        mode: str = "materials",
     ) -> None:
-        """Pick reward IDs from the wiki drops index.
-
-        Two modes:
-        - "materials" (default): range replacement picker. Lists only
-          materials, excludes SOULSTONE family (those are bind-on-pickup
-          crafting materials; using them as range replacement targets can
-          silently break addon logic). No stage-box, no gear.
-        - "box_loot": per-rule loot picker. Scoped to a specific box, lists
-          ALL items in that box (materials + stage boxes + everything else).
-          User picks a single rule's replacement IDs.
-
-        Gear and stage-boxes are excluded from the "materials" mode — gear
-        has its own GearPicker, and stage-boxes are containers, not reward
-        items.
-        """
         super().__init__(parent)
         self._mode = mode
-        self.setWindowTitle(
-            f"Pick reward IDs from {scope_box_name}" if scope_box_name
-            else "Pick reward IDs from drops index"
-        )
-        # box_loot mode shows everything (no header); materials mode needs
-        # more vertical space for grouped headers.
-        self.resize(640, 720)
-
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(12, 12, 12, 12)
-        layout.setSpacing(10)
+        self._scope_box_name = scope_box_name
 
         # Resolve items: explicit > cache > empty.
         if items is None and cache_path is not None:
@@ -182,7 +179,8 @@ class BoxLootPicker(QDialog):
         # Ingot" never contain the box name, so the filter just truncated the
         # list silently. The caller now passes the box's ACTUAL loot list,
         # which is already scoped. scope_box_name is still accepted as a
-        # constructor arg only for the dialog title.
+        # constructor arg only for window-title purposes (the dialog shim
+        # uses it).
 
         # Sort by family rank, then rarity rank, then id. SOULSTONE never
         # appears in materials mode (filtered above).
@@ -200,6 +198,22 @@ class BoxLootPicker(QDialog):
             )
 
         filtered.sort(key=_sort_key)
+
+        self._all_items = filtered
+        self._build_ui()
+
+        # Stash the filtered+scoped items; _apply_filters rebuilds the list
+        # with rarity filter + search applied on top.
+        self._apply_filters()
+
+    # ---------------------------------------------------------- UI construction
+    def _build_ui(self) -> None:
+        """Construct the widget layout and child widgets."""
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(10)
+
+        filtered = self._all_items
 
         # ── Filter row ───────────────────────────────────────────────────
         filter_row = QHBoxLayout()
@@ -236,13 +250,21 @@ class BoxLootPicker(QDialog):
             f = str(it.get("family", "")).upper()
             family_counts[f] = family_counts.get(f, 0) + 1
         self.family_filter.addItem(f"All ({len(filtered)})", None)
-        # Family dropdown in canonical FAMILY_ORDER.
+        # Family dropdown in canonical FAMILY_ORDER, then any extra families
+        # present in the items that aren't in the canonical set (e.g. a test
+        # fixture or a future family added by the wiki).
         from tbh_desktop.scraper import FAMILY_ORDER as _FAMILY_ORDER_FOR_PICKER
+        ordered_families: list[str] = []
         for f in _FAMILY_ORDER_FOR_PICKER:
-            if f in family_counts:
-                self.family_filter.addItem(
-                    f"{f.title()} ({family_counts[f]})", f
-                )
+            if f in family_counts and f not in ordered_families:
+                ordered_families.append(f)
+        for f in sorted(family_counts.keys()):
+            if f not in ordered_families:
+                ordered_families.append(f)
+        for f in ordered_families:
+            self.family_filter.addItem(
+                f"{f.title()} ({family_counts[f]})", f
+            )
         self.family_filter.currentIndexChanged.connect(self._apply_filters)
         filter_row.addWidget(self.family_filter)
         filter_row.addStretch()
@@ -269,22 +291,77 @@ class BoxLootPicker(QDialog):
         self.count_label.setStyleSheet("color: #7f849c; font-size: 11px;")
         layout.addWidget(self.count_label)
 
-        buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-        )
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
-
         # Async image cache.
         self._image_cache = ImageCache(self)
         self._image_cache.icon_ready.connect(self._apply_icon)
 
-        # Stash the filtered+scoped items; _apply_filters rebuilds the list
-        # with rarity filter + search applied on top.
-        self._all_items = filtered
-        self._apply_filters()
+    # ---------------------------------------------------------- public API
+    def visible_items(self) -> list[dict]:
+        """Return the raw item dicts currently rendered in the list, in
+        display order. Hidden rows (filtered by search) are excluded.
+        Header rows (no ``id``) are excluded.
+        """
+        items: list[dict] = []
+        for i in range(self.list_widget.count()):
+            li = self.list_widget.item(i)
+            if li.isHidden():
+                continue
+            item_id = li.data(Qt.ItemDataRole.UserRole)
+            if item_id is None:
+                continue  # header row
+            # Match by id against the source items.
+            for src in self._all_items:
+                if src.get("id") == item_id:
+                    items.append(src)
+                    break
+        return items
 
+    def selected_ids(self) -> list[int]:
+        return [
+            item.data(Qt.ItemDataRole.UserRole)
+            for item in self.list_widget.selectedItems()
+            if item.data(Qt.ItemDataRole.UserRole) is not None
+        ]
+
+    def set_family_filter(self, name: str | None) -> None:
+        """Set the family ("Type") filter by family slug (case-insensitive).
+
+        Pass ``None`` or empty string to clear (matches "All"). Triggers a
+        rebuild of the list.
+        """
+        target = (name or "").strip().upper()
+        if not target:
+            # Reset to "All" entry (index 0, userData=None).
+            if self.family_filter.currentIndex() != 0:
+                self.family_filter.setCurrentIndex(0)
+            return
+        idx = self.family_filter.findData(target)
+        if idx < 0:
+            # Try case-insensitive lookup against item text.
+            for i in range(self.family_filter.count()):
+                if self.family_filter.itemText(i).strip().upper().startswith(target):
+                    idx = i
+                    break
+        if idx >= 0 and idx != self.family_filter.currentIndex():
+            self.family_filter.setCurrentIndex(idx)
+        # setCurrentIndex already fires currentIndexChanged -> _apply_filters.
+
+    def set_selected_ids_for_test(self, ids: list[int]) -> None:
+        """Test hook: mark the rows whose ``id`` matches *ids* as selected.
+
+        No-op in production usage; lets headless tests assert selection
+        state without simulating user clicks.
+        """
+        id_set = {int(i) for i in ids}
+        for i in range(self.list_widget.count()):
+            li = self.list_widget.item(i)
+            iid = li.data(Qt.ItemDataRole.UserRole)
+            if iid is not None and int(iid) in id_set:
+                li.setSelected(True)
+            else:
+                li.setSelected(False)
+
+    # ------------------------------------------------------------------ filters
     def _apply_filters(self) -> None:
         """Rebuild list with rarity + family + search filters applied."""
         rarity = self.rarity_filter.currentData()  # None = all
@@ -446,6 +523,7 @@ class BoxLootPicker(QDialog):
                 self.list_widget.item(next_header_idx).setHidden(False)
                 next_header_idx = None
         self._update_count()
+
     def _update_count(self) -> None:
         selectable = sum(
             1
@@ -455,9 +533,77 @@ class BoxLootPicker(QDialog):
         )
         self.count_label.setText(f"{selectable} items")
 
+
+class BoxLootPicker(QDialog):
+    """Thin dialog shim around :class:`BoxLootView`. Kept so legacy callers
+    (main_window + the existing test suite) continue to compile unchanged.
+
+    UI attributes (``list_widget``, ``rarity_filter``, ``family_filter``)
+    are exposed via property forwarding to the embedded ``BoxLootView``,
+    so existing tests that poke them directly still pass.
+    """
+
+    def __init__(
+        self,
+        parent=None,
+        *,
+        items: list[dict[str, Any]] | None = None,
+        cache_path: Any | None = None,
+        scope_box_name: str | None = None,
+        mode: str = "materials",
+    ) -> None:
+        super().__init__(parent)
+        self._mode = mode
+        if mode == "box_loot":
+            self.setWindowTitle(
+                f"Pick from box loot ({scope_box_name})"
+                if scope_box_name
+                else "Pick from box loot"
+            )
+        else:
+            self.setWindowTitle(
+                f"Pick reward IDs from {scope_box_name}" if scope_box_name
+                else "Pick reward IDs from drops index"
+            )
+        # box_loot mode shows everything (no header); materials mode needs
+        # more vertical space for grouped headers.
+        self.resize(640, 720)
+
+        self._view = BoxLootView(
+            self,
+            items=items,
+            cache_path=cache_path,
+            scope_box_name=scope_box_name,
+            mode=mode,
+        )
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(10)
+        layout.addWidget(self._view)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    # ---------------------------------------------------------- forwarded API
+    # Each attribute is forwarded to the embedded BoxLootView so legacy callers
+    # (including the existing test suite) can interact with the picker the
+    # same way they did before the extraction.
+    @property
+    def list_widget(self) -> QListWidget:
+        return self._view.list_widget
+
+    @property
+    def rarity_filter(self) -> QComboBox:
+        return self._view.rarity_filter
+
+    @property
+    def family_filter(self) -> QComboBox:
+        return self._view.family_filter
+
     def selected_ids(self) -> list[int]:
-        return [
-            item.data(Qt.ItemDataRole.UserRole)
-            for item in self.list_widget.selectedItems()
-            if item.data(Qt.ItemDataRole.UserRole) is not None
-        ]
+        return self._view.selected_ids()

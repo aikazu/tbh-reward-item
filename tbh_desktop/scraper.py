@@ -18,6 +18,7 @@ except ImportError:
 from playwright.sync_api import sync_playwright
 
 from tbh_desktop.paths import DESKTOP_DIR
+from dev_tools.scrape_pipeline import backoff, errors  # noqa: E402
 
 log = logging.getLogger(__name__)
 
@@ -609,6 +610,11 @@ def _scrape_one_combo(
             return items
         except Exception as exc:
             last_exc = exc
+            categorized = errors.categorize(exc)
+            if isinstance(categorized, errors.SchemaError):
+                # Wiki shape changed — fail fast, don't retry
+                log.warning("gear %s/%s schema error: %s", cat, grade, exc)
+                return None
             if attempt == 1:
                 # Strip overlay iframes (Cloudflare / ads) and retry. This
                 # fixes the "element is covered by <IFRAME>" pointer_events
@@ -757,8 +763,12 @@ def _enrich_items_with_stats(
                 return iid, detail.get("stats", [])
             except Exception as exc:
                 last_exc = exc
-                if attempt < 2:
-                    _time.sleep(0.4 * (2 ** attempt))
+                categorized = errors.categorize(exc)
+                if attempt < 2 and isinstance(categorized, errors.NetworkError):
+                    _time.sleep(backoff.backoff(attempt))
+                    continue
+                if attempt < 2 and isinstance(categorized, errors.RateLimitError):
+                    _time.sleep(60.0)
                     continue
         log.info("gear detail %s failed after 3 attempts: %s", iid, last_exc)
         return iid, []
@@ -1405,8 +1415,12 @@ def _fetch_material_detail_wiki(item_id: int, name: str) -> dict[str, Any]:
             return parse_material_detail_wiki(resp.text)
         except Exception as exc:
             last_exc = exc
-            if attempt < 2:
-                _time.sleep(0.4 * (2 ** attempt))
+            categorized = errors.categorize(exc)
+            if attempt < 2 and isinstance(categorized, errors.NetworkError):
+                _time.sleep(backoff.backoff(attempt))
+                continue
+            if attempt < 2 and isinstance(categorized, errors.RateLimitError):
+                _time.sleep(60.0)
                 continue
     log.info("material detail %s (%s) failed: %s", item_id, name, last_exc)
     return {}

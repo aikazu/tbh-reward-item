@@ -346,11 +346,25 @@ def apply_theme(app: QApplication) -> None:
     pal.setColor(QPalette.ColorRole.PlaceholderText, QColor(MOCHA["overlay0"]))
     app.setPalette(pal)
     app.setFont(QFont("Sans Serif", 10))
-    app.setStyleSheet(_QSS + "\n" + arsenal_stylesheet() + "\n" + section_heading_style())
+    app.setStyleSheet(
+        _QSS + "\n"
+        + arsenal_stylesheet() + "\n"
+        + section_heading_style() + "\n"
+        + status_badge_style(False) + "\n"
+        + zone_label_style() + "\n"
+        + panel_heading_style() + "\n"
+        + empty_state_style() + "\n"
+        + shell_splitter_style()
+    )
 
 
 def log_panel_style() -> str:
-    """Return the QSS snippet for the log panel (terminal-like monospace)."""
+    """Return the QSS snippet for the log panel (terminal-like monospace).
+
+    Includes an empty-state hint via ``QPlainTextEdit[empty='true']`` —
+    shown when no log lines have been emitted yet, so the panel doesn't
+    render as a featureless black rectangle on first launch.
+    """
     return (
         f"QPlainTextEdit {{"
         f"  background: {MOCHA['crust']};"
@@ -359,7 +373,13 @@ def log_panel_style() -> str:
         f"    'Noto Sans Mono', monospace;"
         f"  font-size: 12px;"
         f"  border: 1px solid {MOCHA['surface0']};"
-        f"  border-radius: 6px;"
+        f"  border-radius: 4px;"
+        f"  padding: 4px;"
+        f"}}"
+        # Empty state — grey italic centered hint.
+        f"QPlainTextEdit[empty='true'] {{"
+        f"  color: {MOCHA['overlay0']};"
+        f"  font-style: italic;"
         f"}}"
     )
 
@@ -368,6 +388,126 @@ def status_dot_style(running: bool) -> str:
     """Return QSS for the status dot label, green when running, red otherwise."""
     color = MOCHA["green"] if running else MOCHA["red"]
     return f"color: {color}; font-size: 18px;"
+
+
+def status_badge_style(running: bool) -> str:
+    """QSS for the labeled proxy-status badge (dot + text label).
+
+    Replaces the bare floating dot. The dot + label pair is rendered as
+    a single pill so the meaning is obvious — bare dots look like
+    decoration, labeled badges look like status.
+    """
+    if running:
+        bg, fg, dot = MOCHA["green"], MOCHA["crust"], MOCHA["green"]
+    else:
+        bg, fg, dot = MOCHA["surface1"], MOCHA["subtext"], MOCHA["red"]
+    return (
+        f"#status_badge {{"
+        f"  background-color: {bg};"
+        f"  color: {fg};"
+        f"  border: none;"
+        f"  border-radius: 10px;"
+        f"  padding: 4px 12px 4px 10px;"
+        f"  font-weight: 700;"
+        f"  font-size: 11px;"
+        f"  letter-spacing: 1px;"
+        f"}}"
+        f"#status_badge QLabel#status_badge_dot {{"
+        f"  color: {dot};"
+        f"  font-size: 12px;"
+        f"}}"
+        f"#status_badge QLabel#status_badge_label {{"
+        f"  color: {fg};"
+        f"  font-size: 11px;"
+        f"  font-weight: 700;"
+        f"  letter-spacing: 1px;"
+        f"}}"
+    )
+
+
+def zone_label_style() -> str:
+    """QSS for toolbar zone divider labels (PROXY · DATA · CONFIG · STEAM).
+
+    Tiny uppercase labels that group toolbar buttons into intent zones,
+    so the user can scan the toolbar in one glance instead of parsing
+    nine flat buttons in a row.
+    """
+    return (
+        f"QLabel#zone_label {{"
+        f"  color: {MOCHA['overlay1']};"
+        f"  font-family: 'Cinzel', serif;"
+        f"  font-size: 10px;"
+        f"  font-weight: 700;"
+        f"  letter-spacing: 2px;"
+        f"  padding: 0 6px;"
+        f"  background: transparent;"
+        f"}}"
+        f"QLabel#zone_label[zone='accent'] {{"
+        f"  color: {MOCHA['blue']};"
+        f"}}"
+    )
+
+
+def panel_heading_style() -> str:
+    """QSS for panel-level headings (LEFT panel, RIGHT panel, LOG).
+
+    Distinct from ``section_heading`` (Cinzel decorative label) — these
+    are functional headings that label major UI zones.
+    """
+    return (
+        f"QLabel#panel_heading {{"
+        f"  color: {MOCHA['subtext']};"
+        f"  font-family: 'Cinzel', 'Cinzel-Regular', serif;"
+        f"  font-size: 11px;"
+        f"  font-weight: 700;"
+        f"  letter-spacing: 3px;"
+        f"  text-transform: uppercase;"
+        f"  padding: 8px 12px 4px 12px;"
+        f"  background: transparent;"
+        f"}}"
+        f"QLabel#panel_subheading {{"
+        f"  color: {MOCHA['overlay1']};"
+        f"  font-size: 11px;"
+        f"  padding: 0 12px 6px 12px;"
+        f"  background: transparent;"
+        f"}}"
+    )
+
+
+def empty_state_style() -> str:
+    """QSS for the empty-state hint inside the log panel + status panels.
+
+    Renders as a centered italic muted message — used both by the log
+    panel ("No log entries yet") and by the rule-detail panel when no
+    rule is selected ("Select a rule on the left to edit it").
+    """
+    return (
+        f"QLabel#empty_state {{"
+        f"  color: {MOCHA['overlay0']};"
+        f"  font-style: italic;"
+        f"  font-size: 12px;"
+        f"  padding: 24px;"
+        f"  background: transparent;"
+        f"}}"
+    )
+
+
+def shell_splitter_style() -> str:
+    """QSS for the main horizontal splitter handle between Rules and Detail."""
+    return (
+        f"QSplitter#main_splitter::handle {{"
+        f"  background-color: {MOCHA['surface0']};"
+        f"}}"
+        f"QSplitter#main_splitter::handle:horizontal {{"
+        f"  width: 2px;"
+        f"}}"
+        f"QSplitter#main_splitter::handle:vertical {{"
+        f"  height: 2px;"
+        f"}}"
+        f"QSplitter#main_splitter::handle:hover {{"
+        f"  background-color: {MOCHA['blue']};"
+        f"}}"
+    )
 
 
 def chip_style(rarity: str, *, compact: bool = False) -> str:

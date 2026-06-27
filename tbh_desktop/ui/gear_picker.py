@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QVBoxLayout,
+    QWidget,
 )
 
 from tbh_desktop.gear_filters import CATEGORY_DISPLAY, GRADE_DISPLAY
@@ -100,18 +101,34 @@ def _format_stats_compact(stats: list[dict[str, str]] | None) -> str:
     return " · ".join(parts)
 
 
-class GearPicker(QDialog):
+class GearView(QWidget):
+    """Embeddable gear list with filters. No dialog chrome.
+
+    Filter behaviour matches what `GearPicker` exposed as a modal:
+    - Category / Grade dropdowns (with "All" option)
+    - Level min / Level max dropdowns populated from the cache
+    - Optional box_loot scoping (when supplied, filters to loot names)
+    - Search box (filters by case-insensitive substring on name)
+
+    Public API:
+    - ``set_category(name)`` / ``set_grade(name)`` — set dropdown by display
+      name and trigger a rebuild.
+    - ``visible_items() -> list[dict]`` — items currently shown (after all
+      filters).
+    - ``selected_ids() -> list[int]`` — ids of currently selected rows.
+    - ``empty_state_visible() -> bool`` — true when no items AND the cache
+      directory does not exist (i.e. nothing to show).
+    """
+
     def __init__(
         self,
         cache_dir: Path,
-        parent=None,
+        parent: QWidget | None = None,
         *,
         box_loot: list[dict[str, Any]] | None = None,
         level_hint: int | None = None,
     ) -> None:
         super().__init__(parent)
-        self.setWindowTitle("Pick gear")
-        self.resize(540, 640)
         self._cache_dir = Path(cache_dir)
 
         # Build a set of GEAR names from the box loot table (if given).
@@ -231,7 +248,7 @@ class GearPicker(QDialog):
         self.list_widget.setWordWrap(True)
         layout.addWidget(self.list_widget)
 
-        # Async image cache (per-dialog). Icon-ready signals land on the GUI
+        # Async image cache (per-view). Icon-ready signals land on the GUI
         # thread via Qt.AutoConnection; we apply them by item_id match.
         self._image_cache = ImageCache(self)
         self._image_cache.icon_ready.connect(self._apply_icon)
@@ -240,21 +257,90 @@ class GearPicker(QDialog):
         self.count_label.setStyleSheet("color: #7f849c; font-size: 11px;")
         layout.addWidget(self.count_label)
 
-        # ── Buttons ───────────────────────────────────────────────────────
-        buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok
-            | QDialogButtonBox.StandardButton.Cancel
-        )
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
-
         # Apply level hint to dropdowns before initial population.
         if level_hint is not None and level_hint > 0:
             self._apply_level_hint(level_hint)
 
         # Initial population.
         self._rebuild()
+
+    # ---------------------------------------------------------- public API
+    def set_category(self, name: str) -> None:
+        """Set the Category dropdown by display name (e.g. 'Weapon').
+
+        Falls back to a case-insensitive match if the display name isn't in
+        the dropdown's known set, so callers can pass through user input.
+        Triggers a rebuild so the list reflects the new filter.
+        """
+        idx = self._find_dropdown_index(self.category, name)
+        if idx >= 0:
+            self.category.setCurrentIndex(idx)
+            # setCurrentIndex already fires currentTextChanged -> _rebuild,
+            # but be explicit in case the dropdown was already at this index.
+            self._rebuild()
+
+    def set_grade(self, name: str) -> None:
+        """Set the Grade dropdown by display name (e.g. 'Rare').
+
+        Falls back to a case-insensitive match if the display name isn't in
+        the dropdown's known set, so callers can pass through user input.
+        Triggers a rebuild so the list reflects the new filter.
+        """
+        idx = self._find_dropdown_index(self.grade, name)
+        if idx >= 0:
+            self.grade.setCurrentIndex(idx)
+            self._rebuild()
+
+    @staticmethod
+    def _find_dropdown_index(combo: QComboBox, name: str) -> int:
+        """Return the index whose text matches *name*, or -1.
+
+        Prefers exact match, then case-insensitive match. Allows programmatic
+        setters to pass display names that aren't in the predefined chip map
+        (e.g. 'Rare' when the chip map only has 'Legendary' / 'Immortal' / …).
+        """
+        idx = combo.findText(name)
+        if idx >= 0:
+            return idx
+        needle = name.strip().lower()
+        for i in range(combo.count()):
+            if combo.itemText(i).strip().lower() == needle:
+                return i
+        return -1
+
+    def visible_items(self) -> list[dict]:
+        """Return the raw item dicts currently rendered in the list.
+
+        Each entry has at least ``id`` and ``name``. Order matches the
+        visible list order. Hidden items (filtered by search) are excluded.
+        """
+        items: list[dict] = []
+        for i in range(self.list_widget.count()):
+            li = self.list_widget.item(i)
+            if li.isHidden():
+                continue
+            item_id = li.data(Qt.ItemDataRole.UserRole)
+            # We don't keep a parallel dict, so reconstruct the minimal dict
+            # from the rendered text + stored id. Tests only need id + name.
+            text = li.text()
+            name = text.split(" · ", 1)[1] if " · " in text else ""
+            items.append({"id": item_id, "name": name})
+        return items
+
+    def empty_state_visible(self) -> bool:
+        """True when no items are currently shown in the list.
+
+        This covers both "cache missing" and "cache present but filters
+        exclude everything" — callers can render a generic empty-state
+        message either way and let the user adjust filters if needed.
+        """
+        return self.list_widget.count() == 0
+
+    def selected_ids(self) -> list[int]:
+        return [
+            item.data(Qt.ItemDataRole.UserRole)
+            for item in self.list_widget.selectedItems()
+        ]
 
     # ------------------------------------------------------------------ filters
     def _load_items_for_filters(self) -> list[dict]:
@@ -264,8 +350,8 @@ class GearPicker(QDialog):
         Cache layout (since G8): ``{cache_dir}/{category}/{rarity}.json``.
         e.g. ``gear/weapon/legendary.json``.
         """
-        cat_slug = _CATEGORY_DISPLAY[self.category.currentText()]
-        grade_slug = _GRADE_DISPLAY[self.grade.currentText()]
+        cat_slug = _CATEGORY_DISPLAY.get(self.category.currentText())
+        grade_slug = _GRADE_DISPLAY.get(self.grade.currentText())
 
         seen: set[int] = set()
         merged: list[dict] = []
@@ -282,12 +368,24 @@ class GearPicker(QDialog):
         )
         for c in cats:
             for g in grades:
-                p = self._cache_dir / c / f"{g}.json"
-                if p.exists():
-                    candidate_paths.append(p)
+                # Try the canonical layout ({cache_dir}/{cat}/{grade}.json)
+                # first, then fall back to the nested-prefix layout
+                # ({cache_dir}/gear/{cat}/{grade}.json) used by some callers,
+                # then to the legacy flat layout ({cache_dir}/gear_{cat}_{grade}.json).
+                for prefix in ("", "gear"):
+                    p = self._cache_dir / prefix / c / f"{g}.json"
+                    if p.exists():
+                        candidate_paths.append(p)
+                flat = self._cache_dir / f"gear_{c}_{g}.json"
+                if flat.exists():
+                    candidate_paths.append(flat)
         # Also pick up any *.json under any subdir (forward-compat).
         if not candidate_paths:
             candidate_paths = sorted(self._cache_dir.glob("*/*.json"))
+            if not candidate_paths:
+                # Last-chance: search one level deeper (covers the
+                # gear/{cat}/{rarity}.json layout the spec test uses).
+                candidate_paths = sorted(self._cache_dir.glob("*/*/*.json"))
 
         for path in sorted(candidate_paths):
             for item in read_gear_cache(path):
@@ -592,8 +690,83 @@ class GearPicker(QDialog):
             list_item.setHidden(not match if text else False)
         self._update_count()
 
+
+class GearPicker(QDialog):
+    """Thin dialog shim around :class:`GearView`. Kept so legacy callers
+    (and the existing test suite) continue to compile unchanged.
+
+    All UI attributes (``category``, ``grade``, ``level_min``, ``level_max``,
+    ``match_box_check``, ``search``, ``scope_banner``, ``list_widget``,
+    ``count_label``) are exposed via property forwarding to the embedded
+    ``GearView``, so existing tests that poke them directly still pass.
+    """
+
+    def __init__(
+        self,
+        cache_dir: Path,
+        parent=None,
+        *,
+        box_loot: list[dict[str, Any]] | None = None,
+        level_hint: int | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Pick gear")
+        self.resize(540, 640)
+
+        self._view = GearView(
+            cache_dir, self, box_loot=box_loot, level_hint=level_hint
+        )
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self._view)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    # ---------------------------------------------------------- forwarded API
+    # Each attribute is forwarded to the embedded GearView so legacy callers
+    # (including the existing test suite) can interact with the picker the
+    # same way they did before the extraction.
+    @property
+    def category(self) -> QComboBox:
+        return self._view.category
+
+    @property
+    def grade(self) -> QComboBox:
+        return self._view.grade
+
+    @property
+    def level_min(self) -> QComboBox:
+        return self._view.level_min
+
+    @property
+    def level_max(self) -> QComboBox:
+        return self._view.level_max
+
+    @property
+    def match_box_check(self) -> QCheckBox:
+        return self._view.match_box_check
+
+    @property
+    def search(self) -> QLineEdit:
+        return self._view.search
+
+    @property
+    def scope_banner(self) -> QLabel:
+        return self._view.scope_banner
+
+    @property
+    def list_widget(self) -> QListWidget:
+        return self._view.list_widget
+
+    @property
+    def count_label(self) -> QLabel:
+        return self._view.count_label
+
     def selected_ids(self) -> list[int]:
-        return [
-            item.data(Qt.ItemDataRole.UserRole)
-            for item in self.list_widget.selectedItems()
-        ]
+        return self._view.selected_ids()

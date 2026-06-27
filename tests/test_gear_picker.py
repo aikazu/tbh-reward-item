@@ -81,12 +81,26 @@ def test_picker_filter_level_range(qtbot, tmp_path):
     dlg = GearPicker(cache, None)
     qtbot.addWidget(dlg)
 
-    # Default shows both.
+    # Default ("All"/"All") shows both.
     assert dlg.list_widget.count() == 2
 
-    # Set min=50, max=100 -> only Lv80 shown.
-    dlg.level_min.setValue(50)
-    dlg.level_max.setValue(100)
+    # Level dropdowns are QComboBox populated with distinct cache levels
+    # ([All, Lv1, Lv80]); pick by userData so the test is data-driven.
+    # Min=Lv1 excludes nothing (Lv1 is the floor); max=Lv80 keeps both.
+    dlg.level_min.setCurrentIndex(dlg.level_min.findData(1))
+    assert dlg.list_widget.count() == 2
+
+    # Tighten the range: min=Lv1, max=Lv80 — both items still match.
+    dlg.level_max.setCurrentIndex(dlg.level_max.findData(80))
+    assert dlg.list_widget.count() == 2
+
+    # Raise the floor so Lv1 is excluded -> only Lv80 remains. The cleanest
+    # way to express "exclude everything below 50" with cache-derived
+    # dropdowns is to pick the smallest cache level that satisfies the
+    # constraint — here Lv80 itself.
+    dlg.level_min.setCurrentIndex(dlg.level_min.findData(80))
+    assert dlg.list_widget.count() == 1
+    assert "HighBlade" in dlg.list_widget.item(0).text()
 
     assert dlg.list_widget.count() == 1
     assert "HighBlade" in dlg.list_widget.item(0).text()
@@ -161,8 +175,10 @@ def test_picker_empty_cache_dir_shows_empty_list(qtbot, tmp_path):
 
 
 def test_picker_empty_string_level_treated_as_zero(qtbot, tmp_path):
-    """Empty level string -> parsed as 0. With min=1, item excluded.
-    With min=0 (default), included. Document this choice."""
+    """Empty level string -> parsed as 0. With a min filter of Lv1, the
+    Lv0 item is excluded; with no min filter ("All"), it is included.
+    Document this behaviour: an empty level field is treated as 0.
+    """
     cache = tmp_path / "gear_cache"
     _write_cache(
         cache,
@@ -174,9 +190,25 @@ def test_picker_empty_string_level_treated_as_zero(qtbot, tmp_path):
     dlg = GearPicker(cache, None)
     qtbot.addWidget(dlg)
 
-    # Default min=1 -> empty level (0) excluded.
-    assert dlg.list_widget.count() == 0
+    # Add an item with a real level so the level dropdowns have a non-zero
+    # option to filter by — without this, the only distinct level is 0 and
+    # the test cannot demonstrate the "min=1 excludes Lv0" behaviour.
+    cache_weapon = cache / "gear_weapon_legendary.json"
+    items = json.loads(cache_weapon.read_text(encoding="utf-8"))
+    items.append({"id": 6, "name": "Lv1Item", "rarity": "legendary",
+                  "type": "weapon", "level": "Lv1"})
+    cache_weapon.write_text(json.dumps(items), encoding="utf-8")
+    # Trigger a rebuild with the new cache file.
+    dlg._view._rebuild()
 
-    # min=0 -> included.
-    dlg.level_min.setValue(0)
+    # Default ("All") shows both items.
+    assert dlg.list_widget.count() == 2
+
+    # Min filter = Lv1 -> only the Lv1 item remains (Lv0 excluded).
+    dlg.level_min.setCurrentIndex(dlg.level_min.findData(1))
     assert dlg.list_widget.count() == 1
+    assert "Lv1Item" in dlg.list_widget.item(0).text()
+
+    # Reset min to "All" (no filter) -> both items shown again.
+    dlg.level_min.setCurrentIndex(0)
+    assert dlg.list_widget.count() == 2

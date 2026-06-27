@@ -1,371 +1,141 @@
-# tbh_desktop/ui/config_editor.py
-"""Editor for specific_queue_rules + range_replacement, operating on raw dict."""
+"""Container: rule list (top) + range replacement form (bottom).
+
+Public API kept compatible with the previous table-based editor so callers in
+``main_window.py`` and the test suite do not change.
+"""
 from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
-    QHeaderView,
-    QLabel,
     QLineEdit,
-    QMessageBox,
     QPushButton,
-    QTableWidget,
-    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
+from tbh_desktop.ui.active_target import RangeTarget
+from tbh_desktop.ui.rule_list import RuleListView
 
-COL_ENABLED = 0
-COL_NAME = 1
-COL_ITEM_ID = 2
-COL_REPLACEMENT = 3
 
-# ItemDataRole used to mark a row as a locked default rule (cannot be removed).
-LOCK_ROLE = Qt.ItemDataRole.UserRole + 1
+class _RangeForm(QWidget):
+    """Inline range replacement form. Emits focused() when any field is focused."""
 
-# Indonesian hint shown when the pick-box-id button is disabled.
-TOOLTIP_PICK_BOX_ID_DISABLED = "Pilih rule dulu untuk memilih box ID"
-# Indonesian hint shown when the pick-box button is disabled.
-TOOLTIP_PICK_BOX_DISABLED = "Pilih rule dengan box ID valid dulu untuk memilih loot"
-# Indonesian hint shown when the pick-gear button is disabled.
-TOOLTIP_PICK_GEAR_DISABLED = "Pilih rule dulu untuk memilih gear"
-# Indonesian hint shown when the remove button is disabled on a locked rule.
-TOOLTIP_REMOVE_LOCKED = "Default rule tidak bisa dihapus"
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        group = QGroupBox("Range Replacement")
+        form = QFormLayout(group)
+        self.chk_enabled = QCheckBox("enabled")
+        self.edit_min = QLineEdit(); self.edit_min.setPlaceholderText("e.g. 500000")
+        self.edit_max = QLineEdit(); self.edit_max.setPlaceholderText("e.g. 950000")
+        self.edit_ids = QLineEdit(); self.edit_ids.setPlaceholderText("529191, 419191, 409191")
+        self.btn_pick_gear = QPushButton("Pick gear")
+        self.btn_pick_item = QPushButton("Pick item")
+        form.addRow("Enabled", self.chk_enabled)
+        form.addRow("match_min_item_id", self.edit_min)
+        form.addRow("match_max_item_id", self.edit_max)
+        form.addRow("replacement IDs", self.edit_ids)
+        btn_row = QHBoxLayout()
+        btn_row.addWidget(self.btn_pick_gear)
+        btn_row.addWidget(self.btn_pick_item)
+        btn_row.addStretch()
+        form.addRow("", btn_row)
+        layout.addWidget(group)
 
-# ItemDataRole used to store the parsed box level on a rule row (int | None).
-# Used to auto-filter the gear picker to the matching level.
-LEVEL_ROLE = Qt.ItemDataRole.UserRole + 2
+    def load(self, data: dict) -> None:
+        self.chk_enabled.setChecked(bool(data.get("enabled", False)))
+        self.edit_min.setText(str(data.get("match_min_item_id") or ""))
+        self.edit_max.setText(str(data.get("match_max_item_id") or ""))
+        ids = data.get("replacement_reward_item_ids") or []
+        self.edit_ids.setText(", ".join(str(i) for i in ids))
+
+    def dump(self) -> dict:
+        def _i(s: str) -> int:
+            try:
+                return int((s or "").strip())
+            except ValueError:
+                return 0
+        return {
+            "enabled": self.chk_enabled.isChecked(),
+            "name": "Range replacement",
+            "match_min_item_id": _i(self.edit_min.text()),
+            "match_max_item_id": _i(self.edit_max.text()),
+            "replacement_reward_item_ids": [
+                int(p) for p in self.edit_ids.text().replace(",", " ").split() if p.lstrip("-").isdigit()
+            ],
+        }
 
 
 class ConfigEditor(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self._data: dict[str, Any] = {}
-
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(12)
-
-        # ── Specific Queue Rules ──────────────────────────────────────────
-        rules_group = QGroupBox("Specific Queue Rules")
-        rules_layout = QVBoxLayout(rules_group)
-        rules_layout.setSpacing(8)
-
-        self.rules_table = QTableWidget(0, 4)
-        self.rules_table.setHorizontalHeaderLabels(
-            ["Enabled", "Name", "Box ID", "Replacement IDs"]
-        )
-        self.rules_table.setAlternatingRowColors(True)
-        self.rules_table.verticalHeader().setVisible(False)
-        # Selecting ANY cell in a row marks the whole row as "active" — so
-        # when a picker dialog closes, add_ids_to_selected_rule writes back
-        # to the row the user actually clicked (not whatever happened to be
-        # currentRow before).
-        self.rules_table.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows
-        )
-        self.rules_table.setSelectionMode(
-            QTableWidget.SelectionMode.SingleSelection
-        )
-        header = self.rules_table.horizontalHeader()
-        header.setSectionResizeMode(COL_ENABLED, QHeaderView.ResizeMode.ResizeToContents)
-        header.setSectionResizeMode(COL_NAME, QHeaderView.ResizeMode.Stretch)
-        header.setSectionResizeMode(COL_ITEM_ID, QHeaderView.ResizeMode.ResizeToContents)
-        header.setSectionResizeMode(COL_REPLACEMENT, QHeaderView.ResizeMode.Stretch)
-        rules_layout.addWidget(self.rules_table)
-
-        # Persistent banner showing the row the picker will write to. Eliminates
-        # the "I selected row 2 but the data went to row 1" confusion — if the
-        # banner says "Row 1" the user knows their click didn't register.
-        self.active_row_label = QLabel("→ Pick target: (no row selected)")
-        self.active_row_label.setStyleSheet(
-            "color: #f0c674; font-weight: bold; padding: 4px 0;"
-        )
-        rules_layout.addWidget(self.active_row_label)
-
-        rules_buttons = QHBoxLayout()
-        rules_buttons.setSpacing(6)
-        btn_add = QPushButton("＋  Add rule")
-        self.btn_remove = QPushButton("－  Remove rule")
-        self.btn_pick_box_id = QPushButton("Pick box ID")
-        self.btn_pick_box = QPushButton("Pick from box loot")
-        self.btn_pick_gear_rule = QPushButton("Pick gear")
-        for b in (
-            btn_add,
-            self.btn_remove,
-            self.btn_pick_box_id,
-            self.btn_pick_box,
-            self.btn_pick_gear_rule,
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(8, 8, 8, 8)
+        outer.setSpacing(8)
+        self._rule_list = RuleListView()
+        self._range_form = _RangeForm()
+        outer.addWidget(self._rule_list, stretch=3)
+        outer.addWidget(self._range_form, stretch=1)
+        # Make the range form focus set the active target to RangeTarget.
+        for w in (
+            self._range_form.chk_enabled,
+            self._range_form.edit_min,
+            self._range_form.edit_max,
+            self._range_form.edit_ids,
         ):
-            rules_buttons.addWidget(b)
-        rules_buttons.addStretch()
-        rules_layout.addLayout(rules_buttons)
-        btn_add.clicked.connect(self._add_rule)
-        self.btn_remove.clicked.connect(self._remove_rule)
+            w.installEventFilter(self)
+        self._active_target_kind: str = "none"
 
-        # Action buttons start disabled until a valid row is selected.
-        self._loading = False
-        self.btn_remove.setEnabled(False)
-        self.btn_remove.setToolTip(TOOLTIP_REMOVE_LOCKED)
-        self.btn_pick_box_id.setEnabled(False)
-        self.btn_pick_box_id.setToolTip(TOOLTIP_PICK_BOX_ID_DISABLED)
-        self.btn_pick_box.setEnabled(False)
-        self.btn_pick_box.setToolTip(TOOLTIP_PICK_BOX_DISABLED)
-        self.btn_pick_gear_rule.setEnabled(False)
-        self.btn_pick_gear_rule.setToolTip(TOOLTIP_PICK_GEAR_DISABLED)
-        self.rules_table.itemSelectionChanged.connect(self._update_action_button_states)
-        # Refresh pick button state when user edits a cell (e.g. blanks item_id).
-        # Without this, typing into Box ID cell doesn't disable Pick-from-box-loot
-        # until the user re-clicks the row.
-        self.rules_table.cellChanged.connect(lambda r, c: self._update_action_button_states())
-
-        layout.addWidget(rules_group)
-
-        # ── Range Replacement ─────────────────────────────────────────────
-        range_group = QGroupBox("Range Replacement")
-        range_form = QFormLayout(range_group)
-        range_form.setSpacing(8)
-        range_form.setContentsMargins(14, 18, 14, 14)
-        self.range_enabled = QCheckBox("enabled")
-        self.range_min = QLineEdit()
-        self.range_min.setPlaceholderText("e.g. 500000")
-        self.range_max = QLineEdit()
-        self.range_max.setPlaceholderText("e.g. 950000")
-        self.range_ids = QLineEdit()
-        self.range_ids.setPlaceholderText("529191, 419191, 409191")
-        self.btn_pick_gear_range = QPushButton("Pick gear")
-        self.btn_pick_loot_range = QPushButton("Pick item")
-        self.btn_pick_loot_range.setToolTip(
-            "Browse the wiki drops index (materials only — Soul Stones "
-            "excluded as range replacement targets). Adds selected IDs "
-            "to this range replacement."
-        )
-        range_form.addRow("Enabled", self.range_enabled)
-        range_form.addRow("match_min_item_id", self.range_min)
-        range_form.addRow("match_max_item_id", self.range_max)
-        range_form.addRow("replacement IDs", self.range_ids)
-        range_buttons = QHBoxLayout()
-        range_buttons.setSpacing(6)
-        range_buttons.addWidget(self.btn_pick_gear_range)
-        range_buttons.addWidget(self.btn_pick_loot_range)
-        range_buttons.addStretch()
-        range_form.addRow("", range_buttons)
-        layout.addWidget(range_group)
-
-        layout.addStretch()
-
+    # ---- public API (back-compat) -----------------------------------
     def load(self, data: dict[str, Any]) -> None:
-        self._data = data
-        rules = data.get("specific_queue_rules", []) or []
-        # Guard selection signal firing mid-population.
-        self._loading = True
-        self.rules_table.setRowCount(len(rules))
-        for row, rule in enumerate(rules):
-            self._set_rule_row(row, rule, locked=True)
-        self._loading = False
-        rng = data.get("range_replacement", {}) or {}
-        self.range_enabled.setChecked(bool(rng.get("enabled", False)))
-        self.range_min.setText(str(rng.get("match_min_item_id") or ""))
-        self.range_max.setText(str(rng.get("match_max_item_id") or ""))
-        self.range_ids.setText(self._ids_to_text(rng.get("replacement_reward_item_ids") or []))
-        self._update_action_button_states()
-
-    def _set_rule_row(self, row: int, rule: dict[str, Any], locked: bool = True) -> None:
-        enabled_item = QTableWidgetItem()
-        enabled_item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
-        enabled_item.setCheckState(
-            Qt.CheckState.Checked if rule.get("enabled") else Qt.CheckState.Unchecked
-        )
-        # Mark default (loaded) rules as locked so they cannot be removed.
-        enabled_item.setData(LOCK_ROLE, locked)
-        self.rules_table.setItem(row, COL_ENABLED, enabled_item)
-        self.rules_table.setItem(row, COL_NAME, QTableWidgetItem(str(rule.get("name") or "")))
-        self.rules_table.setItem(row, COL_ITEM_ID, QTableWidgetItem(str(rule.get("item_id") or "")))
-        self.rules_table.setItem(
-            row, COL_REPLACEMENT,
-            QTableWidgetItem(self._ids_to_text(rule.get("replacement_reward_item_ids") or [])),
-        )
-
-    def _add_rule(self) -> None:
-        row = self.rules_table.rowCount()
-        self.rules_table.insertRow(row)
-        # User-added rules are never locked.
-        self._set_rule_row(
-            row,
-            {"enabled": False, "name": "", "item_id": "", "replacement_reward_item_ids": []},
-            locked=False,
-        )
-
-    def _remove_rule(self) -> None:
-        row = self._selected_row()
-        if row < 0:
-            return
-        enabled_item = self.rules_table.item(row, COL_ENABLED)
-        if enabled_item is not None and enabled_item.data(LOCK_ROLE) is True:
-            QMessageBox.warning(
-                self,
-                "Cannot remove",
-                "Default rules cannot be removed. Add your own rule to edit.",
-            )
-            return
-        self.rules_table.removeRow(row)
-
-    def _update_action_button_states(self) -> None:
-        """Sync remove/pick button enabled state + tooltips to the selection.
-
-        Called on itemSelectionChanged. No-op while loading to avoid spurious
-        updates during table population.
-        """
-        if self._loading:
-            return
-        row = self._selected_row()
-        if row < 0:
-            self.btn_remove.setEnabled(False)
-            self.btn_remove.setToolTip(TOOLTIP_REMOVE_LOCKED)
-            self.btn_pick_box_id.setEnabled(False)
-            self.btn_pick_box_id.setToolTip(TOOLTIP_PICK_BOX_ID_DISABLED)
-            self.btn_pick_box.setEnabled(False)
-            self.btn_pick_box.setToolTip(TOOLTIP_PICK_BOX_DISABLED)
-            self.btn_pick_gear_rule.setEnabled(False)
-            self.btn_pick_gear_rule.setToolTip(TOOLTIP_PICK_GEAR_DISABLED)
-            self.active_row_label.setText("→ Pick target: (no row selected)")
-            return
-        enabled_item = self.rules_table.item(row, COL_ENABLED)
-        locked = bool(enabled_item.data(LOCK_ROLE)) if enabled_item is not None else False
-        self.btn_remove.setEnabled(not locked)
-        self.btn_remove.setToolTip(TOOLTIP_REMOVE_LOCKED if locked else "")
-        # Pick box ID always available when a row is selected.
-        self.btn_pick_box_id.setEnabled(True)
-        self.btn_pick_box_id.setToolTip("")
-        # Pick from box loot + pick gear need a valid item_id on the row.
-        valid = self.selected_rule_item_id() is not None
-        self.btn_pick_box.setEnabled(valid)
-        self.btn_pick_box.setToolTip("" if valid else TOOLTIP_PICK_BOX_DISABLED)
-        self.btn_pick_gear_rule.setEnabled(True)
-        self.btn_pick_gear_rule.setToolTip("")
-        # Banner reflects the row the picker will write to.
-        name_item = self.rules_table.item(row, COL_NAME)
-        label = name_item.text().strip() if name_item is not None else ""
-        display = f"Row {row + 1}" + (f" — {label}" if label else "")
-        self.active_row_label.setText(f"→ Pick target: {display}")
-
-    def _selected_row(self) -> int:
-        """Return the currently selected row, or -1.
-
-        Prefers ``selectedIndexes()`` (works regardless of selection mode)
-        over ``currentRow()`` (which can be stale after a child dialog
-        steals focus).
-        """
-        rows = {idx.row() for idx in self.rules_table.selectedIndexes()}
-        if rows:
-            return min(rows)
-        return self.rules_table.currentRow()
-
-    def selected_rule_item_id(self) -> int | None:
-        row = self._selected_row()
-        if row < 0:
-            return None
-        item = self.rules_table.item(row, COL_ITEM_ID)
-        if item is None:
-            return None
-        text = item.text().strip()
-        try:
-            return int(text)
-        except ValueError:
-            return None
-
-    def set_selected_rule_item_id(self, box_id: int, level: int | None) -> None:
-        """Set the Item ID cell of the selected rule row and store the box
-        level on the row (via ``LEVEL_ROLE``) so the gear picker can auto-filter.
-        """
-        row = self._selected_row()
-        if row < 0:
-            return
-        item = self.rules_table.item(row, COL_ITEM_ID)
-        if item is None:
-            return
-        item.setText(str(box_id))
-        enabled_item = self.rules_table.item(row, COL_ENABLED)
-        if enabled_item is not None:
-            enabled_item.setData(LEVEL_ROLE, level)
-        # Re-evaluate button states (pick-box / pick-gear now valid).
-        self._update_action_button_states()
-
-    def selected_rule_level(self) -> int | None:
-        """Return the box level stored on the selected rule row, or ``None``."""
-        row = self._selected_row()
-        if row < 0:
-            return None
-        enabled_item = self.rules_table.item(row, COL_ENABLED)
-        if enabled_item is None:
-            return None
-        return enabled_item.data(LEVEL_ROLE)
-
-    def add_ids_to_selected_rule(self, ids: list[int]) -> None:
-        row = self._selected_row()
-        if row < 0:
-            return
-        cell = self.rules_table.item(row, COL_REPLACEMENT)
-        if cell is None:
-            return
-        existing = self._text_to_ids(cell.text())
-        merged = existing + [i for i in ids if i not in existing]
-        cell.setText(self._ids_to_text(merged))
-
-    def add_ids_to_range(self, ids: list[int]) -> None:
-        existing = self._text_to_ids(self.range_ids.text())
-        merged = existing + [i for i in ids if i not in existing]
-        self.range_ids.setText(self._ids_to_text(merged))
+        self._rule_list.load(data)
+        self._range_form.load(data.get("range_replacement") or {})
 
     def dump(self) -> dict[str, Any]:
-        """Return updated raw dict preserving advanced fields."""
-        data = dict(self._data)
-        rules = []
-        original_rules = self._data.get("specific_queue_rules") or []
-        for row in range(self.rules_table.rowCount()):
-            base = dict(original_rules[row]) if row < len(original_rules) else {}
-            base["enabled"] = self.rules_table.item(row, COL_ENABLED).checkState() == Qt.CheckState.Checked
-            base["name"] = self.rules_table.item(row, COL_NAME).text()
-            base["item_id"] = self._parse_int(self.rules_table.item(row, COL_ITEM_ID).text())
-            base["replacement_reward_item_ids"] = self._text_to_ids(
-                self.rules_table.item(row, COL_REPLACEMENT).text()
-            )
-            rules.append(base)
-        data["specific_queue_rules"] = rules
-        prev_range = data.get("range_replacement") or {}
-        data["range_replacement"] = {
-            "enabled": self.range_enabled.isChecked(),
-            "name": prev_range.get("name", "Range replacement"),
-            "match_min_item_id": self._parse_int(self.range_min.text()),
-            "match_max_item_id": self._parse_int(self.range_max.text()),
-            "replacement_reward_item_ids": self._text_to_ids(self.range_ids.text()),
-        }
-        return data
-
-    @staticmethod
-    def _parse_int(text: str) -> int:
-        try:
-            return int((text or "").strip())
-        except ValueError:
-            return 0
-
-    @staticmethod
-    def _ids_to_text(ids: list[Any]) -> str:
-        return ", ".join(str(i) for i in (ids or []))
-
-    @staticmethod
-    def _text_to_ids(text: str) -> list[int]:
-        out: list[int] = []
-        for part in (text or "").replace(",", " ").split():
-            try:
-                out.append(int(part))
-            except ValueError:
-                continue
+        out = self._rule_list.dump()
+        out["range_replacement"].update(self._range_form.dump())
         return out
+
+    def rule_list(self) -> RuleListView:
+        return self._rule_list
+
+    def range_form(self) -> _RangeForm:
+        return self._range_form
+
+    def selected_rule_item_id(self) -> int | None:
+        return self._rule_list.selected_rule_item_id()
+
+    def selected_rule_level(self) -> int | None:
+        return self._rule_list.selected_rule_level()
+
+    def set_selected_rule_item_id(self, box_id: int, level: int | None) -> None:
+        self._rule_list.set_selected_rule_item_id(box_id, level)
+
+    def add_ids_to_selected_rule(self, ids: list[int]) -> None:
+        self._rule_list.add_ids_to_selected_rule(ids)
+
+    def add_ids_to_range(self, ids: list[int]) -> None:
+        # Route through the active-target system for symmetry.
+        self._rule_list.set_active_target(RangeTarget())
+        self._rule_list.add_ids_to_range(ids)
+        self._range_form.edit_ids.setText(
+            ", ".join(str(i) for i in self._rule_list.dump()["range_replacement"]["replacement_reward_item_ids"])
+        )
+
+    # ---- event filter (range form focus) ----------------------------
+    def eventFilter(self, obj, event) -> bool:  # noqa: ANN001
+        from PySide6.QtCore import QEvent
+        if event.type() == QEvent.Type.FocusIn and obj in (
+            self._range_form.chk_enabled,
+            self._range_form.edit_min,
+            self._range_form.edit_max,
+            self._range_form.edit_ids,
+        ):
+            self._rule_list.set_active_target(RangeTarget())
+        return super().eventFilter(obj, event)

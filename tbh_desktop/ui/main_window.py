@@ -687,22 +687,9 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ rail / target routing
     def _on_rail_action(self, action: Action) -> None:
-        """Dispatch a LeftRail button click to the existing slot."""
-        if action is Action.START:
-            self._start()
-        elif action is Action.STOP:
-            self.runner.stop()
-        elif action is Action.SAVE:
-            self._save()
-        elif action is Action.RESET:
-            self._reset_config()
-        elif action is Action.SCRAPE:
-            self._refresh_gear()
-        elif action is Action.CHECK_DATA:
-            self._check_data()
-        elif action is Action.COPY_STEAM:
-            self._copy_steam_launch_option()
-        elif action is Action.TOGGLE_LOG:
+        """Dispatch a LeftRail view-toggle click. Action buttons live in the
+        top toolbar (LeftRail is status + port + view toggles only)."""
+        if action is Action.TOGGLE_LOG:
             self.log_dock.toggleViewAction().trigger()
         elif action is Action.TOGGLE_ITEMS:
             self.item_browser.setVisible(not self.item_browser.isVisible())

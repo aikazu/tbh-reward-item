@@ -346,7 +346,7 @@ def apply_theme(app: QApplication) -> None:
     pal.setColor(QPalette.ColorRole.PlaceholderText, QColor(MOCHA["overlay0"]))
     app.setPalette(pal)
     app.setFont(QFont("Sans Serif", 10))
-    app.setStyleSheet(_QSS)
+    app.setStyleSheet(_QSS + "\n" + arsenal_stylesheet() + "\n" + section_heading_style())
 
 
 def log_panel_style() -> str:
@@ -368,3 +368,153 @@ def status_dot_style(running: bool) -> str:
     """Return QSS for the status dot label, green when running, red otherwise."""
     color = MOCHA["green"] if running else MOCHA["red"]
     return f"color: {color}; font-size: 18px;"
+
+
+def chip_style(rarity: str, *, compact: bool = False) -> str:
+    """Arsenal-style chip QSS for an :class:`ItemCard` instance.
+
+    Sharp corners (2px), rarity-tinted left border, no rounded corners. The
+    ``rarity`` argument picks a 2px border color from :data:`RARITY` (falls
+    back to COMMON). Compact mode tightens padding for use inside rule cards.
+    """
+    border_color = RARITY.get(rarity.upper(), RARITY["COMMON"])
+    padding = "2px 6px" if compact else "4px 8px"
+    note = " (compact)" if compact else ""
+    return (
+        f"#item_card{{"
+        f"  background-color: {MOCHA['surface0']};"
+        f"  border: 1px solid {MOCHA['surface1']};"
+        f"  border-left: 2px solid {border_color};"
+        f"  border-radius: 2px;"
+        f"  padding: {padding};"
+        f"  /* chip{note} */"
+        f"}}"
+        f"#item_card:hover {{"
+        f"  background-color: {MOCHA['surface1']};"
+        f"}}"
+    )
+
+
+def section_heading_style() -> str:
+    """QSS for QLabel#section_heading — Cinzel, wide letter-spacing, subtext hue."""
+    return (
+        f"QLabel#section_heading {{"
+        f"  color: {MOCHA['subtext']};"
+        f"  font-family: 'Cinzel', 'Cinzel-Regular', serif;"
+        f"  font-size: 11px;"
+        f"  font-weight: 600;"
+        f"  letter-spacing: 2px;"
+        f"  text-transform: uppercase;"
+        f"  padding: 2px 0;"
+        f"  background: transparent;"
+        f"}}"
+    )
+
+
+def arsenal_stylesheet() -> str:
+    """Arsenal Console QSS — toolbar zones, pulsing status dot, sharp corners.
+
+    Returned as a single string to be appended to the global stylesheet (or
+    applied with ``setStyleSheet``) without disturbing the existing palette.
+    Square corners (2-3px), heavy left-border accents, monospace IDs.
+    """
+    return (
+        # Toolbar height + bottom border.
+        f"QToolBar#main_toolbar {{"
+        f"  background-color: {MOCHA['mantle']};"
+        f"  border-bottom: 1px solid {MOCHA['surface1']};"
+        f"  padding: 6px 10px;"
+        f"  spacing: 8px;"
+        f"  min-height: 48px;"
+        f"}}"
+        # Primary zone (Start / Stop).
+        f"QToolBar#main_toolbar QPushButton[toolbar_zone='primary'] {{"
+        f"  background-color: {MOCHA['surface0']};"
+        f"  color: {MOCHA['text']};"
+        f"  border: 1px solid {MOCHA['surface2']};"
+        f"  border-radius: 2px;"
+        f"  padding: 7px 16px;"
+        f"  font-weight: 600;"
+        f"  min-width: 92px;"
+        f"}}"
+        f"QToolBar#main_toolbar QPushButton[toolbar_zone='primary']:hover {{"
+        f"  border-color: {MOCHA['blue']};"
+        f"  background-color: {MOCHA['surface1']};"
+        f"}}"
+        f"QToolBar#main_toolbar QPushButton[toolbar_zone='primary'][name='btn_start'] {{"
+        f"  background-color: {MOCHA['green']};"
+        f"  color: {MOCHA['crust']};"
+        f"  border-color: {MOCHA['green']};"
+        f"}}"
+        f"QToolBar#main_toolbar QPushButton[toolbar_zone='primary'][name='btn_start']:hover {{"
+        f"  background-color: #b5eea9;"
+        f"}}"
+        f"QToolBar#main_toolbar QPushButton[toolbar_zone='primary'][name='btn_stop'] {{"
+        f"  background-color: {MOCHA['red']};"
+        f"  color: {MOCHA['crust']};"
+        f"  border-color: {MOCHA['red']};"
+        f"}}"
+        f"QToolBar#main_toolbar QPushButton[toolbar_zone='primary'][name='btn_stop']:hover {{"
+        f"  background-color: #f5a3c1;"
+        f"}}"
+        # Secondary zone (Scrape / Check / Save / Reset) — blue outline only.
+        f"QToolBar#main_toolbar QPushButton[toolbar_zone='secondary'] {{"
+        f"  background-color: transparent;"
+        f"  color: {MOCHA['text']};"
+        f"  border: 1px solid {MOCHA['surface1']};"
+        f"  border-radius: 2px;"
+        f"  padding: 6px 14px;"
+        f"  min-width: 96px;"
+        f"}}"
+        f"QToolBar#main_toolbar QPushButton[toolbar_zone='secondary']:hover {{"
+        f"  border-color: {MOCHA['blue']};"
+        f"  background-color: {MOCHA['surface0']};"
+        f"}}"
+        # Ghost zone (Copy Steam) — no fill.
+        f"QToolBar#main_toolbar QPushButton[toolbar_zone='ghost'] {{"
+        f"  background-color: transparent;"
+        f"  color: {MOCHA['subtext']};"
+        f"  border: 1px dashed {MOCHA['surface1']};"
+        f"  border-radius: 2px;"
+        f"  padding: 6px 12px;"
+        f"  min-width: 0;"
+        f"}}"
+        f"QToolBar#main_toolbar QPushButton[toolbar_zone='ghost']:hover {{"
+        f"  color: {MOCHA['text']};"
+        f"  border-color: {MOCHA['blue']};"
+        f"}}"
+        # Port input — monospace, fixed width.
+        f"QToolBar#main_toolbar QLineEdit {{"
+        f"  font-family: 'JetBrains Mono', 'JetBrainsMono Nerd Font Mono', monospace;"
+        f"  font-size: 12px;"
+        f"  background-color: {MOCHA['crust']};"
+        f"  border: 1px solid {MOCHA['surface1']};"
+        f"  border-radius: 2px;"
+        f"  padding: 4px 8px;"
+        f"  min-width: 80px;"
+        f"  max-width: 80px;"
+        f"  qproperty-alignment: 'AlignRight';"  # noqa: Q_PROPERTY
+        f"}}"
+        # Pulsing status dot.
+        f"QLabel#status_dot_pulse {{"
+        f"  color: {MOCHA['green']};"
+        f"  font-size: 18px;"
+        f"}}"
+        # General toolbar separator tweak.
+        f"QToolBar::separator {{"
+        f"  background-color: {MOCHA['surface0']};"
+        f"  width: 1px;"
+        f"  margin: 6px 4px;"
+        f"}}"
+        # Square corner rule for embedded rule cards.
+        f"#rule_card {{"
+        f"  background-color: {MOCHA['mantle']};"
+        f"  border: 1px solid {MOCHA['surface0']};"
+        f"  border-left: 3px solid {MOCHA['surface0']};"
+        f"  border-radius: 3px;"
+        f"}}"
+        f"#rule_card[active='true'] {{"
+        f"  border-left: 3px solid {MOCHA['sapphire']};"
+        f"  background-color: {MOCHA['base']};"
+        f"}}"
+    )

@@ -291,6 +291,33 @@ class GearView(QWidget):
             self.grade.setCurrentIndex(idx)
             self._rebuild()
 
+    def set_box_loot(
+        self,
+        box_loot: list[dict[str, Any]] | None,
+        *,
+        level_hint: int | None = None,
+    ) -> None:
+        """Update the box_loot scope after construction.
+
+        Rebuilds the loot-names set from the new items and triggers a rebuild
+        so the list reflects the new filter. ``level_hint`` is optional;
+        pass ``None`` to leave the previous level dropdown selection alone.
+        """
+        if box_loot:
+            self._loot_names = {
+                str(it.get("name", "")).strip().lower()
+                for it in box_loot
+                if str(it.get("kind", "")).lower() == "gear" and it.get("name")
+            }
+            if not self._loot_names:
+                self._loot_names = None
+        else:
+            self._loot_names = None
+        if level_hint is not None:
+            self._level_hint = level_hint
+            self._apply_level_hint(level_hint)
+        self._rebuild()
+
     @staticmethod
     def _find_dropdown_index(combo: QComboBox, name: str) -> int:
         """Return the index whose text matches *name*, or -1.

@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QStatusBar,
-    QToolBar,
     QWidget,
 )
 
@@ -21,7 +20,6 @@ from tbh_desktop.gear_scraper_runner import GearScraperRunner
 from tbh_desktop.paths import BOX_LOOT_CACHE_DIR, CONFIG_PATH, DROPS_INDEX_CACHE, GEAR_CACHE_DIR
 from tbh_desktop.proxy_runner import ProxyRunner
 from tbh_desktop.scraper import BOX_SLUG_CACHE, read_box_cache
-from tbh_desktop.ui.box_loot_picker import BoxLootPicker
 from tbh_desktop.ui.box_picker import BoxPicker
 from tbh_desktop.ui.config_editor import ConfigEditor
 from tbh_desktop.ui.gear_picker import GearPicker

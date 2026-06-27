@@ -1,7 +1,7 @@
 """Smoke tests for theme additions: RARITY map, rarity_tint, font registration."""
 from __future__ import annotations
 
-from PySide6.QtGui import QFontDatabase, QGuiApplication
+from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import QApplication
 
 from tbh_desktop.ui.theme import (

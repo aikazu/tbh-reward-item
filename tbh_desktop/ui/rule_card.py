@@ -90,9 +90,18 @@ class RuleCard(QFrame):
         raw_id = rule.get("item_id")
         self._item_id = int(raw_id) if isinstance(raw_id, int) else None
         self._replacement_ids = [int(i) for i in (rule.get("replacement_reward_item_ids") or [])]
-        self.chk_enabled.setChecked(bool(rule.get("enabled", False)))
-        self.edit_name.setText(self._name)
-        self.edit_item_id.setText("" if self._item_id is None else str(self._item_id))
+
+        # Suppress edited signals during programmatic load.
+        for w in (self.chk_enabled, self.edit_name, self.edit_item_id):
+            w.blockSignals(True)
+        try:
+            self.chk_enabled.setChecked(bool(rule.get("enabled", False)))
+            self.edit_name.setText(self._name)
+            self.edit_item_id.setText("" if self._item_id is None else str(self._item_id))
+        finally:
+            for w in (self.chk_enabled, self.edit_name, self.edit_item_id):
+                w.blockSignals(False)
+
         self.btn_remove.setEnabled(not locked)
         self._rebuild_chips()
         self._refresh_style()

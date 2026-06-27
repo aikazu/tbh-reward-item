@@ -1,6 +1,7 @@
 """Tests for RuleCard: per-row pick buttons, chip row, signals."""
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 from tbh_desktop.ui.rule_card import RuleCard
@@ -104,3 +105,19 @@ def test_rule_card_locked_disables_remove(qapp: QApplication) -> None:
         "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [],
     }, locked=True)
     assert card.btn_remove.isEnabled() is False
+
+
+def test_rule_card_chip_click_removes_id(qapp: QApplication) -> None:
+    from PySide6.QtCore import QEvent, QPoint
+    from PySide6.QtGui import QMouseEvent
+    card = RuleCard()
+    card.set_data({
+        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [10, 20, 30],
+    })
+    captured = _capture(card)
+    # Click the chip for id=20 (index 1 in _replacement_ids after rebuild)
+    chip = card._chips[1]
+    event = QMouseEvent(QEvent.Type.MouseButtonPress, QPoint(5, 5), Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton, Qt.KeyboardModifier.NoModifier)
+    chip.mousePressEvent(event)
+    assert card.replacement_ids() == [10, 30]
+    assert captured["edited"] == [True]

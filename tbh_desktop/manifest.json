@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "scrape_completed_at": "2026-06-27T11:58:45",
-  "scrape_started_at": "2026-06-27T11:52:20",
-  "scrape": {},
-  "images": {
-    "images_total": 980,
-    "downloaded": 820,
-    "skipped": 0,
-    "failed": 160,
-    "bytes_total": 8815352,
-    "duration_s": 384.2
-  }
+  "scrape_completed_at": "2026-06-27T12:36:58",
+  "scrape_started_at": "2026-06-27T12:25:15",
+  "scrape": {
+    "combos_total": 25,
+    "combos_done": 25,
+    "combos_cached": 0,
+    "combos_failed": 0,
+    "items_total": 174,
+    "duration_s": 702.1
+  },
+  "images": {}
 }

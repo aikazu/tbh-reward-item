@@ -150,6 +150,15 @@ class GearView(QWidget):
             if not self._loot_names:
                 self._loot_names = None
 
+        self._level_hint = level_hint
+
+        self._build_ui()
+        self._populate_level_options()
+        self._rebuild()
+
+    # ---------------------------------------------------------- UI construction
+    def _build_ui(self) -> None:
+        """Construct the widget layout and child widgets."""
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(10)
@@ -192,12 +201,6 @@ class GearView(QWidget):
         level_row.addWidget(self.level_max)
         level_row.addStretch()
         filters_layout.addLayout(level_row)
-
-        # Pre-populate level dropdowns with distinct levels from cache files.
-        # "All" is the first entry (index 0); subsequent entries are sorted by
-        # numeric level. Repopulated on filter changes via _rebuild since
-        # adding a category filter changes which levels are visible.
-        self._populate_level_options()
 
         # "Match box loot" checkbox — only visible when box loot was supplied.
         self.match_box_check = QCheckBox("Only show gear from this box")
@@ -258,11 +261,8 @@ class GearView(QWidget):
         layout.addWidget(self.count_label)
 
         # Apply level hint to dropdowns before initial population.
-        if level_hint is not None and level_hint > 0:
-            self._apply_level_hint(level_hint)
-
-        # Initial population.
-        self._rebuild()
+        if self._level_hint is not None and self._level_hint > 0:
+            self._apply_level_hint(self._level_hint)
 
     # ---------------------------------------------------------- public API
     def set_category(self, name: str) -> None:
@@ -749,24 +749,12 @@ class GearPicker(QDialog):
         return self._view.level_max
 
     @property
-    def match_box_check(self) -> QCheckBox:
-        return self._view.match_box_check
-
-    @property
     def search(self) -> QLineEdit:
         return self._view.search
 
     @property
-    def scope_banner(self) -> QLabel:
-        return self._view.scope_banner
-
-    @property
     def list_widget(self) -> QListWidget:
         return self._view.list_widget
-
-    @property
-    def count_label(self) -> QLabel:
-        return self._view.count_label
 
     def selected_ids(self) -> list[int]:
         return self._view.selected_ids()

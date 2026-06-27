@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# scripts/activate — bash/zsh wrapper to source venv activate.
+#
+# For fish users, source scripts/activate.fish instead (POSIX syntax
+# in this file is not parseable by fish).
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+VENV_DIR="$REPO_ROOT/.venv"
+
+if [ ! -d "$VENV_DIR" ]; then
+    echo "scripts/activate: venv not found at $VENV_DIR" >&2
+    echo "  Fix: python -m venv .venv && .venv/bin/pip install -r requirements-desktop.txt" >&2
+    return 1 2>/dev/null || exit 1
+fi
+
+# shellcheck disable=SC1091
+source "$VENV_DIR/bin/activate"

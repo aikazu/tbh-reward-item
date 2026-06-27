@@ -84,3 +84,55 @@ def _process_one_image(item_id: int, url: str, dest: Path) -> str:
     dest.parent.mkdir(parents=True, exist_ok=True)
     resized.save(dest, "WEBP", quality=IMAGE_QUALITY, method=6)
     return "downloaded"
+
+
+def run_bundle(json_root: Path, out_root: Path, *, workers: int = 4) -> dict:
+    """Collect image URLs from *json_root*, download + convert to *out_root*/images/.
+
+    Returns stats dict consumed by manifest.write_manifest.
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    import time as _time
+
+    started = _time.time()
+    items = collect_images(json_root)
+    images_total = len(items)
+    downloaded = 0
+    skipped = 0
+    failed = 0
+    bytes_total = 0
+    images_dir = out_root / "images"
+    images_dir.mkdir(parents=True, exist_ok=True)
+
+    def _task(iid: int, url: str) -> tuple[str, int, int]:
+        dest = images_dir / f"{iid}.webp"
+        try:
+            result = _process_one_image(iid, url, dest)
+            if result == "skipped":
+                return ("skipped", 0, 0)
+            size = dest.stat().st_size if dest.exists() else 0
+            return ("downloaded", size, 0)
+        except Exception as exc:
+            log.warning("image %s failed: %s", iid, exc)
+            return ("failed", 0, 1)
+
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        futures = [ex.submit(_task, iid, url) for iid, url in items.items()]
+        for fut in as_completed(futures):
+            status, size, err = fut.result()
+            if status == "downloaded":
+                downloaded += 1
+                bytes_total += size
+            elif status == "skipped":
+                skipped += 1
+            else:
+                failed += 1
+
+    return {
+        "images_total": images_total,
+        "downloaded": downloaded,
+        "skipped": skipped,
+        "failed": failed,
+        "bytes_total": bytes_total,
+        "duration_s": round(_time.time() - started, 1),
+    }

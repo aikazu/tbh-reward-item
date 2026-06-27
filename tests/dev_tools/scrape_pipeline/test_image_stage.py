@@ -123,3 +123,68 @@ def test_process_one_image_corrupt_bytes_raises(tmp_path: Path, fake_corrupt_byt
         else:
             raise AssertionError("expected ImageError on corrupt bytes")
     assert not dest.exists()
+
+
+from dev_tools.scrape_pipeline.image_stage import run_bundle
+
+
+def test_run_bundle_processes_all_items(sample_json_tree: Path, tmp_path: Path, fake_image_bytes: bytes):
+    """run_bundle collects from JSON tree, downloads each, writes WebP."""
+    out_root = tmp_path / "out"
+    with patch("dev_tools.scrape_pipeline.image_stage._download") as dl:
+        dl.return_value = fake_image_bytes
+        stats = run_bundle(sample_json_tree, out_root, workers=2)
+    # 6 items in fixture
+    assert stats["images_total"] == 6
+    assert stats["downloaded"] == 6
+    assert stats["failed"] == 0
+    # files on disk
+    for iid in (300001, 300002, 300003, 100001, 100002, 200001):
+        assert (out_root / "images" / f"{iid}.webp").exists()
+
+
+def test_run_bundle_records_failures_without_aborting(sample_json_tree: Path, tmp_path: Path, fake_image_bytes: bytes):
+    """Per-item failure must be recorded + counted, not abort the run."""
+    from dev_tools.scrape_pipeline.errors import ImageMissingError
+    out_root = tmp_path / "out"
+    call_count = {"n": 0}
+
+    def flaky(url):
+        call_count["n"] += 1
+        if "sword1" in url:
+            raise ImageMissingError("404")
+        return fake_image_bytes
+
+    with patch("dev_tools.scrape_pipeline.image_stage._download", side_effect=flaky):
+        stats = run_bundle(sample_json_tree, out_root, workers=1)
+    assert stats["images_total"] == 6
+    assert stats["downloaded"] == 5
+    assert stats["failed"] == 1
+    # missing one not on disk
+    assert not (out_root / "images" / "300001.webp").exists()
+    assert (out_root / "images" / "300002.webp").exists()
+
+
+def test_run_bundle_skips_existing(tmp_path: Path, fake_image_bytes: bytes):
+    """Existing WebP files must be skipped (resume behavior)."""
+    # Build a minimal JSON tree with 2 items
+    json_root = tmp_path / "cache"
+    gear_dir = json_root / "gear" / "sword"
+    gear_dir.mkdir(parents=True)
+    import json as _json
+    (gear_dir / "common.json").write_text(_json.dumps([
+        {"id": 300010, "image": "https://x/a.png"},
+        {"id": 300011, "image": "https://x/b.png"},
+    ]))
+    out_root = tmp_path / "out"
+    img_dir = out_root / "images"
+    img_dir.mkdir(parents=True)
+    # Pre-create one WebP
+    (img_dir / "300010.webp").write_bytes(b"already here")
+
+    with patch("dev_tools.scrape_pipeline.image_stage._download") as dl:
+        dl.return_value = fake_image_bytes
+        stats = run_bundle(json_root, out_root, workers=1)
+    assert stats["images_total"] == 2
+    assert stats["downloaded"] == 1
+    assert stats["skipped"] == 1

@@ -18,7 +18,7 @@ SAMPLE = {
 }
 
 
-def test_config_editor_load_dump_round_trip(_qapp: QApplication) -> None:
+def test_config_editor_load_dump_round_trip(qapp: QApplication) -> None:
     editor = ConfigEditor()
     editor.load(SAMPLE)
     out = editor.dump()
@@ -26,13 +26,13 @@ def test_config_editor_load_dump_round_trip(_qapp: QApplication) -> None:
     assert out["range_replacement"]["replacement_reward_item_ids"] == [7]
 
 
-def test_config_editor_exposes_rule_list(_qapp: QApplication) -> None:
+def test_config_editor_exposes_rule_list(qapp: QApplication) -> None:
     editor = ConfigEditor()
     editor.load(SAMPLE)
     assert editor.rule_list().row_count() == 1
 
 
-def test_range_form_has_section_heading(_qapp: QApplication) -> None:
+def test_range_form_has_section_heading(qapp: QApplication) -> None:
     """Arsenal directive: the range form shows a Cinzel section heading."""
     editor = ConfigEditor()
     heading = editor.range_form().findChild(type(editor.range_form().section_heading))
@@ -41,7 +41,7 @@ def test_range_form_has_section_heading(_qapp: QApplication) -> None:
     assert "RANGE" in heading.text().upper()
 
 
-def test_range_form_mono_inputs_have_from_to_labels(_qapp: QApplication) -> None:
+def test_range_form_mono_inputs_have_from_to_labels(qapp: QApplication) -> None:
     """match_min / match_max use mono font + have explicit 'from'/'to' sublabels."""
     editor = ConfigEditor()
     rf = editor.range_form()
@@ -51,7 +51,7 @@ def test_range_form_mono_inputs_have_from_to_labels(_qapp: QApplication) -> None
     assert rf.lbl_max.text().lower() == "to"
 
 
-def test_range_form_pick_buttons_are_ghost_zone(_qapp: QApplication) -> None:
+def test_range_form_pick_buttons_are_ghost_zone(qapp: QApplication) -> None:
     """Pick gear / Pick item must declare toolbar_zone='ghost' so they pick
     up the outline-only QSS from arsenal_stylesheet()."""
     editor = ConfigEditor()
@@ -60,7 +60,7 @@ def test_range_form_pick_buttons_are_ghost_zone(_qapp: QApplication) -> None:
     assert rf.btn_pick_item.property("toolbar_zone") == "ghost"
 
 
-def test_range_form_chips_show_added_ids(_qapp: QApplication, tmp_path, monkeypatch) -> None:
+def test_range_form_chips_show_added_ids(qapp: QApplication, tmp_path, monkeypatch) -> None:
     """add_ids_to_range rebuilds the range form chip row from the live list."""
     import json
     drops = tmp_path / "drops_index.json"

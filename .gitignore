@@ -44,3 +44,4 @@ src/config.json.tmp
 
 # User config — auto-generated from src/config.default.json on first run
 src/config.json
+tests/ui/_artifacts/

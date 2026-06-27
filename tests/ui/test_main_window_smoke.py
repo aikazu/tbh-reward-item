@@ -30,3 +30,17 @@ def test_main_window_has_four_zones(qapp: QApplication, workdir) -> None:
     assert win.findChild(type(win.item_browser)) is not None
     assert win.findChild(type(win.log_dock.widget())) is not None
     win.close()
+
+
+def test_main_window_screenshot(qapp: QApplication, workdir, tmp_path: Path) -> None:
+    win = MainWindow()
+    win.resize(1400, 800)
+    win.show()
+    qapp.processEvents()
+    out = Path("tests/ui/_artifacts")
+    out.mkdir(parents=True, exist_ok=True)
+    pix = win.grab()
+    pix.save(str(out / "main_window.png"))
+    assert (out / "main_window.png").exists()
+    assert (out / "main_window.png").stat().st_size > 0
+    win.close()

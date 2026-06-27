@@ -4,6 +4,9 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+.coverage
+.coverage.*
+htmlcov/
 
 # mitmproxy CA (never commit private keys / local CA)
 .mitmproxy/

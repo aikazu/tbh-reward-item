@@ -2,9 +2,20 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
+# Ensure project root is on sys.path so dev_tools imports work
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_root_str = str(_PROJECT_ROOT)
+if _root_str not in sys.path:
+    sys.path.insert(0, _root_str)
+
 import pytest
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line("markers", "integration: integration smoke test (excluded by default)")
 
 
 @pytest.fixture

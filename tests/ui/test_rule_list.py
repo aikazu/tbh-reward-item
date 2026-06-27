@@ -85,3 +85,16 @@ def test_rule_list_set_box_id_writes_to_row(qapp: QApplication) -> None:
     view.set_selected_rule_item_id(555, level=15)
     out = view.dump()
     assert out["specific_queue_rules"][0]["item_id"] == 555
+
+
+def test_rule_list_set_box_id_does_not_leak_level_into_dump(qapp: QApplication) -> None:
+    view = RuleListView()
+    view.load(SAMPLE)
+    view.select_row(0)
+    view.set_active_target(RuleTarget(row=0, rule_index=0, box_id=None, level=None))
+    view.set_selected_rule_item_id(555, level=15)
+    out = view.dump()
+    assert out["specific_queue_rules"][0]["item_id"] == 555
+    # Regression: __level_for_row__ sentinel must NOT appear in dump output
+    assert "__level_for_row__" not in out["range_replacement"]
+    assert "__level_for_row__" not in out

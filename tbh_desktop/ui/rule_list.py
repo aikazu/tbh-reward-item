@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import QAbstractItemModel, QModelIndex, QSize, Qt, Signal
+from PySide6.QtCore import QAbstractItemModel, QModelIndex, QSize, Signal
 from PySide6.QtWidgets import (
     QListView,
     QStyledItemDelegate,
@@ -57,14 +57,8 @@ class _RuleCardDelegate(QStyledItemDelegate):
         return QSize(option.rect.width() or 600, self.CARD_HEIGHT)
 
     def paint(self, painter, option, index) -> None:  # noqa: ANN001
-        widget = option.widget
-        card: RuleCard | None = widget.indexWidget(index) if widget is not None else None
-        if card is not None:
-            # Let the embedded widget paint itself; we just clear the row bg.
-            painter.save()
-            painter.setRenderHint(painter.RenderHint.Antialiasing)
-            painter.fillRect(option.rect, option.palette.base())
-            painter.restore()
+        # Embedded RuleCard paints itself via setIndexWidget; delegate only clears the row bg.
+        painter.fillRect(option.rect, option.palette.base())
 
 
 class RuleListView(QListView):
@@ -82,6 +76,7 @@ class RuleListView(QListView):
         self._range: dict[str, Any] = {}
         self._active_target: ActiveTarget | None = None
         self._cards: list[RuleCard] = []
+        self._level_for_row: dict[int, int] = {}
 
         # Set up a model up front so selectionModel() is non-None and we can
         # wire currentRowChanged. _rebuild_cards() replaces it as needed.
@@ -127,7 +122,7 @@ class RuleListView(QListView):
         if not isinstance(target, RuleTarget):
             return None
         if 0 <= target.row < len(self._cards):
-            return self._range.get("__level_for_row__", {}).get(target.row)
+            return self._level_for_row.get(target.row)
         return None
 
     def set_selected_rule_item_id(self, box_id: int, level: int | None) -> None:
@@ -136,8 +131,7 @@ class RuleListView(QListView):
             return
         if 0 <= target.row < len(self._cards):
             self._cards[target.row].edit_item_id.setText(str(box_id))
-            levels = self._range.setdefault("__level_for_row__", {})
-            levels[target.row] = level
+            self._level_for_row[target.row] = level
 
     def set_active_target(self, target: ActiveTarget | None) -> None:
         self._active_target = target
@@ -209,7 +203,7 @@ class RuleListView(QListView):
                 row=row,
                 rule_index=row,
                 box_id=card.item_id(),
-                level=self._range.get("__level_for_row__", {}).get(row),
+                level=self._level_for_row.get(row),
             )
             self.set_active_target(target)
             self.rule_selected.emit(target)

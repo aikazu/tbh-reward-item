@@ -5,6 +5,8 @@ palette; individual panels add their own accent rules where needed.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 from PySide6.QtGui import QColor, QFont, QPalette
 from PySide6.QtWidgets import QApplication
 
@@ -32,6 +34,45 @@ MOCHA = {
     "green":     "#a6e3a1",
     "teal":      "#94e2d5",
 }
+
+RARITY: dict[str, str] = {
+    "COMMON":    "#6c7086",
+    "UNCOMMON":  "#a6e3a1",
+    "RARE":      "#89b4fa",
+    "EPIC":      "#cba6f7",
+    "LEGENDARY": "#f9e2af",
+    "MYTHIC":    "#f38ba8",
+}
+
+
+def rarity_tint(hex_color: str, alpha: int = 0x33) -> str:
+    """Return ``hex_color`` with the given alpha byte appended as ``#rrggbbaa``."""
+    if not (hex_color.startswith("#") and len(hex_color) == 7):
+        raise ValueError(f"Expected #rrggbb, got {hex_color!r}")
+    return f"{hex_color}{alpha:02x}"
+
+
+_FONTS_DIR = Path(__file__).resolve().parent / "fonts"
+
+
+def register_fonts() -> None:
+    """Load bundled Cinzel + JetBrains Mono into the QFontDatabase.
+
+    Idempotent — safe to call more than once. Silently no-ops if a font file
+    is missing so the app still starts on a broken install.
+    """
+    from PySide6.QtGui import QFontDatabase  # local import keeps test boot fast
+
+    for name in (
+        "Cinzel-Regular.ttf",
+        "Cinzel-Bold.ttf",
+        "JetBrainsMono-Regular.ttf",
+        "JetBrainsMono-Bold.ttf",
+    ):
+        path = _FONTS_DIR / name
+        if path.exists():
+            QFontDatabase.addApplicationFont(str(path))
+
 
 # Unified QSS applied app-wide.  Prefix every rule with the app's widget
 # types so the stylesheet does not leak into embedded web views if any.

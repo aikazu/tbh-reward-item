@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QApplication
 from tbh_desktop import config_io
 from tbh_desktop.paths import CONFIG_PATH
 from tbh_desktop.ui.main_window import MainWindow
-from tbh_desktop.ui.theme import apply_theme
+from tbh_desktop.ui.theme import apply_theme, register_fonts
 
 
 def main() -> int:
@@ -18,6 +18,7 @@ def main() -> int:
     config_io.ensure_config(CONFIG_PATH)
 
     app = QApplication(sys.argv)
+    register_fonts()
     apply_theme(app)
     window = MainWindow()
     window.show()

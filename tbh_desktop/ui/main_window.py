@@ -130,10 +130,16 @@ class MainWindow(QMainWindow):
         self.log_panel = LogPanel()
 
         # ---- Shell: horizontal splitter between Rules + Detail ----------
+        # The handle is 6px wide (vs Qt's default 4px) with a visible
+        # surface1 background so users can actually grab and drag it.
+        # Without this the splitter is invisible and users assume the
+        # layout is fixed — they end up either resizing the whole
+        # window or accepting cramped panels.
         self._splitter = QSplitter(Qt.Orientation.Horizontal, self)
         self._splitter.setObjectName("main_splitter")
-        self._splitter.setHandleWidth(2)
+        self._splitter.setHandleWidth(6)
         self._splitter.setChildrenCollapsible(False)
+        self._splitter.setOpaqueResize(True)
         # Left: config editor (rules + range form).
         left_wrap = self._wrap_with_panel_heading(
             self.editor, "RULES", "Select a rule on the left to edit its rewards on the right."
@@ -144,9 +150,15 @@ class MainWindow(QMainWindow):
         )
         self._splitter.addWidget(left_wrap)
         self._splitter.addWidget(right_wrap)
-        self._splitter.setStretchFactor(0, 2)
-        self._splitter.setStretchFactor(1, 3)
-        self._splitter.setSizes([520, 780])
+        # RULES (left) gets the larger share — the user came here to
+        # browse/edit rules and they want to see all of them at once
+        # without scrolling. DETAIL (right) is the edit form for the
+        # currently selected rule; it needs enough room for the form
+        # fields + chip strip but doesn't have to be the dominant pane.
+        # 62 / 38 split.
+        self._splitter.setStretchFactor(0, 62)
+        self._splitter.setStretchFactor(1, 38)
+        self._splitter.setSizes([865, 535])
         self.setCentralWidget(self._splitter)
 
         # ---- Log dock (bottom, collapsible) -----------------------------

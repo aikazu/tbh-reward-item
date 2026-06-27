@@ -493,19 +493,34 @@ def empty_state_style() -> str:
 
 
 def shell_splitter_style() -> str:
-    """QSS for the main horizontal splitter handle between Rules and Detail."""
+    """QSS for the main horizontal splitter handle between Rules and Detail.
+
+    Width is set programmatically via ``setHandleWidth(6)`` — do NOT
+    override it in QSS or the programmatic value is silently lost.
+    The handle gets a visible ``surface1`` background + a thin grip
+    dot column so users can spot it as draggable.
+
+    Why a grip dot column instead of ``background-image: radial-gradient``:
+    PySide6 6.11's QSS engine silently drops ``background-image``
+    declarations on ``::handle`` sub-controls (only the base splitter
+    accepts them), so the gradient never paints. The fallback column
+    of grip dots is drawn via a dotted border which Qt DOES render
+    on handle sub-controls.
+    """
+    grip_color = MOCHA["overlay1"]
     return (
         f"QSplitter#main_splitter::handle {{"
         f"  background-color: {MOCHA['surface0']};"
-        f"}}"
-        f"QSplitter#main_splitter::handle:horizontal {{"
-        f"  width: 2px;"
-        f"}}"
-        f"QSplitter#main_splitter::handle:vertical {{"
-        f"  height: 2px;"
+        f"  border-left: 1px solid {MOCHA['mantle']};"
+        f"  border-right: 1px solid {MOCHA['mantle']};"
+        f"  border-top: 1px dotted {grip_color};"
+        f"  border-bottom: 1px dotted {grip_color};"
+        f"  margin: 6px 0;"
         f"}}"
         f"QSplitter#main_splitter::handle:hover {{"
-        f"  background-color: {MOCHA['blue']};"
+        f"  background-color: {MOCHA['surface1']};"
+        f"  border-left: 1px solid {MOCHA['blue']};"
+        f"  border-right: 1px solid {MOCHA['blue']};"
         f"}}"
     )
 

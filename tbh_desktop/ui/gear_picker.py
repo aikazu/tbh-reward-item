@@ -202,17 +202,23 @@ class GearView(QWidget):
         level_row.addStretch()
         filters_layout.addLayout(level_row)
 
-        # "Match box loot" checkbox — only visible when box loot was supplied.
+        # "Match box loot" checkbox — hidden when no box loot was supplied
+        # but ALWAYS added to the layout so it has a parent window.
+        # (If you create a widget and never add it to a layout, Qt treats
+        # it as isWindow=True with no parent — on KDE Plasma / Wayland this
+        # renders as a stray floating top-level window with just the
+        # checkbox in it. We hit this exact bug — the user saw a
+        # "second tiny window with one checkbox" alongside the main app.)
         self.match_box_check = QCheckBox("Only show gear from this box")
+        self.match_box_check.setToolTip(
+            "Hanya tampilkan gear yang ada di loot box yang dipilih."
+        )
         if self._loot_names is not None:
             self.match_box_check.setChecked(True)
-            self.match_box_check.setToolTip(
-                "Hanya tampilkan gear yang ada di loot box yang dipilih."
-            )
-            filters_layout.addWidget(self.match_box_check)
             self.match_box_check.toggled.connect(self._rebuild)
         else:
             self.match_box_check.setVisible(False)
+        filters_layout.addWidget(self.match_box_check)
 
         layout.addWidget(filters_group)
 

@@ -200,9 +200,37 @@ class ConfigEditor(QWidget):
         outer.setContentsMargins(8, 8, 8, 8)
         outer.setSpacing(8)
         self._rule_list = RuleListView()
+        # Range form sits at the BOTTOM of the Rules panel behind a
+        # horizontal separator-style toggle header. Clicking the
+        # header expands the range form (collapsible QToolBox-style);
+        # default collapsed so the rules get the full height and the
+        # user sees "Range replacement ▸" as a thin divider near the
+        # bottom — discoverable but not in the way.
+        from tbh_desktop.ui.theme import MOCHA
+        self._range_toggle = QCheckBox("Range replacement")
+        self._range_toggle.setChecked(False)
+        self._range_toggle.setStyleSheet(
+            f"QCheckBox {{"
+            f"  color: {MOCHA['overlay1']}; font-size: 11px; font-weight: 700;"
+            f"  letter-spacing: 1px; padding: 6px 8px;"
+            f"  background: {MOCHA['mantle']};"
+            f"  border-top: 1px solid {MOCHA['surface0']};"
+            f"  border-bottom: 1px solid {MOCHA['surface0']};"
+            f"  margin-top: 4px;"
+            f"}}"
+            f"QCheckBox::indicator {{ width: 12px; height: 12px; }}"
+            f"QCheckBox::indicator:checked {{"
+            f"  background: {MOCHA['blue']}; border-color: {MOCHA['blue']};"
+            f"}}"
+        )
         self._range_form = _RangeForm()
-        outer.addWidget(self._rule_list, stretch=3)
-        outer.addWidget(self._range_form, stretch=1)
+        self._range_form.setVisible(False)
+        self._range_toggle.toggled.connect(self._range_form.setVisible)
+        # Rules get all the vertical space; toggle + range form pinned
+        # at the bottom as a collapsible section.
+        outer.addWidget(self._rule_list, stretch=1)
+        outer.addWidget(self._range_toggle)
+        outer.addWidget(self._range_form, stretch=0)
         # Make the range form focus set the active target to RangeTarget.
         for w in (
             self._range_form.chk_enabled,

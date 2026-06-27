@@ -44,3 +44,34 @@ def test_main_window_screenshot(qapp: QApplication, workdir, tmp_path: Path) -> 
     assert (out / "main_window.png").exists()
     assert (out / "main_window.png").stat().st_size > 0
     win.close()
+
+
+def test_main_window_toolbar_has_three_zones(qapp: QApplication, workdir) -> None:
+    """Arsenal directive: toolbar groups buttons into primary (Start/Stop),
+    secondary (Scrape/Check/Save/Reset), and ghost (Copy Steam) zones,
+    each declared via toolbar_zone property so QSS styles them differently."""
+    win = MainWindow()
+    assert win.btn_start.property("toolbar_zone") == "primary"
+    assert win.btn_stop.property("toolbar_zone") == "primary"
+    assert win.btn_refresh_gear.property("toolbar_zone") == "secondary"
+    assert win.btn_check_data.property("toolbar_zone") == "secondary"
+    assert win.btn_save.property("toolbar_zone") == "secondary"
+    assert win.btn_reset.property("toolbar_zone") == "secondary"
+    assert win.btn_copy_steam.property("toolbar_zone") == "ghost"
+    win.close()
+
+
+def test_main_window_toolbar_port_field_is_mono(qapp: QApplication, workdir) -> None:
+    win = MainWindow()
+    families = " ".join(win.port_edit.font().families()).lower()
+    assert "mono" in families or "jetbrains" in families
+    win.close()
+
+
+def test_main_window_status_dot_object_name(qapp: QApplication, workdir) -> None:
+    """Status dot must declare objectName='status_dot_pulse' so the QSS
+    pulsing animation can target it (and so left_rail.status_dot can also
+    use it)."""
+    win = MainWindow()
+    assert win.status_dot.objectName() == "status_dot_pulse"
+    win.close()

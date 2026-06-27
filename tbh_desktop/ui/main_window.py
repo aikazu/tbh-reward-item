@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, QObject, Signal
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QFont, QGuiApplication
 from PySide6.QtWidgets import (
     QDockWidget,
     QHBoxLayout,
@@ -125,69 +125,91 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------ build
     def _build_toolbar(self) -> None:
         bar = self.addToolBar("main")
+        bar.setObjectName("main_toolbar")
         bar.setMovable(False)
         bar.setFloatable(False)
 
-        self.btn_start = QPushButton("▶  Start")
+        # ---- Primary zone: Start / Stop --------------------------------
+        self.btn_start = QPushButton("▶  START")
         self.btn_start.setObjectName("btn_start")
+        self.btn_start.setProperty("toolbar_zone", "primary")
         self.btn_start.setToolTip("Start the mitmproxy subprocess (Ctrl+S to save first)")
 
-        self.btn_stop = QPushButton("■  Stop")
+        self.btn_stop = QPushButton("■  STOP")
         self.btn_stop.setObjectName("btn_stop")
+        self.btn_stop.setProperty("toolbar_zone", "primary")
         self.btn_stop.setToolTip("Terminate the running proxy subprocess")
 
-        self.btn_refresh_gear = QPushButton("Scrape Data")
+        # ---- Secondary zone: Scrape / Check / Save / Reset --------------
+        self.btn_refresh_gear = QPushButton("SCRAPE")
+        self.btn_refresh_gear.setProperty("toolbar_zone", "secondary")
         self.btn_refresh_gear.setToolTip(
             "Refresh gear cache (28 category-grade files via headless browser) "
             "AND drops index (~190 items: materials, stage boxes). "
             "Slow — first launch starts the browser. Subsequent scrapes are "
             "fast since cached files are reused."
         )
-        self.btn_check_data = QPushButton("Check Data")
+        self.btn_check_data = QPushButton("CHECK")
+        self.btn_check_data.setProperty("toolbar_zone", "secondary")
         self.btn_check_data.setToolTip(
             "Show counts and freshness for gear cache + drops index. "
             "Lets you see if a re-scrape is needed."
         )
 
-        self.btn_save = QPushButton("Save config")
+        self.btn_save = QPushButton("SAVE")
+        self.btn_save.setProperty("toolbar_zone", "secondary")
         self.btn_save.setToolTip("Validate and atomically write config.json")
 
-        self.btn_reset = QPushButton("Reset config")
+        self.btn_reset = QPushButton("RESET")
+        self.btn_reset.setProperty("toolbar_zone", "secondary")
         self.btn_reset.setToolTip(
             "Reset config.json back to the default template (config.default.json). "
             "Your current rules will be lost."
         )
 
-        self.btn_copy_steam = QPushButton("Copy Steam Launch Option")
+        # ---- Ghost zone: Copy Steam -------------------------------------
+        self.btn_copy_steam = QPushButton("COPY STEAM")
         self.btn_copy_steam.setObjectName("btn_copy_steam")
+        self.btn_copy_steam.setProperty("toolbar_zone", "ghost")
         self.btn_copy_steam.setToolTip(
             "Copy the Steam launch option string for the current proxy port "
             "(HTTP_PROXY + HTTPS_PROXY + %command%) to the clipboard.\n"
             "Paste into Steam → TaskBarHero → Properties → Launch Options."
         )
 
+        # ---- Status: mono port field + pulsing dot ----------------------
+        mono = QFont("JetBrains Mono", 11)
+        mono.setStyleHint(QFont.StyleHint.Monospace)
+        mono.setFamily("JetBrains Mono")
+
+        port_label = QLabel("PORT")
+        port_label.setStyleSheet("color: #a6adc8; font-size: 10px; letter-spacing: 1px;")
+
         self.port_edit = QLineEdit()
-        self.port_edit.setFixedWidth(70)
-        self.port_edit.setPlaceholderText("port")
+        self.port_edit.setObjectName("port_edit_toolbar")
+        self.port_edit.setFixedWidth(80)
+        self.port_edit.setFont(mono)
+        self.port_edit.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.port_edit.setPlaceholderText("8877")
         self.port_edit.setToolTip("Proxy listen port (requires restart after change)")
 
         self.status_dot = QLabel("●")
+        self.status_dot.setObjectName("status_dot_pulse")
         self.status_dot.setToolTip("Proxy status: stopped")
         self.status_dot.setStyleSheet(status_dot_style(False))
 
-        # Group: proxy controls
+        # ---- Compose zones with separators -----------------------------
         bar.addWidget(self.btn_start)
         bar.addWidget(self.btn_stop)
         bar.addSeparator()
-        # Group: config / scrape
         bar.addWidget(self.btn_refresh_gear)
         bar.addWidget(self.btn_check_data)
         bar.addWidget(self.btn_save)
         bar.addWidget(self.btn_reset)
+        bar.addSeparator()
         bar.addWidget(self.btn_copy_steam)
         bar.addSeparator()
-        # Group: port + status
-        bar.addWidget(QLabel("Port:"))
+        bar.addWidget(port_label)
         bar.addWidget(self.port_edit)
         bar.addSeparator()
         bar.addWidget(self.status_dot)

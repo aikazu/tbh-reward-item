@@ -91,9 +91,10 @@ class LeftRail(QWidget):
         bottom.addWidget(self.status_dot)
 
         self.port_edit = QLineEdit()
+        self.port_edit.setObjectName("port_edit")
         self.port_edit.setFixedWidth(44)
         self.port_edit.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.port_edit.setPlaceholderText("pt")
+        self.port_edit.setPlaceholderText("port")
         self.port_edit.setToolTip("Proxy listen port (requires restart after change)")
         bottom.addWidget(self.port_edit)
         outer.addLayout(bottom)

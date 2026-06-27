@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from dev_tools.scrape_pipeline.image_stage import collect_images
+from dev_tools.scrape_pipeline.image_stage import collect_images  # pyright: ignore[reportMissingImports]
 
 
 def test_collect_walks_all_json_dirs(sample_json_tree: Path):

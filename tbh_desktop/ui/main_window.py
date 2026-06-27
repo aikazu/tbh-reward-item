@@ -150,15 +150,12 @@ class MainWindow(QMainWindow):
         )
         self._splitter.addWidget(left_wrap)
         self._splitter.addWidget(right_wrap)
-        # RULES (left) gets the larger share — the user came here to
-        # browse/edit rules and they want to see all of them at once
-        # without scrolling. DETAIL (right) is the edit form for the
-        # currently selected rule; it needs enough room for the form
-        # fields + chip strip but doesn't have to be the dominant pane.
-        # 62 / 38 split.
-        self._splitter.setStretchFactor(0, 62)
-        self._splitter.setStretchFactor(1, 38)
-        self._splitter.setSizes([865, 535])
+        # 30 / 70 split — DETAIL (right, edit form for the selected
+        # rule) gets the dominant share because it's where the actual
+        # editing happens. RULES stays visible as a navigation rail.
+        self._splitter.setStretchFactor(0, 30)
+        self._splitter.setStretchFactor(1, 70)
+        self._splitter.setSizes([420, 980])
         self.setCentralWidget(self._splitter)
 
         # ---- Log dock (bottom, collapsible) -----------------------------

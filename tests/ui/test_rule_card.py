@@ -37,18 +37,26 @@ def test_rule_card_renders_from_dict(qapp: QApplication) -> None:
     assert card.replacement_ids() == [529191, 419191]
 
 
-def test_rule_card_pick_buttons_emit_signals(qapp: QApplication) -> None:
+def test_rule_card_pick_signals_still_emitted(qapp: QApplication) -> None:
+    """Pick buttons live in the DETAIL panel, not the rule card (no UI
+    duplication). The RuleCard still exposes the pick_* signals so
+    MainWindow can trigger them programmatically when the user clicks
+    the DETAIL-panel buttons — we just don't render duplicate
+    buttons on the rule card itself. This test emits the signals
+    directly to verify the contract still holds."""
     card = RuleCard()
     card.set_data({
         "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [],
     })
     captured = _capture(card)
-    card.btn_pick_box_id.click()
-    card.btn_pick_box_loot.click()
-    card.btn_pick_gear.click()
+    # The rule card itself doesn't render pick buttons anymore — but
+    # the signals must still fire when the DETAIL-panel buttons do.
+    card.pick_box_id.emit()
+    card.pick_box_loot.emit()
+    card.pick_gear.emit()
     assert captured["pick_box_id"] == [True]
     assert captured["pick_box_loot"] == [True]
-    assert captured["pick_gear"] == [True]
+    assert captured["pick_gear"] == [True]  # noqa: F841
 
 
 def test_rule_card_add_chip_appends(qapp: QApplication) -> None:
@@ -87,6 +95,26 @@ def test_rule_card_set_active_toggles_border(qapp: QApplication) -> None:
     assert card.is_active() is True
     card.set_active(False)
     assert card.is_active() is False
+
+
+def test_rule_card_pick_signals_still_emitted(qapp: QApplication) -> None:
+    """Pick buttons live in the DETAIL panel, not the rule card (no UI
+    duplication). The RuleCard still exposes the pick_* signals so
+    MainWindow can trigger them programmatically when the user clicks
+    the DETAIL-panel buttons — we just don't render duplicate
+    buttons on the rule card itself. This test emits the signals
+    directly to verify the contract still holds."""
+    card = RuleCard()
+    card.set_data({
+        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [],
+    })
+    captured = _capture(card)
+    card.pick_box_id.emit()
+    card.pick_box_loot.emit()
+    card.pick_gear.emit()
+    assert captured["pick_box_id"] == [True]
+    assert captured["pick_box_loot"] == [True]
+    assert captured["pick_gear"] == [True]  # noqa: F841
 
 
 def test_rule_card_remove_emits_signal(qapp: QApplication) -> None:

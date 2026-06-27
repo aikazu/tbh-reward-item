@@ -110,22 +110,15 @@ class RuleCard(QFrame):
         self.btn_remove = QPushButton("✕")
         self.btn_remove.setObjectName("btn_remove_rule")
         self.btn_remove.setToolTip("Remove rule")
-        self.btn_remove.setFixedWidth(32)
+        self.btn_remove.setFixedWidth(28)
         self.btn_remove.setProperty("toolbar_zone", "ghost")
         self.btn_remove.clicked.connect(self.remove)
         row1.addWidget(self.btn_remove)
 
-        self.btn_settings = QPushButton("⚙")
-        self.btn_settings.setObjectName("btn_rule_settings")
-        self.btn_settings.setToolTip("Rule settings")
-        self.btn_settings.setFixedWidth(32)
-        self.btn_settings.setProperty("toolbar_zone", "ghost")
-        self.btn_settings.setEnabled(False)  # reserved for future menu
-        row1.addWidget(self.btn_settings)
-
         outer.addLayout(row1)
 
-        # ---- Row 2: ID + 3 pick buttons (mono + ghost) -----------------
+        # ---- Row 2: ID + level (the full picker form lives in the ----
+        # DETAIL panel — the rule card only needs the display).
         row2 = QHBoxLayout()
         row2.setSpacing(8)
 
@@ -148,22 +141,16 @@ class RuleCard(QFrame):
         self.edit_item_id.setFont(_MONO_FONT)
         self.edit_item_id.textChanged.connect(self._on_item_id_changed)
         row2.addWidget(self.edit_item_id)
-
-        row2.addSpacing(8)
-        self.btn_pick_box_id = QPushButton("Pick box")
-        self.btn_pick_box_id.setProperty("toolbar_zone", "ghost")
-        self.btn_pick_box_id.clicked.connect(self.pick_box_id)
-        row2.addWidget(self.btn_pick_box_id)
-        self.btn_pick_box_loot = QPushButton("Pick loot")
-        self.btn_pick_box_loot.setProperty("toolbar_zone", "ghost")
-        self.btn_pick_box_loot.clicked.connect(self.pick_box_loot)
-        row2.addWidget(self.btn_pick_box_loot)
-        self.btn_pick_gear = QPushButton("Pick gear")
-        self.btn_pick_gear.setProperty("toolbar_zone", "ghost")
-        self.btn_pick_gear.clicked.connect(self.pick_gear)
-        row2.addWidget(self.btn_pick_gear)
         row2.addStretch()
         outer.addLayout(row2)
+
+        # Pick buttons live ONLY in the DETAIL panel (no duplication).
+        # The signals stay so MainWindow._pick_box_id_for_detail can
+        # trigger them programmatically when needed, but no buttons
+        # are rendered on the rule card itself.
+        self.btn_pick_box_id = None
+        self.btn_pick_box_loot = None
+        self.btn_pick_gear = None
 
         # ---- Row 3: REPLACES divider + count + peek -------------------
         divider_row = QHBoxLayout()

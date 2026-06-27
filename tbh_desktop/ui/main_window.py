@@ -697,7 +697,12 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ rail / target routing
     def _on_rule_selected(self, target) -> None:
-        """Switch the ItemBrowser filter context based on the active rule row."""
+        """Switch the ItemBrowser filter context based on the active rule row.
+
+        Auto-loads the Box loot tab with the selected box's items so the
+        user can just click replacements in-place — no extra dialog round
+        trip. Replaces the old "click Pick loot button" flow.
+        """
         from tbh_desktop.ui.active_target import RuleTarget
         from tbh_desktop.ui.item_browser import FilterContext, FilterScope
         if isinstance(target, RuleTarget):
@@ -710,6 +715,10 @@ class MainWindow(QMainWindow):
                     scope=scope,
                 )
             )
+            if target.box_id is not None:
+                # Load the box's loot list into the Box loot tab so the
+                # user can immediately pick replacements in-place.
+                self.item_browser.set_box_loot(target.box_id)
         else:
             self.item_browser.filter_for_context(None)
 

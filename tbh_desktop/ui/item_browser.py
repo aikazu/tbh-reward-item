@@ -164,6 +164,21 @@ class ItemBrowser(QWidget):
         from tbh_desktop.scraper import read_box_cache
         return read_box_cache(BOX_LOOT_CACHE_DIR, box_id) or []
 
+    def set_box_loot(self, box_id: int) -> None:
+        """Load the loot list for ``box_id`` into the Box loot tab.
+
+        Called automatically by MainWindow when the user selects a rule
+        whose ``item_id`` identifies a box (Normal Box / Stage Boss Box
+        rules). Replaces the old "click Pick loot button" flow — the tab
+        now reacts to selection like the gear tabs already did.
+
+        No-op if no cache file exists for this box (caller should treat
+        that as "box has no scraped loot yet" and either fall back to the
+        drops index or prompt the user to scrape).
+        """
+        items = self._read_box_loot_for(box_id)
+        self._view_box_loot.set_items(items)
+
     def _refresh_status(self) -> None:
         # Counts per tab — naive, but enough for v1.
         self._status_label.setText("Ready")

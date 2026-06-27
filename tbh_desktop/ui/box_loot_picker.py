@@ -137,6 +137,15 @@ class BoxLootView(QWidget):
             from tbh_desktop.scraper import read_drops_index
             items = read_drops_index(cache_path)
         items = items or []
+        self._load_items(items)
+        self._build_ui()
+
+        # Stash the filtered+scoped items; _apply_filters rebuilds the list
+        # with rarity filter + search applied on top.
+        self._apply_filters()
+
+    def _load_items(self, raw: list[dict[str, Any]]) -> None:
+        """Enrich + filter + sort raw items, then trigger a UI refresh."""
         # Merge per-item info (effect + stat rolls + crafting) from the
         # per-(family,rarity) cache files. The drops index itself doesn't
         # carry this — it's added by refresh_material_details during the
@@ -145,45 +154,33 @@ class BoxLootView(QWidget):
         from tbh_desktop.paths import ITEM_DIR
         from tbh_desktop.scraper import load_material_info_by_id
         info_by_id = load_material_info_by_id(ITEM_DIR)
-        for it in items:
+        for it in raw:
             iid = it.get("id")
             if isinstance(iid, int) and iid in info_by_id:
                 it["info"] = info_by_id[iid]
-        # Filter by mode.
-        if mode == "materials":
-            # Range replacement picker: materials from the wiki drops index,
-            # excludes SOULSTONE (bind-on-pickup crafting; unsafe as range
-            # replacement target).
-            from tbh_desktop.scraper import FAMILY_ORDER as _FAMILY_ORDER
-            safe_families = {f for f in _FAMILY_ORDER if f != "SOULSTONE"}
+        self._all_items = self._prepare_items(raw)
+
+    def _prepare_items(self, raw: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Apply mode-based kind/family filtering + sort. Shared between
+        __init__ and :meth:`set_items` so swapping items later keeps the
+        same filtering rules."""
+        from tbh_desktop.scraper import FAMILY_ORDER as _FAMILY_ORDER
+        safe_families = {f for f in _FAMILY_ORDER if f != "SOULSTONE"}
+
+        if self._mode == "materials":
             filtered = [
-                it for it in items
+                it for it in raw
                 if str(it.get("kind", "")).lower() == "material"
                 and str(it.get("family", "")).upper() in safe_families
             ]
-        else:  # "box_loot"
-            # Per-rule loot picker: the caller already passed the box's ACTUAL
-            # loot list (see main_window._pick_box_loot_for_rule). Just filter
-            # out gear — it has its own GearPicker dialog. We trust the input
-            # list as ground truth; do NOT widen to the drops index (that
-            # showed items like anniversary coins + soulstones for boxes that
-            # never drop them — see issue "box 40 ada offering paling rare").
+        elif self._mode == "box_loot":
             filtered = [
-                it for it in items
+                it for it in raw
                 if str(it.get("kind", "")).lower() == "material"
             ]
+        else:
+            filtered = list(raw)
 
-        # NOTE: scope_box_name substring matching is intentionally REMOVED. It was a
-        # leftover from when the picker was fed the full drops index and tried
-        # to filter by box name in item names — but item names like "Bronze
-        # Ingot" never contain the box name, so the filter just truncated the
-        # list silently. The caller now passes the box's ACTUAL loot list,
-        # which is already scoped. scope_box_name is still accepted as a
-        # constructor arg only for window-title purposes (the dialog shim
-        # uses it).
-
-        # Sort by family rank, then rarity rank, then id. SOULSTONE never
-        # appears in materials mode (filtered above).
         from tbh_desktop.scraper import FAMILY_ORDER, RARITY_ORDER
         family_rank = {f: i for i, f in enumerate(FAMILY_ORDER)}
         rarity_rank = {r: i for i, r in enumerate(RARITY_ORDER)}
@@ -198,12 +195,16 @@ class BoxLootView(QWidget):
             )
 
         filtered.sort(key=_sort_key)
+        return filtered
 
-        self._all_items = filtered
-        self._build_ui()
+    def set_items(self, items: list[dict[str, Any]]) -> None:
+        """Swap the displayed item list after construction.
 
-        # Stash the filtered+scoped items; _apply_filters rebuilds the list
-        # with rarity filter + search applied on top.
+        Used by ItemBrowser to load a specific box's loot list when the
+        user selects a rule — no need to rebuild the widget or re-open a
+        picker dialog. Re-runs the same enrich + filter + sort as __init__.
+        """
+        self._load_items(items)
         self._apply_filters()
 
     # ---------------------------------------------------------- UI construction

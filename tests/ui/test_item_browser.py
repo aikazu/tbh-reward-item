@@ -87,3 +87,32 @@ def test_item_browser_pick_emits_signal(
     browser.item_picked.connect(lambda i: captured.append(i))
     browser._emit_pick_for_test(99)
     assert captured == [99]
+
+
+def test_item_browser_set_box_loot_swaps_view(
+    qapp: QApplication, fake_gear_cache, fake_drops_index, monkeypatch,
+) -> None:
+    """Arsenal directive: when MainWindow routes a RuleTarget to the
+    ItemBrowser, the Box loot tab must auto-load that box's loot. No
+    "Pick loot" button required — selection drives the data."""
+    fake_items = [
+        {"id": 605041, "name": "Gold Amulet", "kind": "material",
+         "rarity": "LEGENDARY", "family": "DECORATION"},
+    ]
+
+    def fake_read_cache(_cache_dir, box_id):
+        return fake_items if box_id == 910751 else []
+
+    monkeypatch.setattr(
+        "tbh_desktop.scraper.read_box_cache", fake_read_cache
+    )
+
+    browser = ItemBrowser(
+        gear_cache_dir=fake_gear_cache,
+        drops_index_path=fake_drops_index,
+        box_slug_cache_path=fake_drops_index,
+    )
+    browser.set_box_loot(910751)
+    # View holds the loaded items.
+    assert len(browser._view_box_loot._all_items) == 1
+    assert browser._view_box_loot._all_items[0]["id"] == 605041

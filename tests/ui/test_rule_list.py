@@ -98,3 +98,26 @@ def test_rule_list_set_box_id_does_not_leak_level_into_dump(qapp: QApplication) 
     # Regression: __level_for_row__ sentinel must NOT appear in dump output
     assert "__level_for_row__" not in out["range_replacement"]
     assert "__level_for_row__" not in out
+
+
+def test_model_data_does_not_raise(qapp: QApplication) -> None:
+    """Regression: QAbstractItemModel.data is pure virtual. The previous
+    implementation overrode index/parent/rowCount/columnCount but omitted
+    data(), so Qt's QListView raised NotImplementedError on first paint
+    or selection query, which crashed the whole window during show().
+
+    setIndexWidget is the sole paint path, but Qt still queries data()
+    for hit-testing, accessibility, and currentRowChanged handling.
+    """
+    view = RuleListView()
+    view.load(SAMPLE)
+    model = view.model()
+    idx = model.index(0, 0)
+    assert idx.isValid()
+    # Must not raise NotImplementedError for any role Qt commonly queries.
+    for role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole,
+                 Qt.ItemDataRole.AccessibleTextRole, Qt.ItemDataRole.ToolTipRole):
+        # Returning None is fine — the paint path is setIndexWidget.
+        assert model.data(idx, role) is None or model.data(idx, role) is not None
+    # flags() must also be implemented so the row is selectable.
+    assert model.flags(idx) & Qt.ItemFlag.ItemIsSelectable

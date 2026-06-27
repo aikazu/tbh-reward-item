@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import QAbstractItemModel, QModelIndex, QSize, Signal
+from PySide6.QtCore import QAbstractItemModel, QModelIndex, QSize, Qt, Signal
 from PySide6.QtWidgets import (
     QListView,
     QStyledItemDelegate,
@@ -46,6 +46,20 @@ class _RuleCardModel(QAbstractItemModel):
 
     def parent(self, index):  # noqa: ANN001
         return QModelIndex()
+
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole):  # noqa: ANN001
+        # setIndexWidget is the sole paint path; Qt still queries data() for
+        # hit-testing, accessibility tree, and selection bookkeeping. Return
+        # None (invalid QVariant) so Qt uses defaults instead of crashing on
+        # the pure virtual.
+        if not index.isValid():
+            return None
+        return None
+
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:  # noqa: ANN001
+        if not index.isValid():
+            return Qt.ItemFlag.NoItemFlags
+        return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
 
 class _RuleCardDelegate(QStyledItemDelegate):

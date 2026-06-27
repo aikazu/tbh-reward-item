@@ -21,23 +21,6 @@ Thumbs.db
 .idea/
 .vscode/
 
-dont-touch/
-
-# Desktop app generated caches
-# - gear/: per-(category, rarity) JSON, nested layout.
-#   The full set is 4 categories × 7 rarities = 28 files, ~250KB total.
-#   We commit these so fresh clones don't need to scrape immediately.
-#   Re-scrape via the 'Scrape Data' button when the wiki has updates.
-# - item/: per-(family, rarity) JSON, nested layout.
-#   6 families × 10 rarities = ~30 files, ~50KB total.
-# - box_loot_cache/: per-box JSON. Smaller but more numerous; not committed.
-# - box_slug_cache.json: small helper file, rebuilt on first use.
-tbh_desktop/box_loot_cache/
-tbh_desktop/box_slug_cache.json
-# But DO track JSON files inside gear/ and item/:
-!tbh_desktop/gear/**/*.json
-!tbh_desktop/item/**/*.json
-
 # config_io atomic-write artifacts (backup + temp)
 src/config.json.bak
 src/config.json.tmp

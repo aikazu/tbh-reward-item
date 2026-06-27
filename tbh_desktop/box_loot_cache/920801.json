@@ -1,0 +1,367 @@
+[
+  {
+    "id": 190004,
+    "name": "Soulstone - Torment",
+    "rate": "16.2%"
+  },
+  {
+    "id": 190003,
+    "name": "Soulstone - Hell",
+    "rate": "6.5%"
+  },
+  {
+    "id": 500017,
+    "name": "Dimensional Helmet",
+    "rate": "5.2%"
+  },
+  {
+    "id": 510017,
+    "name": "Dimensional Armor",
+    "rate": "5.2%"
+  },
+  {
+    "id": 520017,
+    "name": "Dimensional Gloves",
+    "rate": "5.2%"
+  },
+  {
+    "id": 530017,
+    "name": "Dimensional Boots",
+    "rate": "5.2%"
+  },
+  {
+    "id": 340017,
+    "name": "Dimensional Crossbow",
+    "rate": "4.4%"
+  },
+  {
+    "id": 350017,
+    "name": "Dimensional Axe",
+    "rate": "4.4%"
+  },
+  {
+    "id": 300017,
+    "name": "Dimensional Sword",
+    "rate": "4.4%"
+  },
+  {
+    "id": 310017,
+    "name": "Shadow Bow",
+    "rate": "4.4%"
+  },
+  {
+    "id": 320017,
+    "name": "Tempest Staff",
+    "rate": "4.4%"
+  },
+  {
+    "id": 330017,
+    "name": "Dimensional Scepter",
+    "rate": "4.4%"
+  },
+  {
+    "id": 142001,
+    "name": "Silver Ingot",
+    "rate": "2%"
+  },
+  {
+    "id": 142002,
+    "name": "Gold Ingot",
+    "rate": "2%"
+  },
+  {
+    "id": 143001,
+    "name": "Stardust Ingot",
+    "rate": "1.5%"
+  },
+  {
+    "id": 143002,
+    "name": "Void Iron",
+    "rate": "1.5%"
+  },
+  {
+    "id": 141001,
+    "name": "Bronze Ingot",
+    "rate": "1.1%"
+  },
+  {
+    "id": 141002,
+    "name": "Iron Ingot",
+    "rate": "1.1%"
+  },
+  {
+    "id": 112001,
+    "name": "Ruby",
+    "rate": "0.7%"
+  },
+  {
+    "id": 112002,
+    "name": "Sapphire",
+    "rate": "0.7%"
+  },
+  {
+    "id": 112003,
+    "name": "Topaz",
+    "rate": "0.7%"
+  },
+  {
+    "id": 112004,
+    "name": "Emerald",
+    "rate": "0.7%"
+  },
+  {
+    "id": 112005,
+    "name": "Amethyst",
+    "rate": "0.7%"
+  },
+  {
+    "id": 144001,
+    "name": "Bloodstone",
+    "rate": "0.7%"
+  },
+  {
+    "id": 144002,
+    "name": "Thunderstone",
+    "rate": "0.7%"
+  },
+  {
+    "id": 400017,
+    "name": "Dimensional Shield",
+    "rate": "0.6%"
+  },
+  {
+    "id": 113001,
+    "name": "Crystal Quartz",
+    "rate": "0.6%"
+  },
+  {
+    "id": 113002,
+    "name": "Pearl",
+    "rate": "0.6%"
+  },
+  {
+    "id": 113003,
+    "name": "Turquoise",
+    "rate": "0.6%"
+  },
+  {
+    "id": 113004,
+    "name": "Garnet",
+    "rate": "0.6%"
+  },
+  {
+    "id": 111001,
+    "name": "Obsidian Shard",
+    "rate": "0.5%"
+  },
+  {
+    "id": 111002,
+    "name": "Coral Piece",
+    "rate": "0.5%"
+  },
+  {
+    "id": 111003,
+    "name": "Jade Stone",
+    "rate": "0.5%"
+  },
+  {
+    "id": 111004,
+    "name": "Amber Gem",
+    "rate": "0.5%"
+  },
+  {
+    "id": 145001,
+    "name": "Chaos Shard",
+    "rate": "0.4%"
+  },
+  {
+    "id": 145002,
+    "name": "Arcane Ore",
+    "rate": "0.4%"
+  },
+  {
+    "id": 122001,
+    "name": "Bat Wing Membrane",
+    "rate": "0.3%"
+  },
+  {
+    "id": 122002,
+    "name": "Ogre Blood",
+    "rate": "0.3%"
+  },
+  {
+    "id": 122003,
+    "name": "Mushroom Spore",
+    "rate": "0.3%"
+  },
+  {
+    "id": 122004,
+    "name": "Ancient Tree Sap",
+    "rate": "0.3%"
+  },
+  {
+    "id": 114001,
+    "name": "Diamond",
+    "rate": "0.3%"
+  },
+  {
+    "id": 114002,
+    "name": "Opal",
+    "rate": "0.3%"
+  },
+  {
+    "id": 114003,
+    "name": "Lapis Lazuli",
+    "rate": "0.3%"
+  },
+  {
+    "id": 114004,
+    "name": "Black Pearl",
+    "rate": "0.3%"
+  },
+  {
+    "id": 123001,
+    "name": "Skull",
+    "rate": "0.2%"
+  },
+  {
+    "id": 123002,
+    "name": "Harpy Feather",
+    "rate": "0.2%"
+  },
+  {
+    "id": 123003,
+    "name": "Mandrake Root",
+    "rate": "0.2%"
+  },
+  {
+    "id": 123004,
+    "name": "Nightshade Extract",
+    "rate": "0.2%"
+  },
+  {
+    "id": 115001,
+    "name": "Arcane Crystal",
+    "rate": "0.2%"
+  },
+  {
+    "id": 115002,
+    "name": "Mystic Topaz",
+    "rate": "0.2%"
+  },
+  {
+    "id": 115003,
+    "name": "Enchanted Ruby",
+    "rate": "0.2%"
+  },
+  {
+    "id": 115004,
+    "name": "Starlight Sapphire",
+    "rate": "0.2%"
+  },
+  {
+    "id": 121001,
+    "name": "Wolf Fang",
+    "rate": "0.2%"
+  },
+  {
+    "id": 121002,
+    "name": "Spider Silk",
+    "rate": "0.2%"
+  },
+  {
+    "id": 121003,
+    "name": "Poisonous Herb",
+    "rate": "0.2%"
+  },
+  {
+    "id": 121004,
+    "name": "Healing Herb",
+    "rate": "0.2%"
+  },
+  {
+    "id": 124001,
+    "name": "Basilisk Scale",
+    "rate": "0.1%"
+  },
+  {
+    "id": 124002,
+    "name": "Wyvern Claw",
+    "rate": "0.1%"
+  },
+  {
+    "id": 124003,
+    "name": "Dice",
+    "rate": "0.1%"
+  },
+  {
+    "id": 124004,
+    "name": "Demon Blood",
+    "rate": "0.1%"
+  },
+  {
+    "id": 140001,
+    "name": "Wood",
+    "rate": "0.1%"
+  },
+  {
+    "id": 140002,
+    "name": "Stone",
+    "rate": "0.1%"
+  },
+  {
+    "id": 140003,
+    "name": "Leather",
+    "rate": "0.1%"
+  },
+  {
+    "id": 140004,
+    "name": "Copper Nugget",
+    "rate": "0.1%"
+  },
+  {
+    "id": 125001,
+    "name": "Minotaur Horn",
+    "rate": "0.1%"
+  },
+  {
+    "id": 125002,
+    "name": "Griffin Beak",
+    "rate": "0.1%"
+  },
+  {
+    "id": 125003,
+    "name": "Phoenix Ash",
+    "rate": "0.1%"
+  },
+  {
+    "id": 125004,
+    "name": "Dragon Bile",
+    "rate": "0.1%"
+  },
+  {
+    "id": 110001,
+    "name": "Minor Ruby",
+    "rate": "0.1%"
+  },
+  {
+    "id": 110002,
+    "name": "Minor Sapphire",
+    "rate": "0.1%"
+  },
+  {
+    "id": 110003,
+    "name": "Minor Topaz",
+    "rate": "0.1%"
+  },
+  {
+    "id": 110004,
+    "name": "Minor Emerald",
+    "rate": "0.1%"
+  },
+  {
+    "id": 110005,
+    "name": "Minor Amethyst",
+    "rate": "0.1%"
+  }
+]

@@ -1,0 +1,668 @@
+[
+  {
+    "id": 190002,
+    "name": "Soulstone - Nightmare",
+    "rate": "6.9%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_190002.png"
+  },
+  {
+    "id": 500011,
+    "name": "Fate Helmet",
+    "rate": "5.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/helmet/HELMET_500011.png"
+  },
+  {
+    "id": 510011,
+    "name": "Mystic Armor",
+    "rate": "5.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/armor/ARMOR_510011.png"
+  },
+  {
+    "id": 520011,
+    "name": "Mystic Gloves",
+    "rate": "5.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/gloves/GLOVES_520011.png"
+  },
+  {
+    "id": 530011,
+    "name": "Mystic Boots",
+    "rate": "5.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/boots/BOOTS_530011.png"
+  },
+  {
+    "id": 190003,
+    "name": "Soulstone - Hell",
+    "rate": "5.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_190003.png"
+  },
+  {
+    "id": 340011,
+    "name": "Mystic Crossbow",
+    "rate": "4.6%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/crossbow/CROSSBOW_340011.png"
+  },
+  {
+    "id": 350011,
+    "name": "Fate Axe",
+    "rate": "4.6%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/axe/AXE_350011.png"
+  },
+  {
+    "id": 300011,
+    "name": "Fate Sword",
+    "rate": "4.6%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/sword/SWORD_300011.png"
+  },
+  {
+    "id": 310011,
+    "name": "Mystic Bow",
+    "rate": "4.6%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/bow/BOW_310011.png"
+  },
+  {
+    "id": 320011,
+    "name": "Void Staff",
+    "rate": "4.6%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/staff/STAFF_320011.png"
+  },
+  {
+    "id": 330011,
+    "name": "Fate Scepter",
+    "rate": "4.6%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/scepter/SCEPTER_330011.png"
+  },
+  {
+    "id": 500009,
+    "name": "Rune Helmet",
+    "rate": "1.7%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/helmet/HELMET_500009.png"
+  },
+  {
+    "id": 510009,
+    "name": "Rune Plate",
+    "rate": "1.7%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/armor/ARMOR_510009.png"
+  },
+  {
+    "id": 520009,
+    "name": "Rune Gloves",
+    "rate": "1.7%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/gloves/GLOVES_520009.png"
+  },
+  {
+    "id": 530009,
+    "name": "Rune Boots",
+    "rate": "1.7%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/boots/BOOTS_530009.png"
+  },
+  {
+    "id": 300009,
+    "name": "Rune Sword",
+    "rate": "1.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/sword/SWORD_300009.png"
+  },
+  {
+    "id": 310009,
+    "name": "Elite Bow",
+    "rate": "1.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/bow/BOW_310009.png"
+  },
+  {
+    "id": 320009,
+    "name": "Comet Staff",
+    "rate": "1.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/staff/STAFF_320009.png"
+  },
+  {
+    "id": 330009,
+    "name": "Rune Scepter",
+    "rate": "1.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/scepter/SCEPTER_330009.png"
+  },
+  {
+    "id": 340009,
+    "name": "Elite Crossbow",
+    "rate": "1.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/crossbow/CROSSBOW_340009.png"
+  },
+  {
+    "id": 350009,
+    "name": "Rune Axe",
+    "rate": "1.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "gear",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/axe/AXE_350009.png"
+  },
+  {
+    "id": 141001,
+    "name": "Bronze Ingot",
+    "rate": "1.3%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_141001.png"
+  },
+  {
+    "id": 141002,
+    "name": "Iron Ingot",
+    "rate": "1.3%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_141002.png"
+  },
+  {
+    "id": 142001,
+    "name": "Silver Ingot",
+    "rate": "1.3%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_142001.png"
+  },
+  {
+    "id": 142002,
+    "name": "Gold Ingot",
+    "rate": "1.3%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_142002.png"
+  },
+  {
+    "id": 143001,
+    "name": "Stardust Ingot",
+    "rate": "0.9%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_143001.png"
+  },
+  {
+    "id": 143002,
+    "name": "Void Iron",
+    "rate": "0.9%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_143002.png"
+  },
+  {
+    "id": 111001,
+    "name": "Obsidian Shard",
+    "rate": "0.5%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_111001.png"
+  },
+  {
+    "id": 111002,
+    "name": "Coral Piece",
+    "rate": "0.5%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_111002.png"
+  },
+  {
+    "id": 111003,
+    "name": "Jade Stone",
+    "rate": "0.5%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_111003.png"
+  },
+  {
+    "id": 111004,
+    "name": "Amber Gem",
+    "rate": "0.5%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_111004.png"
+  },
+  {
+    "id": 112001,
+    "name": "Ruby",
+    "rate": "0.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_112001.png"
+  },
+  {
+    "id": 112002,
+    "name": "Sapphire",
+    "rate": "0.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_112002.png"
+  },
+  {
+    "id": 112003,
+    "name": "Topaz",
+    "rate": "0.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_112003.png"
+  },
+  {
+    "id": 112004,
+    "name": "Emerald",
+    "rate": "0.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_112004.png"
+  },
+  {
+    "id": 112005,
+    "name": "Amethyst",
+    "rate": "0.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_112005.png"
+  },
+  {
+    "id": 113001,
+    "name": "Crystal Quartz",
+    "rate": "0.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_113001.png"
+  },
+  {
+    "id": 113002,
+    "name": "Pearl",
+    "rate": "0.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_113002.png"
+  },
+  {
+    "id": 113003,
+    "name": "Turquoise",
+    "rate": "0.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_113003.png"
+  },
+  {
+    "id": 113004,
+    "name": "Garnet",
+    "rate": "0.4%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_113004.png"
+  },
+  {
+    "id": 144001,
+    "name": "Bloodstone",
+    "rate": "0.3%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_144001.png"
+  },
+  {
+    "id": 144002,
+    "name": "Thunderstone",
+    "rate": "0.3%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_144002.png"
+  },
+  {
+    "id": 121001,
+    "name": "Wolf Fang",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_121001.png"
+  },
+  {
+    "id": 121002,
+    "name": "Spider Silk",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_121002.png"
+  },
+  {
+    "id": 121003,
+    "name": "Poisonous Herb",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_121003.png"
+  },
+  {
+    "id": 121004,
+    "name": "Healing Herb",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_121004.png"
+  },
+  {
+    "id": 122001,
+    "name": "Bat Wing Membrane",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_122001.png"
+  },
+  {
+    "id": 122002,
+    "name": "Ogre Blood",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_122002.png"
+  },
+  {
+    "id": 122003,
+    "name": "Mushroom Spore",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_122003.png"
+  },
+  {
+    "id": 122004,
+    "name": "Ancient Tree Sap",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_122004.png"
+  },
+  {
+    "id": 140001,
+    "name": "Wood",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_140001.png"
+  },
+  {
+    "id": 140002,
+    "name": "Stone",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_140002.png"
+  },
+  {
+    "id": 140003,
+    "name": "Leather",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_140003.png"
+  },
+  {
+    "id": 140004,
+    "name": "Copper Nugget",
+    "rate": "0.2%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_140004.png"
+  },
+  {
+    "id": 114001,
+    "name": "Diamond",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_114001.png"
+  },
+  {
+    "id": 114002,
+    "name": "Opal",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_114002.png"
+  },
+  {
+    "id": 114003,
+    "name": "Lapis Lazuli",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_114003.png"
+  },
+  {
+    "id": 114004,
+    "name": "Black Pearl",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_114004.png"
+  },
+  {
+    "id": 123001,
+    "name": "Skull",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_123001.png"
+  },
+  {
+    "id": 123002,
+    "name": "Harpy Feather",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_123002.png"
+  },
+  {
+    "id": 123003,
+    "name": "Mandrake Root",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_123003.png"
+  },
+  {
+    "id": 123004,
+    "name": "Nightshade Extract",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_123004.png"
+  },
+  {
+    "id": 110001,
+    "name": "Minor Ruby",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_110001.png"
+  },
+  {
+    "id": 110002,
+    "name": "Minor Sapphire",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_110002.png"
+  },
+  {
+    "id": 110003,
+    "name": "Minor Topaz",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_110003.png"
+  },
+  {
+    "id": 110004,
+    "name": "Minor Emerald",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_110004.png"
+  },
+  {
+    "id": 110005,
+    "name": "Minor Amethyst",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_110005.png"
+  },
+  {
+    "id": 130001,
+    "name": "Scroll of Common Inscription",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_130001.png"
+  },
+  {
+    "id": 160001,
+    "name": "Kingdom 1st Anniversary Coin",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_160001.png"
+  },
+  {
+    "id": 120001,
+    "name": "Goblin Hide",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_120001.png"
+  },
+  {
+    "id": 120002,
+    "name": "Skeleton Bone",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_120002.png"
+  },
+  {
+    "id": 120003,
+    "name": "Slime Jelly",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_120003.png"
+  },
+  {
+    "id": 160002,
+    "name": "Empire 1st Anniversary Coin",
+    "rate": "0.1%",
+    "box_id": 0,
+    "box_name": "",
+    "kind": "material",
+    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_160002.png"
+  }
+]

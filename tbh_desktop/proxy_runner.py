@@ -24,7 +24,6 @@ import signal
 import socket
 import subprocess
 import sys
-import tempfile
 import threading
 import time
 from collections import deque
@@ -69,6 +68,11 @@ class ProxyRunner(QObject):
         # Path under /tmp because /tmp is world-writable on Linux and
         # the file lifetime is tied to the proxy session.
         self._elevated_pid_file: Path | None = None
+        # Track current mode/name so we can emit post-start diagnostics
+        # (e.g. 'is the target process actually running?') to the log
+        # panel without main_window needing to remember what it asked for.
+        self._current_mode: str = "regular"
+        self._current_name: str = ""
 
     def is_running(self) -> bool:
         return self._proc is not None and self._proc.poll() is None
@@ -122,6 +126,8 @@ class ProxyRunner(QObject):
         # Regular (non-elevated) start — clear any stale elevated flag
         # left over from a previous pkexec session.
         self._elevated = False
+        self._current_mode = mode or "regular"
+        self._current_name = (name or "").strip()
         # start_new_session=True puts the child in its own process group so
         # stop() can kill the entire group (parent + child + grandchild).
         # Without this, SIGTERM only reaches the run_proxy.py wrapper and the
@@ -231,13 +237,111 @@ class ProxyRunner(QObject):
                 start_new_session=True,
             )
             self._elevated = True
+            self._current_mode = mode or "regular"
+            self._current_name = (name or "").strip()
         except OSError as exc:
             print(f"[ERR] pkexec failed to launch: {exc}", file=sys.stderr)
             return False
         self.running.emit(True)
         self._reader = threading.Thread(target=self._read_loop, daemon=True)
         self._reader.start()
+        # One-shot diagnostics thread. Waits past the startup window,
+        # then if the proxy is still alive in local mode, runs a
+        # `pgrep -af <name>` to help the user verify the target
+        # process actually exists and whether mitmdump's eBPF filter
+        # can match it. This catches the "started OK but nothing
+        # intercepted" failure mode on Steam/Proton (where the
+        # pressure-vessel container isolates the game process from
+        # the host's eBPF cgroup).
+        if self._current_mode == "local" and self._current_name:
+            self._diagnostics = threading.Thread(
+                target=self._diagnostics_loop, daemon=True
+            )
+            self._diagnostics.start()
         return True
+
+    def _diagnostics_loop(self) -> None:
+        """One-shot diagnostic helper for mode='local'.
+
+        Runs 3s after start (past the startup window so we don't fire
+        on a fast crash). Emits log lines that help the user confirm
+        whether mitmdump's eBPF can actually intercept their game.
+        On Steam/Proton this is the most common failure point —
+        pressure-vessel isolates the game from the host's cgroup BPF
+        program, so even with the right process name nothing gets
+        redirected. We surface that with an actionable hint pointing
+        at the 'regular' + Steam Launch Options fallback.
+        """
+        time.sleep(3.0)
+        if not self.is_running():
+            return  # proxy died — startup_failed dialog handles that
+        name = self._current_name
+        # Best-effort pgrep; don't fail if it's not installed.
+        hits: list[str] = []
+        try:
+            out = subprocess.run(
+                ["pgrep", "-af", name],
+                capture_output=True, text=True, timeout=5,
+            )
+            if out.returncode == 0 and out.stdout.strip():
+                hits = out.stdout.strip().splitlines()
+        except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+            hits = []
+        if not hits:
+            # No matching process — eBPF has nothing to intercept.
+            # Common cause on Linux/Steam: Proton wraps the game in a
+            # pressure-vessel container. Top-level pids are pv-adverb
+            # / srt-bwrap, NOT the .exe name. The actual game exe runs
+            # inside the container with a different /proc comm.
+            self.log_line.emit(
+                f"[hint] mode='local' target '{name}' not found via pgrep."
+            )
+            self.log_line.emit(
+                "[hint] If you're on Steam/Proton, the game exe runs in a"
+            )
+            self.log_line.emit(
+                "[hint] pressure-vessel container — mitmdump's eBPF cgroup"
+            )
+            self.log_line.emit(
+                "[hint] filter on the host can't see it. Switch to mode='regular'"
+            )
+            self.log_line.emit(
+                "[hint] + add to Steam → TaskBarHero → Properties → Launch Options:"
+            )
+            self.log_line.emit(
+                "[hint]   HTTP_PROXY=http://127.0.0.1:8877 HTTPS_PROXY=http://127.0.0.1:8877 %command%"
+            )
+            return
+        # Match found. Still worth noting the Proton caveat even when
+        # pgrep succeeds, because pgrep on the host can find the
+        # wrapping pids (steam-runtime-launcher, reaper, etc.) but
+        # mitmdump's eBPF can only intercept the inner game process.
+        self.log_line.emit(
+            f"[diag] mode='local' pgrep found {len(hits)} process(es) matching '{name}':"
+        )
+        for line in hits[:5]:
+            self.log_line.emit(f"[diag]   {line}")
+        if len(hits) > 5:
+            self.log_line.emit(f"[diag]   … and {len(hits) - 5} more")
+        # Check if any of the matches are inside a pressure-vessel
+        # container — that's the Steam/Proton failure case.
+        pressure_vessel = any(
+            "pressure-vessel" in line or "proton" in line or "pv-adverb" in line
+            for line in hits
+        )
+        if pressure_vessel and not any(
+            line.endswith(name) or f"/{name} " in line or f" {name}" in line
+            for line in hits
+        ):
+            self.log_line.emit(
+                "[hint] matches are Steam/Proton wrappers, not the game exe."
+            )
+            self.log_line.emit(
+                "[hint] mitmdump's eBPF can't reach the game inside the container."
+            )
+            self.log_line.emit(
+                "[hint] Switch to mode='regular' + Steam Launch Options (see above)."
+            )
 
     def _read_loop(self) -> None:
         # Capture local ref: a concurrent start() could reassign self._proc,

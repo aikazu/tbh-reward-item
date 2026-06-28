@@ -125,31 +125,30 @@ def request_elevation(repo_root: Path) -> int:
         )
         return 126
 
-    # Re-exec under pkexec. We MUST forward the essential desktop env vars
-    # so the elevated Qt can attach to the existing X11/Wayland session.
-    # polkit's pkexec with --env keeps the caller's env for the listed vars.
-    # For everything else, the elevated shell inherits a minimal env.
-    env_keep = ",".join(
-        [
-            "DISPLAY",
-            "XAUTHORITY",
-            "WAYLAND_DISPLAY",
-            "DBUS_SESSION_BUS_ADDRESS",
-            "XDG_RUNTIME_DIR",
-            "HOME",
-            "XDG_DATA_DIRS",
-            "XDG_CONFIG_DIRS",
-            "QT_QPA_PLATFORM",
-            "QT_WAYLAND_DISABLE_HIGHDPI_SCALING",
-        ]
-    )
-
-    # Re-invoke: pkexec <env-keep> python -m tbh_desktop.main
-    # We use sys.executable so the same interpreter (venv or system) is used.
+    # Re-exec under pkexec. NOTE: pkexec does NOT have a --env flag
+    # (that was sudo's --preserve-env). pkexec sets a minimal safe
+    # environment by design to prevent LD_LIBRARY_PATH / similar
+    # injection attacks. To get our env back, wrap the call in `env`:
+    #
+    #   pkexec env VAR1="$VAR1" VAR2="$VAR2" -- python -m tbh_desktop.main
+    #
+    # `env` is coreutils and reads the shell's current values for the
+    # named variables — they don't need to be quoted as literal strings,
+    # they're expanded by env itself before exec.
+    #
+    # For run_proxy.py we only need HOME (CA cert at ~/.mitmproxy/),
+    # PATH (so shebang / subprocess can find mitmdump), and Python's
+    # own locations. We deliberately do NOT forward DISPLAY — pkexec
+    # refuses GUI apps unless the polkit policy has
+    # org.freedesktop.policykit.exec.allow_gui set, and we don't need
+    # a display in run_proxy.py anyway.
+    home = os.environ.get("HOME", "/root")
+    path = os.environ.get("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
     cmd = [
         pkexec,
-        "--env",
-        env_keep,
+        "env",
+        f"HOME={home}",
+        f"PATH={path}",
         sys.executable,
         "-m",
         "tbh_desktop.main",

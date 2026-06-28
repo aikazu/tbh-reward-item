@@ -167,26 +167,23 @@ class ProxyRunner(QObject):
                 file=sys.stderr,
             )
             return False
-        env_keep = ",".join(
-            [
-                "DISPLAY",
-                "XAUTHORITY",
-                "WAYLAND_DISPLAY",
-                "DBUS_SESSION_BUS_ADDRESS",
-                "XDG_RUNTIME_DIR",
-                "HOME",
-                "XDG_DATA_DIRS",
-                "XDG_CONFIG_DIRS",
-                "QT_QPA_PLATFORM",
-                "QT_WAYLAND_DISABLE_HIGHDPI_SCALING",
-                "SSL_CERT_FILE",
-                "PATH",
-            ]
+        # pkexec does NOT have a --env flag (sudo --preserve-env does).
+        # pkexec sets a minimal safe env by design. To get HOME / PATH
+        # back we wrap the call in coreutils `env`:
+        #   pkexec env HOME="$HOME" PATH="$PATH" -- <cmd>
+        # We don't forward DISPLAY/XAUTH — run_proxy.py doesn't render
+        # anything, and pkexec would refuse GUI apps without a polkit
+        # policy override anyway.
+        home = os.environ.get("HOME", "/root")
+        path = os.environ.get(
+            "PATH",
+            "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
         )
         cmd = [
             pkexec,
-            "--env",
-            env_keep,
+            "env",
+            f"HOME={home}",
+            f"PATH={path}",
             sys.executable,
             str(RUN_PROXY_PATH),
         ]

@@ -219,6 +219,12 @@ class MainWindow(QMainWindow):
         self.item_browser.items_picked.connect(self._on_item_browser_picks)
         # ConfigEditor focus event also routes to detail panel.
         self.editor.range_form().installEventFilter(self)
+        # Range-form pick buttons → existing range picker dialogs.
+        # The form's signals mirror RuleDetailPanel's pattern so the
+        # wiring is symmetric with how rule picks route through the
+        # detail panel.
+        self.editor.range_form().pick_gear.connect(self._pick_gear_for_range)
+        self.editor.range_form().pick_item.connect(self._pick_box_loot_for_range)
 
         self._reload_config()
 

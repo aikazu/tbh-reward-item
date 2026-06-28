@@ -75,3 +75,17 @@ def test_range_form_chips_show_added_ids(qapp: QApplication, tmp_path, monkeypat
     assert 605041 in out["range_replacement"]["replacement_reward_item_ids"]
     # SAMPLE pre-loads id 7, so we expect 2 chips (7 + 605041).
     assert len(editor.range_form()._chips) == 2
+
+
+def test_range_form_pick_buttons_emit_signals(qapp: QApplication) -> None:
+    """Clicking Pick gear / Pick item on the range form must emit its
+    signal so MainWindow can open the picker dialog. Regression guard
+    for the case where the buttons were rendered but never wired."""
+    editor = ConfigEditor()
+    rf = editor.range_form()
+    captured = []
+    rf.pick_gear.connect(lambda: captured.append("gear"))
+    rf.pick_item.connect(lambda: captured.append("item"))
+    rf.btn_pick_gear.click()
+    rf.btn_pick_item.click()
+    assert captured == ["gear", "item"]

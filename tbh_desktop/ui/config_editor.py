@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -62,7 +62,12 @@ def _ghost_button(text: str, *, tooltip: str = "") -> QPushButton:
 
 
 class _RangeForm(QWidget):
-    """Inline range replacement form. Emits focused() when any field is focused."""
+    """Inline range replacement form. Emits pick_gear / pick_item when the
+    respective ghost button is clicked; MainWindow wires those to its
+    picker dialogs (same pattern as RuleDetailPanel)."""
+
+    pick_gear = Signal()
+    pick_item = Signal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -124,7 +129,11 @@ class _RangeForm(QWidget):
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
         self.btn_pick_gear = _ghost_button("Pick gear", tooltip="Pick a gear item from cache")
+        self.btn_pick_gear.setObjectName("btn_pick_gear_range")
+        self.btn_pick_gear.clicked.connect(self.pick_gear)
         self.btn_pick_item = _ghost_button("Pick item", tooltip="Pick a non-gear item from the drops index")
+        self.btn_pick_item.setObjectName("btn_pick_item_range")
+        self.btn_pick_item.clicked.connect(self.pick_item)
         btn_row.addWidget(self.btn_pick_gear)
         btn_row.addWidget(self.btn_pick_item)
         btn_row.addStretch()

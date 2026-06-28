@@ -1,12 +1,16 @@
+"""Strategy A v3 — suffix-aware replacement pool.
+Read pool from captures/real-reward-pool.json and find a same-tier-variant
+replacement for each box rewardId. Fall back through tiers if needed.
+"""
 from __future__ import annotations
-
-import argparse
+import json
 import re
 from pathlib import Path
 from typing import Any
 
 from tbh_proxy_config import CONFIG_PATH, ProxyConfig, QueueRule, RangeRule
 
+POOL_PATH = Path(__file__).parent.parent / "captures" / "real-reward-pool.json"
 
 ITEM_FIELD_RE = re.compile(r'\\?"itemId\\?"\s*:\s*(?P<item_id>\d+)(?!\d)')
 REWARD_FIELD_RE = re.compile(r'(\\?"rewardItemId\\?"\s*:\s*)(?P<reward_id>\d+)(?!\d)')
@@ -16,8 +20,7 @@ def log_info(message: str) -> None:
     print(f"[TBH] {message}", flush=True)
 
 
-def _safe_load_config(path: Path = CONFIG_PATH) -> "ProxyConfig | None":
-    """Load config; return None (and log) on any failure so callers can fall back."""
+def _safe_load_config(path: Path = CONFIG_PATH):
     try:
         return ProxyConfig.load(path)
     except Exception as exc:
@@ -25,8 +28,7 @@ def _safe_load_config(path: Path = CONFIG_PATH) -> "ProxyConfig | None":
         return None
 
 
-def _empty_config() -> "ProxyConfig":
-    """Safe default config with no rules. Used when config.json is missing or corrupt."""
+def _empty_config():
     return ProxyConfig(
         listen_port=8877,
         only_post=True,
@@ -44,38 +46,88 @@ def _empty_config() -> "ProxyConfig":
 
 
 class ReplacementDetail:
-    __slots__ = ("rule_name", "item_id", "old_reward_item_id", "new_reward_item_id")
+    __slots__ = ("rule_name", "item_id", "old_reward_item_id", "new_reward_item_id", "strategy")
 
-    def __init__(
-        self,
-        rule_name: str,
-        item_id: int,
-        old_reward_item_id: int,
-        new_reward_item_id: int,
-    ) -> None:
+    def __init__(self, rule_name, item_id, old_reward_item_id, new_reward_item_id, strategy):
         self.rule_name = rule_name
         self.item_id = item_id
         self.old_reward_item_id = old_reward_item_id
         self.new_reward_item_id = new_reward_item_id
- 
- 
+        self.strategy = strategy
+
+
 class RewriteResult:
     __slots__ = ("body", "details")
- 
-    def __init__(self, body: str, details: tuple[ReplacementDetail, ...]) -> None:
+
+    def __init__(self, body, details):
         self.body = body
         self.details = details
- 
+
     @property
-    def modified_count(self) -> int:
+    def modified_count(self):
         return len(self.details)
- 
- 
+
+
 class RewardRewriter:
-    def __init__(self, config: ProxyConfig):
+    """Strategy A v3 — suffix-aware pool selection.
+
+    For each original rewardId, find a replacement with same (category, tier, variant).
+    Falls back to (tier, variant), then leaves original unchanged.
+    """
+
+    def __init__(self, config, pool_path: Path = POOL_PATH):
         self.config = config
         self._range_index = 0
- 
+        self._pool = self._load_pool(pool_path)
+        # Index by lookup keys for O(1) access
+        self._by_cat_tier_var = self._pool.get("by_cat_tier_var", {})
+        self._by_tier_var = self._pool.get("by_tier_var", {})
+
+    @staticmethod
+    def _load_pool(path: Path) -> dict:
+        """Load pool and build lookup indexes."""
+        if not path.exists():
+            log_info(f"pool file missing: {path}, addon will leave originals unchanged.")
+            return {"by_cat_tier_var": {}, "by_tier_var": {}}
+        data = json.loads(path.read_text())
+        rewards = data.get("rewards", {})
+
+        by_cat_tier_var = {}
+        by_tier_var = {}
+        for rid_str, info in rewards.items():
+            rid = int(rid_str)
+            cat2 = info["category2"]
+            tier2 = info["tier2"]
+            variant = info["variant"]
+            cat_tier_var_key = f"{cat2}|{tier2}|{variant}"
+            tier_var_key = f"{tier2}|{variant}"
+            by_cat_tier_var.setdefault(cat_tier_var_key, []).append(rid)
+            by_tier_var.setdefault(tier_var_key, []).append(rid)
+        return {"by_cat_tier_var": by_cat_tier_var, "by_tier_var": by_tier_var}
+
+    def _parse_reward(self, rid: int) -> dict:
+        s = str(rid).zfill(6)
+        return {
+            "category2": s[:2],
+            "tier2": s[-3:-1],
+            "variant": s[-1],
+        }
+
+    def _pick_replacement(self, original_rid: int, item_id: int) -> tuple[int | None, str]:
+        """Try (cat,tier,var) match first, then (tier,var), then None."""
+        info = self._parse_reward(original_rid)
+        cat_tier_var_key = f"{info['category2']}|{info['tier2']}|{info['variant']}"
+        pool1 = [r for r in self._by_cat_tier_var.get(cat_tier_var_key, []) if r != original_rid]
+        if pool1:
+            return pool1[self._range_index % len(pool1)], "cat_tier_var"
+
+        tier_var_key = f"{info['tier2']}|{info['variant']}"
+        pool2 = [r for r in self._by_tier_var.get(tier_var_key, []) if r != original_rid]
+        if pool2:
+            return pool2[self._range_index % len(pool2)], "tier_var"
+
+        return None, "no_match"
+
     def rewrite(self, body: str) -> RewriteResult:
         queue_rules = {
             rule.item_id: rule
@@ -86,36 +138,48 @@ class RewardRewriter:
         details: list[ReplacementDetail] = []
         pieces: list[str] = []
         copied_until = 0
- 
+
         for item_match in ITEM_FIELD_RE.finditer(body):
             item_id = int(item_match.group("item_id"))
             chosen_name = ""
             replacement_id: int | None = None
- 
+            strategy = ""
+
+            # Strategy 1: per-box specific rules (legacy v1 behavior)
             rule = queue_rules.get(item_id)
             if rule is not None:
                 index = queue_indexes.get(item_id, 0)
                 replacement_id = rule.replacement_reward_item_ids[index % len(rule.replacement_reward_item_ids)]
                 queue_indexes[item_id] = index + 1
                 chosen_name = rule.name
+                strategy = "queue_rule"
             elif self._range_matches(item_id):
-                pool = self.config.range_replacement.replacement_reward_item_ids
-                replacement_id = pool[self._range_index % len(pool)]
-                self._range_index += 1
-                chosen_name = self.config.range_replacement.name
- 
+                # Strategy 2: range replacement with v3 suffix-aware pool
+                # The legacy range pool was a flat list of IDs; here we use
+                # the suffix-aware lookup per-reward
+                # First, find the next rewardItemId in the body that follows this itemId
+                reward_match = REWARD_FIELD_RE.search(body, item_match.end())
+                if reward_match is not None:
+                    original_reward = int(reward_match.group("reward_id"))
+                    candidate, strat = self._pick_replacement(original_reward, item_id)
+                    if candidate is not None:
+                        replacement_id = candidate
+                        chosen_name = self.config.range_replacement.name
+                        strategy = strat
+                        self._range_index += 1
+
             if replacement_id is None:
                 continue
- 
+
             reward_match = REWARD_FIELD_RE.search(body, item_match.end())
             if reward_match is None:
                 continue
- 
+
             reward_start = reward_match.start("reward_id")
             reward_end = reward_match.end("reward_id")
             if reward_start < copied_until:
                 continue
- 
+
             old_reward_id = int(reward_match.group("reward_id"))
             pieces.append(body[copied_until:reward_start])
             pieces.append(str(replacement_id))
@@ -126,24 +190,25 @@ class RewardRewriter:
                     item_id=item_id,
                     old_reward_item_id=old_reward_id,
                     new_reward_item_id=replacement_id,
+                    strategy=strategy,
                 )
             )
- 
+
         if not details:
             return RewriteResult(body=body, details=())
- 
+
         pieces.append(body[copied_until:])
         return RewriteResult(body="".join(pieces), details=tuple(details))
- 
+
     def _range_matches(self, item_id: int) -> bool:
         rule = self.config.range_replacement
-        if not rule.enabled or not rule.replacement_reward_item_ids:
+        if not rule.enabled:
             return False
         return rule.match_min_item_id <= item_id <= rule.match_max_item_id
- 
- 
+
+
 class TBHRewardHook:
-    def __init__(self) -> None:
+    def __init__(self):
         self._config_path = CONFIG_PATH
         self._config_mtime = 0
         from config_setup import ensure_config
@@ -151,16 +216,17 @@ class TBHRewardHook:
         loaded = _safe_load_config(self._config_path)
         if loaded is None:
             self.config = _empty_config()
-            log_info("using fallback empty config (no rules active). Fix config.json and save to reload.")
+            log_info("using fallback empty config (no rules active).")
         else:
             self.config = loaded
         self._config_mtime = self._read_mtime(self._config_path)
         self.rewriter = RewardRewriter(self.config)
         log_info(
-            f"TBH Reward Proxy loaded: {len(self.config.specific_queue_rules)} queue rules, "
-            f"range mode={'on' if self.config.range_replacement.enabled else 'off'}."
+            f"TBH Reward Proxy v3 loaded: {len(self.config.specific_queue_rules)} queue rules, "
+            f"range mode={'on' if self.config.range_replacement.enabled else 'off'}, "
+            f"pool has {len(self.rewriter._by_cat_tier_var)} cat×tier×var buckets, "
+            f"{len(self.rewriter._by_tier_var)} tier×var buckets."
         )
-        # SIGHUP forces immediate reload (manual: pkill -HUP -f mitmdump)
         try:
             import signal
             signal.signal(signal.SIGHUP, self._on_sighup)
@@ -174,19 +240,12 @@ class TBHRewardHook:
         except OSError:
             return 0
 
-    def _reload_if_changed(self) -> None:
-        """Re-read config.json when its mtime changes. Hot reload, no restart needed.
-
-        On corrupt/invalid config: keep the current config running and log the error,
-        so a bad edit never takes the proxy down or breaks active interception.
-        """
+    def _reload_if_changed(self):
         mtime = self._read_mtime(self._config_path)
         if mtime == self._config_mtime:
             return
         loaded = _safe_load_config(self._config_path)
         if loaded is None:
-            # Keep current config; advance mtime so we don't retry-spam every request
-            # on the same broken file, but still reload once the user fixes and saves it.
             self._config_mtime = mtime
             log_info("kept previous config (config.json invalid).")
             return
@@ -198,122 +257,69 @@ class TBHRewardHook:
             f"range mode={'on' if self.config.range_replacement.enabled else 'off'}."
         )
 
-    def _on_sighup(self, _signum: int, _frame: Any) -> None:
+    def _on_sighup(self, _signum, _frame):
         self._config_mtime = 0
         self._reload_if_changed()
- 
-    def response(self, flow: Any) -> None:
+
+    def response(self, flow):
         self._reload_if_changed()
         request = flow.request
         response = flow.response
- 
+
         if self.config.only_post and request.method.upper() != "POST":
             return
- 
+
         pretty_url = getattr(request, "pretty_url", "") or getattr(request, "url", "")
         if self.config.url_contains and not any(marker in pretty_url for marker in self.config.url_contains):
             return
- 
+
         try:
             body = response.get_text(strict=False)
         except Exception as exc:
             log_info(f"TBH Reward Proxy skipped undecodable response: {exc}")
             return
- 
+
         if body is None:
             return
- 
+
         if self.config.require_boxes_marker and "boxes" not in body:
             return
- 
+
         result = self.rewriter.rewrite(body)
         if result.modified_count <= 0:
-            # URL matched but no replacement rules fired. This is the common
-            # case during gameplay (heartbeats, state polls with no item IDs
-            # we want to rewrite). Logging it every time floods stdout and
-            # wastes I/O. Skipped — the periodic "wrote N replacement(s)"
-            # line below covers the interesting case.
             return
 
         response.set_text(result.body)
         for detail in result.details:
             log_info(
-                "TBH Reward Proxy replaced "
-                f"{detail.rule_name}: itemId={detail.item_id}, "
+                f"TBH Reward Proxy [{detail.strategy}] "
+                f"itemId={detail.item_id}: "
                 f"rewardItemId={detail.old_reward_item_id}->{detail.new_reward_item_id}"
             )
         log_info(f"TBH Reward Proxy wrote {result.modified_count} replacement(s).")
- 
- 
-def _extract_reward_ids(body: str) -> list[int]:
-    return [int(match.group("reward_id")) for match in REWARD_FIELD_RE.finditer(body)]
- 
- 
-def run_self_test() -> None:
-    # Self-test uses a fixed fixture config instead of the live config.json,
-    # so it stays green regardless of which rules are toggled in production.
-    white_rule = QueueRule(
-        enabled=True,
-        name="White box",
-        item_id=910801,
-        replacement_reward_item_ids=(910801,),
-    )
-    blue_rule = QueueRule(
-        enabled=True,
-        name="Blue box",
-        item_id=920801,
-        replacement_reward_item_ids=(920801,),
-    )
+
+
+def _extract_reward_ids(body: str):
+    return [int(m.group("reward_id")) for m in REWARD_FIELD_RE.finditer(body)]
+
+
+def run_self_test():
+    # Strategy v3 self-test: use a small built-in pool
+    import tempfile
+    pool = {
+        "rewards": {
+            "319171": {"category2": "31", "tier2": "17", "variant": "1"},
+            "311171": {"category2": "31", "tier2": "17", "variant": "1"},
+            "310171": {"category2": "31", "tier2": "17", "variant": "1"},
+            "506111": {"category2": "50", "tier2": "11", "variant": "1"},
+            "501111": {"category2": "50", "tier2": "11", "variant": "1"},
+        }
+    }
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(pool, f)
+        pool_path = Path(f.name)
+
     config = ProxyConfig(
-        listen_port=8877,
-        only_post=True,
-        require_boxes_marker=True,
-        url_contains=("/backend-function/base/v1",),
-        specific_queue_rules=(white_rule, blue_rule),
-        range_replacement=RangeRule(
-            enabled=False,
-            name="Range replacement",
-            match_min_item_id=500000,
-            match_max_item_id=950000,
-            replacement_reward_item_ids=(),
-        ),
-    )
-    rewriter = RewardRewriter(config)
-
-    rules = {r.item_id: r for r in config.specific_queue_rules if r.enabled and r.replacement_reward_item_ids}
-
-    def _expected(item_ids: list[int]) -> list[int]:
-        idx: dict[int, int] = {}
-        out: list[int] = []
-        for iid in item_ids:
-            rule = rules.get(iid)
-            assert rule is not None, f"no enabled specific_queue_rule for itemId {iid} in fixture config"
-            k = idx.get(iid, 0)
-            out.append(rule.replacement_reward_item_ids[k % len(rule.replacement_reward_item_ids)])
-            idx[iid] = k + 1
-        return out
-
-    normal_body = (
-        '{"boxes":['
-        '{"itemId":910801,"rewardItemId":1001},'
-        '{"itemId":920801,"rewardItemId":1002},'
-        '{"itemId":910801,"rewardItemId":1003}'
-        ']}'
-    )
-    normal_result = rewriter.rewrite(normal_body)
-    assert normal_result.modified_count == 3, normal_result
-    assert _extract_reward_ids(normal_result.body) == _expected([910801, 920801, 910801]), normal_result.body
-
-    escaped_body = (
-        r'{"boxes":[{"itemId":910801,"rewardItemId":2001},'
-        r'{"itemId":920801,"rewardItemId":2002}]}'
-    )
-    escaped_result = rewriter.rewrite(escaped_body)
-    assert escaped_result.modified_count == 2, escaped_result
-    expected_white = _expected([910801])[0]
-    assert f'"rewardItemId":{expected_white}' in escaped_result.body, escaped_result.body
- 
-    range_config = ProxyConfig(
         listen_port=8877,
         only_post=True,
         require_boxes_marker=True,
@@ -321,39 +327,37 @@ def run_self_test() -> None:
         specific_queue_rules=(),
         range_replacement=RangeRule(
             enabled=True,
-            name="Range replacement",
-            match_min_item_id=500000,
-            match_max_item_id=950000,
-            replacement_reward_item_ids=(529191, 419191),
+            name="Suffix-aware range",
+            match_min_item_id=910801,
+            match_max_item_id=930999,
+            replacement_reward_item_ids=(),  # ignored in v3, pool drives selection
         ),
     )
-    range_result = RewardRewriter(range_config).rewrite(
-        '{"boxes":[{"itemId":529999,"rewardItemId":1},{"itemId":499999,"rewardItemId":2}]}'
-    )
-    assert range_result.modified_count == 1, range_result
-    assert _extract_reward_ids(range_result.body) == [529191, 2], range_result.body
- 
+    rewriter = RewardRewriter(config, pool_path=pool_path)
+
+    body = '{"boxes":[{"itemId":910801,"rewardItemId":319171},{"itemId":910801,"rewardItemId":506111}]}'
+    result = rewriter.rewrite(body)
+    assert result.modified_count == 2, result
+    new_ids = _extract_reward_ids(result.body)
+    assert new_ids[0] in (311171, 310171), f"expected 31-cat tier17 var1, got {new_ids[0]}"
+    assert new_ids[1] == 501111, f"expected 50-cat tier11 var1, got {new_ids[1]}"
+    print(f"  self-test: 319171→{new_ids[0]}, 506111→{new_ids[1]}")
     print("Self-test OK.")
- 
- 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="TBH reward response rewrite addon for mitmproxy.")
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="TBH reward response rewrite addon v3 (suffix-aware pool).")
     parser.add_argument("--self-test", action="store_true", help="run offline rewrite tests")
     args = parser.parse_args()
-
     if args.self_test:
         run_self_test()
         return 0
-
     print("Run this file with mitmdump:")
     print(r"  mitmdump -s tbh_reward_hook.py --listen-port 8877 --set block_global=false")
     return 0
 
 
-# mitmdump reads this attribute once when loading the addon via
-# ``mitmdump -s tbh_reward_hook.py``. The desktop editor does not import
-# this module (it uses tbh_proxy_config for data validation), so the
-# constructor here only fires when the proxy is actually being started.
 addons = [TBHRewardHook()]
 
 

@@ -101,6 +101,7 @@ class MainWindow(QMainWindow):
         self.runner = ProxyRunner()
         self.runner.log_line.connect(self._on_log)
         self.runner.running.connect(self._on_running)
+        self.runner.startup_failed.connect(self._on_runner_startup_failed)
 
         self.gear_scraper = GearScraperRunner()
         self.gear_scraper.log_line.connect(self._on_log)
@@ -659,7 +660,46 @@ class MainWindow(QMainWindow):
             if not self._confirm("Unsaved port", "Port changed. Save config first?"):
                 return
             self._save()
+        # Pre-check: if port is held by something else, don't bother
+        # spawning mitmdump just to watch it fail. mitmdump binds to
+        # 0.0.0.0:<port>; we test the same target so the result matches.
+        port = self._parse_port()
+        if not self.runner.port_available(port):
+            self._show_port_in_use_dialog(port)
+            return
         self.runner.start()
+
+    def _show_port_in_use_dialog(self, port: int) -> None:
+        """Modal hint when the listen port is held by something else.
+
+        mitmdump can't bind it, so we surface the exact actionable
+        command (`fuser -k 8877/tcp` or `lsof -ti:8877 | xargs kill`).
+        This is the same dialog the user would see if mitmdump crashed
+        on startup, but earlier — no need to wait for the subprocess
+        to exit and emit startup_failed.
+        """
+        hint = (
+            f"mitmdump needs port {port} but it's already in use.\n\n"
+            "Most common cause: a previous mitmdump (or a stray "
+            "run_proxy.py) didn't get cleaned up. Use one of:\n\n"
+            f"  • Linux:  fuser -k {port}/tcp\n"
+            f"           ss -ltnp 'sport = :{port}'   # find who holds it\n"
+            f"  • macOS:  lsof -ti:{port} | xargs kill\n"
+            f"  • Win:    netstat -ano | findstr :{port}\n"
+            f"           taskkill /PID <pid> /F\n\n"
+            "If another tool (e.g. Shadowsocks, clash) is using this "
+            "port, change 'listen_port' in the toolbar to something free."
+        )
+        QMessageBox.critical(self, f"Port {port} in use", hint)
+
+    def _on_runner_startup_failed(self, title: str, body: str) -> None:
+        """Modal when mitmdump exits within 3s of starting.
+
+        The runner has already mirrored every line to the log panel,
+        so we don't duplicate the noise — just give the user a modal
+        they can't miss with the captured tail and a hint list.
+        """
+        QMessageBox.critical(self, title, body)
 
     def _save(self) -> None:
         data = self.editor.dump()

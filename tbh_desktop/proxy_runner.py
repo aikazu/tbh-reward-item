@@ -1,29 +1,85 @@
 # tbh_desktop/proxy_runner.py
-"""Run src/run_proxy.py as subprocess, stream stdout via Qt signals."""
+"""Run src/run_proxy.py as subprocess, stream stdout via Qt signals.
+
+Also detects startup failure: if the subprocess exits within a few
+seconds of starting, we treat it as a crash and emit
+``startup_failed`` with the captured stderr/stdout so the GUI can show
+a modal QMessageBox instead of silently returning to the "stopped"
+state. This is the difference between "you clicked Start and nothing
+happened" vs "you clicked Start and here's why it didn't work".
+
+Why a startup window rather than always treating exit as failure:
+  - mitmdump with valid config and free port runs for hours
+  - mitmdump that can't bind its port, has a broken addon, or can't
+    find its CA cert, exits in well under 2 seconds with an error
+    line on stdout/stderr
+  - 3 seconds is the cutoff: long enough to cover slow addon import,
+    short enough that a "real" running proxy never trips it
+"""
 from __future__ import annotations
 
 import os
 import signal
+import socket
 import subprocess
 import sys
 import threading
+import time
+from collections import deque
 
 from PySide6.QtCore import QObject, Signal
 
 from tbh_desktop.paths import REPO_ROOT, RUN_PROXY_PATH
 
+# If the subprocess exits within this many seconds of start, treat it
+# as a startup failure (mitmdump either binds the port or fails fast).
+# Valid startup with a slow addon / CA generation can take ~1-2s.
+_STARTUP_WINDOW_SEC = 3.0
+
+# Lines of captured output to attach to a startup_failed signal so the
+# GUI can show them in the dialog. Buffer is bounded so a runaway mitm
+# can't fill memory.
+_STARTUP_LOG_TAIL = 30
+
 
 class ProxyRunner(QObject):
     log_line = Signal(str)
     running = Signal(bool)
+    # Emitted with a human-readable error message + short captured output
+    # when the subprocess exits within _STARTUP_WINDOW_SEC of start.
+    startup_failed = Signal(str, str)
 
     def __init__(self) -> None:
         super().__init__()
         self._proc: subprocess.Popen | None = None
         self._reader: threading.Thread | None = None
+        self._start_ts: float = 0.0
+        self._early_buf: deque[str] = deque(maxlen=_STARTUP_LOG_TAIL)
+        self._early_buf_lock = threading.Lock()
 
     def is_running(self) -> bool:
         return self._proc is not None and self._proc.poll() is None
+
+    def port_available(self, port: int) -> bool:
+        """Quick pre-check: is ``port`` free for binding on 127.0.0.1?
+
+        mitmproxy binds to ``*:<port>`` (0.0.0.0 + ::). We test 0.0.0.0
+        which matches the actual bind target on Linux/macOS/Windows.
+
+        This is a hint, not a guarantee — there's a TOCTOU window between
+        this check and mitmdump's bind. But it lets the GUI show a useful
+        dialog ("port in use, here's the process") instead of waiting for
+        mitmdump to fail and emit a cryptic error.
+        """
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind(("0.0.0.0", port))
+            return True
+        except OSError:
+            return False
+        finally:
+            s.close()
 
     def start(self) -> None:
         if self.is_running():
@@ -33,6 +89,9 @@ class ProxyRunner(QObject):
         # Without this, SIGTERM only reaches the run_proxy.py wrapper and the
         # mitmdump grandchild it spawned via subprocess.call() is orphaned —
         # it keeps binding the listen port and the proxy "looks" still up.
+        self._start_ts = time.monotonic()
+        with self._early_buf_lock:
+            self._early_buf.clear()
         self._proc = subprocess.Popen(
             [sys.executable, str(RUN_PROXY_PATH)],
             cwd=str(REPO_ROOT),
@@ -54,16 +113,66 @@ class ProxyRunner(QObject):
         assert proc.stdout is not None
         try:
             for line in proc.stdout:
-                self.log_line.emit(line.rstrip("\n"))
+                stripped = line.rstrip("\n")
+                # Always mirror to log panel
+                self.log_line.emit(stripped)
+                # Keep a small tail for the startup-failed dialog so we
+                # can show the user what mitmdump said before dying.
+                with self._early_buf_lock:
+                    self._early_buf.append(stripped)
             proc.wait()
         except OSError:
             # Broken pipe / IO error mid-stream: still must signal stop.
             pass
         finally:
+            self._maybe_emit_startup_failed(proc)
             # Reader owns the running(False) emission so stop() never
             # double-toggles. This runs whether the loop ended cleanly,
             # raised, or was terminated via stop().
             self.running.emit(False)
+
+    def _maybe_emit_startup_failed(self, proc: subprocess.Popen) -> None:
+        """If proc exited inside the startup window, surface a dialog.
+
+        Skip if:
+          - the user invoked stop() (proc was alive long enough OR was
+            terminated by signal — we can't distinguish cleanly, but
+            self._start_ts is reset on each start, so a long-lived proxy
+            then stop() will have a huge elapsed value — fine to ignore)
+          - proc was terminated by signal (stop() killed it)
+          - elapsed > _STARTUP_WINDOW_SEC (proxy ran long enough to be
+            considered "working")
+        """
+        if self._start_ts <= 0.0:
+            return
+        elapsed = time.monotonic() - self._start_ts
+        if elapsed > _STARTUP_WINDOW_SEC:
+            return
+        # returncode is None if still alive; negative if terminated by signal.
+        rc = proc.poll()
+        if rc is None:
+            return
+        if rc < 0:
+            # Killed by signal (e.g. SIGTERM from stop()). Not a startup fail.
+            return
+        # Snapshot tail before emitting (so any log_line emissions from
+        # connected slots don't race the buffer).
+        with self._early_buf_lock:
+            tail = "\n".join(self._early_buf)
+        title = f"Proxy failed to start (exit code {rc})"
+        msg = (
+            "mitmdump exited within "
+            f"{elapsed:.1f}s of starting. Check the output below for the\n"
+            "exact reason. Common causes:\n"
+            "  • Port 8877 already in use (another mitmdump, or kill any\n"
+            "    process holding the port)\n"
+            "  • mode='local' on Linux requires root (auto-elevate should\n"
+            "    have prompted for your polkit password — if it didn't,\n"
+            "    check that polkit is installed)\n"
+            "  • src/config.json is corrupt (the addon keeps the last\n"
+            "    good config, so a syntax error there is reported here)"
+        )
+        self.startup_failed.emit(title, f"{msg}\n\n— output —\n{tail}")
 
     def stop(self) -> None:
         if not self.is_running() or self._proc is None:

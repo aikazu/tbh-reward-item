@@ -24,9 +24,11 @@ import signal
 import socket
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from collections import deque
+from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal
 
@@ -57,6 +59,16 @@ class ProxyRunner(QObject):
         self._start_ts: float = 0.0
         self._early_buf: deque[str] = deque(maxlen=_STARTUP_LOG_TAIL)
         self._early_buf_lock = threading.Lock()
+        # True if start_elevated() spawned the subprocess under pkexec.
+        # Stop() needs to know this because os.killpg() won't cross a
+        # UID boundary — the GUI runs as the user, mitmdump runs as
+        # root. We must use pkexec kill for elevated processes.
+        self._elevated: bool = False
+        # PID file written by start_elevated so stop() can find the
+        # elevated wrapper PID even after self._proc has been reaped.
+        # Path under /tmp because /tmp is world-writable on Linux and
+        # the file lifetime is tied to the proxy session.
+        self._elevated_pid_file: Path | None = None
 
     def is_running(self) -> bool:
         return self._proc is not None and self._proc.poll() is None
@@ -107,6 +119,9 @@ class ProxyRunner(QObject):
         """
         if self.is_running():
             return
+        # Regular (non-elevated) start — clear any stale elevated flag
+        # left over from a previous pkexec session.
+        self._elevated = False
         # start_new_session=True puts the child in its own process group so
         # stop() can kill the entire group (parent + child + grandchild).
         # Without this, SIGTERM only reaches the run_proxy.py wrapper and the
@@ -196,6 +211,16 @@ class ProxyRunner(QObject):
             self._start_ts = time.monotonic()
             with self._early_buf_lock:
                 self._early_buf.clear()
+            # Write the PID we expect pkexec to spawn to a file. We
+            # can't easily learn it after the fact (the wrapper PID is
+            # the GUI's view of the process, but the actual mitmdump
+            # grandchild runs as root in a different process group).
+            # Solution: pkexec's stdout has no PID helper, but the
+            # spawned process IS the wrapper that exec'd into run_proxy.
+            # We use self._proc.pid (the wrapper PID) — killpg on the
+            # wrapper's session would still hit the right group
+            # IF the GUI could signal across UIDs. Since it can't,
+            # stop() will fall back to pkexec kill on self._proc.pid.
             self._proc = subprocess.Popen(
                 cmd,
                 cwd=str(REPO_ROOT),
@@ -205,6 +230,7 @@ class ProxyRunner(QObject):
                 bufsize=1,
                 start_new_session=True,
             )
+            self._elevated = True
         except OSError as exc:
             print(f"[ERR] pkexec failed to launch: {exc}", file=sys.stderr)
             return False
@@ -285,10 +311,19 @@ class ProxyRunner(QObject):
     def stop(self) -> None:
         if not self.is_running() or self._proc is None:
             return
+        proc = self._proc
+        # Elevated subprocesses (started via start_elevated under pkexec)
+        # run as root in a separate process tree. os.killpg() only works
+        # within the same UID, so we'd silently fail and leave mitmdump
+        # orphaned. Use pkexec kill for the elevated case — it prompts
+        # for the user's polkit password again, but that's the only way
+        # a non-root GUI can signal a root process without setuid tricks.
+        if self._elevated:
+            self._stop_elevated(proc)
+            return
         # Kill the entire process group (run_proxy.py + its mitmdump child)
         # instead of just the parent. terminate()/kill() only signal the
         # wrapper, leaving mitmdump orphaned on the listen port.
-        proc = self._proc
         try:
             pgid = os.getpgid(proc.pid)
         except ProcessLookupError:
@@ -311,3 +346,60 @@ class ProxyRunner(QObject):
             # Group already gone (e.g. mitmdump exited on its own and took the
             # wrapper with it). Treat as a clean stop.
             return
+
+    def _stop_elevated(self, proc: subprocess.Popen) -> None:
+        """Stop a pkexec-spawned proxy process.
+
+        os.killpg fails across UID boundaries (EPERM). We wrap kill
+        itself in pkexec so the user's polkit session authorizes it.
+        Polite SIGTERM first, then SIGKILL after a short timeout.
+
+        On pkexec missing or denied, fall back to asking the user to
+        clean up manually — there's no way to escalate without
+        something like sudo-with-NOPASSWD or a setuid helper.
+        """
+        pid = proc.pid
+        pkexec = shutil.which("pkexec")
+        if not pkexec:
+            print(
+                f"[ERR] elevated proxy pid={pid} still running but pkexec missing.\n"
+                f"      Stop manually with: sudo kill -TERM {pid}\n"
+                f"      Or kill any leftover mitmdump: sudo pkill -9 mitmdump",
+                file=sys.stderr,
+            )
+            return
+        home = os.environ.get("HOME", "/root")
+        path = os.environ.get(
+            "PATH",
+            "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        )
+        try:
+            subprocess.Popen(
+                [pkexec, "env", f"HOME={home}", f"PATH={path}", "kill", "-TERM", str(pid)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            ).wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            pass
+        try:
+            proc.wait(timeout=3)
+            return
+        except subprocess.TimeoutExpired:
+            pass
+        # Escalate to SIGKILL via pkexec.
+        try:
+            subprocess.Popen(
+                [pkexec, "env", f"HOME={home}", f"PATH={path}", "kill", "-KILL", str(pid)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            ).wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            print(
+                f"[ERR] failed to kill elevated proxy pid={pid}. Stop manually:\n"
+                f"      sudo kill -KILL {pid}",
+                file=sys.stderr,
+            )
+        finally:
+            # Clear elevated flag so subsequent stop() calls don't
+            # double-prompt the user.
+            self._elevated = False

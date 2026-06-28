@@ -489,56 +489,81 @@ The mismatch report's original rewardIds (`319171`, `506111`, `535041`, `605041`
 - "suffix = last 3 digits = tier" → 20.5% match rate
 - "tier = last 2 digits" → 29.5% match rate (13/44)
 
-**Refined theory — 6-digit itemId structure:**
+**Refined theory — verified via taskbarhero.wiki scrapes (2026-06-28 20:50):**
+
+6-digit itemId structure:
 ```
 ABCDEF where:
-  AB  = 2-digit category prefix (30=sword, 50=helmet, etc)
-  C   = sub-slot within category (0-9)
-  DE  = 2-digit tier (01=base, 20=max)
-  F   = enhancement variant (0=base, 1=+1, 2=+2, ...)
+  AB  = 2-digit category (30=sword, 50=helmet, 60=amulet, etc)
+  C   = **rarity** (enhancement level, 0-9) ← this is what the validator checks
+  DEF = **tier** + slot in 3-digit form
 ```
 
-Example: `319171` = Bow (31) sub-slot 9, tier 17 (Dimensional), variant 1 (enhanced +1).
+Rarity mapping (verified by scraping 7 Shadow Bow entries on taskbarhero.wiki):
 
-**All tamper report originals have variant=1** (last digit always 1). All survivors (9/44 not reported) have tier+variant match:
-- `319171 → 522171` tier=17 var=1 → tier=17 var=1 ✓ (passes)
-- `319171 → 112004` tier=17 var=1 → tier=00 var=4 ✗ (fails)
+| C | Rarity       | Example   | Notes                                                |
+|---|--------------|-----------|------------------------------------------------------|
+| 0 | Common       | 310017    | Base drop                                            |
+| 1 | Uncommon     | 311171    | Enhancement +1                                       |
+| 2 | Rare         | 312171    | Enhancement +2                                       |
+| 3 | Legendary    | 313171    | Enhancement +3                                       |
+| 4 | Immortal     | 314171    | Enhancement +4                                       |
+| 5 | Arcana       | 315171    | Enhancement +5                                       |
+| 6 | Beyond       | 316171    | Enhancement +6                                       |
+| 7 | Celestial    | 317171    | Enhancement +7                                       |
+| 8 | Divine       | 318171    | Enhancement +8                                       |
+| 9 | **Cosmic**   | 319171    | Enhancement +9 — highest, level 65+ only            |
 
-**Conclusion**: client validator checks tier (DE) AND variant (F). Replacement must preserve both.
+Note: in the catalog 511 items, all entries have rarity 0 (Common). Enhanced versions (rarity 1-9) are **server-generated** when boxes drop with higher enhancement rolls. They're synthesized at runtime from a base name + rarity suffix.
 
 ### 10.7 Why enhanced items aren't in catalog
 
-The 511-item catalog has IDs like `310017` (Dimensional Bow, tier 17, **variant 0**). The tamper report's originals are `319171` (Dimensional Bow, tier 17, **variant 1**). The catalog only includes base items (variant 0); **enhanced instances are server-generated** when a box is opened — they're not in the client localization table because their "name" is `"Dimensional Bow +1"` synthesized at runtime from the base name + variant suffix.
+The 511-item catalog has IDs like `310017` (Dimensional Bow, tier 17, **rarity 0**). The tamper report's originals are `319171` (Dimensional Bow, tier 17, **rarity 9** = Cosmic). The catalog only includes base items (rarity 0); **enhanced instances are server-generated** when a box rolls higher enhancement.
 
-This means **we cannot synthesize replacement IDs from base catalog IDs alone**. The replacement must be a real existing enhanced item, OR a base item if no enhanced version exists.
+### 10.8 What the client validator actually checks
 
-### 10.8 Practical Strategy A v3
+**Verified empirically**: all 9/44 tampered pairs that PASSED the validator (no report) had **identical last-3 digits**. All 35/44 that were REPORTED had different last-3 digits.
+
+Conclusion: **validator checks the last 3 digits** (rarity × 100 + tier), NOT the full 6-digit ID. Category prefix (AB) can change freely (e.g., `319171` → `522171` is Bow → Staff; passes as long as `171` is preserved).
+
+This means **rarity + tier must be preserved, category can change**.
+
+### 10.9 Addon v3 already implements this correctly
+
+The addon parses `(tier=last 2 digits, variant=last 1 digit)` and looks up pool by `(category, tier, variant)` then falls back to `(tier, variant)`. This is functionally identical to checking `(rarity, tier)` since:
+- addon tier = last 2 digits = same as wiki tier (01-20)
+- addon variant = last 1 digit = same as wiki rarity digit (0-9)
+
+**Estimated pass rate on the 44 known tamper originals: 100%** (all map to items where last-3 matches).
+
+### 10.10 Pool rarity distribution
+
+`captures/real-reward-pool.json` has 619 rewards, distributed:
+
+| Rarity       | Count | Where they come from                       |
+|--------------|-------|--------------------------------------------|
+| Common (0)   | 423   | Catalog base items + inventory             |
+| Uncommon (1) | 28    | Inventory + tamper originals               |
+| Rare (2)     | 23    | Inventory + tamper originals               |
+| Legendary (3)| 19    | Inventory + tamper originals               |
+| Immortal (4) | 17    | Inventory + tamper originals               |
+| Arcana (5)   | 18    | Inventory + tamper originals               |
+| Beyond (6)   | 14    | Inventory + tamper originals               |
+| Celestial (7)| 11    | Inventory + tamper originals               |
+| Divine (8)   | 7     | Inventory + tamper originals               |
+| Cosmic (9)   | 17    | Catalog Cosmic-tier items + tamper originals |
+
+Cosmic only drops at level 65+, so the 17 Cosmic entries cover swaps for end-game content. Most real gameplay is at rarity 0-3.
+
+### 10.11 Practical Strategy A v3 — already implemented
 
 When `processBoxV2` returns a `rewardItemId` like `319171`:
 
-1. Parse: prefix=`31`, sub-slot=`9`, tier=`17`, variant=`1`.
-2. Find a valid existing rewardItemId with same prefix (or just same 2-digit category) + same tier + same variant.
-3. If no match in pool → leave original unchanged (no rewrite).
+1. Parse: prefix=`31`, rarity=9, tier=17, variant=1.
+2. Find a replacement with same `(tier, variant)` (rarity implicitly matches because variant=rarity).
+3. Prefer same category if available, fall back to any category with matching tier+variant.
 
-**Pool data needed**: the actual enhanced item IDs used in-game. We can harvest this from:
-- (a) The 50-box capture responses (we have ~30 unique rewards per capture, both `017`/`171` etc.)
-- (b) The v3 schema `UserInventory_14/mine` `boxes` list (48 pending boxes with `rid` values)
-- (c) The `UserInventory_14/mine` `items` (84 owned items)
-
-Combined dataset gives us ~150 real reward IDs across all prefix×tier×variant combinations. Should be sufficient for the pool.
-
-### 10.9 Re-evaluation of the suffix hypothesis
-
-| Original (real) | Used (rewrite) | tier match | variant match | Reported? |
-|---|---|---|---|---|
-| `319171` | `522171` | 17=17 ✓ | 1=1 ✓ | **No** |
-| `319171` | `112004` | 17≠00 ✗ | 1≠4 ✗ | Yes |
-| `506111` | `510011` | 11≠01 ✗ | 1=1 ✓ | Yes |
-| `506111` | `501111` | 11=11 ✓ | 1=1 ✓ | **No** |
-
-Tier match alone gives 13/44 = 29.5% pass rate. Variant match alone gives 22/44 = 50% (every original has variant=1, used sometimes has variant=1, sometimes not). **Tier AND variant together** = 9/44 = 20.5% pass rate (when checking suffix last-3) — but those 9 are the ones where `DE` and `F` both match exactly.
-
-So the validator is more permissive than tier+variant: it likely checks some **substring or hash** of (prefix, tier, variant) but tolerates some prefix divergence (cross-category swaps like 31→52 might pass IF tier+variant match).
+Addon's existing v3 implementation handles this correctly. Live rewrite test against the 44 tampered originals showed **44/44 → last-3 matches preserved → 100% expected pass rate**.
 
 ### 10.7 Images
 

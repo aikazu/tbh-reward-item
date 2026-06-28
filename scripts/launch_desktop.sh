@@ -2,14 +2,16 @@
 # launch_desktop.sh — check readiness then launch TBH desktop app.
 #
 # Checks (stops at first failure):
-#   1. Python venv exists (.venv/)
+#   1. Python interpreter available (system python3 / py, OR .venv/ if present)
 #   2. Desktop deps installed (PySide6, requests, bs4, playwright, cloakbrowser)
 #   3. mitmproxy installed (system or venv — needed for Start/Stop)
 #   4. src/config.json exists and is valid JSON
 #   5. CloakBrowser binary downloaded (optional — auto-downloads on first scrape)
 #
-# If any required check fails, it prints what's missing and how to fix it,
-# then exits 1. If all pass, launches the desktop app.
+# Does NOT force .venv/. Use whatever interpreter has the deps:
+#   - If .venv/ exists, it's used (honor user's choice)
+#   - Otherwise system python3/python is used
+#   - If deps missing, prints what's missing and how to fix it, then exits 1.
 #
 # Usage:
 #   ./scripts/launch_desktop.sh          # checks + launch
@@ -19,6 +21,9 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
+
+# shellcheck source=scripts/_py.sh
+source "$REPO_ROOT/scripts/_py.sh"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -34,44 +39,49 @@ CHECK_ONLY=false
 
 errors=0
 
-# ── 1. Python venv ─────────────────────────────────────────────────────────
-if [[ ! -x ".venv/bin/python" ]]; then
-    fail "Python venv not found at .venv/"
-    echo "  Fix: python -m venv .venv && .venv/bin/pip install -r requirements-desktop.txt"
-    errors=$((errors + 1))
-else
-    ok "Python venv: $(.venv/bin/python --version 2>&1)"
+# Resolve interpreter once (venv-preferred, falls back to system).
+if ! _PY_INTERP="$(_py_resolve)"; then
+    fail "no Python interpreter found"
+    echo "  Fix (Arch):  sudo pacman -S python"
+    echo "  Fix (pip):   python3 -m venv .venv && .venv/bin/pip install -r requirements-desktop.txt"
+    exit 1
 fi
+
+PY_LABEL="$_PY_INTERP"
+ok "Python: $("$PY_LABEL" --version 2>&1) [$PY_LABEL]"
 
 # ── 2. Desktop deps ─────────────────────────────────────────────────────────
 check_dep() {
-    local mod="$1" label="$2"
-    if .venv/bin/python -c "import $mod" 2>/dev/null; then
+    local mod="$1" label="$2" fix="$3"
+    if "$_PY_INTERP" -c "import $mod" 2>/dev/null; then
         ok "$label"
     else
         fail "$label not installed"
-        echo "  Fix: .venv/bin/pip install -r requirements-desktop.txt"
+        echo "  Fix: $fix"
         errors=$((errors + 1))
     fi
 }
 
-if [[ -x ".venv/bin/python" ]]; then
-    check_dep "PySide6"        "PySide6 (GUI framework)"
-    check_dep "requests"       "requests (wiki scraping)"
-    check_dep "bs4"            "beautifulsoup4 (HTML parsing)"
-    check_dep "playwright"     "playwright (browser automation)"
-    check_dep "cloakbrowser"   "cloakbrowser (stealth browser)"
-fi
+check_dep "PySide6"      "PySide6 (GUI framework)" \
+    "$PY_LABEL -m pip install -r requirements-desktop.txt"
+check_dep "requests"     "requests (wiki scraping)" \
+    "$PY_LABEL -m pip install requests"
+check_dep "bs4"          "beautifulsoup4 (HTML parsing)" \
+    "$PY_LABEL -m pip install beautifulsoup4"
+check_dep "playwright"   "playwright (browser automation)" \
+    "$PY_LABEL -m pip install playwright && $PY_LABEL -m playwright install chromium"
+check_dep "cloakbrowser" "cloakbrowser (stealth browser)" \
+    "$PY_LABEL -m pip install cloakbrowser"
 
 # ── 3. mitmproxy ─────────────────────────────────────────────────────────────
 if command -v mitmdump &>/dev/null; then
     ok "mitmproxy: $(mitmdump --version 2>&1 | head -1)"
-elif .venv/bin/python -c "import mitmproxy" 2>/dev/null; then
-    ok "mitmproxy: (via venv)"
+elif "$_PY_INTERP" -c "import mitmproxy" 2>/dev/null; then
+    ok "mitmproxy: (via $PY_LABEL)"
 else
     warn "mitmproxy not found — Start/Stop proxy won't work"
     echo "  Fix (Arch): sudo pacman -S mitmproxy"
-    echo "  Fix (pip):  .venv/bin/pip install mitmproxy"
+    echo "  Fix (pip):  $PY_LABEL -m pip install mitmproxy"
     # Not fatal — app can still launch, just can't run proxy
 fi
 
@@ -80,7 +90,7 @@ fi
 # it before the existence check. This mirrors the desktop app / addon
 # auto-generate logic in src/config_setup.py.
 if [[ ! -f "src/config.json" && -f "src/config.default.json" ]]; then
-    if .venv/bin/python -c "
+    if "$_PY_INTERP" -c "
 import shutil, sys
 sys.path.insert(0, 'src')
 from config_setup import ensure_config, CONFIG_PATH
@@ -96,7 +106,7 @@ if [[ ! -f "src/config.json" ]]; then
     fail "src/config.json not found"
     echo "  The proxy addon needs this file. Create one with the example format from README."
     errors=$((errors + 1))
-elif ! .venv/bin/python -c "import json; json.loads(open('src/config.json').read())" 2>/dev/null; then
+elif ! "$_PY_INTERP" -c "import json; json.loads(open('src/config.json').read())" 2>/dev/null; then
     fail "src/config.json is invalid JSON"
     echo "  Fix the file — the addon keeps last good config on invalid reload, but the app needs valid JSON to start."
     errors=$((errors + 1))
@@ -105,8 +115,8 @@ else
 fi
 
 # ── 5. CloakBrowser binary (optional) ────────────────────────────────────────
-if .venv/bin/python -c "import cloakbrowser" 2>/dev/null; then
-    CB_BIN=$(.venv/bin/python -c "
+if "$_PY_INTERP" -c "import cloakbrowser" 2>/dev/null; then
+    CB_BIN=$("$_PY_INTERP" -c "
 import cloakbrowser, os
 try:
     p = cloakbrowser.ensure_binary()
@@ -140,4 +150,4 @@ echo "Launching TBH desktop app…"
 # popup windows" is informational (Qt can't grab mouse for non-popup windows
 # on Wayland by design — does not affect functionality).
 export QT_LOGGING_RULES="${QT_LOGGING_RULES:-};qt.qpa.wayland.warning=false"
-exec .venv/bin/python -m tbh_desktop.main
+exec "$_PY_INTERP" -m tbh_desktop.main

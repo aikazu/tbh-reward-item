@@ -3,12 +3,14 @@ from __future__ import annotations
 
 import signal
 import sys
+from pathlib import Path
 
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
 from tbh_desktop import config_io
-from tbh_desktop.paths import CONFIG_PATH
+from tbh_desktop.linux_elevation import needs_elevation, request_elevation
+from tbh_desktop.paths import CONFIG_PATH, REPO_ROOT
 from tbh_desktop.ui.main_window import MainWindow
 from tbh_desktop.ui.theme import apply_theme, register_fonts
 
@@ -16,6 +18,18 @@ from tbh_desktop.ui.theme import apply_theme, register_fonts
 def main() -> int:
     # Auto-generate config.json from config.default.json on first run.
     config_io.ensure_config(CONFIG_PATH)
+
+    # Linux + mode='local' + not root → re-exec under pkexec BEFORE any
+    # Qt resource is created. mitmproxy's local redirector needs a setuid
+    # helper that prompts for sudo at startup; doing that from a TTY-less
+    # subprocess hangs forever. Polkit gives us a clean native prompt and
+    # preserves the desktop session env so the elevated Qt can attach.
+    # See tbh_desktop/linux_elevation.py for the full rationale.
+    if needs_elevation(CONFIG_PATH):
+        rc = request_elevation(REPO_ROOT)
+        # request_elevation only returns on failure (success exec's into
+        # the elevated child). Mirror its exit code out.
+        return rc
 
     app = QApplication(sys.argv)
     register_fonts()

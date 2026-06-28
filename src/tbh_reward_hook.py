@@ -3,14 +3,18 @@ Read pool from captures/real-reward-pool.json and find a same-tier-variant
 replacement for each box rewardId. Fall back through tiers if needed.
 """
 from __future__ import annotations
+import argparse
 import json
 import re
+import time
 from pathlib import Path
 from typing import Any
 
 from tbh_proxy_config import CONFIG_PATH, ProxyConfig, QueueRule, RangeRule
 
 POOL_PATH = Path(__file__).parent.parent / "captures" / "real-reward-pool.json"
+TAMPER_LOG_PATH = Path(__file__).parent.parent / "captures" / "tamper-events.jsonl"
+ITEM_CATALOG_PATH = Path(__file__).parent.parent / "captures" / "item-catalog.json"
 
 ITEM_FIELD_RE = re.compile(r'\\?"itemId\\?"\s*:\s*(?P<item_id>\d+)(?!\d)')
 REWARD_FIELD_RE = re.compile(r'(\\?"rewardItemId\\?"\s*:\s*)(?P<reward_id>\d+)(?!\d)')
@@ -221,12 +225,14 @@ class TBHRewardHook:
             self.config = loaded
         self._config_mtime = self._read_mtime(self._config_path)
         self.rewriter = RewardRewriter(self.config)
+        self.detector = TamperDetector()
         log_info(
             f"TBH Reward Proxy v3 loaded: {len(self.config.specific_queue_rules)} queue rules, "
             f"range mode={'on' if self.config.range_replacement.enabled else 'off'}, "
             f"pool has {len(self.rewriter._by_cat_tier_var)} cat×tier×var buckets, "
             f"{len(self.rewriter._by_tier_var)} tier×var buckets."
         )
+        log_info(f"Tamper detector: log={self.detector._log_path}")
         try:
             import signal
             signal.signal(signal.SIGHUP, self._on_sighup)
@@ -266,6 +272,10 @@ class TBHRewardHook:
         request = flow.request
         response = flow.response
 
+        # Always scan for tamper reports first — they come from a different
+        # endpoint and we want to log even on requests we didn't rewrite.
+        self.detector.report(flow)
+
         if self.config.only_post and request.method.upper() != "POST":
             return
 
@@ -296,11 +306,186 @@ class TBHRewardHook:
                 f"itemId={detail.item_id}: "
                 f"rewardItemId={detail.old_reward_item_id}->{detail.new_reward_item_id}"
             )
+            # Sanity: warn if validator check would fail (last-3 differs)
+            old_s = str(detail.old_reward_item_id).zfill(6)
+            new_s = str(detail.new_reward_item_id).zfill(6)
+            if old_s[-3:] != new_s[-3:]:
+                log_info(
+                    f"RISK WARNING  last-3 differs: {old_s} ({old_s[-3:]}) -> "
+                    f"{new_s} ({new_s[-3:]}) — likely to trigger TamperedItemIdDetected"
+                )
         log_info(f"TBH Reward Proxy wrote {result.modified_count} replacement(s).")
+
+    def done(self) -> None:
+        """mitmdump lifecycle hook — called when the addon is being unloaded."""
+        self.detector.close()
 
 
 def _extract_reward_ids(body: str):
     return [int(m.group("reward_id")) for m in REWARD_FIELD_RE.finditer(body)]
+
+
+class TamperDetector:
+    """Listens for TamperedItemIdDetected reports from the game client.
+
+    When the client ships POST /data/gameLog/v2/TemperedItem/90 with a
+    mismatches list, we:
+    - emit a WARNING line to stdout for each mismatch
+    - append a structured JSONL record to TAMPER_LOG_PATH with full context
+
+    The log is append-only so multiple addon runs accumulate into one file
+    that can be diffed across captures / accounts.
+    """
+
+    RARITY_NAMES = [
+        "Common", "Uncommon", "Rare", "Legendary", "Immortal",
+        "Arcana", "Beyond", "Celestial", "Divine", "Cosmic",
+    ]
+
+    def __init__(self, log_path: Path = TAMPER_LOG_PATH,
+                 catalog_path: Path = ITEM_CATALOG_PATH):
+        self._log_path = log_path
+        self._names = self._load_names(catalog_path)
+        self._write_handle = None
+        # total + per-rarity counters (in-process stats)
+        self.total = 0
+        self.by_rarity: dict[int, int] = {r: 0 for r in range(10)}
+
+    @staticmethod
+    def _load_names(catalog_path: Path) -> dict[int, str]:
+        """Build {itemId: name} from catalog for human-readable warnings."""
+        if not catalog_path.exists():
+            return {}
+        try:
+            data = json.loads(catalog_path.read_text())
+            return {c["itemId"]: c.get("name", "?") for c in data.get("catalog", [])}
+        except Exception:
+            return {}
+
+    @staticmethod
+    def parse_reward(rid: int) -> dict:
+        s = str(rid).zfill(6)
+        return {
+            "category2": s[:2],
+            "rarity_digit": int(s[2]),
+            "tier2": s[-3:-1],
+            "variant": s[-1],
+            "last3": s[-3:],
+        }
+
+    def rarity_name(self, digit: int) -> str:
+        return self.RARITY_NAMES[digit] if 0 <= digit < 10 else f"r{digit}"
+
+    def lookup_name(self, rid: int) -> str:
+        return self._names.get(rid, "<not in catalog>")
+
+    def _open(self):
+        if self._write_handle is None:
+            self._log_path.parent.mkdir(parents=True, exist_ok=True)
+            self._write_handle = self._log_path.open("a", encoding="utf-8")
+
+    def _write(self, record: dict) -> None:
+        self._open()
+        handle = self._write_handle
+        assert handle is not None  # _open() guarantees this
+        handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+        handle.flush()
+
+    def report(self, flow) -> int:
+        """Inspect a response for a TamperedItemIdDetected report.
+
+        Returns the number of mismatches found (0 if not a tamper report).
+        """
+        request = getattr(flow, "request", None)
+        response = getattr(flow, "response", None)
+        if request is None or response is None:
+            return 0
+        pretty_url = getattr(request, "pretty_url", "") or getattr(request, "url", "")
+        if "/data/gameLog/v2/TemperedItem/90" not in pretty_url:
+            return 0
+        if request.method.upper() != "POST":
+            return 0
+        try:
+            body = json.loads(response.get_text(strict=False))
+        except Exception:
+            return 0
+        if body.get("msg") != "TamperedItemIdDetected":
+            return 0
+
+        mismatches = body.get("data", {}).get("mismatches", []) or []
+        ts = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())
+        for entry in mismatches:
+            try:
+                _, pair = entry.split(":", 1)
+                original_str, used_str = pair.split("->")
+                original = int(original_str)
+                used = int(used_str)
+            except ValueError:
+                continue
+            orig_info = self.parse_reward(original)
+            used_info = self.parse_reward(used)
+            rarity = orig_info["rarity_digit"]
+            self.total += 1
+            self.by_rarity[rarity] = self.by_rarity.get(rarity, 0) + 1
+            orig_name = self.lookup_name(original)
+            used_name = self.lookup_name(used)
+            record = {
+                "ts": ts,
+                "itemKey_match": entry.split(":", 1)[0],
+                "original_id": original,
+                "original_name": orig_name,
+                "original_rarity": self.rarity_name(rarity),
+                "original_tier": orig_info["tier2"],
+                "used_id": used,
+                "used_name": used_name,
+                "used_rarity": self.rarity_name(used_info["rarity_digit"]),
+                "used_tier": used_info["tier2"],
+                "last3_preserved": orig_info["last3"] == used_info["last3"],
+            }
+            self._write(record)
+            log_info(
+                f"TAMPER WARNING  itemKey={record['itemKey_match']}  "
+                f"original={original} ({orig_name}, {record['original_rarity']} tier {orig_info['tier2']})  "
+                f"used={used} ({used_name}, {record['used_rarity']} tier {used_info['tier2']})  "
+                f"last3={'PRESERVED' if record['last3_preserved'] else 'BROKEN'}"
+            )
+        if mismatches:
+            log_info(
+                f"TAMPER WARNING  batch total: {len(mismatches)} mismatches "
+                f"(session total: {self.total}); log: {self._log_path}"
+            )
+        return len(mismatches)
+
+    def close(self) -> None:
+        if self._write_handle is not None:
+            self._write_handle.close()
+            self._write_handle = None
+
+    def warn_no_match(self, original_id: int, item_id: int) -> None:
+        """Log a structural warning when rewriter couldn't find a safe replacement.
+
+        These are NOT server reports — they indicate cases where our pool lacked
+        a matching (tier, variant) entry for this reward. Future captures should
+        harvest these itemIds into the pool so they don't slip through.
+        """
+        info = self.parse_reward(original_id)
+        rarity = info["rarity_digit"]
+        name = self.lookup_name(original_id)
+        log_info(
+            f"NO-MATCH WARNING  itemId={item_id} rewardItemId={original_id} "
+            f"({name}, {self.rarity_name(rarity)} tier {info['tier2']}) — "
+            f"no pool entry, original left untouched"
+        )
+        self._write({
+            "ts": time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime()),
+            "event": "no_match",
+            "itemId": item_id,
+            "rewardItemId": original_id,
+            "name": name,
+            "rarity": self.rarity_name(rarity),
+            "tier": info["tier2"],
+            "reason": "pool lacked matching tier+variant entry",
+        })
 
 
 def run_self_test():
@@ -342,6 +527,62 @@ def run_self_test():
     assert new_ids[0] in (311171, 310171), f"expected 31-cat tier17 var1, got {new_ids[0]}"
     assert new_ids[1] == 501111, f"expected 50-cat tier11 var1, got {new_ids[1]}"
     print(f"  self-test: 319171→{new_ids[0]}, 506111→{new_ids[1]}")
+
+    # TamperDetector self-test: feed it a fake TemperedItemIdDetected response
+    class _FakeFlow:
+        class _Req:
+            method = "POST"
+            pretty_url = "https://api.thebackend.io/data/gameLog/v2/TemperedItem/90"
+        class _Resp:
+            def __init__(self, body): self._b = body
+            def get_text(self, strict=False): return self._b
+        def __init__(self, body):
+            self.request = _FakeFlow._Req()
+            self.response = _FakeFlow._Resp(body)
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as log_f:
+        log_path = Path(log_f.name)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as cat_f:
+        json.dump({"catalog": [
+            {"itemId": 319171, "name": "Dimensional Bow (Cosmic)"},
+            {"itemId": 522171, "name": "Dimensional Staff (Rare)"},
+        ]}, cat_f)
+        cat_path = Path(cat_f.name)
+
+    detector = TamperDetector(log_path=log_path, catalog_path=cat_path)
+    fake_body = json.dumps({
+        "msg": "TamperedItemIdDetected",
+        "data": {"mismatches": ["7453:319171->522171"]},
+    })
+    n = detector.report(_FakeFlow(fake_body))
+    assert n == 1, f"expected 1 mismatch, got {n}"
+    detector.close()
+
+    log_lines = log_path.read_text().strip().splitlines()
+    assert len(log_lines) == 1, f"expected 1 log line, got {len(log_lines)}"
+    record = json.loads(log_lines[0])
+    assert record["original_id"] == 319171
+    assert record["original_name"] == "Dimensional Bow (Cosmic)"
+    assert record["original_rarity"] == "Cosmic"
+    assert record["used_id"] == 522171
+    assert record["used_name"] == "Dimensional Staff (Rare)"
+    assert record["used_rarity"] == "Rare"
+    assert record["last3_preserved"] is True
+    assert record["itemKey_match"] == "7453"
+    print(f"  tamper-detector: 7453 319171(Dimensional Bow Cosmic) -> 522171(Dimensional Staff Rare)  "
+          f"last3=PRESERVED")
+
+    # Test no_match warning path too
+    detector2 = TamperDetector(log_path=log_path, catalog_path=cat_path)
+    detector2.warn_no_match(319171, 910801)
+    detector2.close()
+    log_lines = log_path.read_text().strip().splitlines()
+    assert len(log_lines) == 2
+    record2 = json.loads(log_lines[1])
+    assert record2["event"] == "no_match"
+    assert record2["rewardItemId"] == 319171
+    print(f"  tamper-detector: no_match warning recorded for 319171")
+
     print("Self-test OK.")
 
 

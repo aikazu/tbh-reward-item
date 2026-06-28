@@ -660,14 +660,27 @@ class MainWindow(QMainWindow):
             if not self._confirm("Unsaved port", "Port changed. Save config first?"):
                 return
             self._save()
+        # Pull current mode/name from the editor and persist to disk so
+        # the config reflects what we're about to start. This matters
+        # because run_proxy.py also re-reads config.json for any keys we
+        # don't forward as CLI args (filter rules, etc.) — those need to
+        # be on disk too, not just in the in-memory editor dump.
+        mode = self.editor.mode_form().mode()
+        name = self.editor.mode_form().local_process_name()
+        self._save()  # save current editor state (incl. mode + name)
         # Pre-check: if port is held by something else, don't bother
         # spawning mitmdump just to watch it fail. mitmdump binds to
         # 0.0.0.0:<port>; we test the same target so the result matches.
-        port = self._parse_port()
-        if not self.runner.port_available(port):
-            self._show_port_in_use_dialog(port)
-            return
-        self.runner.start()
+        # Skip precheck in local mode — mitmdump binds differently
+        # (LOCAL redirector, not a listen port), and the user's port
+        # choice still needs to be reserved for the SPAWN'd process's
+        # outbound traffic.
+        if mode != "local":
+            port = self._parse_port()
+            if not self.runner.port_available(port):
+                self._show_port_in_use_dialog(port)
+                return
+        self.runner.start(mode=mode, name=name)
 
     def _show_port_in_use_dialog(self, port: int) -> None:
         """Modal hint when the listen port is held by something else.

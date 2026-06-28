@@ -81,7 +81,21 @@ class ProxyRunner(QObject):
         finally:
             s.close()
 
-    def start(self) -> None:
+    def start(self, *, mode: str = "regular", name: str = "") -> None:
+        """Start the proxy subprocess.
+
+        ``mode`` / ``name`` are forwarded as CLI args to ``run_proxy.py``
+        which forwards them to mitmdump. We do NOT rely on config.json
+        being re-read at start time — config has an mtime-based poll but
+        that's an addon-side concern. The runner needs explicit, current
+        values from the GUI so the user sees what they clicked, not what
+        was on disk 5 seconds ago.
+
+        ``mode`` is "regular" (bind listen_port) or "local" (spawn the
+        named process with proxy auto-injected). ``name`` is only used
+        in local mode; "" or whitespace silently downgrades to regular
+        with a warning logged by run_proxy.py.
+        """
         if self.is_running():
             return
         # start_new_session=True puts the child in its own process group so
@@ -92,8 +106,13 @@ class ProxyRunner(QObject):
         self._start_ts = time.monotonic()
         with self._early_buf_lock:
             self._early_buf.clear()
+        cmd = [sys.executable, str(RUN_PROXY_PATH)]
+        if mode:
+            cmd += ["--mode", mode]
+        if name and name.strip():
+            cmd += ["--name", name.strip()]
         self._proc = subprocess.Popen(
-            [sys.executable, str(RUN_PROXY_PATH)],
+            cmd,
             cwd=str(REPO_ROOT),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,

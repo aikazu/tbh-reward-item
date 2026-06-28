@@ -1,4 +1,5 @@
-"""Container: rule list (top) + range replacement form (bottom).
+"""Container: rule list (top) + range replacement form (bottom)
++ proxy mode form (controls mitmproxy --mode regular|local).
 
 Public API kept compatible with the previous table-based editor so callers in
 ``main_window.py`` and the test suite do not change.
@@ -10,12 +11,14 @@ from typing import Any
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
+    QButtonGroup,
     QCheckBox,
     QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
+    QRadioButton,
     QSplitter,
     QSizePolicy,
     QVBoxLayout,
@@ -203,6 +206,113 @@ class _RangeForm(QWidget):
             self._rebuild_chips()
 
 
+class _ProxyModeForm(QWidget):
+    """Controls mitmproxy's ``--mode regular|local`` and process name.
+
+    Regular: bind listen_port on 0.0.0.0, client must set HTTP_PROXY.
+    Local:   spawn the named process with proxy auto-injected (no system
+             proxy, no Steam Launch Options). On Linux this needs root;
+             ``tbh_desktop.linux_elevation`` re-execs the GUI under pkexec
+             before we get here.
+
+    Why a UI for this: the field used to live in config.json only, with
+    no GUI hookup. Users had to hand-edit JSON to switch modes. Worse,
+    ``ConfigEditor.dump()`` didn't roundtrip ``mode`` / ``local_process_name``,
+    so saving the rules wiped them out. This widget fixes both.
+    """
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setObjectName("proxy_mode_form")
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(12, 10, 12, 12)
+        outer.setSpacing(8)
+
+        # ---- Header ---------------------------------------------------
+        header = QHBoxLayout()
+        header.setSpacing(8)
+        header.addWidget(_section_label("PROXY MODE"))
+        header.addStretch()
+        outer.addLayout(header)
+
+        # ---- Radio buttons: regular / local --------------------------
+        mode_row = QHBoxLayout()
+        mode_row.setSpacing(16)
+        self.radio_regular = QRadioButton("regular")
+        self.radio_regular.setToolTip(
+            "Bind listen_port on 0.0.0.0. Configure HTTP_PROXY on the client "
+            "(e.g. Steam Launch Options on Linux)."
+        )
+        self.radio_local = QRadioButton("local")
+        self.radio_local.setToolTip(
+            "Spawn the named process with proxy env + CA cert auto-injected. "
+            "No Steam Launch Options needed. On Linux, this needs root — "
+            "the GUI prompts for polkit password on launch."
+        )
+        self._mode_group = QButtonGroup(self)
+        self._mode_group.addButton(self.radio_regular, 0)
+        self._mode_group.addButton(self.radio_local, 1)
+        mode_row.addWidget(self.radio_regular)
+        mode_row.addWidget(self.radio_local)
+        mode_row.addStretch()
+        outer.addLayout(mode_row)
+
+        # ---- Process name (only meaningful for local mode) -----------
+        name_row = QHBoxLayout()
+        name_row.setSpacing(8)
+        lbl = QLabel("process name")
+        lbl.setStyleSheet(f"color: {MOCHA['overlay1']}; font-size: 10px;")
+        self.edit_name = _mono_input(placeholder="TaskBarHero.exe")
+        self.edit_name.setToolTip(
+            "Executable name to spawn under the local redirector. "
+            "On Linux/Proton the top-level process is usually the "
+            "Windows binary name (TaskBarHero.exe). Verify with "
+            "`pgrep -af <name>` while the game is running."
+        )
+        name_row.addWidget(lbl)
+        name_row.addWidget(self.edit_name, 1)
+        outer.addLayout(name_row)
+
+        # Enable/disable the name field based on mode (cosmetic — value
+        # is still saved if user fills it before switching).
+        self.radio_local.toggled.connect(self.edit_name.setEnabled)
+        self.radio_regular.toggled.connect(self.edit_name.setDisabled)
+
+    # ---- public API --------------------------------------------------
+    def load(self, data: dict[str, Any]) -> None:
+        # Default to local + TaskBarHero.exe when the user has no
+        # explicit mode yet. The whole point of this tool is to scope
+        # interception to the game process so the user doesn't have to
+        # wire Steam Launch Options or system proxy settings — if we
+        # default to "regular" we silently force them into that.
+        mode = data.get("mode")
+        if isinstance(mode, str) and mode.strip().lower() == "local":
+            self.radio_local.setChecked(True)
+        elif isinstance(mode, str) and mode.strip().lower() == "regular":
+            self.radio_regular.setChecked(True)
+        else:
+            # No / unknown mode in config → default to local.
+            self.radio_local.setChecked(True)
+        name = str(data.get("local_process_name", "") or "")
+        if not name.strip():
+            name = "TaskBarHero.exe"
+        self.edit_name.setText(name)
+        self.edit_name.setEnabled(self.radio_local.isChecked())
+
+    def dump(self) -> dict[str, Any]:
+        return {
+            "mode": "local" if self.radio_local.isChecked() else "regular",
+            "local_process_name": self.edit_name.text().strip(),
+        }
+
+    def mode(self) -> str:
+        return "local" if self.radio_local.isChecked() else "regular"
+
+    def local_process_name(self) -> str:
+        return self.edit_name.text().strip()
+
+
 class ConfigEditor(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -226,6 +336,7 @@ class ConfigEditor(QWidget):
 
         self._rule_list = RuleListView()
         self._range_form = _RangeForm()
+        self._mode_form = _ProxyModeForm()
 
         # Wrap range form in a labelled container so users see what it is.
         self._range_wrap = QWidget()
@@ -243,15 +354,17 @@ class ConfigEditor(QWidget):
 
         self._splitter.addWidget(self._rule_list)
         self._splitter.addWidget(self._range_wrap)
-        # Rules get the dominant share (stretch 4) — range form gets 1.
-        # setStretchFactor controls resize proportionality; setSizes is the
-        # initial pixel split but only takes effect if it fits in the
-        # available height — the actual split gets computed on first
-        # resize/show. We defer the setSizes call to after show via
-        # _apply_initial_sizes below.
+        self._splitter.addWidget(self._mode_form)
+        # Rules get the dominant share (stretch 4) — range form + mode
+        # form each get 1. setStretchFactor controls resize
+        # proportionality; setSizes is the initial pixel split but only
+        # takes effect if it fits in the available height — the actual
+        # split gets computed on first resize/show. We defer the setSizes
+        # call to after show via _apply_initial_sizes below.
         self._splitter.setStretchFactor(0, 4)
         self._splitter.setStretchFactor(1, 1)
-        self._splitter.setSizes([520, 180])
+        self._splitter.setStretchFactor(2, 1)
+        self._splitter.setSizes([520, 160, 140])
         outer.addWidget(self._splitter)
         # Apply the requested sizes once the widget is visible — without
         # this the initial paint uses Qt's default 50/50 split and the
@@ -262,7 +375,7 @@ class ConfigEditor(QWidget):
         from PySide6.QtCore import QTimer
         def _apply_split_sizes():
             try:
-                self._splitter.setSizes([520, 180])
+                self._splitter.setSizes([520, 160, 140])
             except RuntimeError:
                 pass  # splitter already destroyed
         QTimer.singleShot(0, _apply_split_sizes)
@@ -281,11 +394,20 @@ class ConfigEditor(QWidget):
     def load(self, data: dict[str, Any]) -> None:
         self._rule_list.load(data)
         self._range_form.load(data.get("range_replacement") or {})
+        self._mode_form.load(data)
 
     def dump(self) -> dict[str, Any]:
         out = self._rule_list.dump()
         out["range_replacement"].update(self._range_form.dump())
+        # Merge mode + local_process_name into the dump. These live at the
+        # top level of config.json (parallel to specific_queue_rules /
+        # range_replacement), so we update out directly rather than
+        # tucking them under a sub-key.
+        out.update(self._mode_form.dump())
         return out
+
+    def mode_form(self) -> _ProxyModeForm:
+        return self._mode_form
 
     def rule_list(self) -> RuleListView:
         return self._rule_list

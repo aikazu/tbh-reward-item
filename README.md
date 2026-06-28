@@ -245,26 +245,44 @@ the proxy install stays light. The desktop app needs:
 | `pytest-qt` | GUI tests |
 | `Pillow` | Image cache (used by ItemCard icons) |
 
-#### Linux (Arch / CachyOS / any distro with venv)
+#### Linux (Arch / CachyOS / any distro)
 
-**Step 1 — Create a virtual environment + install deps:**
+The launcher (`scripts/launch_desktop.sh`) does **not** require a venv.
+It resolves a Python interpreter at the repo root in this order:
+
+  1. `<repo>/.venv/bin/python` — if you created a venv, it's used
+  2. `python3` on PATH
+  3. `python` on PATH
+
+Pick whichever path matches your setup:
+
+**Option A — system Python (no venv):** install the desktop deps globally
+and launch directly. Works on Arch where most deps are packaged:
+
+```bash
+sudo pacman -S python-pyside6 python-requests python-beautifulsoup4
+python -m pip install --break-system-packages -r requirements-desktop.txt
+./scripts/launch_desktop.sh
+```
+
+> `playwright` and `cloakbrowser` are pip-only — no pacman package.
+> Use `--break-system-packages` (or `pipx`) because PEP 668 blocks
+> system-wide pip installs by default on Arch.
+
+**Option B — virtual environment (recommended for isolation):**
 
 ```bash
 cd TBH
 python -m venv .venv
 .venv/bin/pip install -r requirements-desktop.txt
-```
-
-**Step 2 — Launch via readiness-check script (recommended):**
-
-```bash
 ./scripts/launch_desktop.sh          # checks + launch
 ./scripts/launch_desktop.sh --check  # checks only, no launch
 ```
 
-The launcher verifies venv, deps, mitmproxy, `config.json`, and CloakBrowser
-binary before starting. If anything is missing, it prints the exact fix
-command.
+The launcher verifies Python, deps, mitmproxy, `config.json`, and
+CloakBrowser binary before starting. If anything is missing, it prints
+the exact fix command — using whichever interpreter was resolved (venv
+or system), so the hint is always actionable.
 
 **Or launch manually** (skip readiness checks):
 
@@ -289,22 +307,38 @@ want the stock-Playwright fallback (used when CloakBrowser is not installed):
 
 #### Windows
 
-**Step 1 — Create a virtual environment + install deps:**
+The launcher (`windows\launch_desktop.bat`) does **not** require a venv.
+It resolves a Python interpreter at the repo root in this order:
+
+  1. `<repo>\.venv\Scripts\python.exe` — if you created a venv, it's used
+  2. `py` (Windows Python Launcher) on PATH
+  3. `python` on PATH
+
+Pick whichever path matches your setup:
+
+**Option A — system Python (no venv):** install the desktop deps globally
+and launch directly.
+
+```bat
+python -m pip install -r requirements-desktop.txt
+windows\launch_desktop.bat
+```
+
+**Option B — virtual environment (recommended for isolation):**
 
 ```bat
 cd TBH
 python -m venv .venv
 .venv\Scripts\pip install -r requirements-desktop.txt
+windows\launch_desktop.bat            :: checks + launch
+windows\launch_desktop.bat --check   :: checks only
 ```
 
 > If `python` is not found, try `py -3 -m venv .venv` (uses the py launcher).
 
-**Step 2 — Launch via readiness-check script (recommended):**
-
-```bat
-windows\launch_desktop.bat            :: checks + launch
-windows\launch_desktop.bat --check   :: checks only
-```
+The launcher verifies Python, deps, mitmproxy, `config.json`, and
+CloakBrowser binary before starting. If anything is missing, it prints
+the exact fix command.
 
 **Or launch manually:**
 

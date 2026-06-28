@@ -249,26 +249,45 @@ agar install proxy tetap ringan. Aplikasi desktop butuh:
 | `pytest-qt` | Tes GUI |
 | `Pillow` | Image cache (untuk ikon ItemCard) |
 
-#### Linux (Arch / CachyOS / distro apapun dengan venv)
+#### Linux (Arch / CachyOS / distro apapun)
 
-**Langkah 1 — Buat virtual environment + install deps:**
+Launcher (`scripts/launch_desktop.sh`) **tidak** mengharuskan venv.
+Ia resolve interpreter Python di repo root dengan urutan:
+
+  1. `<repo>/.venv/bin/python` — kalau kamu bikin venv, itu yang dipakai
+  2. `python3` di PATH
+  3. `python` di PATH
+
+Pilih cara yang sesuai setup kamu:
+
+**Opsi A — system Python (tanpa venv):** install deps desktop secara
+global lalu jalankan langsung. Cocok di Arch karena mayoritas deps
+sudah dipaketkan:
+
+```bash
+sudo pacman -S python-pyside6 python-requests python-beautifulsoup4
+python -m pip install --break-system-packages -r requirements-desktop.txt
+./scripts/launch_desktop.sh
+```
+
+> `playwright` dan `cloakbrowser` cuma ada di pip — tidak ada paket
+> pacman-nya. Pakai `--break-system-packages` (atau `pipx`) karena
+> PEP 668 memblokir pip install ke system secara default di Arch.
+
+**Opsi B — virtual environment (direkomendasikan untuk isolasi):**
 
 ```bash
 cd TBH
 python -m venv .venv
 .venv/bin/pip install -r requirements-desktop.txt
-```
-
-**Langkah 2 — Jalankan via script readiness-check (direkomendasikan):**
-
-```bash
 ./scripts/launch_desktop.sh          # cek + jalankan
 ./scripts/launch_desktop.sh --check  # cek saja, tidak menjalankan
 ```
 
-Launcher memverifikasi venv, deps, mitmproxy, `config.json`, dan binary
-CloakBrowser sebelum memulai. Bila ada yang kurang, ia menampilkan
-command fix yang tepat.
+Launcher memverifikasi Python, deps, mitmproxy, `config.json`, dan
+binary CloakBrowser sebelum memulai. Bila ada yang kurang, ia menampilkan
+command fix yang tepat — menggunakan interpreter yang ter-resolve (venv
+atau system), jadi hint-nya selalu bisa langsung dijalankan.
 
 **Atau jalankan manual** (lewati readiness check):
 
@@ -295,23 +314,38 @@ tidak terinstall):
 
 #### Windows
 
-**Langkah 1 — Buat virtual environment + install deps:**
+Launcher (`windows\launch_desktop.bat`) **tidak** mengharuskan venv.
+Ia resolve interpreter Python di repo root dengan urutan:
+
+  1. `<repo>\.venv\Scripts\python.exe` — kalau kamu bikin venv, itu yang dipakai
+  2. `py` (Windows Python Launcher) di PATH
+  3. `python` di PATH
+
+Pilih cara yang sesuai setup kamu:
+
+**Opsi A — system Python (tanpa venv):** install deps desktop secara
+global lalu jalankan langsung.
+
+```bat
+python -m pip install -r requirements-desktop.txt
+windows\launch_desktop.bat
+```
+
+**Opsi B — virtual environment (direkomendasikan untuk isolasi):**
 
 ```bat
 cd TBH
 python -m venv .venv
 .venv\Scripts\pip install -r requirements-desktop.txt
-```
-
-> Jika `python` tidak ditemukan, coba `py -3 -m venv .venv` (memakai py
-> launcher).
-
-**Langkah 2 — Jalankan via script readiness-check (direkomendasikan):**
-
-```bat
 windows\launch_desktop.bat            :: cek + jalankan
 windows\launch_desktop.bat --check   :: cek saja
 ```
+
+> Jika `python` tidak ditemukan, coba `py -3 -m venv .venv` (memakai py launcher).
+
+Launcher memverifikasi Python, deps, mitmproxy, `config.json`, dan
+binary CloakBrowser sebelum memulai. Bila ada yang kurang, ia menampilkan
+command fix yang tepat.
 
 **Atau jalankan manual:**
 

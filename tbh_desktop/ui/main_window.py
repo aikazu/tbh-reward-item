@@ -59,7 +59,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from tbh_desktop import config_io, scraper
+from tbh_desktop import config_io, linux_elevation, scraper
 from tbh_desktop.gear_scraper_runner import GearScraperRunner
 from tbh_desktop.paths import BOX_LOOT_CACHE_DIR, CONFIG_PATH, DROPS_INDEX_CACHE, GEAR_CACHE_DIR
 from tbh_desktop.proxy_runner import ProxyRunner
@@ -680,6 +680,21 @@ class MainWindow(QMainWindow):
             if not self.runner.port_available(port):
                 self._show_port_in_use_dialog(port)
                 return
+        # Linux + local + not root → mitmdump's setuid helper needs root
+        # and there's no TTY in the GUI subprocess, so a bare start()
+        # will fail with "sudo: a terminal is required". Ask the user
+        # to elevate via pkexec (polkit) before spawning, so the prompt
+        # shows up in their face instead of dying silently.
+        if linux_elevation.runtime_needs_elevation(mode, name):
+            if not self._confirm(
+                "Local mode needs root",
+                "mitmproxy's local redirector needs root to inject the proxy "
+                f"into '{name}'. A polkit password prompt will appear.\n\n"
+                "Continue?",
+            ):
+                return
+            self.runner.start_elevated(mode=mode, name=name)
+            return
         self.runner.start(mode=mode, name=name)
 
     def _show_port_in_use_dialog(self, port: int) -> None:

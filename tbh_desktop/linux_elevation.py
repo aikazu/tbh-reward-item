@@ -60,12 +60,42 @@ def _config_says_local_mode(config_path: Path) -> bool:
 
 
 def needs_elevation(config_path: Path) -> bool:
-    """Return True if the current process must re-exec under pkexec."""
+    """Return True if the current process must re-exec under pkexec.
+
+    Used at GUI launch time only. Reads ``config.json`` on disk.
+    """
     if not _is_linux():
         return False
     if _is_root():
         return False
     if not _config_says_local_mode(config_path):
+        return False
+    return True
+
+
+def runtime_needs_elevation(mode: str, name: str) -> bool:
+    """Return True if a (mode, name) pair requires elevated execution.
+
+    Used at Start-button-click time — the mode/name values come from
+    the live editor, not from on-disk config. This is the right check
+    to call from main_window._start() because the user may have
+    switched from regular to local since launch, in which case
+    on-disk config still says regular and needs_elevation() (which
+    reads config.json) returns False.
+
+    A pair needs elevation iff:
+      - host is Linux
+      - current process is not root
+      - mode == "local"
+      - name is non-empty (mitmdump needs a target process to spawn)
+    """
+    if not _is_linux():
+        return False
+    if _is_root():
+        return False
+    if mode != "local":
+        return False
+    if not name or not name.strip():
         return False
     return True
 

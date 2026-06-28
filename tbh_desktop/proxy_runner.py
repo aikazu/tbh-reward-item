@@ -19,6 +19,7 @@ Why a startup window rather than always treating exit as failure:
 from __future__ import annotations
 
 import os
+import shutil
 import signal
 import socket
 import subprocess
@@ -95,6 +96,13 @@ class ProxyRunner(QObject):
         named process with proxy auto-injected). ``name`` is only used
         in local mode; "" or whitespace silently downgrades to regular
         with a warning logged by run_proxy.py.
+
+        Note: when ``mode='local'`` and the host is Linux without root,
+        this method will fail with "sudo: a terminal is required"
+        because mitmdump's setuid helper prompts for sudo and there's
+        no TTY in the GUI subprocess. Callers on Linux should check
+        ``needs_elevation_for_mode()`` first and use ``start_elevated``
+        instead, which prompts the user via pkexec before spawning.
         """
         if self.is_running():
             return
@@ -123,6 +131,89 @@ class ProxyRunner(QObject):
         self.running.emit(True)
         self._reader = threading.Thread(target=self._read_loop, daemon=True)
         self._reader.start()
+
+    def start_elevated(self, *, mode: str = "regular", name: str = "") -> bool:
+        """Spawn the proxy subprocess under pkexec (polkit prompt).
+
+        Used on Linux when mode=local and we're not root — mitmdump's
+        setuid helper needs root and there's no TTY in the GUI. We
+        wrap the subprocess.Popen with pkexec so the user sees a
+        native polkit password dialog instead of the "sudo: a
+        terminal is required" failure.
+
+        Returns True on successful spawn (subprocess is running),
+        False on failure (pkexec missing, declined by user, OSError).
+        The caller doesn't need to forward env vars manually — pkexec
+        with --env keeps the GUI's desktop env (DISPLAY, XAUTHORITY,
+        WAYLAND_DISPLAY, DBUS_SESSION_BUS_ADDRESS, XDG_RUNTIME_DIR)
+        so the elevated mitmdump can still find its CA cert, write
+        to ~/.mitmproxy, and inject the spawned process correctly.
+
+        Failure modes:
+          - pkexec missing: prints [ERR] and returns False
+          - user clicks Cancel on polkit prompt: pkexec exits with
+            non-zero; runner stays in "not running" state. We don't
+            surface a QMessageBox — the user's dialog dismissal IS
+            the signal.
+        """
+        if self.is_running():
+            return True
+        pkexec = shutil.which("pkexec")
+        if not pkexec:
+            print(
+                "[ERR] mode='local' on Linux requires root for mitmproxy's setuid "
+                "helper, but pkexec was not found on PATH. Install polkit "
+                "(Arch: pacman -S polkit) or fall back to 'regular' mode.",
+                file=sys.stderr,
+            )
+            return False
+        env_keep = ",".join(
+            [
+                "DISPLAY",
+                "XAUTHORITY",
+                "WAYLAND_DISPLAY",
+                "DBUS_SESSION_BUS_ADDRESS",
+                "XDG_RUNTIME_DIR",
+                "HOME",
+                "XDG_DATA_DIRS",
+                "XDG_CONFIG_DIRS",
+                "QT_QPA_PLATFORM",
+                "QT_WAYLAND_DISABLE_HIGHDPI_SCALING",
+                "SSL_CERT_FILE",
+                "PATH",
+            ]
+        )
+        cmd = [
+            pkexec,
+            "--env",
+            env_keep,
+            sys.executable,
+            str(RUN_PROXY_PATH),
+        ]
+        if mode:
+            cmd += ["--mode", mode]
+        if name and name.strip():
+            cmd += ["--name", name.strip()]
+        try:
+            self._start_ts = time.monotonic()
+            with self._early_buf_lock:
+                self._early_buf.clear()
+            self._proc = subprocess.Popen(
+                cmd,
+                cwd=str(REPO_ROOT),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                start_new_session=True,
+            )
+        except OSError as exc:
+            print(f"[ERR] pkexec failed to launch: {exc}", file=sys.stderr)
+            return False
+        self.running.emit(True)
+        self._reader = threading.Thread(target=self._read_loop, daemon=True)
+        self._reader.start()
+        return True
 
     def _read_loop(self) -> None:
         # Capture local ref: a concurrent start() could reassign self._proc,

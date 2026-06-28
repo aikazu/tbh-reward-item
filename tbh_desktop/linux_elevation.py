@@ -103,16 +103,27 @@ def runtime_needs_elevation(mode: str, name: str) -> bool:
 def request_elevation(repo_root: Path) -> int:
     """Re-exec the GUI under pkexec. Returns the child's exit code.
 
-    This function is called from ``main.py`` BEFORE ``QApplication`` is
-    created — we exec into a new Python process and never return unless
-    pkexec failed.
+    ⚠️  LEGACY — DO NOT CALL FROM main.py. The GUI itself does not need
+    root; only mitmdump's local-redirector does, and that's handled at
+    Start-button time by ``ProxyRunner.start_elevated()`` (which wraps
+    just run_proxy.py, not the GUI). Re-executing the whole GUI under
+    pkexec has two problems:
+      1. The elevated root process can't attach to the user's
+         X11/Wayland session because pkexec's minimal env doesn't
+         forward DISPLAY/XAUTHORITY. The window never appears.
+      2. Even if the GUI somehow rendered, running a desktop GUI as
+         root is a security smell and most DEs warn against it.
 
-    On success: pkexec replaces this process with the elevated one,
-    and the elevated process's exit code is returned (caller should
-    ``sys.exit(rc)`` with it).
+    This function is kept around as a reference / building block — it
+    shows the correct pkexec + coreutils ``env`` wrapping. If a future
+    feature genuinely needs the GUI elevated (e.g. a privileged CA
+    installer), it'd need a polkit policy file with
+    org.freedesktop.policykit.exec.allow_gui and explicit
+    DISPLAY/XAUTHORITY forwarding via dbus-send / xhost. That's a
+    much bigger change than this helper supports.
 
-    On failure: prints a clear error to stderr and returns 126 (or
-    whatever pkexec itself returned).
+    Kept here so the elevation logic isn't lost; not wired into any
+    current call site.
     """
     pkexec = shutil.which("pkexec")
     if not pkexec:

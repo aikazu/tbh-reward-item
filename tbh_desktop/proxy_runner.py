@@ -101,8 +101,9 @@ class ProxyRunner(QObject):
         this method will fail with "sudo: a terminal is required"
         because mitmdump's setuid helper prompts for sudo and there's
         no TTY in the GUI subprocess. Callers on Linux should check
-        ``needs_elevation_for_mode()`` first and use ``start_elevated``
-        instead, which prompts the user via pkexec before spawning.
+        ``linux_elevation.runtime_needs_elevation()`` first and use
+        ``start_elevated`` instead, which prompts the user via pkexec
+        before spawning.
         """
         if self.is_running():
             return

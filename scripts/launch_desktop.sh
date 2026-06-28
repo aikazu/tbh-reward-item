@@ -146,6 +146,21 @@ if [[ "$CHECK_ONLY" == true ]]; then
 fi
 
 echo "Launching TBH desktop app…"
+# Warn if the user launched us via sudo. The GUI itself does NOT need
+# root — only mitmdump's local-redirector setuid helper does, and
+# that's handled at Start-button time via pkexec (which prompts the
+# user for their polkit password). Running the GUI as root actually
+# breaks things: the elevated process can't attach to the user's
+# X11/Wayland session, so the window never appears.
+if [[ $EUID -eq 0 ]]; then
+    warn "Running as root (EUID=0). The GUI cannot attach to your"
+    warn "  X11/Wayland session from a root context — the window will"
+    warn "  not appear. Launch as your regular desktop user instead:"
+    warn "    $REPO_ROOT/scripts/launch_desktop.sh"
+    warn "  (the Start button will prompt for your polkit password"
+    warn "  only when actually needed for mode='local')."
+    echo ""
+fi
 # Suppress Wayland noise: "This plugin supports grabbing the mouse only for
 # popup windows" is informational (Qt can't grab mouse for non-popup windows
 # on Wayland by design — does not affect functionality).

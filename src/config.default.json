@@ -1,4 +1,7 @@
 {
+    "_comment_mode": "Set to 'local' to use mitmproxy --mode local:<name> (scoped spawn — no system proxy, no Steam Launch Options). Leave 'regular' for plain listen-port mode. When mode='local', also set local_process_name.",
+    "mode": "regular",
+    "local_process_name": "TaskBarHero.exe",
     "listen_port": 8877,
     "only_post": true,
     "require_boxes_marker": true,

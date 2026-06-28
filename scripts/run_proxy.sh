@@ -21,4 +21,4 @@ ensure_config(CONFIG_PATH)
 " && echo "Generated src/config.json from config.default.json"
 fi
 
-"$PYTHON_CMD" "$REPO_ROOT/src/run_proxy.py"
+"$PYTHON_CMD" "$REPO_ROOT/src/run_proxy.py" "$@"

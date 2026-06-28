@@ -15,9 +15,9 @@ if not exist "src\config.json" if exist "src\config.default.json" (
 
 where py >nul 2>nul
 if %errorlevel%==0 (
-    py "%~dp0..\src\run_proxy.py"
+    py "%~dp0..\src\run_proxy.py" %*
 ) else (
-    python "%~dp0..\src\run_proxy.py"
+    python "%~dp0..\src\run_proxy.py" %*
 )
 
 echo.

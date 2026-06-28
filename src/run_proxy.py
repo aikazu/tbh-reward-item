@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import shutil
@@ -21,6 +22,38 @@ def load_port() -> int:
     except Exception:
         return 8877
     return int(data.get("listen_port", data.get("ListenPort", 8877)))
+
+
+def load_mode(cli_mode: str | None = None, cli_name: str | None = None) -> tuple[str, str | None]:
+    """Return ``(mode, process_name)`` from CLI overrides or config.json.
+
+    mode is ``"regular"`` (default) or ``"local"``. For ``"local"`` the
+    runner forwards ``--mode local:<process_name>`` to mitmdump, which
+    spawns the named process and only intercepts its traffic.
+    CLI args override config.json values.
+    """
+    if cli_mode is not None:
+        if cli_mode == "local" and not (cli_name and cli_name.strip()):
+            print("[warn] --mode local requires --name <process>; falling back to regular")
+            return "regular", None
+        return cli_mode, cli_name
+    try:
+        data = json.loads(CONFIG_PATH.read_text(encoding="utf-8-sig"))
+    except Exception:
+        return "regular", None
+    raw = str(data.get("mode", "regular")).strip().lower() or "regular"
+    if raw not in {"regular", "local"}:
+        print(f"[warn] config.json: unknown mode={raw!r}, falling back to regular")
+        raw = "regular"
+    name = data.get("local_process_name")
+    if isinstance(name, str):
+        name = name.strip() or None
+    else:
+        name = None
+    if raw == "local" and not name:
+        print("[warn] config.json: mode=local requires local_process_name; falling back to regular")
+        raw = "regular"
+    return raw, name
 
 
 def _terminate(proc: subprocess.Popen) -> None:
@@ -57,8 +90,13 @@ def _install_signal_handlers(proc: subprocess.Popen) -> None:
 
 def main() -> int:
     from config_setup import ensure_config
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--mode", choices=("regular", "local"), default=None)
+    parser.add_argument("--name", default=None, help="process name for mode=local")
+    args, _ = parser.parse_known_args()
     ensure_config(CONFIG_PATH)
     port = load_port()
+    mode, local_name = load_mode(args.mode, args.name)
     common_args = [
         "-q",
         "-s",
@@ -70,6 +108,13 @@ def main() -> int:
         "--set",
         "block_global=false",
     ]
+    if mode == "local" and local_name:
+        common_args[1:1] = ["--mode", f"local:{local_name}"]
+        print(f"Spawning {local_name!r} with proxy auto-injected (mode=local)")
+    else:
+        print(f"Starting quiet mitmproxy on 127.0.0.1:{port}")
+        print("Configure your client HTTP_PROXY/HTTPS_PROXY=http://127.0.0.1:8877")
+    print("Only [TBH] addon messages are shown. Press Ctrl+C to stop.")
 
     mitmdump = shutil.which("mitmdump")
     if mitmdump:
@@ -81,9 +126,6 @@ def main() -> int:
             "from mitmproxy.tools.main import mitmdump; mitmdump()",
             *common_args,
         ]
-
-    print(f"Starting quiet mitmproxy on 127.0.0.1:{port}")
-    print("Only [TBH] addon messages are shown. Press Ctrl+C to stop.")
 
     # New session so mitmdump + its threads share a process group we can
     # signal together; otherwise Ctrl+C leaves a zombie holding the port.

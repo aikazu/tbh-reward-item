@@ -175,6 +175,34 @@ Sample output:
 
 Stop with `Ctrl+C`. Point the target client at proxy `127.0.0.1:8877`.
 
+### `--mode local` (scoped spawn, no Steam Launch Options)
+
+mitmproxy's `--mode local:NAME` spawns the named executable with proxy env
+and CA auto-injected, then intercepts only that process's traffic. Useful
+on Windows where editing Steam Launch Options is awkward, or any time you
+want scoping without touching system proxy settings.
+
+```bash
+# CLI
+./scripts/run_proxy.sh --mode local --name TaskBarHero.exe
+windows\run_proxy.bat --mode local --name TaskBarHero.exe
+```
+
+Or in `src/config.json`:
+
+```json
+{
+    "mode": "local",
+    "local_process_name": "TaskBarHero.exe",
+    "listen_port": 8877
+}
+```
+
+- **Windows**: works out of the box. Recommended over Steam Launch Options.
+- **Linux**: mitmproxy's local redirector uses a setuid helper, so mitmdump
+  will prompt for `sudo` at startup. Run as root or pre-elevate:
+  `sudo -E ./scripts/run_proxy.sh --mode local --name <proc>`.
+
 ### Hot Reload
 
 `config.json` is **hot-reloaded** — no proxy restart needed. The addon checks

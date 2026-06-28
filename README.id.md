@@ -176,6 +176,34 @@ Contoh output:
 
 Stop dengan `Ctrl+C`. Arahkan klien target ke proxy `127.0.0.1:8877`.
 
+### `--mode local` (spawn scoped, tanpa Steam Launch Options)
+
+`--mode local:NAME` mitmproxy men-spawn executable bernama `NAME` dengan
+proxy env + CA auto-inject, lalu cuma intercept traffic proses itu. Berguna
+di Windows yang edit Steam Launch Options ribet, atau kapanpun lo mau
+scoping tanpa sentuh system proxy.
+
+```bash
+# CLI
+./scripts/run_proxy.sh --mode local --name TaskBarHero.exe
+windows\run_proxy.bat --mode local --name TaskBarHero.exe
+```
+
+Atau di `src/config.json`:
+
+```json
+{
+    "mode": "local",
+    "local_process_name": "TaskBarHero.exe",
+    "listen_port": 8877
+}
+```
+
+- **Windows**: jalan out of the box. Direkomendasikan daripada Steam Launch Options.
+- **Linux**: local redirector mitmproxy pakai helper setuid, jadi mitmdump
+  akan prompt `sudo` saat startup. Jalankan sebagai root atau pre-elevate:
+  `sudo -E ./scripts/run_proxy.sh --mode local --name <proc>`.
+
 ### Hot Reload
 
 `config.json` di-**hot-reload** — tanpa restart proxy. Addon cek mtime

@@ -121,6 +121,32 @@ WINEPREFIX=~/.local/share/Steam/steamapps/compatdata/3678970/pfx \
 
 Fallback if `certmgr` unavailable: copy `.cer` into `~/.local/share/Steam/steamapps/compatdata/3678970/pfx/drive_c/windows/system32/cert/CA/`.
 
+## `--mode local` (spawn-and-inject) alternative
+
+Bypass the Steam Launch Options dance entirely. mitmproxy's `--mode local:NAME` spawns the named executable with `HTTP_PROXY` / `HTTPS_PROXY` env + mitmproxy CA auto-injected as `SSL_CERT_FILE`, then only intercepts that process's traffic. **Scoped, no system proxy, no Steam Launch Options.**
+
+Enable via `src/config.json`:
+
+```json
+{
+    "mode": "local",
+    "local_process_name": "TaskBarHero.exe",
+    "listen_port": 8877,
+    ...
+}
+```
+
+…or via CLI (overrides config.json):
+
+```bash
+./scripts/run_proxy.sh --mode local --name TaskBarHero.exe
+windows\run_proxy.bat --mode local --name TaskBarHero.exe
+```
+
+**Windows**: works out of the box (process injection via Win32 APIs, no elevation needed). **Recommended** over Steam Launch Options on Windows — survives game updates that touch `boot.unity3d`.
+
+**Linux caveats**: mitmproxy's local redirector uses a setuid helper (`mitmproxy-linux-redirector`), so mitmdump will prompt for `sudo` at startup. Run as root, or pre-elevate with `sudo -E ./scripts/run_proxy.sh --mode local --name <proc>`. Proton-launched games live inside a `pressure-vessel` container whose top-level process name is usually `TaskBarHero.exe` (Windows binary name) — verify with `pgrep -af TaskBarHero` while the game is running before relying on the match.
+
 ## Gotchas
 
 ### pytest-qt teardown hangs on Plasma Wayland

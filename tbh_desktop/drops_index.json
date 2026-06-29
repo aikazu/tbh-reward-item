@@ -7,7 +7,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "DECORATION",
-      "search_text": "110001 Minor Ruby Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "110001 Minor Ruby Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_110001.png"
     },
     {
       "id": 110002,
@@ -15,7 +16,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "DECORATION",
-      "search_text": "110002 Minor Sapphire Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "110002 Minor Sapphire Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_110002.png"
     },
     {
       "id": 110003,
@@ -23,7 +25,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "DECORATION",
-      "search_text": "110003 Minor Topaz Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "110003 Minor Topaz Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_110003.png"
     },
     {
       "id": 110004,
@@ -31,7 +34,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "DECORATION",
-      "search_text": "110004 Minor Emerald Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "110004 Minor Emerald Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_110004.png"
     },
     {
       "id": 110005,
@@ -39,7 +43,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "DECORATION",
-      "search_text": "110005 Minor Amethyst Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "110005 Minor Amethyst Material Common Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_110005.png"
     },
     {
       "id": 111001,
@@ -47,7 +52,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "DECORATION",
-      "search_text": "111001 Obsidian Shard Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "111001 Obsidian Shard Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_111001.png"
     },
     {
       "id": 111002,
@@ -55,7 +61,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "DECORATION",
-      "search_text": "111002 Coral Piece Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "111002 Coral Piece Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_111002.png"
     },
     {
       "id": 111003,
@@ -63,7 +70,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "DECORATION",
-      "search_text": "111003 Jade Stone Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "111003 Jade Stone Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_111003.png"
     },
     {
       "id": 111004,
@@ -71,7 +79,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "DECORATION",
-      "search_text": "111004 Amber Gem Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "111004 Amber Gem Material Uncommon Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_111004.png"
     },
     {
       "id": 112001,
@@ -79,7 +88,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "DECORATION",
-      "search_text": "112001 Ruby Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "112001 Ruby Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_112001.png"
     },
     {
       "id": 112002,
@@ -87,7 +97,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "DECORATION",
-      "search_text": "112002 Sapphire Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "112002 Sapphire Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_112002.png"
     },
     {
       "id": 112003,
@@ -95,7 +106,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "DECORATION",
-      "search_text": "112003 Topaz Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "112003 Topaz Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_112003.png"
     },
     {
       "id": 112004,
@@ -103,7 +115,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "DECORATION",
-      "search_text": "112004 Emerald Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "112004 Emerald Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_112004.png"
     },
     {
       "id": 112005,
@@ -111,7 +124,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "DECORATION",
-      "search_text": "112005 Amethyst Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "112005 Amethyst Material Rare Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_112005.png"
     },
     {
       "id": 113001,
@@ -119,7 +133,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "DECORATION",
-      "search_text": "113001 Crystal Quartz Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "113001 Crystal Quartz Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_113001.png"
     },
     {
       "id": 113002,
@@ -127,7 +142,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "DECORATION",
-      "search_text": "113002 Pearl Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "113002 Pearl Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_113002.png"
     },
     {
       "id": 113003,
@@ -135,7 +151,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "DECORATION",
-      "search_text": "113003 Turquoise Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "113003 Turquoise Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_113003.png"
     },
     {
       "id": 113004,
@@ -143,7 +160,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "DECORATION",
-      "search_text": "113004 Garnet Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "113004 Garnet Material Legendary Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_113004.png"
     },
     {
       "id": 114001,
@@ -151,7 +169,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "DECORATION",
-      "search_text": "114001 Diamond Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "114001 Diamond Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_114001.png"
     },
     {
       "id": 114002,
@@ -159,7 +178,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "DECORATION",
-      "search_text": "114002 Opal Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "114002 Opal Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_114002.png"
     },
     {
       "id": 114003,
@@ -167,7 +187,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "DECORATION",
-      "search_text": "114003 Lapis Lazuli Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "114003 Lapis Lazuli Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_114003.png"
     },
     {
       "id": 114004,
@@ -175,7 +196,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "DECORATION",
-      "search_text": "114004 Black Pearl Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "114004 Black Pearl Material Immortal Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_114004.png"
     },
     {
       "id": 115001,
@@ -183,7 +205,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "DECORATION",
-      "search_text": "115001 Arcane Crystal Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "115001 Arcane Crystal Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_115001.png"
     },
     {
       "id": 115002,
@@ -191,7 +214,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "DECORATION",
-      "search_text": "115002 Mystic Topaz Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "115002 Mystic Topaz Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_115002.png"
     },
     {
       "id": 115003,
@@ -199,7 +223,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "DECORATION",
-      "search_text": "115003 Enchanted Ruby Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "115003 Enchanted Ruby Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_115003.png"
     },
     {
       "id": 115004,
@@ -207,7 +232,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "DECORATION",
-      "search_text": "115004 Starlight Sapphire Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "115004 Starlight Sapphire Material Arcana Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_115004.png"
     },
     {
       "id": 116001,
@@ -215,7 +241,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "DECORATION",
-      "search_text": "116001 Void Opal Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "116001 Void Opal Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_116001.png"
     },
     {
       "id": 116002,
@@ -223,7 +250,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "DECORATION",
-      "search_text": "116002 Astral Diamond Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "116002 Astral Diamond Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_116002.png"
     },
     {
       "id": 116003,
@@ -231,7 +259,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "DECORATION",
-      "search_text": "116003 Phantom Emerald Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "116003 Phantom Emerald Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_116003.png"
     },
     {
       "id": 116004,
@@ -239,7 +268,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "DECORATION",
-      "search_text": "116004 Twilight Amethyst Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "116004 Twilight Amethyst Material Beyond Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_116004.png"
     },
     {
       "id": 117001,
@@ -247,7 +277,8 @@
       "kind": "material",
       "rarity": "CELESTIAL",
       "family": "DECORATION",
-      "search_text": "117001 Celestial Pearl Material Celestial Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "117001 Celestial Pearl Material Celestial Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_117001.png"
     },
     {
       "id": 117002,
@@ -255,7 +286,8 @@
       "kind": "material",
       "rarity": "CELESTIAL",
       "family": "DECORATION",
-      "search_text": "117002 Dragonite Crystal Material Celestial Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "117002 Dragonite Crystal Material Celestial Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_117002.png"
     },
     {
       "id": 118001,
@@ -263,7 +295,8 @@
       "kind": "material",
       "rarity": "DIVINE",
       "family": "DECORATION",
-      "search_text": "118001 Void Crystal Material Divine Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "118001 Void Crystal Material Divine Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_118001.png"
     },
     {
       "id": 118002,
@@ -271,7 +304,8 @@
       "kind": "material",
       "rarity": "DIVINE",
       "family": "DECORATION",
-      "search_text": "118002 Abyssal Pearl Material Divine Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "118002 Abyssal Pearl Material Divine Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_118002.png"
     },
     {
       "id": 119001,
@@ -279,7 +313,8 @@
       "kind": "material",
       "rarity": "COSMIC",
       "family": "DECORATION",
-      "search_text": "119001 Ethereal Gem Material Cosmic Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "119001 Ethereal Gem Material Cosmic Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_119001.png"
     },
     {
       "id": 119002,
@@ -287,7 +322,8 @@
       "kind": "material",
       "rarity": "COSMIC",
       "family": "DECORATION",
-      "search_text": "119002 Chaos Diamond Material Cosmic Decoration Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "119002 Chaos Diamond Material Cosmic Decoration Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_119002.png"
     },
     {
       "id": 120001,
@@ -295,7 +331,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "ENGRAVING",
-      "search_text": "120001 Goblin Hide Material Common Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "120001 Goblin Hide Material Common Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_120001.png"
     },
     {
       "id": 120002,
@@ -303,7 +340,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "ENGRAVING",
-      "search_text": "120002 Skeleton Bone Material Common Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "120002 Skeleton Bone Material Common Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_120002.png"
     },
     {
       "id": 120003,
@@ -311,7 +349,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "ENGRAVING",
-      "search_text": "120003 Slime Jelly Material Common Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "120003 Slime Jelly Material Common Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_120003.png"
     },
     {
       "id": 121001,
@@ -319,7 +358,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "ENGRAVING",
-      "search_text": "121001 Wolf Fang Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "121001 Wolf Fang Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_121001.png"
     },
     {
       "id": 121002,
@@ -327,7 +367,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "ENGRAVING",
-      "search_text": "121002 Spider Silk Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "121002 Spider Silk Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_121002.png"
     },
     {
       "id": 121003,
@@ -335,7 +376,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "ENGRAVING",
-      "search_text": "121003 Poisonous Herb Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "121003 Poisonous Herb Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_121003.png"
     },
     {
       "id": 121004,
@@ -343,7 +385,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "ENGRAVING",
-      "search_text": "121004 Healing Herb Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "121004 Healing Herb Material Uncommon Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_121004.png"
     },
     {
       "id": 122001,
@@ -351,7 +394,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "ENGRAVING",
-      "search_text": "122001 Bat Wing Membrane Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "122001 Bat Wing Membrane Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_122001.png"
     },
     {
       "id": 122002,
@@ -359,7 +403,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "ENGRAVING",
-      "search_text": "122002 Ogre Blood Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "122002 Ogre Blood Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_122002.png"
     },
     {
       "id": 122003,
@@ -367,7 +412,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "ENGRAVING",
-      "search_text": "122003 Mushroom Spore Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "122003 Mushroom Spore Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_122003.png"
     },
     {
       "id": 122004,
@@ -375,7 +421,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "ENGRAVING",
-      "search_text": "122004 Ancient Tree Sap Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "122004 Ancient Tree Sap Material Rare Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_122004.png"
     },
     {
       "id": 123001,
@@ -383,7 +430,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "ENGRAVING",
-      "search_text": "123001 Skull Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "123001 Skull Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_123001.png"
     },
     {
       "id": 123002,
@@ -391,7 +439,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "ENGRAVING",
-      "search_text": "123002 Harpy Feather Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "123002 Harpy Feather Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_123002.png"
     },
     {
       "id": 123003,
@@ -399,7 +448,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "ENGRAVING",
-      "search_text": "123003 Mandrake Root Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "123003 Mandrake Root Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_123003.png"
     },
     {
       "id": 123004,
@@ -407,7 +457,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "ENGRAVING",
-      "search_text": "123004 Nightshade Extract Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "123004 Nightshade Extract Material Legendary Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_123004.png"
     },
     {
       "id": 124001,
@@ -415,7 +466,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "ENGRAVING",
-      "search_text": "124001 Basilisk Scale Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "124001 Basilisk Scale Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_124001.png"
     },
     {
       "id": 124002,
@@ -423,7 +475,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "ENGRAVING",
-      "search_text": "124002 Wyvern Claw Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "124002 Wyvern Claw Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_124002.png"
     },
     {
       "id": 124003,
@@ -431,7 +484,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "ENGRAVING",
-      "search_text": "124003 Dice Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "124003 Dice Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_124003.png"
     },
     {
       "id": 124004,
@@ -439,7 +493,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "ENGRAVING",
-      "search_text": "124004 Demon Blood Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "124004 Demon Blood Material Immortal Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_124004.png"
     },
     {
       "id": 125001,
@@ -447,7 +502,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "ENGRAVING",
-      "search_text": "125001 Minotaur Horn Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "125001 Minotaur Horn Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_125001.png"
     },
     {
       "id": 125002,
@@ -455,7 +511,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "ENGRAVING",
-      "search_text": "125002 Griffin Beak Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "125002 Griffin Beak Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_125002.png"
     },
     {
       "id": 125003,
@@ -463,7 +520,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "ENGRAVING",
-      "search_text": "125003 Phoenix Ash Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "125003 Phoenix Ash Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_125003.png"
     },
     {
       "id": 125004,
@@ -471,7 +529,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "ENGRAVING",
-      "search_text": "125004 Dragon Bile Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "125004 Dragon Bile Material Arcana Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_125004.png"
     },
     {
       "id": 126001,
@@ -479,7 +538,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "ENGRAVING",
-      "search_text": "126001 Wraith Essence Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "126001 Wraith Essence Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_126001.png"
     },
     {
       "id": 126002,
@@ -487,7 +547,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "ENGRAVING",
-      "search_text": "126002 Kraken Ink Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "126002 Kraken Ink Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_126002.png"
     },
     {
       "id": 126003,
@@ -495,7 +556,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "ENGRAVING",
-      "search_text": "126003 Titan Marrow Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "126003 Titan Marrow Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_126003.png"
     },
     {
       "id": 126004,
@@ -503,7 +565,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "ENGRAVING",
-      "search_text": "126004 Void Ichor Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "126004 Void Ichor Material Beyond Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_126004.png"
     },
     {
       "id": 127001,
@@ -511,7 +574,8 @@
       "kind": "material",
       "rarity": "CELESTIAL",
       "family": "ENGRAVING",
-      "search_text": "127001 Abyssal Mucus Material Celestial Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "127001 Abyssal Mucus Material Celestial Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_127001.png"
     },
     {
       "id": 127002,
@@ -519,7 +583,8 @@
       "kind": "material",
       "rarity": "CELESTIAL",
       "family": "ENGRAVING",
-      "search_text": "127002 Chaos Spore Material Celestial Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "127002 Chaos Spore Material Celestial Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_127002.png"
     },
     {
       "id": 128001,
@@ -527,7 +592,8 @@
       "kind": "material",
       "rarity": "DIVINE",
       "family": "ENGRAVING",
-      "search_text": "128001 Primordial Sap Material Divine Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "128001 Primordial Sap Material Divine Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_128001.png"
     },
     {
       "id": 128002,
@@ -535,7 +601,8 @@
       "kind": "material",
       "rarity": "DIVINE",
       "family": "ENGRAVING",
-      "search_text": "128002 Eldritch Venom Material Divine Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "128002 Eldritch Venom Material Divine Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_128002.png"
     },
     {
       "id": 129001,
@@ -543,7 +610,8 @@
       "kind": "material",
       "rarity": "COSMIC",
       "family": "ENGRAVING",
-      "search_text": "129001 Chaso Dice Material Cosmic Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "129001 Chaso Dice Material Cosmic Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_129001.png"
     },
     {
       "id": 129002,
@@ -551,7 +619,8 @@
       "kind": "material",
       "rarity": "COSMIC",
       "family": "ENGRAVING",
-      "search_text": "129002 Void Tendril Material Cosmic Engraving Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "129002 Void Tendril Material Cosmic Engraving Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_129002.png"
     },
     {
       "id": 130001,
@@ -559,7 +628,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "INSCRIPTION",
-      "search_text": "130001 Scroll of Common Inscription Material Common Inscription Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "130001 Scroll of Common Inscription Material Common Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_130001.png"
     },
     {
       "id": 131001,
@@ -567,7 +637,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "INSCRIPTION",
-      "search_text": "131001 Scroll of Uncommon Inscription Material Uncommon Inscription Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "131001 Scroll of Uncommon Inscription Material Uncommon Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_131001.png"
     },
     {
       "id": 132001,
@@ -575,7 +646,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "INSCRIPTION",
-      "search_text": "132001 Scroll of Rare Inscription Material Rare Inscription Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "132001 Scroll of Rare Inscription Material Rare Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_132001.png"
     },
     {
       "id": 133001,
@@ -583,7 +655,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "INSCRIPTION",
-      "search_text": "133001 Scroll of Legendary Inscription Material Legendary Inscription Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "133001 Scroll of Legendary Inscription Material Legendary Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_133001.png"
     },
     {
       "id": 134001,
@@ -591,7 +664,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "INSCRIPTION",
-      "search_text": "134001 Scroll of Immortal Inscription Material Immortal Inscription Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "134001 Scroll of Immortal Inscription Material Immortal Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_134001.png"
     },
     {
       "id": 135001,
@@ -599,7 +673,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "INSCRIPTION",
-      "search_text": "135001 Scroll of Arcana Inscription Material Arcana Inscription Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "135001 Scroll of Arcana Inscription Material Arcana Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_135001.png"
     },
     {
       "id": 136001,
@@ -607,7 +682,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "INSCRIPTION",
-      "search_text": "136001 Scroll of Beyond Inscription Material Beyond Inscription Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "136001 Scroll of Beyond Inscription Material Beyond Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_136001.png"
     },
     {
       "id": 137001,
@@ -615,7 +691,8 @@
       "kind": "material",
       "rarity": "CELESTIAL",
       "family": "INSCRIPTION",
-      "search_text": "137001 Scroll of Celestial Inscription Material Celestial Inscription Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "137001 Scroll of Celestial Inscription Material Celestial Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_137001.png"
     },
     {
       "id": 138001,
@@ -623,7 +700,8 @@
       "kind": "material",
       "rarity": "DIVINE",
       "family": "INSCRIPTION",
-      "search_text": "138001 Scroll of Divine Inscription Material Divine Inscription Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "138001 Scroll of Divine Inscription Material Divine Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_138001.png"
     },
     {
       "id": 139001,
@@ -631,7 +709,8 @@
       "kind": "material",
       "rarity": "COSMIC",
       "family": "INSCRIPTION",
-      "search_text": "139001 Scroll of Cosmic Inscription Material Cosmic Inscription Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "139001 Scroll of Cosmic Inscription Material Cosmic Inscription Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_139001.png"
     },
     {
       "id": 140001,
@@ -639,7 +718,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "CRAFTING",
-      "search_text": "140001 Wood Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "140001 Wood Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_140001.png"
     },
     {
       "id": 140002,
@@ -647,7 +727,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "CRAFTING",
-      "search_text": "140002 Stone Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "140002 Stone Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_140002.png"
     },
     {
       "id": 140003,
@@ -655,7 +736,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "CRAFTING",
-      "search_text": "140003 Leather Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "140003 Leather Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_140003.png"
     },
     {
       "id": 140004,
@@ -663,7 +745,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "CRAFTING",
-      "search_text": "140004 Copper Nugget Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "140004 Copper Nugget Material Common Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_140004.png"
     },
     {
       "id": 141001,
@@ -671,7 +754,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "CRAFTING",
-      "search_text": "141001 Bronze Ingot Material Uncommon Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "141001 Bronze Ingot Material Uncommon Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_141001.png"
     },
     {
       "id": 141002,
@@ -679,7 +763,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "CRAFTING",
-      "search_text": "141002 Iron Ingot Material Uncommon Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "141002 Iron Ingot Material Uncommon Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_141002.png"
     },
     {
       "id": 142001,
@@ -687,7 +772,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "CRAFTING",
-      "search_text": "142001 Silver Ingot Material Rare Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "142001 Silver Ingot Material Rare Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_142001.png"
     },
     {
       "id": 142002,
@@ -695,7 +781,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "CRAFTING",
-      "search_text": "142002 Gold Ingot Material Rare Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "142002 Gold Ingot Material Rare Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_142002.png"
     },
     {
       "id": 143001,
@@ -703,7 +790,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "CRAFTING",
-      "search_text": "143001 Stardust Ingot Material Legendary Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "143001 Stardust Ingot Material Legendary Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_143001.png"
     },
     {
       "id": 143002,
@@ -711,7 +799,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "CRAFTING",
-      "search_text": "143002 Void Iron Material Legendary Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "143002 Void Iron Material Legendary Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_143002.png"
     },
     {
       "id": 144001,
@@ -719,7 +808,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "CRAFTING",
-      "search_text": "144001 Bloodstone Material Immortal Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "144001 Bloodstone Material Immortal Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_144001.png"
     },
     {
       "id": 144002,
@@ -727,7 +817,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "CRAFTING",
-      "search_text": "144002 Thunderstone Material Immortal Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "144002 Thunderstone Material Immortal Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_144002.png"
     },
     {
       "id": 145001,
@@ -735,7 +826,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "CRAFTING",
-      "search_text": "145001 Chaos Shard Material Arcana Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "145001 Chaos Shard Material Arcana Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_145001.png"
     },
     {
       "id": 145002,
@@ -743,7 +835,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "CRAFTING",
-      "search_text": "145002 Arcane Ore Material Arcana Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "145002 Arcane Ore Material Arcana Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_145002.png"
     },
     {
       "id": 146001,
@@ -751,7 +844,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "CRAFTING",
-      "search_text": "146001 Darksteel Ingot Material Beyond Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "146001 Darksteel Ingot Material Beyond Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_146001.png"
     },
     {
       "id": 146002,
@@ -759,7 +853,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "CRAFTING",
-      "search_text": "146002 Orichalcum Ore Material Beyond Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "146002 Orichalcum Ore Material Beyond Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_146002.png"
     },
     {
       "id": 147001,
@@ -767,7 +862,8 @@
       "kind": "material",
       "rarity": "CELESTIAL",
       "family": "CRAFTING",
-      "search_text": "147001 Moonstone Material Celestial Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "147001 Moonstone Material Celestial Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_147001.png"
     },
     {
       "id": 147002,
@@ -775,7 +871,8 @@
       "kind": "material",
       "rarity": "CELESTIAL",
       "family": "CRAFTING",
-      "search_text": "147002 Sunstone Material Celestial Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "147002 Sunstone Material Celestial Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_147002.png"
     },
     {
       "id": 148001,
@@ -783,7 +880,8 @@
       "kind": "material",
       "rarity": "DIVINE",
       "family": "CRAFTING",
-      "search_text": "148001 Mithril Ore Material Divine Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "148001 Mithril Ore Material Divine Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_148001.png"
     },
     {
       "id": 148002,
@@ -791,7 +889,8 @@
       "kind": "material",
       "rarity": "DIVINE",
       "family": "CRAFTING",
-      "search_text": "148002 Ethereal Ingot Material Divine Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "148002 Ethereal Ingot Material Divine Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_148002.png"
     },
     {
       "id": 149001,
@@ -799,7 +898,8 @@
       "kind": "material",
       "rarity": "COSMIC",
       "family": "CRAFTING",
-      "search_text": "149001 Adamantium Ore Material Cosmic Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "149001 Adamantium Ore Material Cosmic Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_149001.png"
     },
     {
       "id": 149002,
@@ -807,7 +907,8 @@
       "kind": "material",
       "rarity": "COSMIC",
       "family": "CRAFTING",
-      "search_text": "149002 Aeon Ingot Material Cosmic Crafting Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "149002 Aeon Ingot Material Cosmic Crafting Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_149002.png"
     },
     {
       "id": 160001,
@@ -815,7 +916,8 @@
       "kind": "material",
       "rarity": "COMMON",
       "family": "OFFERING",
-      "search_text": "160001 Kingdom 1st Anniversary Coin Material Common Offering Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "160001 Kingdom 1st Anniversary Coin Material Common Offering Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_160001.png"
     },
     {
       "id": 160002,
@@ -823,7 +925,8 @@
       "kind": "material",
       "rarity": "UNCOMMON",
       "family": "OFFERING",
-      "search_text": "160002 Empire 1st Anniversary Coin Material Uncommon Offering Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "160002 Empire 1st Anniversary Coin Material Uncommon Offering Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_160002.png"
     },
     {
       "id": 160003,
@@ -831,7 +934,8 @@
       "kind": "material",
       "rarity": "RARE",
       "family": "OFFERING",
-      "search_text": "160003 Kingdom 10th Anniversary Coin Material Rare Offering Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "160003 Kingdom 10th Anniversary Coin Material Rare Offering Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_160003.png"
     },
     {
       "id": 160004,
@@ -839,7 +943,8 @@
       "kind": "material",
       "rarity": "LEGENDARY",
       "family": "OFFERING",
-      "search_text": "160004 Empire 10th Anniversary Coin Material Legendary Offering Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "160004 Empire 10th Anniversary Coin Material Legendary Offering Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_160004.png"
     },
     {
       "id": 160005,
@@ -847,7 +952,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "OFFERING",
-      "search_text": "160005 Kingdom 50th Anniversary Coin Material Immortal Offering Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "160005 Kingdom 50th Anniversary Coin Material Immortal Offering Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_160005.png"
     },
     {
       "id": 160006,
@@ -855,7 +961,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "OFFERING",
-      "search_text": "160006 Empire 50th Anniversary Coin Material Arcana Offering Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "160006 Empire 50th Anniversary Coin Material Arcana Offering Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_160006.png"
     },
     {
       "id": 160007,
@@ -863,7 +970,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "OFFERING",
-      "search_text": "160007 Kingdom 100th Anniversary Coin Material Beyond Offering Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "160007 Kingdom 100th Anniversary Coin Material Beyond Offering Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_160007.png"
     },
     {
       "id": 160008,
@@ -871,7 +979,8 @@
       "kind": "material",
       "rarity": "CELESTIAL",
       "family": "OFFERING",
-      "search_text": "160008 Empire 100th Anniversary Coin Material Celestial Offering Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "160008 Empire 100th Anniversary Coin Material Celestial Offering Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_160008.png"
     },
     {
       "id": 160009,
@@ -879,7 +988,8 @@
       "kind": "material",
       "rarity": "DIVINE",
       "family": "OFFERING",
-      "search_text": "160009 Sacred Kingdom 1000th Anniversary Coin Material Divine Offering Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "160009 Sacred Kingdom 1000th Anniversary Coin Material Divine Offering Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_160009.png"
     },
     {
       "id": 160010,
@@ -887,7 +997,8 @@
       "kind": "material",
       "rarity": "COSMIC",
       "family": "OFFERING",
-      "search_text": "160010 Eternal Empire 1000th Anniversary Coin Material Cosmic Offering Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "160010 Eternal Empire 1000th Anniversary Coin Material Cosmic Offering Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_160010.png"
     },
     {
       "id": 190001,
@@ -895,7 +1006,8 @@
       "kind": "material",
       "rarity": "IMMORTAL",
       "family": "SOULSTONE",
-      "search_text": "190001 Soulstone - Normal Material Immortal Soul Stone Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "190001 Soulstone - Normal Material Immortal Soul Stone Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_190001.png"
     },
     {
       "id": 190002,
@@ -903,7 +1015,8 @@
       "kind": "material",
       "rarity": "ARCANA",
       "family": "SOULSTONE",
-      "search_text": "190002 Soulstone - Nightmare Material Arcana Soul Stone Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "190002 Soulstone - Nightmare Material Arcana Soul Stone Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_190002.png"
     },
     {
       "id": 190003,
@@ -911,7 +1024,8 @@
       "kind": "material",
       "rarity": "BEYOND",
       "family": "SOULSTONE",
-      "search_text": "190003 Soulstone - Hell Material Beyond Soul Stone Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "190003 Soulstone - Hell Material Beyond Soul Stone Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_190003.png"
     },
     {
       "id": 190004,
@@ -919,7 +1033,8 @@
       "kind": "material",
       "rarity": "CELESTIAL",
       "family": "SOULSTONE",
-      "search_text": "190004 Soulstone - Torment Material Celestial Soul Stone Material type lookup; exact loot source needs current loot table confirmation."
+      "search_text": "190004 Soulstone - Torment Material Celestial Soul Stone Material type lookup; exact loot source needs current loot table confirmation.",
+      "image": "https://taskbarhero.wiki/game/items/materials/Item_190004.png"
     },
     {
       "id": 910011,
@@ -927,7 +1042,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910011 Normal Monster Box 1 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910011 Normal Monster Box 1 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910051,
@@ -935,7 +1051,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910051 Normal Monster Box 2 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910051 Normal Monster Box 2 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910101,
@@ -943,7 +1060,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910101 Normal Monster Box 3 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910101 Normal Monster Box 3 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910151,
@@ -951,7 +1069,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910151 Normal Monster Box Lv15 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910151 Normal Monster Box Lv15 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910201,
@@ -959,7 +1078,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910201 Normal Monster Box Lv20 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910201 Normal Monster Box Lv20 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910251,
@@ -967,7 +1087,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910251 Normal Monster Box Lv25 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910251 Normal Monster Box Lv25 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910301,
@@ -975,7 +1096,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910301 Normal Monster Box Lv30 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910301 Normal Monster Box Lv30 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910351,
@@ -983,7 +1105,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910351 Normal Monster Box Lv35 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910351 Normal Monster Box Lv35 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910401,
@@ -991,7 +1114,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910401 Normal Monster Box Lv40 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910401 Normal Monster Box Lv40 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910451,
@@ -999,7 +1123,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910451 Normal Monster Box Lv45 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910451 Normal Monster Box Lv45 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910501,
@@ -1007,7 +1132,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910501 Normal Monster Box Lv50 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910501 Normal Monster Box Lv50 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910551,
@@ -1015,7 +1141,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910551 Normal Monster Box Lv55 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910551 Normal Monster Box Lv55 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910601,
@@ -1023,7 +1150,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910601 Normal Monster Box Lv60 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910601 Normal Monster Box Lv60 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910651,
@@ -1031,7 +1159,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910651 Normal Monster Box Lv65 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910651 Normal Monster Box Lv65 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910701,
@@ -1039,7 +1168,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910701 Normal Monster Box Lv70 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910701 Normal Monster Box Lv70 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910751,
@@ -1047,7 +1177,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910751 Normal Monster Box Lv75 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910751 Normal Monster Box Lv75 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910801,
@@ -1055,7 +1186,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910801 Normal Monster Box Lv80 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910801 Normal Monster Box Lv80 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910851,
@@ -1063,7 +1195,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910851 Normal Monster Box Lv85 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910851 Normal Monster Box Lv85 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 910901,
@@ -1071,7 +1204,8 @@
       "kind": "stage-box",
       "rarity": "COMMON",
       "family": "Normal Monster",
-      "search_text": "910901 Normal Monster Box Lv90 Stage box Common Normal monster Likely stage range from box family and stage level."
+      "search_text": "910901 Normal Monster Box Lv90 Stage box Common Normal monster Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
     },
     {
       "id": 920001,
@@ -1079,7 +1213,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920001 Stage Boss Box 1 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920001 Stage Boss Box 1 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920002,
@@ -1087,7 +1222,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920002 Stage Boss Box 2 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920002 Stage Boss Box 2 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920003,
@@ -1095,7 +1231,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920003 Stage Boss Box 3 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920003 Stage Boss Box 3 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920004,
@@ -1103,7 +1240,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920004 Stage Boss Box 3 Stage box Rare Stage boss No confident stage range in the current snapshot."
+      "search_text": "920004 Stage Boss Box 3 Stage box Rare Stage boss No confident stage range in the current snapshot.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920005,
@@ -1111,7 +1249,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920005 Stage Boss Box 3 Stage box Rare Stage boss No confident stage range in the current snapshot."
+      "search_text": "920005 Stage Boss Box 3 Stage box Rare Stage boss No confident stage range in the current snapshot.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920006,
@@ -1119,7 +1258,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920006 Stage Boss Box 3 Stage box Rare Stage boss No confident stage range in the current snapshot."
+      "search_text": "920006 Stage Boss Box 3 Stage box Rare Stage boss No confident stage range in the current snapshot.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920011,
@@ -1127,7 +1267,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920011 Stage Boss Box 4 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920011 Stage Boss Box 4 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920022,
@@ -1135,7 +1276,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920022 Stage Boss Box 6 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920022 Stage Boss Box 6 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920032,
@@ -1143,7 +1285,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920032 Stage Boss Box 6 Stage box Rare Stage boss No confident stage range in the current snapshot."
+      "search_text": "920032 Stage Boss Box 6 Stage box Rare Stage boss No confident stage range in the current snapshot.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920042,
@@ -1151,7 +1294,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920042 Stage Boss Box 6 Stage box Rare Stage boss No confident stage range in the current snapshot."
+      "search_text": "920042 Stage Boss Box 6 Stage box Rare Stage boss No confident stage range in the current snapshot.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920051,
@@ -1159,7 +1303,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920051 Stage Boss Box 5 Stage box Rare Stage boss No confident stage range in the current snapshot."
+      "search_text": "920051 Stage Boss Box 5 Stage box Rare Stage boss No confident stage range in the current snapshot.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920052,
@@ -1167,7 +1312,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920052 Stage Boss Box 6 Stage box Rare Stage boss No confident stage range in the current snapshot."
+      "search_text": "920052 Stage Boss Box 6 Stage box Rare Stage boss No confident stage range in the current snapshot.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920101,
@@ -1175,7 +1321,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920101 Stage Boss Box 7 Stage box Rare Stage boss No confident stage range in the current snapshot."
+      "search_text": "920101 Stage Boss Box 7 Stage box Rare Stage boss No confident stage range in the current snapshot.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920151,
@@ -1183,7 +1330,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920151 Stage Boss Box Lv15 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920151 Stage Boss Box Lv15 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920201,
@@ -1191,7 +1339,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920201 Stage Boss Box Lv20 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920201 Stage Boss Box Lv20 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920251,
@@ -1199,7 +1348,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920251 Stage Boss Box Lv25 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920251 Stage Boss Box Lv25 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920301,
@@ -1207,7 +1357,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920301 Stage Boss Box Lv30 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920301 Stage Boss Box Lv30 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920351,
@@ -1215,7 +1366,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920351 Stage Boss Box Lv35 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920351 Stage Boss Box Lv35 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920401,
@@ -1223,7 +1375,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920401 Stage Boss Box Lv40 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920401 Stage Boss Box Lv40 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920451,
@@ -1231,7 +1384,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920451 Stage Boss Box Lv45 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920451 Stage Boss Box Lv45 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920501,
@@ -1239,7 +1393,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920501 Stage Boss Box Lv50 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920501 Stage Boss Box Lv50 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920551,
@@ -1247,7 +1402,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920551 Stage Boss Box Lv55 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920551 Stage Boss Box Lv55 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920601,
@@ -1255,7 +1411,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920601 Stage Boss Box Lv60 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920601 Stage Boss Box Lv60 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920651,
@@ -1263,7 +1420,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920651 Stage Boss Box Lv65 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920651 Stage Boss Box Lv65 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920701,
@@ -1271,7 +1429,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920701 Stage Boss Box Lv70 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920701 Stage Boss Box Lv70 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920751,
@@ -1279,7 +1438,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920751 Stage Boss Box Lv75 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920751 Stage Boss Box Lv75 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920801,
@@ -1287,7 +1447,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920801 Stage Boss Box Lv80 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920801 Stage Boss Box Lv80 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920851,
@@ -1295,7 +1456,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920851 Stage Boss Box Lv85 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920851 Stage Boss Box Lv85 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 920901,
@@ -1303,7 +1465,8 @@
       "kind": "stage-box",
       "rarity": "RARE",
       "family": "Stage Boss",
-      "search_text": "920901 Stage Boss Box Lv90 Stage box Rare Stage boss Likely stage range from box family and stage level."
+      "search_text": "920901 Stage Boss Box Lv90 Stage box Rare Stage boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
     },
     {
       "id": 930101,
@@ -1311,7 +1474,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930101 Act Boss Box 1 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930101 Act Boss Box 1 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     },
     {
       "id": 930201,
@@ -1319,7 +1483,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930201 Act Boss Box Lv20 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930201 Act Boss Box Lv20 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     },
     {
       "id": 930301,
@@ -1327,7 +1492,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930301 Act Boss Box Lv30 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930301 Act Boss Box Lv30 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     },
     {
       "id": 930401,
@@ -1335,7 +1501,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930401 Act Boss Box Lv40 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930401 Act Boss Box Lv40 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     },
     {
       "id": 930451,
@@ -1343,7 +1510,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930451 Act Boss Box Lv45 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930451 Act Boss Box Lv45 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     },
     {
       "id": 930501,
@@ -1351,7 +1519,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930501 Act Boss Box Lv50 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930501 Act Boss Box Lv50 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     },
     {
       "id": 930601,
@@ -1359,7 +1528,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930601 Act Boss Box Lv60 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930601 Act Boss Box Lv60 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     },
     {
       "id": 930651,
@@ -1367,7 +1537,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930651 Act Boss Box Lv65 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930651 Act Boss Box Lv65 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     },
     {
       "id": 930701,
@@ -1375,7 +1546,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930701 Act Boss Box Lv70 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930701 Act Boss Box Lv70 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     },
     {
       "id": 930851,
@@ -1383,7 +1555,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930851 Act Boss Box Lv85 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930851 Act Boss Box Lv85 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     },
     {
       "id": 930901,
@@ -1391,7 +1564,8 @@
       "kind": "stage-box",
       "rarity": "LEGENDARY",
       "family": "Act Boss",
-      "search_text": "930901 Act Boss Box Lv90 Stage box Legendary Act boss Likely stage range from box family and stage level."
+      "search_text": "930901 Act Boss Box Lv90 Stage box Legendary Act boss Likely stage range from box family and stage level.",
+      "image": "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
     }
   ]
 }

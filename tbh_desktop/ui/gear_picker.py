@@ -41,7 +41,11 @@ from PySide6.QtWidgets import (
 
 from tbh_desktop.gear_filters import CATEGORY_DISPLAY, GRADE_DISPLAY
 from tbh_desktop.paths import BOX_DROP_MAP_CACHE
-from tbh_desktop.scraper import read_box_drop_cache, read_gear_cache
+from tbh_desktop.scraper import (
+    derive_item_image_url,
+    read_box_drop_cache,
+    read_gear_cache,
+)
 from tbh_desktop.ui.image_cache import ImageCache
 
 # Inject the "All" pseudo-option (None slug means no filter).
@@ -529,7 +533,13 @@ class GearView(QWidget):
             if rarity_color:
                 bg = self._tinted_bg(rarity_color)
                 list_item.setBackground(QBrush(QColor(bg)))
-            image_url = str(item.get("image", "")).strip()
+            # Image URL: prefer the scraped one (always present for gear cache
+            # entries), fall back to derived URL for safety. Derived URL uses
+            # the wiki's canonical /game/gear/{slot}/{TYPE}_{id}.png path.
+            image_url = (
+                str(item.get("image", "")).strip()
+                or derive_item_image_url(int(item.get("id", 0)))
+            )
             if image_url:
                 list_item.setToolTip(self._build_tooltip(item, drop_map))
                 # Async fetch the icon (lands later via _apply_icon).

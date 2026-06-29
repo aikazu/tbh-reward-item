@@ -42,6 +42,8 @@ from PySide6.QtWidgets import (
 
 from tbh_desktop.ui.image_cache import ImageCache
 
+from tbh_desktop.scraper import derive_item_image_url  # noqa: E402
+
 
 # Short labels for inline stat-name display. Mirrors the gear picker
 # helper so the two pickers render stat names consistently.
@@ -135,9 +137,8 @@ class BoxLootView(QWidget):
 
         # Resolve items: explicit > cache > empty.
         if items is None and cache_path is not None:
-            from tbh_desktop.scraper import read_drops_index
             items = read_drops_index(cache_path)
-        items = items or []
+        items = items or []  # noqa: F841
         self._load_items(items)
         self._build_ui()
 
@@ -526,7 +527,14 @@ class BoxLootView(QWidget):
             list_item.setBackground(tint)
         # Image (async). Common kind = material/Item_X.png pattern; stage-box
         # usually has no icon — that's fine, no icon set.
-        image_url = str(item.get("image", "")).strip()
+        # Fall back to derived URL (gear/material/box) if the cache entry
+        # predates the wiki URL format (e.g. drops_index.json, older loot
+        # tables) so the picker never shows a blank icon for an obtainable
+        # item.
+        image_url = (
+            str(item.get("image", "")).strip()
+            or derive_item_image_url(int(item_id))
+        )
         if image_url:
             self._image_cache.request(image_url, item_id)
         self.list_widget.addItem(list_item)

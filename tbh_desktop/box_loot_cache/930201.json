@@ -6,7 +6,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/helmet/HELMET_500005.png"
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500005.png"
   },
   {
     "id": 510005,
@@ -15,7 +15,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/armor/ARMOR_510005.png"
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510005.png"
   },
   {
     "id": 520005,
@@ -24,7 +24,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/gloves/GLOVES_520005.png"
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520005.png"
   },
   {
     "id": 530005,
@@ -33,7 +33,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/boots/BOOTS_530005.png"
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530005.png"
   },
   {
     "id": 340005,
@@ -42,7 +42,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/crossbow/CROSSBOW_340005.png"
+    "image": "https://taskbarhero.wiki/game/gear/crossbow/CROSSBOW_340005.png"
   },
   {
     "id": 350005,
@@ -51,7 +51,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/axe/AXE_350005.png"
+    "image": "https://taskbarhero.wiki/game/gear/axe/AXE_350005.png"
   },
   {
     "id": 300005,
@@ -60,7 +60,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/sword/SWORD_300005.png"
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300005.png"
   },
   {
     "id": 310005,
@@ -69,7 +69,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/bow/BOW_310005.png"
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310005.png"
   },
   {
     "id": 320005,
@@ -78,7 +78,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/staff/STAFF_320005.png"
+    "image": "https://taskbarhero.wiki/game/gear/staff/STAFF_320005.png"
   },
   {
     "id": 330005,
@@ -87,7 +87,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/scepter/SCEPTER_330005.png"
+    "image": "https://taskbarhero.wiki/game/gear/scepter/SCEPTER_330005.png"
   },
   {
     "id": 500004,
@@ -96,7 +96,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/helmet/HELMET_500004.png"
+    "image": "https://taskbarhero.wiki/game/gear/helmet/HELMET_500004.png"
   },
   {
     "id": 510004,
@@ -105,7 +105,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/armor/ARMOR_510004.png"
+    "image": "https://taskbarhero.wiki/game/gear/armor/ARMOR_510004.png"
   },
   {
     "id": 520004,
@@ -114,7 +114,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/gloves/GLOVES_520004.png"
+    "image": "https://taskbarhero.wiki/game/gear/gloves/GLOVES_520004.png"
   },
   {
     "id": 530004,
@@ -123,7 +123,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/boots/BOOTS_530004.png"
+    "image": "https://taskbarhero.wiki/game/gear/boots/BOOTS_530004.png"
   },
   {
     "id": 300004,
@@ -132,7 +132,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/sword/SWORD_300004.png"
+    "image": "https://taskbarhero.wiki/game/gear/sword/SWORD_300004.png"
   },
   {
     "id": 310004,
@@ -141,7 +141,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "gear",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/gear/bow/BOW_310004.png"
+    "image": "https://taskbarhero.wiki/game/gear/bow/BOW_310004.png"
   },
   {
     "id": 141001,
@@ -150,7 +150,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_141001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_141001.png"
   },
   {
     "id": 141002,
@@ -159,7 +159,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_141002.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_141002.png"
   },
   {
     "id": 142001,
@@ -168,7 +168,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_142001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_142001.png"
   },
   {
     "id": 142002,
@@ -177,7 +177,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_142002.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_142002.png"
   },
   {
     "id": 143001,
@@ -186,7 +186,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_143001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_143001.png"
   },
   {
     "id": 143002,
@@ -195,7 +195,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_143002.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_143002.png"
   },
   {
     "id": 111001,
@@ -204,7 +204,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_111001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_111001.png"
   },
   {
     "id": 111002,
@@ -213,7 +213,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_111002.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_111002.png"
   },
   {
     "id": 111003,
@@ -222,7 +222,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_111003.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_111003.png"
   },
   {
     "id": 111004,
@@ -231,7 +231,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_111004.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_111004.png"
   },
   {
     "id": 112001,
@@ -240,7 +240,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_112001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_112001.png"
   },
   {
     "id": 112002,
@@ -249,7 +249,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_112002.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_112002.png"
   },
   {
     "id": 112003,
@@ -258,7 +258,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_112003.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_112003.png"
   },
   {
     "id": 112004,
@@ -267,7 +267,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_112004.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_112004.png"
   },
   {
     "id": 112005,
@@ -276,7 +276,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_112005.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_112005.png"
   },
   {
     "id": 113001,
@@ -285,7 +285,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_113001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_113001.png"
   },
   {
     "id": 113002,
@@ -294,7 +294,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_113002.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_113002.png"
   },
   {
     "id": 113003,
@@ -303,7 +303,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_113003.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_113003.png"
   },
   {
     "id": 113004,
@@ -312,7 +312,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_113004.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_113004.png"
   },
   {
     "id": 130001,
@@ -321,7 +321,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_130001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_130001.png"
   },
   {
     "id": 160001,
@@ -330,7 +330,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_160001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_160001.png"
   },
   {
     "id": 122001,
@@ -339,7 +339,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_122001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_122001.png"
   },
   {
     "id": 122002,
@@ -348,7 +348,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_122002.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_122002.png"
   },
   {
     "id": 122003,
@@ -357,7 +357,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_122003.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_122003.png"
   },
   {
     "id": 122004,
@@ -366,7 +366,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_122004.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_122004.png"
   },
   {
     "id": 121001,
@@ -375,7 +375,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_121001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_121001.png"
   },
   {
     "id": 121002,
@@ -384,7 +384,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_121002.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_121002.png"
   },
   {
     "id": 121003,
@@ -393,7 +393,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_121003.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_121003.png"
   },
   {
     "id": 121004,
@@ -402,7 +402,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_121004.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_121004.png"
   },
   {
     "id": 123001,
@@ -411,7 +411,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_123001.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_123001.png"
   },
   {
     "id": 123002,
@@ -420,7 +420,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_123002.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_123002.png"
   },
   {
     "id": 123003,
@@ -429,7 +429,7 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_123003.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_123003.png"
   },
   {
     "id": 123004,
@@ -438,6 +438,6 @@
     "box_id": 0,
     "box_name": "",
     "kind": "material",
-    "image": "https://taskbarhero.wiki/assets/tbhdb/game/items/materials/Item_123004.png"
+    "image": "https://taskbarhero.wiki/game/items/materials/Item_123004.png"
   }
 ]

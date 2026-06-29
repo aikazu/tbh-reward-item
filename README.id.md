@@ -34,6 +34,10 @@ jaringan.
   - [Rule Range](#rule-range)
 - [Menjalankan Proxy](#menjalankan-proxy)
   - [Hot Reload](#hot-reload)
+- [Kesadaran Anti-Cheat](#kesadaran-anti-cheat)
+  - [Sistem Suffix](#sistem-suffix)
+  - [Picker Suffix-Aware](#picker-suffix-aware)
+  - [Monitoring Tamper](#monitoring-tamper)
 - [Aplikasi Desktop](#aplikasi-desktop)
   - [Instalasi & Menjalankan](#desktop-install-id)
   - [Tur UI](#ui-tour-id)
@@ -115,7 +119,7 @@ Edit `src/config.json`. Bentuk:
     {
       "enabled": true,
       "name": "Normal Box",
-      "item_id": 910901,
+      "item_id": 910801,
       "level": 12,
       "replacement_reward_item_ids": [135001, 605041, 605051]
     }
@@ -138,7 +142,7 @@ level box; addon-nya sendiri mengabaikannya).
 Cocokkan `itemId` secara persis. Setiap match mengonsumsi satu nilai dari
 `replacement_reward_item_ids` secara siklis (index modulo panjang list).
 
-Contoh: Normal Box `910901` dengan replacements `[135001, 605041, 605051]`.
+Contoh: Normal Box `910801` dengan replacements `[135001, 605041, 605051]`.
 Hit Normal Box pertama jadi `135001`, kedua `605041`, ketiga `605051`,
 keempat wrap kembali ke `135001`, dan seterusnya.
 
@@ -169,9 +173,9 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 \
 Contoh output:
 
 ```
-[TBH] TBH Reward Proxy loaded: 2 queue rules, range mode=off.
-[TBH] TBH Reward Proxy replaced Normal Box: itemId=910901, rewardItemId=1001->135001
-[TBH] TBH Reward Proxy wrote 3 replacement(s).
+[TBH] TBH Reward Proxy loaded: 1 specific rules active, range=off.
+[TBH] TBH Reward Proxy replaced [Normal Box] itemId=910801: rewardItemId=1001->135001
+[TBH] TBH Reward Proxy wrote 1 replacement(s).
 ```
 
 Stop dengan `Ctrl+C`. Arahkan klien target ke proxy `127.0.0.1:8877`.
@@ -222,6 +226,94 @@ berubah.
 
 Restart proxy hanya perlu untuk mengganti `listen_port` (mitmproxy bind
 port saat startup).
+
+---
+
+## Kesadaran Anti-Cheat <a id="kesadaran-anti-cheat"></a>
+
+Klien TBH punya **validator anti-cheat sisi-klien**. Setelah
+`processBoxV2` membuat reward tertunda, klien menyimpan cache
+`<itemKey, rewardItemId>`. Saat operasi inventory berikutnya
+(`consume`, `exchange`, atau membuka box lain), klien cross-check
+`rewardItemId` yang di-cache terhadap nilai kebenaran dari
+`pendingTx.tid`. Jika beda, klien mengirim:
+
+```
+POST /data/gameLog/v2/TemperedItem/90
+{"msg":"TamperedItemIdDetected","data":{"mismatches":["<itemKey>:<orig>-><used>", ...]}}
+```
+
+Server mengembalikan `204 No Content` — hanya dicatat. **Belum ada ban
+yang teramati**, tapi laporan berulang mengakumulasi jejak. Forensik
+lengkap di [`docs/analysis/tbh-network-forensics.md`](docs/analysis/tbh-network-forensics.md).
+
+### Sistem Suffix <a id="sistem-suffix"></a>
+
+Validator klien hanya mengecek **3 digit terakhir** dari `rewardItemId`
+(rarity × 100 + tier), bukan ID 6-digit penuh. Struktur ItemId:
+
+```
+ABCDEF where:
+  AB  = kategori 2-digit (30=sword, 50=helmet, 60=amulet, dll.)
+  C   = rarity (0=Common ... 9=Cosmic) ← ini yang dicek validator
+  DEF = tier + slot (3-digit)
+```
+
+**Aturan**: pilih replacement yang 3 digit terakhirnya cocok dengan
+3 digit terakhir drop asli. Kategori (2 digit pertama) bebas berubah.
+
+| Drop asli | Replacement aman | Suffix |
+|---|---|---|
+| `319171` (Cosmic Bow) | `419171` (Cosmic Axe) | `171` ✓ |
+| `190004` (Soulstone Torment) | `114004` (Emerald) | `004` ✓ |
+| `311171` (Uncommon Bow) | `419171` (Cosmic Axe) | `171` ✓ |
+
+| Drop asli | Replacement berbahaya | Kenapa |
+|---|---|---|
+| `190004` | `419171` | suffix `004`→`171` = MISMATCH = tamper report |
+
+Pool suffix box (diverifikasi dari capture):
+
+| Jenis box | Suffix dominan |
+|---|---|
+| Normal Box (`910801`) | `171`, `017`, `004`, `003`, `001` |
+| Stage Boss Box (`920801`) | `004` (dominan), `017`, `171` |
+
+### Picker Suffix-Aware <a id="picker-suffix-aware"></a>
+
+Dialog **BoxLootPicker** dan **GearPicker** punya checkbox baru
+"Suffix-aware". Saat diaktifkan:
+
+- Tiap baris menampilkan badge `~XXX` (3 digit terakhir)
+- Dropdown "Suffix:" muncul — filter item berdasarkan suffix
+- Gunakan untuk mempersempit ke item yang suffix-nya cocok dengan
+  drop asli, sehingga hanya memilih replacement yang validator-safe
+
+Saat dimatikan, picker berperilaku seperti biasa (tanpa noise suffix).
+
+**Alur kerja rekomendasi**:
+1. Cek suffix reward asli (dari data capture atau tabel di atas)
+2. Aktifkan "Suffix-aware" di picker
+3. Pilih suffix yang cocok di dropdown
+4. Pilih item high-value dari list yang sudah difilter
+
+### Monitoring Tamper <a id="monitoring-tamper"></a>
+
+Addon punya **TamperDetector pasif** yang:
+
+- Memantau response `POST /data/gameLog/v2/TemperedItem/90`
+- Mencatat tiap mismatch ke `captures/tamper-events.jsonl` dengan field
+  terstruktur: `itemKey`, `original_id`, `used_id`, `original_rarity`,
+  `used_rarity`, `original_tier`, `used_tier`, `last3_preserved`
+- Mencetak `TAMPER WARNING: N mismatch(es)... Session total: M` ke
+  stdout (terlihat di log panel desktop)
+
+Di **aplikasi desktop**, status bar menampilkan counter live:
+`⚠ Tamper reports this session: M`. Counter reset ke 0 saat sesi proxy
+baru dimulai.
+
+Jika muncul tamper report: ID replacement kamu suffix-nya tidak cocok.
+Gunakan suffix-aware picker untuk memperbaiki config.
 
 ---
 
@@ -495,6 +587,18 @@ diedit, atau form range bila form tersebut punya fokus).
   map) tanpa scrape. Berguna untuk "apa perlu re-scrape?" secara
   sekilas.
 
+- **Suffix-aware picker** — BoxLootPicker dan GearPicker punya checkbox
+  "Suffix-aware". Saat aktif, tiap baris menampilkan badge `~XXX`
+  (3 digit terakhir = rarity+tier) dan dropdown memfilter item berdasarkan
+  suffix. Gunakan untuk memilih replacement yang validator-safe (suffix
+  sama = tidak ada `TamperedItemIdDetected`). Lihat
+  [Kesadaran Anti-Cheat](#kesadaran-anti-cheat).
+
+- **Tamper counter** — status bar menampilkan `⚠ Tamper reports this
+  session: M`, di-parse dari stdout `TAMPER WARNING` addon. Reset ke 0
+  saat sesi proxy baru dimulai. Memberi visibilitas live ke perilaku
+  anti-cheat tanpa scroll log panel.
+
 - **Start / Stop proxy** — jalankan `src/run_proxy.py` sebagai
   subprocess (cwd = repo root, process group sendiri). Status badge
   jadi `RUNNING` dengan dot hijau; log dock stream stdout secara real
@@ -764,11 +868,11 @@ intercept seluruh traffic terenkripsi.
 ```
 TBH/
 ├── src/                              # addon mitmproxy (pure stdlib + mitmproxy)
-│   ├── tbh_reward_hook.py            # TBHRewardHook + RewardRewriter (regex engine)
+│   ├── tbh_reward_hook.py            # TBHRewardHook + RewardRewriter + TamperDetector
 │   ├── tbh_proxy_config.py           # dataclass ProxyConfig / QueueRule / RangeRule
 │   ├── run_proxy.py                  # launcher (mitmdump atau python -m mitmproxy)
 │   ├── config_setup.py               # ensure_config() — copy default → live
-│   ├── config.default.json           # template seed
+│   ├── config.default.json           # template seed (box IDs: 910801, 920801)
 │   └── config.json                   # di-generate first run, hot-reloaded
 ├── tbh_desktop/                      # GUI PySide6 opsional
 │   ├── main.py                       # entry: QApplication + theme + handler SIGINT
@@ -798,8 +902,13 @@ TBH/
 │                                     #   install_cert, remove_cert, launch_desktop
 ├── windows/                          # ekuivalen Windows + install_cert.bat
 ├── tests/                            # config_io, scraper, proxy_runner,
-│                                     #   gear_picker, main_window (bertanda gui)
-├── docs/                             # specs + plans superpowers
+│                                     #   gear_picker, main_window (gui-marked),
+│                                     #   reward_rewriter (Rewriter + TamperDetector)
+├── docs/                             # specs + plans
+│   └── analysis/                     # forensik jaringan + write-up capture
+│       ├── tbh-network-forensics.md  # notebook berjalan (suffix system, tid mapping, §10.12)
+│       └── capture-20260628-193055.md # forensik capture pertama
+├── captures/                         # file .flow, tamper-events.jsonl, item-catalog.json
 ├── requirements.txt                  # mitmproxy
 ├── requirements-desktop.txt          # PySide6, requests, bs4, lxml, pytest-qt,
 │                                     #   playwright, cloakbrowser, Pillow

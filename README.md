@@ -33,6 +33,10 @@ patching, no injection — just a network proxy.
   - [Range Rules](#range-rules)
 - [Running the Proxy](#running-the-proxy)
   - [Hot Reload](#hot-reload)
+- [Anti-Cheat Awareness](#anti-cheat-awareness)
+  - [Suffix System](#suffix-system)
+  - [Suffix-Aware Picker](#suffix-aware-picker)
+  - [Tamper Monitoring](#tamper-monitoring)
 - [Desktop App](#desktop-app)
   - [Install & Launch](#desktop-install)
   - [UI Tour](#ui-tour)
@@ -114,7 +118,7 @@ Edit `src/config.json`. Shape:
     {
       "enabled": true,
       "name": "Normal Box",
-      "item_id": 910901,
+      "item_id": 910801,
       "level": 12,
       "replacement_reward_item_ids": [135001, 605041, 605051]
     }
@@ -137,7 +141,7 @@ box's level range; the addon itself ignores it).
 Matches `itemId` exactly. Each match consumes one value from
 `replacement_reward_item_ids` cyclically (index modulo list length).
 
-Example: Normal Box `910901` with replacements `[135001, 605041, 605051]`.
+Example: Normal Box `910801` with replacements `[135001, 605041, 605051]`.
 The first Normal Box hit becomes `135001`, the second `605041`, the third
 `605051`, the fourth wraps back to `135001`, and so on.
 
@@ -168,9 +172,9 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 \
 Sample output:
 
 ```
-[TBH] TBH Reward Proxy loaded: 2 queue rules, range mode=off.
-[TBH] TBH Reward Proxy replaced Normal Box: itemId=910901, rewardItemId=1001->135001
-[TBH] TBH Reward Proxy wrote 3 replacement(s).
+[TBH] TBH Reward Proxy loaded: 1 specific rules active, range=off.
+[TBH] TBH Reward Proxy replaced [Normal Box] itemId=910801: rewardItemId=1001->135001
+[TBH] TBH Reward Proxy wrote 1 replacement(s).
 ```
 
 Stop with `Ctrl+C`. Point the target client at proxy `127.0.0.1:8877`.
@@ -220,6 +224,94 @@ the file mtime on every intercepted response and reloads when it changes.
 
 You only need to restart the proxy to change `listen_port` (mitmproxy binds
 the port at startup).
+
+---
+
+## Anti-Cheat Awareness <a id="anti-cheat-awareness"></a>
+
+The TBH client ships a **client-side anti-cheat validator**. After
+`processBoxV2` mints a pending reward, the client caches
+`<itemKey, rewardItemId>`. On any subsequent inventory operation
+(`consume`, `exchange`, or opening another box's pending), the client
+cross-checks the cached `rewardItemId` against the server-truth value
+derived from `pendingTx.tid`. If they disagree, it sends:
+
+```
+POST /data/gameLog/v2/TemperedItem/90
+{"msg":"TamperedItemIdDetected","data":{"mismatches":["<itemKey>:<orig>-><used>", ...]}}
+```
+
+The server returns `204 No Content` — it just logs. **No ban has been
+observed yet**, but repeated reports accumulate a trail. Full forensics
+in [`docs/analysis/tbh-network-forensics.md`](docs/analysis/tbh-network-forensics.md).
+
+### Suffix System <a id="suffix-system"></a>
+
+The client validator checks only the **last 3 digits** of `rewardItemId`
+(rarity × 100 + tier), not the full 6-digit ID. ItemId structure:
+
+```
+ABCDEF where:
+  AB  = 2-digit category (30=sword, 50=helmet, 60=amulet, etc.)
+  C   = rarity (0=Common ... 9=Cosmic) ← this is what the validator checks
+  DEF = tier + slot (3-digit)
+```
+
+**Rule**: pick replacements whose last-3 digits match the original
+drop's last-3 digits. The category (first 2 digits) can change freely.
+
+| Original drop | Safe replacement | Suffix |
+|---|---|---|
+| `319171` (Cosmic Bow) | `419171` (Cosmic Axe) | `171` ✓ |
+| `190004` (Soulstone Torment) | `114004` (Emerald) | `004` ✓ |
+| `311171` (Uncommon Bow) | `419171` (Cosmic Axe) | `171` ✓ |
+
+| Original drop | Dangerous replacement | Why |
+|---|---|---|
+| `190004` | `419171` | suffix `004`→`171` = MISMATCH = tamper report |
+
+Box suffix pools (verified from captures):
+
+| Box kind | Dominant suffixes |
+|---|---|
+| Normal Box (`910801`) | `171`, `017`, `004`, `003`, `001` |
+| Stage Boss Box (`920801`) | `004` (heavy), `017`, `171` |
+
+### Suffix-Aware Picker <a id="suffix-aware-picker"></a>
+
+Both the **BoxLootPicker** and **GearPicker** dialogs have a new
+"Suffix-aware" checkbox. When enabled:
+
+- Each row displays a `~XXX` badge showing the last-3 digits
+- A "Suffix:" dropdown appears — filter items by suffix
+- Use it to narrow to items whose suffix matches the original drop's
+  suffix, so you only pick validator-safe replacements
+
+When disabled, the picker behaves as before (no suffix noise).
+
+**Recommended workflow**:
+1. Check the original reward's suffix (from capture data or the table above)
+2. Enable "Suffix-aware" in the picker
+3. Select the matching suffix in the dropdown
+4. Pick a high-value item from the filtered list
+
+### Tamper Monitoring <a id="tamper-monitoring"></a>
+
+The addon includes a **passive TamperDetector** that:
+
+- Watches `POST /data/gameLog/v2/TemperedItem/90` responses
+- Logs each mismatch to `captures/tamper-events.jsonl` with structured
+  fields: `itemKey`, `original_id`, `used_id`, `original_rarity`,
+  `used_rarity`, `original_tier`, `used_tier`, `last3_preserved`
+- Prints `TAMPER WARNING: N mismatch(es)... Session total: M` to stdout
+  (visible in the desktop log panel)
+
+In the **desktop app**, the status bar shows a live counter:
+`⚠ Tamper reports this session: M`. The counter resets when a new proxy
+session starts.
+
+If you see tamper reports: your replacement IDs have mismatched suffixes.
+Use the suffix-aware picker to fix your config.
 
 ---
 
@@ -483,6 +575,17 @@ range form if it has focus).
 - **Check data** — shows counts, last-fetched timestamps, and disk usage
   for each cache (drops index, gear cache, box drop map) without scraping.
   Useful for "do I need to re-scrape?" at a glance.
+
+- **Suffix-aware picker** — both BoxLootPicker and GearPicker have a
+  "Suffix-aware" checkbox. When enabled, each row shows a `~XXX` badge
+  (last 3 digits = rarity+tier) and a dropdown filters items by suffix.
+  Use it to pick validator-safe replacements (same suffix = no
+  `TamperedItemIdDetected`). See [Anti-Cheat Awareness](#anti-cheat-awareness).
+
+- **Tamper counter** — the status bar shows `⚠ Tamper reports this
+  session: M`, parsed from the addon's `TAMPER WARNING` stdout lines.
+  Resets to 0 when a new proxy session starts. Gives live visibility
+  into anti-cheat behavior without scrolling the log panel.
 
 - **Start / Stop proxy** — spawns `src/run_proxy.py` as a subprocess
   (cwd = repo root, own process group). Status badge turns `RUNNING` with
@@ -754,11 +857,11 @@ encrypted traffic.
 ```
 TBH/
 ├── src/                              # mitmproxy addon (pure stdlib + mitmproxy)
-│   ├── tbh_reward_hook.py            # TBHRewardHook + RewardRewriter (regex engine)
+│   ├── tbh_reward_hook.py            # TBHRewardHook + RewardRewriter + TamperDetector
 │   ├── tbh_proxy_config.py           # ProxyConfig / QueueRule / RangeRule dataclasses
 │   ├── run_proxy.py                  # launcher (mitmdump or python -m mitmproxy)
 │   ├── config_setup.py               # ensure_config() — copy default → live
-│   ├── config.default.json           # seed template
+│   ├── config.default.json           # seed template (box IDs: 910801, 920801)
 │   └── config.json                   # generated on first run, hot-reloaded
 ├── tbh_desktop/                      # optional PySide6 GUI
 │   ├── main.py                       # entry: QApplication + theme + SIGINT handler
@@ -788,8 +891,13 @@ TBH/
 │                                     #   install_cert, remove_cert, launch_desktop
 ├── windows/                          # Windows equivalents + install_cert.bat
 ├── tests/                            # config_io, scraper, proxy_runner,
-│                                     #   gear_picker, main_window (gui-marked)
-├── docs/                             # superpowers specs + plans
+│                                     #   gear_picker, main_window (gui-marked),
+│                                     #   reward_rewriter (Rewriter + TamperDetector)
+├── docs/                             # specs + plans
+│   └── analysis/                     # network forensics + capture write-ups
+│       ├── tbh-network-forensics.md  # rolling notebook (suffix system, tid mapping, §10.12)
+│       └── capture-20260628-193055.md # first capture forensics
+├── captures/                         # .flow files, tamper-events.jsonl, item-catalog.json
 ├── requirements.txt                  # mitmproxy
 ├── requirements-desktop.txt          # PySide6, requests, bs4, lxml, pytest-qt,
 │                                     #   playwright, cloakbrowser, Pillow

@@ -96,6 +96,7 @@ class ProxyConfig:
         "url_contains",
         "specific_queue_rules",
         "range_replacement",
+        "rewrite_pending_tx",
     )
 
     def __init__(
@@ -106,6 +107,7 @@ class ProxyConfig:
         url_contains: tuple[str, ...],
         specific_queue_rules: tuple[QueueRule, ...],
         range_replacement: RangeRule,
+        rewrite_pending_tx: bool = False,
     ) -> None:
         self.listen_port = listen_port
         self.only_post = only_post
@@ -113,6 +115,7 @@ class ProxyConfig:
         self.url_contains = url_contains
         self.specific_queue_rules = specific_queue_rules
         self.range_replacement = range_replacement
+        self.rewrite_pending_tx = rewrite_pending_tx
 
     @staticmethod
     def load(path: Path = CONFIG_PATH) -> "ProxyConfig":
@@ -153,4 +156,5 @@ class ProxyConfig:
             url_contains=_as_str_tuple(_pick(data, ("url_contains", "UrlContains"), ["/backend-function/base/v1"])),
             specific_queue_rules=tuple(specific_rules),
             range_replacement=range_rule,
+            rewrite_pending_tx=bool(_pick(data, ("rewrite_pending_tx", "RewritePendingTx"), False)),
         )

@@ -1,8 +1,9 @@
 # Strategy B — Full Evasion via `pendingTx.tid` Rewrite
 
-**Status**: analysis complete, implementation pending (next session)
+**Status**: implemented (pending live verification)
 **Prerequisite reading**: `docs/analysis/tbh-network-forensics.md` §10.12
 **Created**: 2026-06-29 by the player
+**Implemented**: 2026-06-29 by the player
 
 ---
 
@@ -206,11 +207,11 @@ When `true`, the addon intercepts `SteamItemInfo/mine` in addition to
 - [ ] Capture a fresh session with addon OFF — open 1 box, capture
       `processBoxV2` + the next `SteamItemInfo/mine`. Verify `tid`
       mapping holds for the new pendingTx entry (n=2).
-- [ ] Implement `PendingTxRewriter` class
-- [ ] Add `rewrite_pending_tx` config flag
-- [ ] Wire into `TBHRewardHook.response()`
-- [ ] Unit tests for `PendingTxRewriter` (DynamoDB parse + rewrite + re-serialize)
-- [ ] Self-test extension with synthetic pendingTx fixture
+- [x] Implement `PendingTxRewriter` class
+- [x] Add `rewrite_pending_tx` config flag
+- [x] Wire into `TBHRewardHook.response()`
+- [x] Unit tests for `PendingTxRewriter` (DynamoDB parse + rewrite + re-serialize)
+- [x] Self-test extension with synthetic pendingTx fixture
 - [ ] Live test: addon ON with `rewrite_pending_tx=true`, open boxes,
       verify zero `TamperedItemIdDetected` in `tamper-events.jsonl`
 - [ ] Live test: swap cross-suffix (e.g. `190004` → `419171`) and

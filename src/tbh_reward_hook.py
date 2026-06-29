@@ -158,7 +158,138 @@ def _empty_config():
             match_max_item_id=950000,
             replacement_reward_item_ids=(),
         ),
+        rewrite_pending_tx=False,
     )
+
+
+# --- Strategy B: pendingTx.tid rewrite ---
+# SteamItemInfo/mine response carries DynamoDB-format pendingTx entries.
+# When we rewrite rewardItemId in processBoxV2, the original gid/tid in
+# pendingTx no longer match → client ships TamperedItemIdDetected.
+# PendingTxRewriter fixes this by also rewriting gid + tid to match.
+
+STEAMITEMINFO_URL_MARKER = "SteamItemInfo/mine"
+TID_OFFSET = 900  # tid = gid * 1000 + 900 (verified n=1, see docs/analysis §10.12)
+
+# DynamoDB format: "gid":{"N":"321111"} and "tid":{"N":"321111900"}
+# \\? handles both plain JSON ("gid") and escaped JSON (\"gid\") from
+# mitmproxy bodies. Same escaping style as ITEM_FIELD_RE above.
+_GID_RE = re.compile(r'\\?"gid\\?"\s*:\s*\{\\?"N\\?"\s*:\s*\\?"(?P<gid>\d+)\\?"\s*\}')
+_TID_RE = re.compile(r'\\?"tid\\?"\s*:\s*\{\\?"N\\?"\s*:\s*\\?"(?P<tid>\d+)\\?"\s*\}')
+
+
+class PendingTxRewriter:
+    """Rewrites pendingTx.gid + .tid to match a rewritten rewardItemId.
+
+    Maintains a session map {original_rewardItemId: new_rewardItemId} populated
+    by RewardRewriter. When SteamItemInfo/mine returns pendingTx entries,
+    rewrites gid/tid for any entry whose gid is in the map.
+
+    gid == rewardItemId (6-digit item ID)
+    tid  == gid * 1000 + 900   (offset verified from single capture)
+
+    Uses regex substitution on the raw body rather than full JSON round-trip:
+    DynamoDB responses contain many fields we must not touch, and field order
+    is not guaranteed. Regex targets only the gid/tid {"N":"..."} wrappers.
+    """
+
+    def __init__(self):
+        self._rewrite_map: dict[int, int] = {}
+        self._rewritten_count = 0
+
+    def record_rewrite(self, original_rid: int, new_rid: int) -> None:
+        """Called when RewardRewriter rewrites a rewardItemId. Stores the
+        mapping so the next SteamItemInfo/mine response can be fixed up."""
+        if original_rid != new_rid:
+            self._rewrite_map[original_rid] = new_rid
+
+    def maybe_rewrite(self, flow) -> int:
+        """Check if this is a SteamItemInfo response; rewrite if so.
+
+        Returns the number of pendingTx entries rewritten.
+        """
+        if not self._rewrite_map:
+            return 0
+
+        request = flow.request
+        response = flow.response
+        if response is None:
+            return 0
+
+        url = getattr(request, "pretty_url", "") or getattr(request, "url", "")
+        if STEAMITEMINFO_URL_MARKER not in url:
+            return 0
+
+        try:
+            body = response.get_text(strict=False)
+        except Exception:
+            return 0
+        if not body or "pendingTx" not in body:
+            return 0
+
+        new_body, count = self._rewrite_body(body)
+        if count > 0:
+            response.set_text(new_body)
+        return count
+
+    def _rewrite_body(self, body: str) -> tuple[str, int]:
+        """Find all gid values in the body. For any that are in the rewrite
+        map, substitute both the gid and its associated tid.
+
+        We match gid first, then search forward for the nearest tid within
+        the same pendingTx entry (M block). To avoid cross-entry bleed, the
+        tid search is bounded by the next gid match — if tid falls past it,
+        we skip the tid rewrite for this entry.
+        """
+        gid_matches = list(_GID_RE.finditer(body))
+        if not gid_matches:
+            return body, 0
+
+        count = 0
+        pieces: list[str] = []
+        cursor = 0
+
+        for i, gid_match in enumerate(gid_matches):
+            gid_val = int(gid_match.group("gid"))
+            if gid_val not in self._rewrite_map:
+                continue
+
+            new_gid = self._rewrite_map[gid_val]
+            new_tid = new_gid * 1000 + TID_OFFSET
+
+            gid_start = gid_match.start("gid")
+            gid_end = gid_match.end("gid")
+
+            # Copy everything from cursor up to the gid value
+            pieces.append(body[cursor:gid_start])
+            pieces.append(str(new_gid))
+            cursor = gid_end
+
+            # Find the nearest tid AFTER this gid, but BEFORE the next gid
+            # (same pendingTx M block). tid always follows gid in observed
+            # DynamoDB structure, but we guard against cross-entry bleed.
+            search_end = gid_matches[i + 1].start() if i + 1 < len(gid_matches) else len(body)
+            tid_slice = body[gid_end:search_end]
+            tid_match = _TID_RE.search(tid_slice)
+            if tid_match is not None:
+                # Adjust offsets to absolute body positions
+                tid_start = gid_end + tid_match.start("tid")
+                tid_end = gid_end + tid_match.end("tid")
+                pieces.append(body[cursor:tid_start])
+                pieces.append(str(new_tid))
+                cursor = tid_end
+
+            count += 1
+            log_info(
+                f"PendingTx rewrite: gid {gid_val}->{new_gid}, "
+                f"tid {gid_val * 1000 + TID_OFFSET}->{new_tid}"
+            )
+
+        if count == 0:
+            return body, 0
+
+        pieces.append(body[cursor:])
+        return "".join(pieces), count
 
 
 class ReplacementDetail:
@@ -283,6 +414,7 @@ class TBHRewardHook:
         self._config_mtime = self._read_mtime(self._config_path)
         self.rewriter = RewardRewriter(self.config)
         self.tamper_detector = TamperDetector()
+        self.pending_tx_rewriter = PendingTxRewriter()
         self._log_load_state()
         try:
             import signal
@@ -298,7 +430,8 @@ class TBHRewardHook:
         log_info(
             f"TBH Reward Proxy loaded: "
             f"{len(active_specific)} specific rules active, "
-            f"range={'on' if range_active else 'off'}."
+            f"range={'on' if range_active else 'off'}, "
+            f"pendingTx rewrite={'on' if self.config.rewrite_pending_tx else 'off'}."
         )
         if not active_specific and not range_active:
             log_info("no replacements configured — addon is a pass-through.")
@@ -333,6 +466,12 @@ class TBHRewardHook:
         # Passive: log tamper telemetry (never modifies traffic).
         self.tamper_detector.maybe_log(flow)
 
+        # Strategy B: rewrite pendingTx.gid/.tid to match rewardItemId rewrites.
+        # Runs BEFORE the only_post/url_contains filters because SteamItemInfo/mine
+        # is a GET request to a different endpoint than processBoxV2.
+        if self.config.rewrite_pending_tx:
+            self.pending_tx_rewriter.maybe_rewrite(flow)
+
         request = flow.request
         response = flow.response
 
@@ -366,6 +505,11 @@ class TBHRewardHook:
                 f"itemId={detail.item_id}: "
                 f"rewardItemId={detail.old_reward_item_id}->{detail.new_reward_item_id}"
             )
+            # Record mapping for Strategy B pendingTx rewrite
+            if self.config.rewrite_pending_tx:
+                self.pending_tx_rewriter.record_rewrite(
+                    detail.old_reward_item_id, detail.new_reward_item_id
+                )
         log_info(f"TBH Reward Proxy wrote {result.modified_count} replacement(s).")
 
 
@@ -460,6 +604,41 @@ def run_self_test():
     result4 = rewriter.rewrite(body4)  # rewriter has specific rule for 910801 only
     assert result4.modified_count == 0, result4
     print(f"  no rule for itemId: pass-through")
+
+    # Strategy B: PendingTxRewriter rewrites gid + tid in DynamoDB-format
+    # SteamItemInfo/mine responses to match the rewritten rewardItemId.
+    # tid = gid * 1000 + 900 (verified from capture, see §10.12).
+    tx_rewriter = PendingTxRewriter()
+    # Simulate: rewardItemId 321111 was rewritten to 419171
+    tx_rewriter.record_rewrite(321111, 419171)
+
+    steamitem_body = (
+        '{"rows":[{"pendingTx":{"L":[{"M":{'
+        '"op":{"S":"additem"},'
+        '"gid":{"N":"321111"},'
+        '"qty":{"N":"1"},'
+        '"rid":{"S":"17432693923082523668"},'
+        '"tid":{"N":"321111900"},'
+        '"sid":{"S":"76561198000000000"}'
+        '}}]}}]}'
+    )
+    new_body, tx_count = tx_rewriter._rewrite_body(steamitem_body)
+    assert tx_count == 1, f"expected 1 rewrite, got {tx_count}"
+    # Verify gid rewritten
+    assert '"gid":{"N":"419171"}' in new_body, "gid not rewritten"
+    # Verify tid = 419171 * 1000 + 900 = 419171900
+    assert '"tid":{"N":"419171900"}' in new_body, f"tid not rewritten correctly: {new_body}"
+    # Verify other fields untouched
+    assert '"rid":{"S":"17432693923082523668"}' in new_body, "rid was corrupted"
+    assert '"sid":{"S":"76561198000000000"}' in new_body, "sid was corrupted"
+    print(f"  Strategy B: gid 321111->419171, tid 321111900->419171900 (offset {TID_OFFSET})")
+
+    # Strategy B: gid not in map → no rewrite
+    tx_rewriter2 = PendingTxRewriter()
+    tx_rewriter2.record_rewrite(999999, 888888)
+    _, tx_count2 = tx_rewriter2._rewrite_body(steamitem_body)
+    assert tx_count2 == 0, f"expected 0 rewrites for unmapped gid, got {tx_count2}"
+    print(f"  Strategy B: unmapped gid → pass-through")
 
     print("Self-test OK.")
 

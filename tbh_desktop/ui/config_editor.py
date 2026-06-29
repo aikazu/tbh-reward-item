@@ -274,6 +274,16 @@ class _ProxyModeForm(QWidget):
         name_row.addWidget(self.edit_name, 1)
         outer.addLayout(name_row)
 
+        # ---- Strategy B: pendingTx rewrite toggle --------------------
+        self.chk_rewrite_pending = QCheckBox("rewrite pendingTx (Strategy B)")
+        self.chk_rewrite_pending.setToolTip(
+            "Also rewrite pendingTx.gid + .tid in SteamItemInfo/mine to match "
+            "the rewritten rewardItemId. Eliminates TamperedItemIdDetected for "
+            "cross-suffix swaps. OFF by default — verify safe across sessions "
+            "before enabling. See docs/analysis/strategy-b-tid-rewrite.md."
+        )
+        outer.addWidget(self.chk_rewrite_pending)
+
         # Enable/disable the name field based on mode (cosmetic — value
         # is still saved if user fills it before switching).
         self.radio_local.toggled.connect(self.edit_name.setEnabled)
@@ -299,11 +309,13 @@ class _ProxyModeForm(QWidget):
             name = "TaskBarHero.exe"
         self.edit_name.setText(name)
         self.edit_name.setEnabled(self.radio_local.isChecked())
+        self.chk_rewrite_pending.setChecked(bool(data.get("rewrite_pending_tx", False)))
 
     def dump(self) -> dict[str, Any]:
         return {
             "mode": "local" if self.radio_local.isChecked() else "regular",
             "local_process_name": self.edit_name.text().strip(),
+            "rewrite_pending_tx": self.chk_rewrite_pending.isChecked(),
         }
 
     def mode(self) -> str:

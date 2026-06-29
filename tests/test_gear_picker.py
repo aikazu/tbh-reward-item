@@ -217,3 +217,43 @@ def test_picker_empty_string_level_treated_as_zero(qtbot, tmp_path):
     # Reset min to "All" (no filter) -> both items shown again.
     dlg.level_min.setCurrentIndex(0)
     assert dlg.list_widget.count() == 2
+
+
+
+@pytest.mark.gui
+def test_item_card_set_icon_pixmap(qtbot):
+    """Regression: previously _on_global_icon called QIcon.pixmap with an
+    AspectRatioMode argument — that signature doesn't exist in PySide6 6.11
+    and crashed the GUI on every icon delivery. The fix uses QSize."""
+    from tbh_desktop.ui.item_card import ItemCard
+    from PySide6.QtGui import QIcon, QPixmap, QColor
+
+    card = ItemCard()
+    card.set_data({"id": 505041, "name": "Knight Helmet", "rarity": "Arcana"})
+
+    pix = QPixmap(64, 64)
+    pix.fill(QColor("red"))
+    icon = QIcon(pix)
+
+    # Must not raise TypeError.
+    card._on_global_icon(505041, icon)
+
+    actual = card._icon_label.pixmap()
+    assert actual is not None and not actual.isNull()
+
+
+@pytest.mark.gui
+def test_item_card_icon_ignored_for_wrong_id(qtbot):
+    """_on_global_icon must early-return when item_id doesn't match."""
+    from tbh_desktop.ui.item_card import ItemCard
+    from PySide6.QtGui import QIcon, QPixmap, QColor
+
+    card = ItemCard()
+    card.set_data({"id": 505041, "name": "Knight Helmet", "rarity": "Arcana"})
+
+    pix = QPixmap(64, 64)
+    pix.fill(QColor("red"))
+    icon = QIcon(pix)
+
+    # Wrong id → no error, no pixmap assigned.
+    card._on_global_icon(999999, icon)

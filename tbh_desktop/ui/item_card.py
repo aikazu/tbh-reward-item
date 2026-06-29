@@ -103,10 +103,12 @@ class ItemCard(QFrame):
 
     def _on_global_icon(self, item_id: int, icon) -> None:
         if item_id == self._item_id and icon is not None:
-            # icon is a QIcon; extract a QPixmap sized for this card.
+            # icon is a QIcon; extract a square QPixmap (QIcon.pixmap doesn't
+            # accept AspectRatioMode — we let the label scale via
+            # KeepAspectRatio on setPixmap with a QSize).
             size = self.SIZE_COMPACT - 8 if self._compact else 56
             self._icon_label.setPixmap(
-                icon.pixmap(size, size, Qt.AspectRatioMode.KeepAspectRatio)
+                icon.pixmap(QSize(size, size))
             )
 
 

@@ -203,6 +203,8 @@ class MainWindow(QMainWindow):
         self._build_toolbar()
         self._build_menu()
         self.setStatusBar(QStatusBar())
+        self._tamper_count: int = 0
+        self._update_tamper_status()
 
         # Initialize button/dot state to "not running".
         self._on_running(False)
@@ -518,6 +520,27 @@ class MainWindow(QMainWindow):
 
     def _on_log(self, line: str) -> None:
         self.log_panel.append_log(line)
+        # Detect tamper warnings from the addon (passive TamperDetector
+        # emits "TAMPER WARNING: N mismatch(es)... Session total: M").
+        # Parse the session total so the status bar shows a live count.
+        if "TAMPER WARNING" in line and "Session total:" in line:
+            try:
+                after = line.split("Session total:")[1].strip()
+                num = int(after.split(".")[0].strip())
+                if num > self._tamper_count:
+                    self._tamper_count = num
+                    self._update_tamper_status()
+            except (ValueError, IndexError):
+                pass
+
+    def _update_tamper_status(self) -> None:
+        """Show the current tamper count in the status bar."""
+        if self._tamper_count > 0:
+            self.statusBar().showMessage(
+                f"⚠ Tamper reports this session: {self._tamper_count}"
+            )
+        else:
+            self.statusBar().clearMessage()
 
     def _on_running(self, running: bool) -> None:
         self.btn_start.setEnabled(not running)
@@ -527,6 +550,11 @@ class MainWindow(QMainWindow):
             "Proxy status: running" if running else "Proxy status: stopped"
         )
         self.status_badge.set_state(running)
+        # Reset tamper counter when a new proxy session starts so the
+        # status bar reflects only the current session's reports.
+        if running:
+            self._tamper_count = 0
+            self._update_tamper_status()
 
     # ------------------------------------------------------------------ scraper
     def _refresh_gear(self) -> None:

@@ -222,6 +222,30 @@ class GearView(QWidget):
 
         layout.addWidget(filters_group)
 
+        # ── Suffix-aware toggle ───────────────────────────────────────────
+        # Same concept as BoxLootView: show last-3-digit suffix and let
+        # the user filter by it so they pick validator-safe replacements.
+        suffix_row = QHBoxLayout()
+        suffix_row.setSpacing(8)
+        self.chk_suffix_aware = QCheckBox("Suffix-aware")
+        self.chk_suffix_aware.setToolTip(
+            "Show the last-3-digit suffix (rarity+tier) for each item.\n"
+            "The client validator checks this — picking a replacement\n"
+            "whose suffix differs from the original triggers TamperedItemIdDetected.\n"
+            "Enable to see suffixes and filter by them."
+        )
+        self.chk_suffix_aware.toggled.connect(self._on_suffix_toggle_gear)
+        suffix_row.addWidget(self.chk_suffix_aware)
+
+        self.suffix_filter = QComboBox()
+        self.suffix_filter.setToolTip("Filter items by suffix (last 3 digits)")
+        self.suffix_filter.setEnabled(False)
+        self.suffix_filter.currentIndexChanged.connect(self._rebuild)
+        suffix_row.addWidget(QLabel("Suffix:"))
+        suffix_row.addWidget(self.suffix_filter)
+        suffix_row.addStretch()
+        filters_layout.addLayout(suffix_row)
+
         # ── Search ────────────────────────────────────────────────────────
         self.search = QLineEdit()
         self.search.setPlaceholderText("Filter by name or id…")
@@ -460,6 +484,14 @@ class GearView(QWidget):
         )
         loot_names: set[str] = self._loot_names or set()
 
+        # Suffix filter (only active when suffix-aware is on).
+        suffix_filter_val = (
+            self.suffix_filter.currentData()
+            if self.chk_suffix_aware.isChecked()
+            else None
+        )
+        suffix_aware = self.chk_suffix_aware.isChecked()
+
         self.list_widget.clear()
         # Lazy-load box drop map once per rebuild. May be empty if no
         # box_drop_map.json has been generated yet — that's fine, tooltips
@@ -476,10 +508,18 @@ class GearView(QWidget):
                 continue
             if match_box and str(name).strip().lower() not in loot_names:
                 continue
+            # Suffix filter: skip items whose last-3 doesn't match.
+            item_id_val = item.get("id")
+            if suffix_filter_val is not None and item_id_val is not None:
+                if str(item_id_val)[-3:] != suffix_filter_val:
+                    continue
             # Stats field comes from the per-combo cache file (stamped at
             # scrape time by scraper._enrich_items_with_stats). No separate
             # detail cache; just read what _load_items_for_filters gave us.
-            line1 = f"{item.get('id')} · {name} ({item.get('rarity', '')})"
+            rarity_str = str(item.get("rarity", ""))
+            line1 = f"{item_id_val} · {name} ({rarity_str})"
+            if suffix_aware and item_id_val is not None:
+                line1 += f"  [~{str(item_id_val)[-3:]}]"
             stats_line = _format_stats_compact(item.get("stats"))
             text = f"{line1}\n{stats_line}" if stats_line else line1
             list_item = QListWidgetItem(text)
@@ -506,6 +546,27 @@ class GearView(QWidget):
         # names were extracted from the box — and warns when no gear in the
         # cache matches any of them (so the picker would show 0 items).
         self._update_scope_banner()
+
+    def _on_suffix_toggle_gear(self, checked: bool) -> None:
+        """Enable/disable the suffix dropdown and populate it when enabled."""
+        self.suffix_filter.setEnabled(checked)
+        if not checked:
+            self._rebuild()
+            return
+        # Populate suffix options from all cached items.
+        suffix_counts: dict[str, int] = {}
+        for item in self._load_items_for_filters():
+            iid = item.get("id")
+            if iid is not None:
+                sfx = str(iid)[-3:]
+                suffix_counts[sfx] = suffix_counts.get(sfx, 0) + 1
+        self.suffix_filter.blockSignals(True)
+        self.suffix_filter.clear()
+        self.suffix_filter.addItem("All", None)
+        for sfx in sorted(suffix_counts.keys()):
+            self.suffix_filter.addItem(f"{sfx} ({suffix_counts[sfx]})", sfx)
+        self.suffix_filter.blockSignals(False)
+        self._rebuild()
 
     def _update_count(self) -> None:
         visible = sum(1 for i in range(self.list_widget.count())

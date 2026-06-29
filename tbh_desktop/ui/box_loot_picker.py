@@ -27,6 +27,7 @@ from typing import Any
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -278,6 +279,33 @@ class BoxLootView(QWidget):
         self.search.textChanged.connect(self._apply_filters)
         layout.addWidget(self.search)
 
+        # Suffix-aware toggle + suffix filter dropdown.
+        # The client validator checks last-3 digits of rewardItemId (see
+        # docs/analysis §10.8). When enabled, each row shows its suffix
+        # (last 3 digits) as a badge and a dropdown lets the user filter
+        # by suffix so they only pick replacements that won't trigger
+        # TamperedItemIdDetected.
+        suffix_row = QHBoxLayout()
+        suffix_row.setSpacing(8)
+        self.chk_suffix_aware = QCheckBox("Suffix-aware")
+        self.chk_suffix_aware.setToolTip(
+            "Show the last-3-digit suffix (rarity+tier) for each item.\n"
+            "The client validator checks this — picking a replacement\n"
+            "whose suffix differs from the original triggers TamperedItemIdDetected.\n"
+            "Enable to see suffixes and filter by them."
+        )
+        self.chk_suffix_aware.toggled.connect(self._on_suffix_toggle)
+        suffix_row.addWidget(self.chk_suffix_aware)
+
+        self.suffix_filter = QComboBox()
+        self.suffix_filter.setToolTip("Filter items by suffix (last 3 digits)")
+        self.suffix_filter.setEnabled(False)
+        self.suffix_filter.currentIndexChanged.connect(self._apply_filters)
+        suffix_row.addWidget(QLabel("Suffix:"))
+        suffix_row.addWidget(self.suffix_filter)
+        suffix_row.addStretch()
+        layout.addLayout(suffix_row)
+
         # List widget.
         self.list_widget = QListWidget()
         self.list_widget.setAlternatingRowColors(True)
@@ -364,10 +392,11 @@ class BoxLootView(QWidget):
 
     # ------------------------------------------------------------------ filters
     def _apply_filters(self) -> None:
-        """Rebuild list with rarity + family + search filters applied."""
+        """Rebuild list with rarity + family + search + suffix filters applied."""
         rarity = self.rarity_filter.currentData()  # None = all
         family = self.family_filter.currentData()  # None = all
         text = self.search.text().strip().lower()
+        suffix = self.suffix_filter.currentData() if self.chk_suffix_aware.isChecked() else None
         self.list_widget.clear()
         # Track family boundaries so we can insert header rows.
         last_family: str | None = None
@@ -379,6 +408,12 @@ class BoxLootView(QWidget):
             if text:
                 name = str(it.get("name", "")).lower()
                 if text not in name and text not in str(it.get("id", "")):
+                    continue
+            if suffix is not None:
+                item_id = it.get("id")
+                if not isinstance(item_id, int):
+                    continue
+                if str(item_id)[-3:] != suffix:
                     continue
             fam = str(it.get("family", ""))
             if fam != last_family:
@@ -403,6 +438,27 @@ class BoxLootView(QWidget):
         header.setFont(font)
         self.list_widget.addItem(header)
 
+    def _on_suffix_toggle(self, checked: bool) -> None:
+        """Enable/disable the suffix dropdown and populate it when enabled."""
+        self.suffix_filter.setEnabled(checked)
+        if not checked:
+            self._apply_filters()
+            return
+        # Populate the suffix dropdown from the current item set.
+        suffix_counts: dict[str, int] = {}
+        for it in self._all_items:
+            iid = it.get("id")
+            if isinstance(iid, int):
+                sfx = str(iid)[-3:]
+                suffix_counts[sfx] = suffix_counts.get(sfx, 0) + 1
+        self.suffix_filter.blockSignals(True)
+        self.suffix_filter.clear()
+        self.suffix_filter.addItem(f"All ({len(self._all_items)})", None)
+        for sfx in sorted(suffix_counts.keys()):
+            self.suffix_filter.addItem(f"{sfx} ({suffix_counts[sfx]})", sfx)
+        self.suffix_filter.blockSignals(False)
+        self._apply_filters()
+
     def _add_item_row(self, item: dict[str, Any]) -> None:
         """Add a single item row."""
         item_id = item.get("id")
@@ -422,6 +478,11 @@ class BoxLootView(QWidget):
             tags.append(rarity.upper())
         if family:
             tags.append(family)
+        # Suffix badge: last-3 digits of the item ID. Only shown when
+        # suffix-aware mode is on (so the user sees the validator-relevant
+        # value without visual noise when they don't care).
+        if self.chk_suffix_aware.isChecked() and isinstance(item_id, int):
+            tags.append(f"~{str(item_id)[-3:]}")
         tags_part = f"  [{' · '.join(tags)}]" if tags else ""
         line1 = f"  {item_id} · {name}{tags_part}{rate_part}"
         # Inline info: effect + stat rolls (one per slot type). If the

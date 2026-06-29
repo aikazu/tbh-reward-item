@@ -316,6 +316,11 @@ class _ProxyModeForm(QWidget):
 class ConfigEditor(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        # Stash the last-loaded raw data so dump() can preserve fields
+        # the GUI doesn't edit (only_post, require_boxes_marker,
+        # url_contains). Without this, saving from the GUI silently
+        # wipes those fields from config.json.
+        self._loaded_passthrough: dict[str, Any] = {}
         # Vertical splitter between rules list (top, larger) and range
         # form (bottom, smaller). The splitter handle is draggable so
         # users can resize either pane; default sizes give rules the
@@ -395,6 +400,14 @@ class ConfigEditor(QWidget):
         self._rule_list.load(data)
         self._range_form.load(data.get("range_replacement") or {})
         self._mode_form.load(data)
+        # Preserve fields the GUI doesn't edit so dump() roundtrips them.
+        # These are set-once in config.default.json and rarely changed;
+        # if the user hand-edited them, a GUI save shouldn't wipe them.
+        self._loaded_passthrough = {
+            k: data[k]
+            for k in ("only_post", "require_boxes_marker", "url_contains")
+            if k in data
+        }
 
     def dump(self) -> dict[str, Any]:
         out = self._rule_list.dump()
@@ -404,6 +417,8 @@ class ConfigEditor(QWidget):
         # range_replacement), so we update out directly rather than
         # tucking them under a sub-key.
         out.update(self._mode_form.dump())
+        # Preserve passthrough fields so GUI save doesn't wipe them.
+        out.update(self._loaded_passthrough)
         return out
 
     def mode_form(self) -> _ProxyModeForm:

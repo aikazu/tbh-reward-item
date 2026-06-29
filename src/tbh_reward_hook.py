@@ -71,8 +71,11 @@ def _tier_str(item_id: int) -> str:
 class TamperDetector:
     """Passive monitor: logs TamperedItemIdDetected telemetry to JSONL.
 
-    Never modifies traffic. Reads responses matching the cheat-telemetry
-    endpoint and appends structured records to captures/tamper-events.jsonl.
+    Never modifies traffic. The client POSTs mismatch reports to
+    /data/gameLog/v2/TemperedItem/90. The mismatch data lives in the
+    REQUEST body (not response — server replies 204 No Content). This
+    detector reads the request body and appends structured records to
+    captures/tamper-events.jsonl.
     """
 
     def __init__(self, events_path: Path = TAMPER_EVENTS_PATH):
@@ -81,16 +84,18 @@ class TamperDetector:
         self._total = 0
 
     def maybe_log(self, flow) -> None:
-        """Inspect a response; if it is a tamper report, log it."""
+        """Inspect a flow; if it is a tamper report, log it.
+
+        Checks the REQUEST body (not response) because the client sends
+        the mismatch list as POST data and the server replies 204 No
+        Content with an empty body.
+        """
         request = flow.request
-        response = flow.response
-        if response is None:
-            return
         url = getattr(request, "pretty_url", "") or getattr(request, "url", "")
         if TAMPER_URL_MARKER not in url:
             return
         try:
-            body = response.get_text(strict=False)
+            body = request.get_text(strict=False)
         except Exception:
             return
         if not body or "TamperedItemIdDetected" not in body:

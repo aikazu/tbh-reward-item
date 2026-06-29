@@ -255,10 +255,11 @@ class TestTamperDetector:
         events_path = tmp_path / "tamper-events.jsonl"
         detector = TamperDetector(events_path)
 
-        # Build a mock flow matching the tamper endpoint
+        # Build a mock flow matching the tamper endpoint.
+        # Mismatch data is in the REQUEST body (server replies 204 No Content).
         flow = MagicMock()
         flow.request.pretty_url = "https://api.thebackend.io/data/gameLog/v2/TemperedItem/90"
-        flow.response.get_text.return_value = json.dumps({
+        flow.request.get_text.return_value = json.dumps({
             "msg": "TamperedItemIdDetected",
             "data": {
                 "mismatches": [
@@ -292,18 +293,18 @@ class TestTamperDetector:
 
         flow = MagicMock()
         flow.request.pretty_url = "https://api.thebackend.io/backend-function/base/v1"
-        flow.response.get_text.return_value = '{"boxes":[]}'
+        flow.request.get_text.return_value = '{"boxes":[]}'
 
         detector.maybe_log(flow)
         assert not events_path.exists() or events_path.read_text() == ""
 
-    def test_ignores_response_without_tamper_marker(self, tmp_path: Path):
+    def test_ignores_request_without_tamper_marker(self, tmp_path: Path):
         events_path = tmp_path / "tamper-events.jsonl"
         detector = TamperDetector(events_path)
 
         flow = MagicMock()
         flow.request.pretty_url = "https://api.thebackend.io/data/gameLog/v2/TemperedItem/90"
-        flow.response.get_text.return_value = '{"msg":"something_else"}'
+        flow.request.get_text.return_value = '{"msg":"something_else"}'
 
         detector.maybe_log(flow)
         assert not events_path.exists() or events_path.read_text() == ""
@@ -314,7 +315,7 @@ class TestTamperDetector:
 
         flow = MagicMock()
         flow.request.pretty_url = "https://api.thebackend.io/data/gameLog/v2/TemperedItem/90"
-        flow.response.get_text.return_value = json.dumps({
+        flow.request.get_text.return_value = json.dumps({
             "msg": "TamperedItemIdDetected",
             "data": {"mismatches": []}
         })
@@ -328,7 +329,7 @@ class TestTamperDetector:
 
         flow = MagicMock()
         flow.request.pretty_url = "https://api.thebackend.io/data/gameLog/v2/TemperedItem/90"
-        flow.response.get_text.return_value = json.dumps({
+        flow.request.get_text.return_value = json.dumps({
             "msg": "TamperedItemIdDetected",
             "data": {"mismatches": ["1:100->200", "2:300->400"]}
         })
@@ -342,7 +343,7 @@ class TestTamperDetector:
 
         flow = MagicMock()
         flow.request.pretty_url = "https://api.thebackend.io/data/gameLog/v2/TemperedItem/90"
-        flow.response.get_text.return_value = json.dumps({
+        flow.request.get_text.return_value = json.dumps({
             "msg": "TamperedItemIdDetected",
             "data": {"mismatches": ["garbage", "6743:319171->522171"]}
         })

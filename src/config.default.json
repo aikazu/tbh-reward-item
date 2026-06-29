@@ -15,7 +15,7 @@
     "specific_queue_rules": [
         {
             "enabled": false,
-            "name": "Normal Box (910801)",
+            "name": "Normal Box",
             "item_id": 910801,
             "replacement_reward_item_ids": [
                 419171
@@ -23,7 +23,7 @@
         },
         {
             "enabled": false,
-            "name": "Stage Boss Box (920801)",
+            "name": "Stage Boss Box",
             "item_id": 920801,
             "replacement_reward_item_ids": [
                 114004
@@ -31,7 +31,7 @@
         },
         {
             "enabled": false,
-            "name": "Act Boss Box (930901)",
+            "name": "Act Boss Box",
             "item_id": 930901,
             "replacement_reward_item_ids": []
         }

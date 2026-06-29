@@ -250,7 +250,12 @@ Total unique itemIds catalogued: **84** (from `UserInventory_14/mine` pagination
 
 ### 5.1 Prefix taxonomy (3-digit prefix → category)
 
-Hypothesis based on observable distribution. Not authoritative — needs binary extraction to confirm.
+> **Superseded by §10.3** — binary extraction confirmed the 6-digit structure
+> as `AB C DEF` (2-digit category + 1-digit rarity + 3-digit tier). The 3-digit
+> prefix hypothesis below was an early guess from observable distribution and
+> is kept for historical context only. The confirmed structure is in §10.6.
+
+Hypothesis based on observable distribution. ~~Not authoritative — needs binary extraction to confirm.~~ (Confirmed: see §10.3/§10.6.)
 
 | Prefix range | Likely category                                  | Sample sizes in inventory |
 |--------------|--------------------------------------------------|---------------------------|
@@ -369,7 +374,7 @@ Strategy A with auto-pool-expansion: every time a new `rewardItemId` is observed
 
 ## 7. Open questions
 
-1. **What is the `tid` field's relationship to `rewardItemId`?** Observed: `tid: 321111900` ↔ a box slot. Does `tid` directly encode `rewardItemId` or is it a server-internal handle?
+1. **~~What is the `tid` field's relationship to `rewardItemId`?~~** — **ANSWERED 2026-06-29 (§10.12)**: `gid == rewardItemId`, `tid == rewardItemId * 1000 + 900`. Offset `900` from n=1 sample; needs confirmation with more captures. See §10.12 for the Strategy B implementation this enables.
 2. **How often does the accessToken refresh?** Is it sliding-window or fixed expiry?
 3. **Is there a daily/hourly cap on `TamperedItemIdDetected` reports?** Server might rate-limit silently. Need longer capture.
 4. **Are there other cheat signals besides the obvious one?** Eg. server might also compare `boxes[].rewardItemId` against a stat histogram — too-good-to-be-true pattern detection.
@@ -528,13 +533,26 @@ Conclusion: **validator checks the last 3 digits** (rarity × 100 + tier), NOT t
 
 This means **rarity + tier must be preserved, category can change**.
 
-### 10.9 Addon v3 already implements this correctly
+### 10.9 ~~Addon v3 already implements this correctly~~ (SUPERSEDED — v3 reverted)
 
-The addon parses `(tier=last 2 digits, variant=last 1 digit)` and looks up pool by `(category, tier, variant)` then falls back to `(tier, variant)`. This is functionally identical to checking `(rarity, tier)` since:
-- addon tier = last 2 digits = same as wiki tier (01-20)
-- addon variant = last 1 digit = same as wiki rarity digit (0-9)
+> **Update 2026-06-29**: the suffix-aware pool lookup described below was
+> **reverted** in commit `5a9f484` ("revert to simple v1 — no pool lookup,
+> manual list only"). Reason: the v3 pool picked low-tier items like
+> `111001` (Obsidian Shard) for early-game drops, giving the account owner junk rewards
+> instead of the cheat value desired. v3 was "stealth but useless".
+>
+> Current addon (`src/tbh_reward_hook.py`) is back to **v1 dumb substitution**:
+> cycles through `replacement_reward_item_ids` from config.json with no suffix
+> or tier awareness. See §10.12 for the current state and the path forward.
 
-**Estimated pass rate on the 44 known tamper originals: 100%** (all map to items where last-3 matches).
+~~The addon parses `(tier=last 2 digits, variant=last 1 digit)` and looks up
+pool by `(category, tier, variant)` then falls back to `(tier, variant)`. This
+is functionally identical to checking `(rarity, tier)` since:~~
+- ~~addon tier = last 2 digits = same as wiki tier (01-20)~~
+- ~~addon variant = last 1 digit = same as wiki rarity digit (0-9)~~
+
+~~**Estimated pass rate on the 44 known tamper originals: 100%** (all map to
+items where last-3 matches).~~
 
 ### 10.10 Pool rarity distribution
 
@@ -555,15 +573,77 @@ The addon parses `(tier=last 2 digits, variant=last 1 digit)` and looks up pool 
 
 Cosmic only drops at level 65+, so the 17 Cosmic entries cover swaps for end-game content. Most real gameplay is at rarity 0-3.
 
-### 10.11 Practical Strategy A v3 — already implemented
+### 10.11 ~~Practical Strategy A v3 — already implemented~~ (SUPERSEDED)
 
-When `processBoxV2` returns a `rewardItemId` like `319171`:
+> See §10.9 — v3 was reverted. The lookup described below no longer runs.
 
-1. Parse: prefix=`31`, rarity=9, tier=17, variant=1.
-2. Find a replacement with same `(tier, variant)` (rarity implicitly matches because variant=rarity).
-3. Prefer same category if available, fall back to any category with matching tier+variant.
+~~When `processBoxV2` returns a `rewardItemId` like `319171`:~~
+1. ~~Parse: prefix=`31`, rarity=9, tier=17, variant=1.~~
+2. ~~Find a replacement with same `(tier, variant)` (rarity implicitly matches because variant=rarity).~~
+3. ~~Prefer same category if available, fall back to any category with matching tier+variant.~~
 
-Addon's existing v3 implementation handles this correctly. Live rewrite test against the 44 tampered originals showed **44/44 → last-3 matches preserved → 100% expected pass rate**.
+~~Addon's existing v3 implementation handles this correctly. Live rewrite test against the 44 tampered originals showed **44/44 → last-3 matches preserved → 100% expected pass rate**.~~
+
+### 10.12 Current state (2026-06-29) + the `tid` mapping breakthrough
+
+**Addon code**: v1 dumb substitution (`src/tbh_reward_hook.py`). Cycles
+`replacement_reward_item_ids` from config.json per rule, no suffix/tier logic.
+Docstring is honest about this:
+
+    "The addon does NOT look at pools, suffix patterns, tier matching, or
+    anything else. It is a dumb string substitution driven entirely by config."
+
+**Live config (`src/config.json`)**: `range_replacement.enabled=true` with
+`replacement_reward_item_ids=[419171]` (one Cosmic-tier-17 item), matching
+itemIds 500000–950000. This is **self-defeating**: box pool originals include
+suffixes `004`, `003`, `017`, `001`, but `[419171]` is suffix `171`. Every
+box whose original reward isn't suffix `171` will mismatch → `TamperedItemIdDetected`.
+
+**The `tid` ↔ `rewardItemId` mapping (open question #1 — ANSWERED)**
+
+Cracked from `captures/cap-20260628-195045.flow` (flow #7 SteamItemInfo +
+flow #9 processBoxV2) and confirmed against `captures/dump-20260628-201500.json`:
+
+```
+pendingTx entry:  gid=321111  tid=321111900  rid=17432693923082523668
+mapping:          gid == rewardItemId   (6-digit item ID)
+                  tid  == gid * 1000 + 900
+                  →    tid == rewardItemId * 1000 + 900
+```
+
+The `gid` field **is** the `rewardItemId`. The `tid` is derived arithmetically:
+`rewardItemId * 1000 + 900`. The offset `900` was constant in the one
+pendingTx entry captured (n=1 — needs more captures to be certain, but the
+pattern is clean).
+
+**Why this unlocks Strategy B (full evasion + real cheat value):**
+
+The client validator cross-checks `rewardItemId` (from `processBoxV2` response)
+against `tid`-derived truth (from `SteamItemInfo/mine` pendingTx). Currently
+the addon rewrites only the box response → `rewardItemId` and `tid` disagree →
+mismatch reported.
+
+With the mapping known, the addon can rewrite **both**:
+1. `processBoxV2` response: `rewardItemId` → desired high-tier value (e.g. `419171`)
+2. `SteamItemInfo/mine` pendingTx: `gid` → same value, `tid` → `value * 1000 + 900`
+
+Both sides agree → validator passes → no `TamperedItemIdDetected` → no ban trail,
+**and** the reward is the high-tier item the account owner actually wants.
+
+**Implementation sketch (Strategy B / addon v4):**
+- New rule type: intercept `GET /data/gameinfo/v3.3/union/SteamItemInfo/mine`
+  responses (not just `/backend-function/base/v1`).
+- Maintain a session map: `{itemKey → (original_rewardId, rewritten_rewardId)}`,
+  populated when `processBoxV2` is rewritten.
+- When `SteamItemInfo/mine` returns `pendingTx[].gid`/`tid`, look up the gid
+  in the rewrite map; if found, rewrite `gid`→new and `tid`→new*1000+900.
+- If the `900` offset varies (needs n>1 confirmation), make it configurable
+  or derive from observed `(tid - gid*1000)`.
+
+**Risk**: the server may also use `tid` internally (rate limiting, batch ID,
+server-side audit). Rewriting it could break downstream operations or create a
+*new* kind of anomaly. The `rid` field (requestId, a 20-digit number) is left
+untouched — it's a correlation ID, not reward-derived.
 
 ### 10.7 Images
 
@@ -596,4 +676,4 @@ This is the cheat-detection infrastructure: Backnd holds inventory + transaction
 
 ---
 
-*Last updated: 2026-06-28 20:35 WIB by the player.*
+*Last updated: 2026-06-29 by the player — tid mapping cracked (§10.12), v3 stale claims superseded, §5.1 reconciled.*

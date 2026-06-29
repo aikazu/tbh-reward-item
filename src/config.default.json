@@ -1,5 +1,7 @@
 {
     "_comment_mode": "Set to 'local' to use mitmproxy --mode local:<name> (scoped spawn — no system proxy, no Steam Launch Options). Leave 'regular' for plain listen-port mode. When mode='local', also set local_process_name.",
+    "_comment_box_ids": "Box itemIds verified from capture 2026-06-28: 910801=Normal Box, 920801=Stage Boss Box, 930901=Act Boss Box. Previous default (910901/920901) was WRONG and never matched.",
+    "_comment_suffix": "CRITICAL: the client validator checks the last 3 digits of rewardItemId (rarity*100+tier). Pick replacements whose last-3 MATCHES the box's original reward suffix, or the client ships TamperedItemIdDetected. See docs/analysis/tbh-network-forensics.md §10.8+§10.12. Normal Box pool is suffix-heavy on 171; Stage Boss Box on 004. For full evasion rewrite pendingTx.tid too (Strategy B, §10.12).",
     "mode": "regular",
     "local_process_name": "TaskBarHero.exe",
     "listen_port": 8877,
@@ -11,27 +13,25 @@
     "specific_queue_rules": [
         {
             "enabled": false,
-            "name": "Normal Box",
-            "item_id": 910901,
+            "name": "Normal Box (910801)",
+            "item_id": 910801,
+            "replacement_reward_item_ids": [
+                419171
+            ]
+        },
+        {
+            "enabled": false,
+            "name": "Stage Boss Box (920801)",
+            "item_id": 920801,
             "replacement_reward_item_ids": [
                 114004
             ]
         },
         {
             "enabled": false,
-            "name": "Stage Boss Box",
-            "item_id": 920901,
-            "replacement_reward_item_ids": [
-                110005
-            ]
-        },
-        {
-            "enabled": false,
-            "name": "Act Boss Box",
+            "name": "Act Boss Box (930901)",
             "item_id": 930901,
-            "replacement_reward_item_ids": [
-                160006
-            ]
+            "replacement_reward_item_ids": []
         }
     ],
     "range_replacement": {
@@ -39,8 +39,6 @@
         "name": "Range replacement",
         "match_min_item_id": 500000,
         "match_max_item_id": 950000,
-        "replacement_reward_item_ids": [
-            135001
-        ]
+        "replacement_reward_item_ids": []
     }
 }

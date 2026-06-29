@@ -28,7 +28,9 @@ Read ``captures/tamper-events.jsonl`` after a session to see what got flagged.
 from __future__ import annotations
 
 import argparse
+import json
 import re
+import time
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +42,98 @@ REWARD_FIELD_RE = re.compile(r'(\\?"rewardItemId\\?"\s*:\s*)(?P<reward_id>\d+)(?
 
 def log_info(message: str) -> None:
     print(f"[TBH] {message}", flush=True)
+
+
+# --- Passive tamper detector ---
+# Endpoint: POST /data/gameLog/v2/TemperedItem/90
+# Body: {"msg":"TamperedItemIdDetected","data":{"mismatches":["<ik>:<orig>-><used>",...]}}
+TAMPER_URL_MARKER = "/data/gameLog/v2/TemperedItem/"
+TAMPER_EVENTS_PATH = Path(__file__).resolve().parent.parent / "captures" / "tamper-events.jsonl"
+
+_RARITY_NAMES = {
+    "0": "Common", "1": "Uncommon", "2": "Rare", "3": "Legendary",
+    "4": "Immortal", "5": "Arcana", "6": "Beyond", "7": "Celestial",
+    "8": "Divine", "9": "Cosmic",
+}
+
+
+def _rarity_label(item_id: int) -> str:
+    """3rd digit (C in ABCDEF) = rarity."""
+    s = str(item_id)
+    return _RARITY_NAMES.get(s[2], "Unknown") if len(s) == 6 else "Unknown"
+
+
+def _tier_str(item_id: int) -> str:
+    """Last 3 digits (DEF) = tier+slot."""
+    return str(item_id)[-3:]
+
+
+class TamperDetector:
+    """Passive monitor: logs TamperedItemIdDetected telemetry to JSONL.
+
+    Never modifies traffic. Reads responses matching the cheat-telemetry
+    endpoint and appends structured records to captures/tamper-events.jsonl.
+    """
+
+    def __init__(self, events_path: Path = TAMPER_EVENTS_PATH):
+        self._path = events_path
+        self._path.parent.mkdir(parents=True, exist_ok=True)
+        self._total = 0
+
+    def maybe_log(self, flow) -> None:
+        """Inspect a response; if it is a tamper report, log it."""
+        request = flow.request
+        response = flow.response
+        if response is None:
+            return
+        url = getattr(request, "pretty_url", "") or getattr(request, "url", "")
+        if TAMPER_URL_MARKER not in url:
+            return
+        try:
+            body = response.get_text(strict=False)
+        except Exception:
+            return
+        if not body or "TamperedItemIdDetected" not in body:
+            return
+        try:
+            payload = json.loads(body)
+        except (json.JSONDecodeError, TypeError):
+            return
+        mismatches = payload.get("data", {}).get("mismatches", [])
+        if not mismatches:
+            return
+        ts = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+        with open(self._path, "a", encoding="utf-8") as fh:
+            for entry in mismatches:
+                record = self._parse_mismatch(entry, ts)
+                if record is None:
+                    continue
+                fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+                self._total += 1
+        log_info(
+            f"TAMPER WARNING: {len(mismatches)} mismatch(es) reported by client. "
+            f"Session total: {self._total}. See {self._path.name}"
+        )
+
+    @staticmethod
+    def _parse_mismatch(entry: str, ts: str) -> dict[str, Any] | None:
+        """Parse '<itemKey>:<orig>-><used>' into a structured record."""
+        m = re.match(r"^(\d+):(\d+)->(\d+)$", entry.strip())
+        if not m:
+            return None
+        orig_id = int(m.group(2))
+        used_id = int(m.group(3))
+        return {
+            "ts": ts,
+            "itemKey": m.group(1),
+            "original_id": orig_id,
+            "original_rarity": _rarity_label(orig_id),
+            "original_tier": _tier_str(orig_id),
+            "used_id": used_id,
+            "used_rarity": _rarity_label(used_id),
+            "used_tier": _tier_str(used_id),
+            "last3_preserved": (orig_id % 1000) == (used_id % 1000),
+        }
 
 
 def _safe_load_config(path: Path = CONFIG_PATH):
@@ -188,6 +282,7 @@ class TBHRewardHook:
             self.config = loaded
         self._config_mtime = self._read_mtime(self._config_path)
         self.rewriter = RewardRewriter(self.config)
+        self.tamper_detector = TamperDetector()
         self._log_load_state()
         try:
             import signal
@@ -235,6 +330,9 @@ class TBHRewardHook:
 
     def response(self, flow):
         self._reload_if_changed()
+        # Passive: log tamper telemetry (never modifies traffic).
+        self.tamper_detector.maybe_log(flow)
+
         request = flow.request
         response = flow.response
 

@@ -80,6 +80,22 @@ class ImageCache(QObject):
         self._thread.start()
 
 
+# Singleton cache for instances that don't carry their own ImageCache (e.g.
+# ItemCard chips in rule cards). Lives for the lifetime of the QApplication
+# — closing all dialogs drops nothing, images stay warm across re-paints.
+_GLOBAL_CACHE: ImageCache | None = None
+_GLOBAL_LOCK = threading.Lock()
+
+
+def get_global_image_cache() -> ImageCache:
+    """Return the process-wide shared ImageCache (lazy-instantiated)."""
+    global _GLOBAL_CACHE
+    with _GLOBAL_LOCK:
+        if _GLOBAL_CACHE is None:
+            _GLOBAL_CACHE = ImageCache()
+        return _GLOBAL_CACHE
+
+
 class _FetcherThread(threading.Thread):
     """Drains the cache's request queue in a background thread."""
 

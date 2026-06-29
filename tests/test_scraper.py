@@ -861,3 +861,64 @@ def test_scrape_one_combo_returns_none_after_three_failures(tmp_path: Path) -> N
     assert page.goto.call_count == 3
     # No cache file written
     assert not (out_dir / "gear_weapon_legendary.json").exists()
+
+
+class TestDeriveItemImageUrl:
+    """URLs derived from numeric item IDs without hitting the wiki."""
+
+    def test_gear_helmet(self):
+        assert scraper.derive_item_image_url(505041) == (
+            "https://taskbarhero.wiki/game/gear/helmet/HELMET_505041.png"
+        )
+
+    def test_gear_sword(self):
+        assert scraper.derive_item_image_url(305041) == (
+            "https://taskbarhero.wiki/game/gear/sword/SWORD_305041.png"
+        )
+
+    def test_gear_axe(self):
+        assert scraper.derive_item_image_url(355041) == (
+            "https://taskbarhero.wiki/game/gear/axe/AXE_355041.png"
+        )
+
+    def test_material(self):
+        assert scraper.derive_item_image_url(141001) == (
+            "https://taskbarhero.wiki/game/items/materials/Item_141001.png"
+        )
+
+    def test_gem(self):
+        assert scraper.derive_item_image_url(110003) == (
+            "https://taskbarhero.wiki/game/items/materials/Item_110003.png"
+        )
+
+    def test_soulstone(self):
+        assert scraper.derive_item_image_url(190001) == (
+            "https://taskbarhero.wiki/game/items/materials/Item_190001.png"
+        )
+
+    def test_box_id_floors_to_base_variant(self):
+        # 910151, 910801, 910901 all share Item_910011.png
+        assert scraper.derive_item_image_url(910151) == (
+            "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
+        )
+        assert scraper.derive_item_image_url(910801) == (
+            "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
+        )
+        assert scraper.derive_item_image_url(920801) == (
+            "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
+        )
+        assert scraper.derive_item_image_url(930901) == (
+            "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
+        )
+
+    def test_unknown_prefix_returns_empty(self):
+        assert scraper.derive_item_image_url(99999) == ""  # only 5 digits
+
+    def test_id_zero_returns_empty(self):
+        assert scraper.derive_item_image_url(0) == ""
+
+    def test_consumable_id(self):
+        # 2xxxxx: consumable/other - shares materials path
+        assert scraper.derive_item_image_url(202001) == (
+            "https://taskbarhero.wiki/game/items/materials/Item_202001.png"
+        )

@@ -60,6 +60,43 @@ _IMAGE_FOLDER_RE = re.compile(
     r"/game/gear/([a-z]+)/[A-Z_0-9]+\.png", re.IGNORECASE
 )
 
+# ItemId prefix → (slot folder, TYPE name) for deriving gear image URLs.
+# Used by ``derive_item_image_url`` for entries scraped without images, and
+# as a fast-path before hitting the wiki. Verified 2026-06-29 against
+# taskbarhero.wiki: derived URLs return 200 for all obtainable gear.
+# Prefix scheme (verified across gear cache):
+#   30-35 = Weapons  (sword/bow/staff/scepter/crossbow/axe)
+#   40-42 = Off-hand (shield/arrow/orb)
+#   50-53 = Armor    (helmet/armor/gloves/boots)
+#   60+   = Accessory(amulet/ring)
+_ITEM_ID_TO_GEAR_URL: dict[str, tuple[str, str]] = {
+    "30": ("sword", "SWORD"),
+    "31": ("bow", "BOW"),
+    "32": ("staff", "STAFF"),
+    "33": ("scepter", "SCEPTER"),
+    "34": ("crossbow", "CROSSBOW"),
+    "35": ("axe", "AXE"),
+    "40": ("shield", "SHIELD"),
+    "41": ("arrow", "ARROW"),
+    "42": ("orb", "ORB"),
+    "50": ("helmet", "HELMET"),
+    "51": ("armor", "ARMOR"),
+    "52": ("gloves", "GLOVES"),
+    "53": ("boots", "BOOTS"),
+    "60": ("amulet", "AMULET"),
+}
+# Materials/gems/soulstones/etc. all live under /game/items/materials/ on
+# the wiki, regardless of category. Verified 2026-06-29:
+#   /game/items/materials/Item_141001.png → 200 (Bronze Ingot)
+#   /game/items/materials/Item_111001.png → 200 (Obsidian Shard)
+#   /game/items/materials/Item_190001.png → 200 (Soulstone - Normal)
+_MATERIAL_IMG_URL = "https://taskbarhero.wiki/game/items/materials/Item_{id}.png"
+_GEAR_IMG_URL = "https://taskbarhero.wiki/game/gear/{slot}/{TYPE}_{id}.png"
+# Box icons live under /game/items/boxes/. The wiki serves the base-variant
+# image regardless of tier (910151/910801/910901 all share Item_910011.png —
+# verified 2026-06-29). Derived id = floor(box_id, 10000) + 11.
+_BOX_IMG_URL = "https://taskbarhero.wiki/game/items/boxes/Item_{id}.png"
+
 
 def _slot_type_from_image(image_url: str) -> str:
     """Extract the gear slot type ('Sword', 'Bow', ...) from its image URL.
@@ -73,6 +110,42 @@ def _slot_type_from_image(image_url: str) -> str:
         return ""
     folder = m.group(1).lower()
     return _IMAGE_FOLDER_TO_SLOT.get(folder, folder.capitalize())
+
+
+def derive_item_image_url(item_id: int) -> str:
+    """Best-guess image URL for an item, derived purely from its numeric ID.
+
+    Used to backfill ``image`` fields on entries that were scraped without
+    one (e.g. some box loot pages embed the ID but not the image src). The
+    wiki always serves these paths for obtainable items — verified 2026-06-29
+    across both gear and material ID ranges.
+
+    Examples (all return 200 on taskbarhero.wiki):
+      derive_item_image_url(505041) → helmet/HELMET_505041.png
+      derive_item_image_url(141001) → materials/Item_141001.png
+      derive_item_image_url(190001) → materials/Item_190001.png
+
+    Returns "" if the ID doesn't match a known prefix.
+    """
+    s = str(int(item_id)).zfill(6)  # ensure 6 digits
+    if len(s) != 6:
+        return ""
+    prefix = s[:2]
+    if prefix in _ITEM_ID_TO_GEAR_URL:
+        slot, type_name = _ITEM_ID_TO_GEAR_URL[prefix]
+        return _GEAR_IMG_URL.format(slot=slot, TYPE=type_name, id=s)
+    # Box ids (9xxxxx) — the wiki serves the base-variant image regardless
+    # of tier. Verified 2026-06-29: 910151, 910801, 910901 all map to
+    # Item_910011.png.
+    if s.startswith("9"):
+        base_id = (int(s) // 10000) * 10000 + 11
+        return _BOX_IMG_URL.format(id=str(base_id).zfill(6))
+    # Material / gem / consumable / soulstone — all share the materials path.
+    # Range check: 1xxxxx (1xx, 11x, 12x, 14x, 16x, 19x) and 2xxxxx (consumables).
+    first = s[0]
+    if first in ("1", "2"):
+        return _MATERIAL_IMG_URL.format(id=s)
+    return ""
 
 
 def parse_gear_page(html: str) -> list[dict[str, Any]]:

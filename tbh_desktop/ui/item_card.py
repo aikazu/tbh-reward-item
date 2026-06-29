@@ -19,6 +19,7 @@ from PySide6.QtCore import QRect, QSize, Qt
 from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 
+from tbh_desktop.scraper import derive_item_image_url
 from tbh_desktop.ui.theme import MOCHA, RARITY, rarity_tint
 
 
@@ -71,6 +72,43 @@ class ItemCard(QFrame):
         self._rarity = new_rarity
         self._name_label.setText(new_truncated)
         self._refresh_style()
+        # If the caller provided an explicit URL, use it; otherwise derive
+        # from item id (the wiki always serves these paths for obtainable
+        # items). Wire the global image cache to deliver the pixmap once
+        # the background fetch resolves. Self-contained — callers don't
+        # need their own ImageCache.
+        explicit_url = str(item.get("image", "")).strip()
+        image_url = explicit_url or derive_item_image_url(self._item_id)
+        if image_url:
+            self._request_icon(image_url)
+
+    def _request_icon(self, image_url: str) -> None:
+        """Kick off an icon fetch via the shared global ImageCache.
+
+        The cache is process-wide so the same URL is fetched exactly once
+        even if the chip appears in multiple places (rule card, detail
+        panel, range form). Falls back silently if PySide6 isn't initialized.
+        """
+        try:
+            from tbh_desktop.ui.image_cache import get_global_image_cache
+            cache = get_global_image_cache()
+        except Exception:
+            return
+        try:
+            cache.icon_ready.connect(self._on_global_icon, Qt.ConnectionType.UniqueConnection)
+        except Exception:
+            # connect() may fail if cache was destroyed; fine.
+            return
+        cache.request(image_url, self._item_id)
+
+    def _on_global_icon(self, item_id: int, icon) -> None:
+        if item_id == self._item_id and icon is not None:
+            # icon is a QIcon; extract a QPixmap sized for this card.
+            size = self.SIZE_COMPACT - 8 if self._compact else 56
+            self._icon_label.setPixmap(
+                icon.pixmap(size, size, Qt.AspectRatioMode.KeepAspectRatio)
+            )
+
 
     def item_id(self) -> int:
         return self._item_id

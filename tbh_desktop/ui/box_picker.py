@@ -33,6 +33,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from tbh_desktop.scraper import derive_item_image_url
+from tbh_desktop.ui.image_cache import ImageCache
+
 # Matches the trailing level segment of a box slug.
 #   "normal-monster-box-lv80"  -> 80  (explicit Lv prefix)
 #   "normal-monster-box-1"     -> 1   (bare tier number)
@@ -179,6 +182,12 @@ class BoxView(QWidget):
         for b in self._boxes:
             self._level_by_id[int(b["id"])] = b.get("level")
 
+        # Background-thread image fetcher. box images are derived from id
+        # (the wiki always serves these paths for obtainable boxes) so we
+        # don't need a separate image field in the slug cache.
+        self._image_cache = ImageCache(self)
+        self._image_cache.icon_ready.connect(self._apply_icon)
+
         self._build_ui()
         self._populate()
 
@@ -305,8 +314,29 @@ class BoxView(QWidget):
             list_item = QListWidgetItem(text)
             list_item.setData(Qt.ItemDataRole.UserRole, box_id)
             self.list_widget.addItem(list_item)
+            # Kick off an async image fetch — derived from id, no extra
+            # image field required in the slug cache.
+            image_url = (
+                str(b.get("image", "")).strip()
+                or derive_item_image_url(box_id)
+            )
+            if image_url:
+                self._image_cache.request(image_url, box_id)
         # Re-apply current filters after repopulating.
         self._apply_filter(self.search.text())
+
+    def _apply_icon(self, item_id: int, icon) -> None:
+        """Apply an icon to the matching row when the async fetch lands.
+
+        Linear scan — list is small (a few hundred box variants max) and
+        icons arrive one at a time on the GUI thread, so this is cheap.
+        """
+        target = int(item_id)
+        for i in range(self.list_widget.count()):
+            li = self.list_widget.item(i)
+            if li.data(Qt.ItemDataRole.UserRole) == target:
+                li.setIcon(icon)
+                break
 
     def _display_name_for_id(self, box_id: int) -> str:
         for b in self._boxes:

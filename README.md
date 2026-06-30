@@ -55,6 +55,7 @@ patching, no injection — just a network proxy.
   - [Tamper Monitoring](#tamper-monitoring)
 - [Desktop App](#desktop-app)
   - [Install & Launch](#desktop-install)
+  - [Windows Workflow](#windows-workflow)
   - [UI Tour](#ui-tour)
   - [Features](#desktop-features)
   - [Hot-Reload Interaction](#desktop-hot-reload)
@@ -100,8 +101,10 @@ The regex uses backslash escaping to handle JSON that may be escaped
 
 ## Quick Start
 
+### Linux (Arch / CachyOS)
+
 ```bash
-# 1. Install mitmproxy (Arch / CachyOS)
+# 1. Install mitmproxy
 sudo pacman -S mitmproxy
 
 # 2. Verify
@@ -117,6 +120,31 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 \
 
 For a visual workflow with rule editing and reward-ID picking, see
 [Desktop App](#desktop-app).
+
+### Windows
+
+The recommended path is the [desktop app](#windows-workflow) — it auto-resolves
+mitmproxy, generates `config.json` on first launch, and uses `mode=local` so
+the game exe is spawned with proxy env + CA cert pre-injected (no Steam
+Launch Options, no system proxy settings).
+
+For a quick CLI smoke test:
+
+```bat
+:: 1. Install mitmproxy
+python -m pip install mitmproxy
+
+:: 2. Verify
+mitmdump --version
+python src\tbh_reward_hook.py --self-test
+
+:: 3. Run the proxy in local mode (spawns TaskBarHero.exe with proxy + CA injected)
+windows\run_proxy.bat --mode local --name TaskBarHero.exe
+
+:: 4. Launch the game — its HttpClient traffic goes through 127.0.0.1:8877
+```
+
+See [Windows Workflow](#windows-workflow) for the full desktop app flow.
 
 ---
 
@@ -219,6 +247,9 @@ Or in `src/config.json`:
 ```
 
 - **Windows**: works out of the box. Recommended over Steam Launch Options.
+  **This is the default on Windows** when `mode` is omitted from
+  `config.json` — the desktop app boots straight into `local` mode
+  without any manual config edits.
 - **Linux**: mitmproxy's local redirector uses a setuid helper, so mitmdump
   will prompt for `sudo` at startup. Run as root or pre-elevate:
   `sudo -E ./scripts/run_proxy.sh --mode local --name <proc>`.
@@ -463,6 +494,86 @@ the exact fix command.
 Same as Linux — only needed for the stock-Playwright fallback. CloakBrowser
 manages its own binary.
 
+### Windows Workflow <a id="windows-workflow"></a>
+
+End-to-end flow on a fresh Windows install — `mode=local` and
+`rewrite_pending_tx=true` are the defaults, so a new install is fully
+working out of the box with no manual config edits:
+
+1. **Install dependencies** (one-time):
+   ```bat
+   cd TBH
+   python -m venv .venv
+   .venv\Scripts\pip install -r requirements-desktop.txt
+   .venv\Scripts\pip install mitmproxy
+   ```
+   (`mitmproxy` is in `requirements.txt` but not `requirements-desktop.txt`
+   because the desktop app works fine without it until you click Start.)
+
+2. **Launch the desktop**:
+   ```bat
+   windows\launch_desktop.bat
+   ```
+   The launcher verifies Python, deps, mitmproxy, `config.json`, and
+   CloakBrowser. On first run, `src/config.json` is auto-generated from
+   `config.default.json` (without `mode` or `rewrite_pending_tx` set —
+   the loader applies platform defaults; see step 3).
+
+3. **Inspect the proxy defaults** (right panel, "PROXY MODE" section).
+   The radio buttons and checkbox are pre-checked to the platform defaults:
+   - **mode** → `local` (process injection via Win32 APIs — recommended)
+   - **rewrite pendingTx (Strategy B)** → ON (no `TamperedItemIdDetected`
+     on cross-suffix reward swaps)
+   - **process name** → `TaskBarHero.exe` (change if your exe differs)
+
+   To fall back to the listen-port flow (`regular` mode + system proxy),
+   switch the mode radio. Strategy B can be turned off for conservative
+   mode if needed. Explicit values are saved into `config.json` — once
+   set, the loader no longer applies the platform default.
+
+4. **Edit rules** in the left `RULES` panel:
+   - Click a rule card to load it into the right `DETAIL` panel.
+   - Click **Pick box** / **Pick loot** / **Pick gear** to open the
+     suffix-aware modal pickers.
+   - Or type `item_id` and add replacement IDs directly in the chip row.
+
+5. **Click Start** in the toolbar. The status badge flips to `RUNNING`
+   with a green dot. Behind the scenes:
+   - The desktop spawns `src/run_proxy.py` as a subprocess (own process group).
+   - `run_proxy.py` resolves `mode=local` → `mitmdump --mode local:TaskBarHero.exe`.
+   - mitmdump spawns `TaskBarHero.exe` with `HTTP_PROXY=http://127.0.0.1:8877`,
+     `HTTPS_PROXY=http://127.0.0.1:8877`, and `SSL_CERT_FILE=<mitmproxy-ca.pem>`
+     auto-injected via Win32 APIs (no elevation required).
+   - The log dock streams mitmdump stdout: `[TBH] loaded: N rules active,
+     range=on, pendingTx rewrite=on.` then per-rewrite lines like
+     `[TBH] replaced [Normal Box] itemId=910801: rewardItemId=1001->419171`.
+
+6. **Launch the game** (or let mitmdump do it — the game exe is already
+   running under the local redirector). Its `UnityWebRequest` traffic
+   flows through 127.0.0.1:8877. Only the game's process is intercepted —
+   no system proxy, no Steam Launch Options needed. Survives game
+   updates that touch `boot.unity3d`.
+
+7. **Iterate**: change a rule → **Save** in the toolbar → addon
+   hot-reloads (`config.json` mtime bump) → next response uses the new
+   rules, **no restart needed**. Only `listen_port` requires a restart
+   (mitmdump binds the port at startup).
+
+8. **Click Stop** to end the session. The desktop uses
+   `taskkill /T /F /PID <pid>` to kill the entire process tree —
+   `run_proxy.py` wrapper + `mitmdump` + the spawned `TaskBarHero.exe`.
+   The port is released within ~0.1s. (On Linux the same button uses
+   `killpg` with SIGTERM → 3s grace → SIGKILL escalation.)
+
+9. **Quit the desktop** with `X`. If the proxy is still running, a
+   confirmation dialog stops it cleanly first.
+
+**Why `local` mode is recommended on Windows:** the local redirector
+scopes interception to the game process only (no system-wide proxy),
+needs no elevation (mitmdump injects CA + env via Win32 APIs directly),
+and survives game updates that touch `boot.unity3d` — unlike Steam
+Launch Options which would need to be re-applied.
+
 #### CloakBrowser (stealth scraping engine)
 
 Starting with v0.4+, the gear scraper uses
@@ -606,12 +717,24 @@ range form if it has focus).
 - **Start / Stop proxy** — spawns `src/run_proxy.py` as a subprocess
   (cwd = repo root, own process group). Status badge turns `RUNNING` with
   a green dot; log dock streams stdout in real time (FIFO capped at 10k
-  lines). Stop sends SIGTERM to the whole process group, escalates to
-  SIGKILL after 3s. If the toolbar port field differs from the saved
+  lines). Stop uses a platform-aware tree-kill: `taskkill /T /F /PID <pid>`
+  on Windows (kills `run_proxy.py` + `mitmdump` + the spawned game exe
+  in one shot), `killpg` with SIGTERM → 3s grace → SIGKILL escalation on
+  Linux/macOS. If the toolbar port field differs from the saved
   `listen_port` when Start is clicked, the app prompts "Port changed.
   Save config first?" — Yes saves then starts, No aborts. This prevents
   the silent desync where the proxy runs on the old port while the UI
   shows the new one.
+
+- **Platform-aware defaults** — fresh installs apply Windows-friendly
+  defaults when `mode` / `rewrite_pending_tx` are absent from
+  `config.json`: `mode=local` (process injection — recommended path on
+  Windows per CLAUDE.md) and `rewrite_pending_tx=true` (Strategy B on —
+  no `TamperedItemIdDetected` on cross-suffix swaps). Linux/macOS keep
+  conservative defaults (`mode=regular`, `rewrite_pending_tx=false`).
+  Explicit values in `config.json` are always honored — no surprise
+  upgrades for users who deliberately picked a setting. See
+  [Windows Workflow](#windows-workflow) for the full flow.
 
 - **Copy Steam launch option** — copies the current port into the
   `HTTP_PROXY=... HTTPS_PROXY=... %command%` string, ready to paste into

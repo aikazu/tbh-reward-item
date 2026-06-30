@@ -56,6 +56,7 @@ jaringan.
   - [Monitoring Tamper](#monitoring-tamper)
 - [Aplikasi Desktop](#aplikasi-desktop)
   - [Instalasi & Menjalankan](#desktop-install-id)
+  - [Alur Windows](#alur-windows)
   - [Tur UI](#ui-tour-id)
   - [Fitur](#fitur)
   - [Interaksi Hot-Reload](#interaksi-hot-reload)
@@ -101,8 +102,10 @@ Regex memakai escape backslash untuk menangani JSON yang mungkin ter-escape
 
 ## Mulai Cepat
 
+### Linux (Arch / CachyOS)
+
 ```bash
-# 1. Install mitmproxy (Arch / CachyOS)
+# 1. Install mitmproxy
 sudo pacman -S mitmproxy
 
 # 2. Verifikasi
@@ -118,6 +121,31 @@ mitmdump -s src/tbh_reward_hook.py --listen-port 8877 \
 
 Untuk alur kerja visual dengan edit rule dan pemilihan reward-ID, lihat
 [Aplikasi Desktop](#aplikasi-desktop).
+
+### Windows
+
+Path yang direkomendasikan adalah [aplikasi desktop](#alur-windows) — dia
+auto-resolve mitmproxy, generate `config.json` di launch pertama, dan pakai
+`mode=local` jadi exe game di-spawn dengan proxy env + CA cert ter-inject
+otomatis (gak perlu Steam Launch Options, gak perlu seting system proxy).
+
+Untuk smoke test CLI cepat:
+
+```bat
+:: 1. Install mitmproxy
+python -m pip install mitmproxy
+
+:: 2. Verifikasi
+mitmdump --version
+python src\tbh_reward_hook.py --self-test
+
+:: 3. Jalankan proxy di mode local (spawn TaskBarHero.exe dengan proxy + CA ke-inject)
+windows\run_proxy.bat --mode local --name TaskBarHero.exe
+
+:: 4. Launch game — traffic HttpClient-nya lewat 127.0.0.1:8877
+```
+
+Lihat [Alur Windows](#alur-windows) untuk flow lengkap aplikasi desktop.
 
 ---
 
@@ -220,6 +248,8 @@ Atau di `src/config.json`:
 ```
 
 - **Windows**: jalan out of the box. Direkomendasikan daripada Steam Launch Options.
+  **Ini default di Windows** waktu `mode` dihilangkan dari `config.json` —
+  app desktop boot langsung ke mode `local` tanpa edit config manual.
 - **Linux**: local redirector mitmproxy pakai helper setuid, jadi mitmdump
   akan prompt `sudo` saat startup. Jalankan sebagai root atau pre-elevate:
   `sudo -E ./scripts/run_proxy.sh --mode local --name <proc>`.
@@ -470,6 +500,87 @@ command fix yang tepat.
 Sama seperti Linux — hanya dibutuhkan untuk fallback stock-Playwright.
 CloakBrowser mengelola binary-nya sendiri.
 
+### Alur Windows <a id="alur-windows"></a>
+
+Flow end-to-end di fresh Windows install — `mode=local` dan
+`rewrite_pending_tx=true` adalah default-nya, jadi install baru udah jalan
+full tanpa edit config manual:
+
+1. **Install dependensi** (sekali):
+   ```bat
+   cd TBH
+   python -m venv .venv
+   .venv\Scripts\pip install -r requirements-desktop.txt
+   .venv\Scripts\pip install mitmproxy
+   ```
+   (`mitmproxy` ada di `requirements.txt` tapi gak ada di
+   `requirements-desktop.txt` karena app desktop gak butuh sampai klik Start.)
+
+2. **Launch desktop**:
+   ```bat
+   windows\launch_desktop.bat
+   ```
+   Launcher verifikasi Python, deps, mitmproxy, `config.json`, dan
+   CloakBrowser. First run, `src/config.json` auto-generated dari
+   `config.default.json` (tanpa set `mode` atau `rewrite_pending_tx` —
+   loader pakai default platform; lihat langkah 3).
+
+3. **Inspect default proxy** (panel kanan, bagian "PROXY MODE"). Radio
+   button dan checkbox udah pre-checked ke default platform:
+   - **mode** → `local` (process injection via Win32 APIs — direkomendasikan)
+   - **rewrite pendingTx (Strategy B)** → ON (gak ada
+     `TamperedItemIdDetected` di cross-suffix reward swap)
+   - **process name** → `TaskBarHero.exe` (ubah kalau exe kamu beda)
+
+   Untuk fallback ke listen-port (`regular` mode + system proxy),
+   pindah radio mode. Strategy B bisa di-off buat mode konservatif kalau
+   perlu. Nilai eksplisit di-save ke `config.json` — kalau udah di-set,
+   loader gak lagi pakai default platform.
+
+4. **Edit rule** di panel kiri `RULES`:
+   - Klik kartu rule buat load ke panel kanan `DETAIL`.
+   - Klik **Pick box** / **Pick loot** / **Pick gear** buat buka picker
+     modal suffix-aware.
+   - Atau ketik `item_id` dan tambah replacement ID langsung di chip row.
+
+5. **Klik Start** di toolbar. Status badge berubah ke `RUNNING` dengan
+   dot hijau. Di balik layar:
+   - Desktop spawn `src/run_proxy.py` sebagai subprocess (own process group).
+   - `run_proxy.py` resolve `mode=local` → `mitmdump --mode local:TaskBarHero.exe`.
+   - mitmdump spawn `TaskBarHero.exe` dengan
+     `HTTP_PROXY=http://127.0.0.1:8877`, `HTTPS_PROXY=http://127.0.0.1:8877`,
+     dan `SSL_CERT_FILE=<mitmproxy-ca.pem>` auto-injected via Win32 APIs
+     (gak perlu elevation).
+   - Log dock stream mitmdump stdout: `[TBH] loaded: N rules active,
+     range=on, pendingTx rewrite=on.` lalu per-rewrite line kayak
+     `[TBH] replaced [Normal Box] itemId=910801: rewardItemId=1001->419171`.
+
+6. **Launch game** (atau biar mitmdump yang launch — exe game udah jalan
+   di bawah local redirector). Traffic `UnityWebRequest`-nya lewat
+   127.0.0.1:8877. Cuma proses game aja yang di-intercept — gak ada
+   system proxy, gak perlu Steam Launch Options. Tahan update game yang
+   nyentuh `boot.unity3d`.
+
+7. **Iterasi**: ubah rule → **Save** di toolbar → addon hot-reload
+   (`config.json` mtime bump) → response berikutnya pakai rule baru,
+   **gak perlu restart**. Cuma `listen_port` yang perlu restart (mitmdump
+   bind port di startup).
+
+8. **Klik Stop** buat akhiri sesi. Desktop pakai
+   `taskkill /T /F /PID <pid>` buat kill seluruh process tree —
+   wrapper `run_proxy.py` + `mitmdump` + `TaskBarHero.exe` yang di-spawn.
+   Port rilis dalam ~0.1s. (Di Linux tombol yang sama pakai `killpg` dengan
+   SIGTERM → 3s grace → eskalasi SIGKILL.)
+
+9. **Keluar dari desktop** dengan `X`. Kalau proxy masih jalan, dialog
+   konfirmasi stop dulu secara bersih.
+
+**Kenapa `local` mode direkomendasikan di Windows:** local redirector
+ngelimitasi intercept ke proses game doang (gak ada system-wide proxy),
+gak perlu elevation (mitmdump inject CA + env via Win32 APIs langsung),
+dan tahan update game yang nyentuh `boot.unity3d` — beda sama Steam
+Launch Options yang harus di-apply ulang tiap update.
+
 #### CloakBrowser (mesin stealth scraping)
 
 Mulai v0.4+, gear scraper memakai
@@ -618,12 +729,25 @@ diedit, atau form range bila form tersebut punya fokus).
 - **Start / Stop proxy** — jalankan `src/run_proxy.py` sebagai
   subprocess (cwd = repo root, process group sendiri). Status badge
   jadi `RUNNING` dengan dot hijau; log dock stream stdout secara real
-  time (FIFO capped di 10k baris). Stop kirim SIGTERM ke seluruh
-  process group, escalate ke SIGKILL setelah 3 detik. Bila field port
-  toolbar berbeda dari `listen_port` yang tersimpan saat Start diklik,
-  app memprompt "Port changed. Save config first?" — Yes simpan lalu
-  start, No batalkan. Ini mencegah desync senyap di mana proxy
-  berjalan di port lama sementara UI menampilkan port baru.
+  time (FIFO capped di 10k baris). Stop pakai platform-aware tree-kill:
+  `taskkill /T /F /PID <pid>` di Windows (bunuh `run_proxy.py` +
+  `mitmdump` + exe game yang di-spawn dalam satu tembakan), `killpg`
+  dengan SIGTERM → 3s grace → eskalasi SIGKILL di Linux/macOS. Bila
+  field port toolbar berbeda dari `listen_port` yang tersimpan saat
+  Start diklik, app memprompt "Port changed. Save config first?" —
+  Yes simpan lalu start, No batalkan. Ini mencegah desync senyap di
+  mana proxy berjalan di port lama sementara UI menampilkan port baru.
+
+- **Default platform-aware** — install baru menerapkan default
+  Windows-friendly waktu `mode` / `rewrite_pending_tx` gak ada di
+  `config.json`: `mode=local` (process injection — path yang
+  direkomendasikan di Windows per CLAUDE.md) dan
+  `rewrite_pending_tx=true` (Strategy B on — gak ada
+  `TamperedItemIdDetected` di cross-suffix swap). Linux/macOS tetap
+  default konservatif (`mode=regular`, `rewrite_pending_tx=false`).
+  Nilai eksplisit di `config.json` selalu dihormati — gak ada surprise
+  upgrade buat user yang sengaja milih setting tertentu. Lihat
+  [Alur Windows](#alur-windows) untuk flow lengkap.
 
 - **Copy Steam launch option** — menyalin port saat ini ke string
   `HTTP_PROXY=... HTTPS_PROXY=... %command%`, siap di-paste ke Steam →

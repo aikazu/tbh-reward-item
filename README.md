@@ -919,6 +919,29 @@ picker.
 
 ---
 
+## Disclaimer
+
+This software is provided **solely for educational and research purposes**.
+By using it you accept the following terms:
+
+- **No warranty.** The software is provided "AS IS", without warranty of any
+  kind, express or implied. The entire risk as to quality and performance is
+  with you.
+- **No liability.** The authors and contributors are **not liable** for any
+  damages, account loss, bans, or other consequences arising from the use of
+  this software.
+- **Terms of Service.** Intercepting and modifying game traffic may violate
+  the game's and/or Steam's Terms of Service and can result in **account bans
+  or legal action** by the affected parties.
+- **Owned accounts only.** Use only on accounts and software you own or are
+  explicitly authorized to test.
+- **Indemnification.** You agree to indemnify and hold the authors harmless
+  from any claim or liability arising from your use of the software.
+
+See the [LICENSE](LICENSE) file for the full MIT License text.
+
+---
+
 ## Acknowledgements
 
 This project builds on the **Persistent Reward Item Generator**

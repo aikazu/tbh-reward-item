@@ -930,6 +930,27 @@ picker.
 
 ---
 
+## Sangkalan
+
+Perangkat lunak ini disediakan **hanya untuk tujuan edukasi dan riset**.
+Dengan menggunakannya Anda menyetujui ketentuan berikut:
+
+- **Tanpa jaminan.** Perangkat lunak disediakan "SEBAGAIMANA ADANYA", tanpa
+  jaminan apa pun, tersurat maupun tersirat. Seluruh risiko ada pada Anda.
+- **Tanpa tanggung jawab.** Pembuat dan kontributor **tidak bertanggung jawab**
+  atas kerusakan, kehilangan akun, ban, atau konsekuensi lain dari penggunaan.
+- **Ketentuan layanan.** Memintercept dan memodifikasi traffic game dapat
+  melanggar ToS game dan/atau Steam dan berisiko **ban akun atau tindakan
+  hukum** dari pihak terkait.
+- **Akun milik sendiri.** Gunakan hanya pada akun dan perangkat yang Anda
+  miliki atau secara eksplisit berwenang untuk diuji.
+- **Ganti rugi.** Anda setuju membebaskan pembuat dari klaim atau tanggung
+  jawab apa pun yang timbul dari penggunaan Anda.
+
+Lihat file [LICENSE](LICENSE) untuk teks lengkap lisensi MIT.
+
+---
+
 ## Ucapan Terima Kasih
 
 Proyek ini dibangun di atas teknik **Persistent Reward Item Generator**

@@ -59,6 +59,22 @@ def load_mode(cli_mode: str | None = None, cli_name: str | None = None) -> tuple
 def _terminate(proc: subprocess.Popen) -> None:
     # Send SIGTERM to the whole process group so mitmdump + any child
     # threads release the listening socket. Escalate to SIGKILL if needed.
+    #
+    # Windows note: ``os.killpg`` is POSIX-only — calling it on Windows
+    # raises NotImplementedError and would crash the signal handler that
+    # invokes this function. The desktop app's Stop button uses
+    # ``taskkill /T /F`` directly on this process's PID (see
+    # ``tbh_desktop/proxy_runner.py``), so by the time any signal lands
+    # here the tree is already gone. The only path that actually reaches
+    # this function on Windows is Ctrl+C from a console, in which case
+    # ``taskkill /T /F`` is the right primitive anyway.
+    if sys.platform == "win32":
+        subprocess.run(
+            ["taskkill", "/T", "/F", "/PID", str(proc.pid)],
+            capture_output=True,
+            text=True,
+        )
+        return
     try:
         os.killpg(proc.pid, signal.SIGTERM)
     except (ProcessLookupError, PermissionError):

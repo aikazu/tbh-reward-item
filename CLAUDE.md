@@ -167,8 +167,11 @@ windows\run_proxy.bat --mode local --name TaskBarHero.exe
 
 ### Process group signaling (proxy kill)
 - `ProxyRunner.start()` uses `start_new_session=True` so child forms its own process group.
-- `stop()` calls `os.killpg(pgid, SIGTERM)` then escalates to `SIGKILL` after 3s. Without the group kill, `mitmdump` grandchild is orphaned holding the listen port.
-- `run_proxy.py` installs SIGTERM/SIGINT handlers that call `_terminate(proc)` (whole group) before re-raising — otherwise default SIGTERM aborts immediately and skips the `finally` block.
+- `stop()` delegates to `_kill_process_tree(pid, proc=...)` which dispatches by platform:
+  - **POSIX** (Linux/macOS): `os.killpg(pgid, SIGTERM)` then escalates to `SIGKILL` after 3s. Without the group kill, `mitmdump` grandchild is orphaned holding the listen port.
+  - **Windows**: `taskkill /T /F /PID <pid>` (built into System32 since XP). `/T` walks descendants recursively, `/F` forces — Windows Python can't catch signals and mitmdump doesn't install a graceful shutdown handler, so the polite-SIGTERM phase would just hang. Exit code 128 ("process not found") is treated as success since the user's stop intent is met.
+- `run_proxy.py` installs SIGTERM/SIGINT handlers that call `_terminate(proc)` (whole group) before re-raising — otherwise default SIGTERM aborts immediately and skips the `finally` block. `_terminate` itself mirrors the same platform split (`taskkill /T /F` on Windows, `killpg` + escalation on POSIX) so console Ctrl+C from `windows\run_proxy.bat` doesn't crash with `NotImplementedError`.
+- Why this matters: the original code only used `os.killpg` and was silently broken on Windows — `os.killpg` raises `NotImplementedError` there, so the desktop's Stop button clicked but did nothing.
 
 ### CloakBrowser fallback
 - Gear scrape uses CloakBrowser (stealth Chromium, 58 C++ patches, ~200 MB binary auto-downloaded, Ed25519-verified).

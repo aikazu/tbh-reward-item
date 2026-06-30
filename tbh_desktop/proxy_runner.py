@@ -43,6 +43,118 @@ _STARTUP_WINDOW_SEC = 3.0
 # can't fill memory.
 _STARTUP_LOG_TAIL = 30
 
+# Seconds to wait between SIGTERM and SIGKILL escalation on POSIX.
+# Windows has no polite-shutdown signal that reliably reaches a Python
+# child + grandchild across a process tree, so it skips this phase and
+# goes straight to taskkill /F.
+_POSIX_TERM_GRACE_SEC = 3.0
+_POSIX_KILL_GRACE_SEC = 2.0
+
+# taskkill exit codes (verified on Windows 10/11):
+#   0   = success (process tree terminated)
+#   128 = ERROR_WAIT_NO_CHILDREN — "process not found" (already gone).
+#         Treat as success since the user's stop intent is satisfied.
+#   other = real failure (permission denied, invalid PID, etc.)
+_TASKKILL_RC_SUCCESS = 0
+_TASKKILL_RC_NOT_FOUND = 128
+
+
+def _kill_process_tree(pid: int, *, proc: subprocess.Popen | None = None) -> None:
+    """Kill ``pid`` and every descendant, then confirm exit if ``proc`` is given.
+
+    Cross-platform dispatch for the desktop's Stop button. The desktop
+    spawns ``run_proxy.py`` which spawns ``mitmdump``; both are in their
+    own process groups (``start_new_session=True``). Killing only the
+    parent leaves mitmdump grandchild orphaned holding the listen port —
+    so we always need a tree-kill, never just a single PID.
+
+    POSIX (Linux/macOS):
+        SIGTERM the process group, wait up to 3s, escalate to SIGKILL,
+        wait 2s more. Mirrors the documented behavior in CLAUDE.md so
+        any cleanup logic mitmdump might add later still has a chance.
+
+    Windows:
+        ``taskkill /T /F /PID <pid>`` — the canonical Windows tree-kill.
+        ``taskkill`` is built into System32 and on PATH on every Windows
+        install since XP. ``/T`` walks descendants recursively, ``/F``
+        forces (no polite shutdown — Windows Python can't catch signals
+        and mitmdump doesn't install a graceful shutdown handler anyway,
+        so a SIGTERM-equivalent polite phase would just hang). No
+        escalation needed because ``/F`` is unconditional.
+
+    Failure modes:
+        - Process already gone (rc=128 on Windows, ProcessLookupError on
+          POSIX): treated as success — the user's stop intent is met.
+        - taskkill other failure: logged to stderr so the user can see
+          why Stop didn't work, but doesn't raise (the GUI is already
+          in the wrong state if we did).
+        - NotImplementedError / AttributeError (defensive): caught at
+          the call site in ``stop()`` — kept here unhandled so tests
+          can pin the platform branch.
+    """
+    if sys.platform == "win32":
+        _taskkill_tree(pid)
+        if proc is not None:
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                # Best effort — if mitmdump somehow survives taskkill /F
+                # we can't do anything more from Python.
+                pass
+        return
+    _posix_kill_tree(pid, proc=proc)
+
+
+def _taskkill_tree(pid: int) -> None:
+    """Windows: invoke ``taskkill /T /F /PID <pid>`` and log on failure.
+
+    ``/T`` = terminate the entire process tree rooted at pid (children,
+    grandchildren, …). ``/F`` = force, no polite shutdown dialog.
+    taskkill is in System32 and on PATH on every supported Windows
+    version. We capture stdout/stderr so a permission failure doesn't
+    pop a console window — but we still print to stderr ourselves so
+    the GUI's log panel can surface it.
+    """
+    result = subprocess.run(
+        ["taskkill", "/T", "/F", "/PID", str(pid)],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode in (_TASKKILL_RC_SUCCESS, _TASKKILL_RC_NOT_FOUND):
+        return
+    err = (result.stderr or result.stdout or "").strip() or "unknown error"
+    print(
+        f"[warn] taskkill /T /F /PID {pid} failed (rc={result.returncode}): {err}",
+        file=sys.stderr,
+    )
+
+
+def _posix_kill_tree(pid: int, *, proc: subprocess.Popen | None) -> None:
+    """POSIX: SIGTERM the process group, escalate to SIGKILL on timeout."""
+    try:
+        pgid = os.getpgid(pid)
+    except ProcessLookupError:
+        return  # already gone
+    try:
+        os.killpg(pgid, signal.SIGTERM)
+    except (ProcessLookupError, PermissionError):
+        return
+    if proc is not None:
+        try:
+            proc.wait(timeout=_POSIX_TERM_GRACE_SEC)
+            return
+        except subprocess.TimeoutExpired:
+            pass  # polite phase didn't work — escalate
+    try:
+        os.killpg(pgid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        return
+    if proc is not None:
+        try:
+            proc.wait(timeout=_POSIX_KILL_GRACE_SEC)
+        except subprocess.TimeoutExpired:
+            pass
+
 
 class ProxyRunner(QObject):
     log_line = Signal(str)
@@ -425,31 +537,24 @@ class ProxyRunner(QObject):
         if self._elevated:
             self._stop_elevated(proc)
             return
-        # Kill the entire process group (run_proxy.py + its mitmdump child)
-        # instead of just the parent. terminate()/kill() only signal the
-        # wrapper, leaving mitmdump orphaned on the listen port.
+        # Tree-kill dispatches by platform (see _kill_process_tree).
+        # On Windows: taskkill /T /F. On POSIX: killpg with SIGTERM→SIGKILL
+        # escalation. Either path kills the run_proxy.py wrapper AND its
+        # mitmdump grandchild; killing only the wrapper would leave
+        # mitmdump orphaned holding the listen port.
         try:
-            pgid = os.getpgid(proc.pid)
-        except ProcessLookupError:
-            # Already gone — nothing to do.
-            return
-        try:
-            os.killpg(pgid, signal.SIGTERM)
-            try:
-                proc.wait(timeout=3)
-                return
-            except subprocess.TimeoutExpired:
-                # Polite timeout — escalate to SIGKILL on the whole group.
-                os.killpg(pgid, signal.SIGKILL)
-                try:
-                    proc.wait(timeout=2)
-                except subprocess.TimeoutExpired:
-                    # Last resort: nothing more we can do from Python; log it.
-                    pass
-        except ProcessLookupError:
-            # Group already gone (e.g. mitmdump exited on its own and took the
-            # wrapper with it). Treat as a clean stop.
-            return
+            _kill_process_tree(proc.pid, proc=proc)
+        except (NotImplementedError, AttributeError, OSError) as exc:
+            # Defensive net. _kill_process_tree itself branches on
+            # sys.platform, so this should be unreachable — but if a
+            # future refactor reintroduces a POSIX-only API on Windows
+            # (e.g. os.killpg), we don't want the GUI to silently drop
+            # the user's Stop click. Log and move on.
+            print(
+                f"[ERR] failed to stop proxy pid={proc.pid}: "
+                f"{type(exc).__name__}: {exc}",
+                file=sys.stderr,
+            )
 
     def _stop_elevated(self, proc: subprocess.Popen) -> None:
         """Stop a pkexec-spawned proxy process.

@@ -8,6 +8,7 @@ import time).
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -20,6 +21,25 @@ def _pick(data: dict[str, Any], names: Iterable[str], default: Any = None) -> An
         if name in data:
             return data[name]
     return default
+
+
+def _default_rewrite_pending_tx() -> bool:
+    """Platform-aware default for Strategy B (pendingTx rewrite).
+
+    Windows: ``True`` — process injection via local mode pairs naturally
+        with the rewrite; without it, ``TamperedItemIdDetected`` fires
+        on most reward pools when the replacement suffix doesn't match
+        the box's original suffix. Cross-suffix swaps are the whole
+        point of this tool, so we want fresh Windows installs to "just
+        work" without forcing the user to find the checkbox.
+
+    POSIX (Linux/macOS): ``False`` — historic default. Strategy B was
+        originally opt-in until verified safe across many sessions; that
+        verification was on the Linux/Proton path. Linux users who have
+        completed testing can flip the checkbox explicitly. We don't
+        want to surprise existing Linux users with a behavior change.
+    """
+    return sys.platform == "win32"
 
 
 def _as_int_list(value: Any) -> list[int]:
@@ -156,5 +176,9 @@ class ProxyConfig:
             url_contains=_as_str_tuple(_pick(data, ("url_contains", "UrlContains"), ["/backend-function/base/v1"])),
             specific_queue_rules=tuple(specific_rules),
             range_replacement=range_rule,
-            rewrite_pending_tx=bool(_pick(data, ("rewrite_pending_tx", "RewritePendingTx"), False)),
+            rewrite_pending_tx=bool(_pick(
+                data,
+                ("rewrite_pending_tx", "RewritePendingTx"),
+                _default_rewrite_pending_tx(),
+            )),
         )

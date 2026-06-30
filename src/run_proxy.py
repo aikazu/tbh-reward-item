@@ -24,13 +24,39 @@ def load_port() -> int:
     return int(data.get("listen_port", data.get("ListenPort", 8877)))
 
 
+def _default_mode() -> str:
+    """Pick a mode when config.json omits the field.
+
+    Windows: ``local`` — process injection via Win32 APIs works without
+        elevation and avoids the Steam Launch Options dance entirely
+        (mitmdump auto-spawns the game with HTTP_PROXY + CA cert).
+        Recommended over ``regular`` on Windows per CLAUDE.md.
+
+    POSIX (Linux/macOS): ``regular`` — ``local`` mode here needs root
+        for mitmdump's setuid redirector, which we want to be an
+        explicit user choice (GUI prompts for polkit, CLI needs sudo).
+    """
+    if sys.platform == "win32":
+        return "local"
+    return "regular"
+
+
 def load_mode(cli_mode: str | None = None, cli_name: str | None = None) -> tuple[str, str | None]:
     """Return ``(mode, process_name)`` from CLI overrides or config.json.
 
-    mode is ``"regular"`` (default) or ``"local"``. For ``"local"`` the
-    runner forwards ``--mode local:<process_name>`` to mitmdump, which
-    spawns the named process and only intercepts its traffic.
-    CLI args override config.json values.
+    mode is ``"regular"`` or ``"local"``. For ``"local"`` the runner
+    forwards ``--mode local:<process_name>`` to mitmdump, which spawns
+    the named process and only intercepts its traffic.
+
+    Resolution order:
+      1. CLI args (if ``--mode`` was passed)
+      2. ``config.json`` ``mode`` field, if present
+      3. Platform-aware default (``local`` on Windows, ``regular``
+         elsewhere) — see ``_default_mode``
+
+    CLI args override config.json values. A missing ``mode`` key in
+    config.json triggers the platform default; an explicit ``"regular"``
+    is always respected (no surprise upgrades).
     """
     if cli_mode is not None:
         if cli_mode == "local" and not (cli_name and cli_name.strip()):
@@ -40,11 +66,16 @@ def load_mode(cli_mode: str | None = None, cli_name: str | None = None) -> tuple
     try:
         data = json.loads(CONFIG_PATH.read_text(encoding="utf-8-sig"))
     except Exception:
-        return "regular", None
-    raw = str(data.get("mode", "regular")).strip().lower() or "regular"
+        # Config unreadable: fall back to platform default.
+        return _default_mode(), None
+    raw_obj = data.get("mode")
+    if raw_obj is None or (isinstance(raw_obj, str) and not raw_obj.strip()):
+        # Mode key absent or empty: platform default applies.
+        return _default_mode(), None
+    raw = str(raw_obj).strip().lower()
     if raw not in {"regular", "local"}:
-        print(f"[warn] config.json: unknown mode={raw!r}, falling back to regular")
-        raw = "regular"
+        print(f"[warn] config.json: unknown mode={raw!r}, falling back to {_default_mode()}")
+        return _default_mode(), None
     name = data.get("local_process_name")
     if isinstance(name, str):
         name = name.strip() or None
@@ -52,7 +83,7 @@ def load_mode(cli_mode: str | None = None, cli_name: str | None = None) -> tuple
         name = None
     if raw == "local" and not name:
         print("[warn] config.json: mode=local requires local_process_name; falling back to regular")
-        raw = "regular"
+        return "regular", None
     return raw, name
 
 

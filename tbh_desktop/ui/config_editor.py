@@ -6,6 +6,7 @@ Public API kept compatible with the previous table-based editor so callers in
 """
 from __future__ import annotations
 
+import sys
 from typing import Any
 
 from PySide6.QtCore import Qt, Signal
@@ -291,25 +292,38 @@ class _ProxyModeForm(QWidget):
 
     # ---- public API --------------------------------------------------
     def load(self, data: dict[str, Any]) -> None:
-        # Default to local + TaskBarHero.exe when the user has no
-        # explicit mode yet. The whole point of this tool is to scope
-        # interception to the game process so the user doesn't have to
-        # wire Steam Launch Options or system proxy settings — if we
-        # default to "regular" we silently force them into that.
-        mode = data.get("mode")
-        if isinstance(mode, str) and mode.strip().lower() == "local":
+        # Mode resolution mirrors ``run_proxy._default_mode``: explicit
+        # config wins, missing/unknown falls back to a platform-aware
+        # default. Windows picks "local" (process injection via Win32
+        # APIs is the recommended path per CLAUDE.md — no Steam Launch
+        # Options needed); POSIX picks "regular" because local mode
+        # requires root there, which we want to be an explicit choice.
+        mode_obj = data.get("mode")
+        if isinstance(mode_obj, str) and mode_obj.strip().lower() == "local":
             self.radio_local.setChecked(True)
-        elif isinstance(mode, str) and mode.strip().lower() == "regular":
+        elif isinstance(mode_obj, str) and mode_obj.strip().lower() == "regular":
             self.radio_regular.setChecked(True)
         else:
-            # No / unknown mode in config → default to local.
-            self.radio_local.setChecked(True)
+            # No / unknown mode in config → platform-aware default.
+            if sys.platform == "win32":
+                self.radio_local.setChecked(True)
+            else:
+                self.radio_regular.setChecked(True)
         name = str(data.get("local_process_name", "") or "")
         if not name.strip():
             name = "TaskBarHero.exe"
         self.edit_name.setText(name)
         self.edit_name.setEnabled(self.radio_local.isChecked())
-        self.chk_rewrite_pending.setChecked(bool(data.get("rewrite_pending_tx", False)))
+        # Strategy B default matches the addon side
+        # (tbh_proxy_config._default_rewrite_pending_tx): ON on Windows,
+        # OFF elsewhere. Mirrored here so the checkbox reflects what the
+        # addon will actually do when ``rewrite_pending_tx`` is absent
+        # from config.json — otherwise the user sees an unchecked
+        # checkbox but the addon still rewrites.
+        if "rewrite_pending_tx" in data:
+            self.chk_rewrite_pending.setChecked(bool(data["rewrite_pending_tx"]))
+        else:
+            self.chk_rewrite_pending.setChecked(sys.platform == "win32")
 
     def dump(self) -> dict[str, Any]:
         return {

@@ -1,6 +1,8 @@
 """Tests for ConfigEditor: keeps load/dump API, delegates to RuleListView."""
 from __future__ import annotations
 
+import sys
+
 from PySide6.QtWidgets import QApplication
 
 from tbh_desktop.ui.config_editor import ConfigEditor
@@ -89,3 +91,33 @@ def test_range_form_pick_buttons_emit_signals(qapp: QApplication) -> None:
     rf.btn_pick_gear.click()
     rf.btn_pick_item.click()
     assert captured == ["gear", "item"]
+
+
+def test_proxy_form_strategy_b_default_on_windows(qapp: QApplication, monkeypatch) -> None:
+    """Strategy B checkbox defaults to checked on Windows when the
+    config doesn't specify ``rewrite_pending_tx``. Mirrors the addon
+    side (tbh_proxy_config._default_rewrite_pending_tx) so the UI
+    shows what will actually run."""
+    import tbh_desktop.ui.config_editor as ce_mod
+    monkeypatch.setattr(ce_mod.sys, "platform", "win32")
+    editor = ConfigEditor()
+    editor.load(SAMPLE)
+    assert editor._mode_form.chk_rewrite_pending.isChecked() is True
+
+
+def test_proxy_form_strategy_b_default_off_on_linux(qapp: QApplication, monkeypatch) -> None:
+    import tbh_desktop.ui.config_editor as ce_mod
+    monkeypatch.setattr(ce_mod.sys, "platform", "linux")
+    editor = ConfigEditor()
+    editor.load(SAMPLE)
+    assert editor._mode_form.chk_rewrite_pending.isChecked() is False
+
+
+def test_proxy_form_strategy_b_explicit_value_respected(qapp: QApplication, monkeypatch) -> None:
+    """Explicit ``False`` in config overrides the Windows default.
+    No surprise upgrade for users who deliberately disabled it."""
+    import tbh_desktop.ui.config_editor as ce_mod
+    monkeypatch.setattr(ce_mod.sys, "platform", "win32")
+    editor = ConfigEditor()
+    editor.load({**SAMPLE, "rewrite_pending_tx": False})
+    assert editor._mode_form.chk_rewrite_pending.isChecked() is False

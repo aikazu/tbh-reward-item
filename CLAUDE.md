@@ -92,7 +92,7 @@ TBH/
 3. `require_boxes_marker` → body must contain literal `"boxes"`
 4. Regex: find `"itemId":<n>` then `"rewardItemId":<m>` after it. Replace `rewardItemId` with cycled value from `replacement_reward_item_ids` (modulo list length).
 5. Priority: **specific rules first, then range**. Specific rules match `itemId` exactly; range matches `[match_min, match_max]`.
-6. **Strategy B (optional, `rewrite_pending_tx`)**: after a `rewardItemId` rewrite, `PendingTxRewriter` rewrites matching `pendingTx.gid` + `.tid` in DynamoDB-format `SteamItemInfo`/`mine` responses so pending-tx item ids stay consistent with the new rewardItemId. Without it, the mismatch trips `TamperedItemIdDetected`. Off by default.
+6. **Strategy B (optional, `rewrite_pending_tx`)**: after a `rewardItemId` rewrite, `PendingTxRewriter` rewrites matching `pendingTx.gid` + `.tid` in DynamoDB-format `SteamItemInfo`/`mine` responses so pending-tx item ids stay consistent with the new rewardItemId. Without it, the mismatch trips `TamperedItemIdDetected`. **Platform-aware default**: ON on Windows (pairs with `mode=local` so fresh Windows installs work end-to-end without `TamperedItemIdDetected` on cross-suffix swaps), OFF on Linux/macOS (historic conservative default — flip explicitly after testing). Explicit `true`/`false` in `config.json` is always honored; the platform default only applies when the key is absent.
 
 Filter + rule shape defined in `ProxyConfig` / `QueueRule` / `RangeRule` (`src/tbh_proxy_config.py`).
 
@@ -148,9 +148,20 @@ Enable via `src/config.json`:
 windows\run_proxy.bat --mode local --name TaskBarHero.exe
 ```
 
-**Windows**: works out of the box (process injection via Win32 APIs, no elevation needed). **Recommended** over Steam Launch Options on Windows — survives game updates that touch `boot.unity3d`.
+**Windows**: works out of the box (process injection via Win32 APIs, no elevation needed). **Recommended** over Steam Launch Options on Windows — survives game updates that touch `boot.unity3d`. **Also the default on Windows** when `mode` is omitted from `config.json` (handled by `run_proxy._default_mode` and mirrored in the desktop `ConfigEditor`).
 
-**Linux caveats**: mitmproxy's local redirector uses a setuid helper (`mitmproxy-linux-redirector`), so mitmdump will prompt for `sudo` at startup. Run as root, or pre-elevate with `sudo -E ./scripts/run_proxy.sh --mode local --name <proc>`. Proton-launched games live inside a `pressure-vessel` container whose top-level process name is usually `TaskBarHero.exe` (Windows binary name) — verify with `pgrep -af TaskBarHero` while the game is running before relying on the match.
+**Linux caveats**: mitmproxy's local redirector uses a setuid helper (`mitmproxy-linux-redirector`), so mitmdump will prompt for `sudo` at startup. Run as root, or pre-elevate with `sudo -E ./scripts/run_proxy.sh --mode local --name <proc>`. Proton-launched games live inside a `pressure-vessel` container whose top-level process name is usually `TaskBarHero.exe` (Windows binary name) — verify with `pgrep -af TaskBarHero` while the game is running before relying on the match. Because of the elevation requirement, Linux keeps `mode=regular` as the default — switching to `local` is an explicit opt-in.
+
+### Platform-aware defaults
+
+When `mode` or `rewrite_pending_tx` is omitted from `config.json`, both the CLI runner (`src/run_proxy.py`) and the desktop editor (`tbh_desktop/ui/config_editor.py`) pick a platform-aware default instead of a single hard-coded value:
+
+| Field | Windows | Linux / macOS |
+|---|---|---|
+| `mode` | `local` | `regular` |
+| `rewrite_pending_tx` | `true` | `false` |
+
+Explicit values in `config.json` always win — no surprise upgrades for users who deliberately picked a setting. The defaults only apply when the field is absent or empty. The reasoning: on Windows, `mode=local` + `rewrite_pending_tx=true` is the working "out of the box" combo (process injection, no Steam Launch Options, no `TamperedItemIdDetected` on cross-suffix swaps); on Linux, both defaults need an explicit user choice (`local` requires root via polkit, Strategy B was opt-in until verified).
 
 ## Gotchas
 

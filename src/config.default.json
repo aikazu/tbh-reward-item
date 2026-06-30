@@ -1,9 +1,8 @@
 {
-    "_comment_mode": "Set to 'local' to use mitmproxy --mode local:<name> (scoped spawn — no system proxy, no Steam Launch Options). Leave 'regular' for plain listen-port mode. When mode='local', also set local_process_name.",
+    "_comment_mode": "Optional. 'local' uses mitmproxy --mode local:<name> (scoped spawn — no system proxy, no Steam Launch Options). 'regular' binds listen_port and expects the client to set HTTP_PROXY. When omitted, the loader picks a platform-aware default: 'local' on Windows (recommended — see CLAUDE.md), 'regular' on Linux/macOS. When mode='local', local_process_name is required.",
     "_comment_box_ids": "Box itemIds verified from capture 2026-06-28: 910801=Normal Box, 920801=Stage Boss Box, 930901=Act Boss Box. Previous default (910901/920901) was WRONG and never matched.",
     "_comment_suffix": "CRITICAL: the client validator checks the last 3 digits of rewardItemId (rarity*100+tier). Pick replacements whose last-3 MATCHES the box's original reward suffix, or the client ships TamperedItemIdDetected. See docs/analysis/tbh-network-forensics.md §10.8+§10.12. Normal Box pool is suffix-heavy on 171; Stage Boss Box on 004. For full evasion rewrite pendingTx.tid too (Strategy B, §10.12).",
-    "_comment_rewrite_pending_tx": "Strategy B: when true, also rewrites pendingTx.gid + .tid in SteamItemInfo/mine responses to match the rewritten rewardItemId. Eliminates TamperedItemIdDetected for cross-suffix swaps. Default false — opt-in until verified safe across multiple sessions.",
-    "mode": "regular",
+    "_comment_rewrite_pending_tx": "Strategy B: when true, also rewrites pendingTx.gid + .tid in SteamItemInfo/mine responses to match the rewritten rewardItemId. Eliminates TamperedItemIdDetected for cross-suffix swaps. Optional — loader picks a platform-aware default when this field is omitted: ON on Windows (pairs with default mode=local for a working out-of-the-box setup), OFF on Linux/macOS (historic conservative default; flip explicitly after testing).",
     "local_process_name": "TaskBarHero.exe",
     "listen_port": 8877,
     "only_post": true,

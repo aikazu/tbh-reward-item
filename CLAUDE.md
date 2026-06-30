@@ -53,12 +53,16 @@ TBH/
 │   ├── main.py                         # entry: QApplication + theme + MainWindow + SIGINT handler
 │   ├── paths.py                        # re-exports from src/config_setup.py (single source of truth)
 │   ├── config_io.py                    # load/save (validate → atomic temp+rename → re-validate → restore .bak)
+│   ├── gear_filters.py                 # rarity/tier/slot filter predicates for gear views
+│   ├── linux_elevation.py              # pkexec/sudo helper for --mode local setuid redirector
 │   ├── proxy_runner.py                 # subprocess + group SIGTERM/SIGKILL + stdout→Qt signal stream
 │   ├── scraper.py                      # gear + box loot scrape (requests/bs4, CloakBrowser for gear)
 │   ├── gear_scraper_runner.py          # QObject thread wrapper around scraper.refresh_gear_full
 │   └── ui/
-│       ├── main_window.py              # 4-zone composition + _ThreadLogBridge
-│       ├── left_rail.py                # 60px vertical Action icon rail
+│       ├── main_window.py              # QMainWindow: QSplitter(RuleDetailPanel+catalog) + CatalogPopup + StatusBadge toolbar + Log dock + _ThreadLogBridge
+│       ├── rule_detail_panel.py        # right-side rule editor form
+│       ├── catalog_popup.py            # unified gear/box/loot picker popup
+│       ├── status_badge.py             # toolbar RUNNING/STOPPED indicator
 │       ├── config_editor.py            # wraps RuleListView + _RangeForm (post-T11)
 │       ├── rule_list.py / rule_card.py # card-based rule list
 │       ├── item_browser.py             # 6-tab right panel + FilterContext (post-T9)
@@ -68,15 +72,15 @@ TBH/
 │       ├── box_loot_picker.py          # BoxLootView
 │       ├── active_target.py            # RuleTarget | RangeTarget union
 │       ├── log_panel.py                # bottom dock, monospace
-│       ├── theme.py                    # Catppuccin Mocha + rarity palette + ornament
-│       └── image_cache.py
+│       └── theme.py                    # Catppuccin Mocha + rarity palette + ornament + image_cache.py
 ├── scripts/                            # run_proxy, install_requirements, self_test, install_cert, remove_cert, launch_desktop (+ activate.{,fish})
 ├── windows/                            # Windows equivalents + install_cert.bat
-├── tests/                              # config_io, scraper, proxy_runner, gear_picker, main_window (gui-marked)
-├── docs/                               # superpowers specs + plans
+├── tests/                              # top-level: config_io, scraper, proxy_runner, run_proxy, reward_rewriter, gear_picker, main_window
+│                                       # + tests/ui/ (gui-marked widget + smoke tests), tests/dev_tools/scrape_pipeline/, tests/fixtures/ (HTML)
+├── docs/                               # ARCHITECTURE.md + analysis/ + desktop-gaps-fix-spec.md + superpowers specs/plans
 ├── requirements.txt                    # mitmproxy
 ├── requirements-desktop.txt            # PySide6, requests, bs4, lxml, pytest-qt, playwright, cloakbrowser, Pillow
-├── pytest.ini                          # -m "not integration" -p no:pytestqt
+├── pytest.ini                          # -m "not integration and not gui" -p no:pytestqt
 ├── conftest.py                         # sys.path + _NoopQtBot stub + gui marker
 └── pyrightconfig.json
 ```
@@ -88,6 +92,7 @@ TBH/
 3. `require_boxes_marker` → body must contain literal `"boxes"`
 4. Regex: find `"itemId":<n>` then `"rewardItemId":<m>` after it. Replace `rewardItemId` with cycled value from `replacement_reward_item_ids` (modulo list length).
 5. Priority: **specific rules first, then range**. Specific rules match `itemId` exactly; range matches `[match_min, match_max]`.
+6. **Strategy B (optional, `rewrite_pending_tx`)**: after a `rewardItemId` rewrite, `PendingTxRewriter` rewrites matching `pendingTx.gid` + `.tid` in DynamoDB-format `SteamItemInfo`/`mine` responses so pending-tx item ids stay consistent with the new rewardItemId. Without it, the mismatch trips `TamperedItemIdDetected`. Off by default.
 
 Filter + rule shape defined in `ProxyConfig` / `QueueRule` / `RangeRule` (`src/tbh_proxy_config.py`).
 
@@ -151,7 +156,7 @@ windows\run_proxy.bat --mode local --name TaskBarHero.exe
 
 ### pytest-qt teardown hangs on Plasma Wayland
 - Symptom: kills DE under `QT_QPA_PLATFORM=offscreen`.
-- Default in `pytest.ini`: `-p no:pytestqt`, `addopts = -m "not integration"`.
+- Default in `pytest.ini`: `-p no:pytestqt`, `addopts = -m "not integration and not gui"`.
 - GUI tests marked `@pytest.mark.gui`. Stub `qtbot` fixture (`_NoopQtBot` in `conftest.py`) lets collection succeed without spinning up `QApplication`.
 - Always export `QT_QPA_PLATFORM=offscreen` on CachyOS (Xe GPU driver bug — applies even outside pytest).
 

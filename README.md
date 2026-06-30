@@ -13,11 +13,21 @@
 
 [English](README.md) · [Bahasa Indonesia](README.id.md)
 
-## ❤️ Support
+## 💝 Support the Project
 
-If this project helped you, consider supporting development — scan the QRIS below or visit [qrisly.net/kcmon](https://qrisly.net/kcmon):
+<div align="center">
 
-<img src="qris.webp" alt="QRIS" width="240" />
+_If this tool saved you time, consider supporting its development_ ☕
+
+<br/>
+
+<a href="https://qrisly.net/kcmon"><img src="qris.webp" alt="Scan QRIS to support" width="240"/></a>
+
+<br/><br/>
+
+📱 **Scan the QRIS above** &nbsp;&nbsp;·&nbsp;&nbsp; 🔗 **[qrisly.net/kcmon](https://qrisly.net/kcmon)**
+
+</div>
 
 A man-in-the-middle proxy that rewrites the `rewardItemId` field in TBH game
 backend responses. Built on top of [mitmproxy](https://mitmproxy.org/), with an

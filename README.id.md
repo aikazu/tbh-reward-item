@@ -13,11 +13,21 @@
 
 [Bahasa Indonesia](README.id.md) · [English](README.md)
 
-## ❤️ Dukungan
+## 💝 Dukung Proyek
 
-Kalau proyek ini membantu, dukung pengembangannya — scan QRIS di bawah atau kunjungi [qrisly.net/kcmon](https://qrisly.net/kcmon):
+<div align="center">
 
-<img src="qris.webp" alt="QRIS" width="240" />
+_Kalau tool ini menghemat waktumu, dukung pengembangannya_ ☕
+
+<br/>
+
+<a href="https://qrisly.net/kcmon"><img src="qris.webp" alt="Scan QRIS untuk dukung" width="240"/></a>
+
+<br/><br/>
+
+📱 **Scan QRIS di atas** &nbsp;&nbsp;·&nbsp;&nbsp; 🔗 **[qrisly.net/kcmon](https://qrisly.net/kcmon)**
+
+</div>
 
 Man-in-the-middle proxy yang me-rewrite field `rewardItemId` pada response
 backend game TBH. Berjalan di atas [mitmproxy](https://mitmproxy.org/),

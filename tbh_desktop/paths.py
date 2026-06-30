@@ -30,6 +30,8 @@ __all__ = [
     "DROPS_INDEX_CACHE",
     "IMAGES_DIR",
     "MANIFEST_PATH",
+    "APP_ICON",
+    "APP_ICON_SVG",
 ]
 
 RUN_PROXY_PATH = SRC_DIR / "run_proxy.py"
@@ -46,3 +48,7 @@ BOX_DROP_MAP_CACHE = DESKTOP_DIR / "box_drop_map.json"
 DROPS_INDEX_CACHE = DESKTOP_DIR / "drops_index.json"
 IMAGES_DIR = DESKTOP_DIR / "images"
 MANIFEST_PATH = DESKTOP_DIR / "manifest.json"
+
+# App identity assets (window/taskbar icon).
+APP_ICON = DESKTOP_DIR / "ui" / "app_icon.png"
+APP_ICON_SVG = DESKTOP_DIR / "ui" / "app_icon.svg"

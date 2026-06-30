@@ -483,13 +483,9 @@ class MainWindow(QMainWindow):
         # reads as not-pressed — no sync needed.
 
     def _about(self) -> None:
-        QMessageBox.about(
-            self,
-            "About TBH Reward Proxy",
-            "TBH Reward Proxy desktop GUI.\n"
-            "Edit config, pick reward IDs, run/stop proxy.\n\n"
-            "Scraping powered by CloakBrowser (stealth Chromium).",
-        )
+        from tbh_desktop.ui.about_dialog import AboutDialog
+
+        AboutDialog(self).exec()
 
     def _confirm(self, title: str, message: str, *, default_yes: bool = False) -> bool:
         """Show a Yes/No dialog. Returns True if user clicked Yes."""

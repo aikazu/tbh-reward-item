@@ -5,10 +5,11 @@ import signal
 import sys
 
 from PySide6.QtCore import QTimer
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
-from tbh_desktop import config_io
-from tbh_desktop.paths import CONFIG_PATH
+from tbh_desktop import __app_name__, __version__, config_io
+from tbh_desktop.paths import APP_ICON, CONFIG_PATH
 from tbh_desktop.ui.main_window import MainWindow
 from tbh_desktop.ui.support_dialog import SupportDialog
 from tbh_desktop.ui.theme import apply_theme, register_fonts
@@ -30,6 +31,14 @@ def main() -> int:
     app = QApplication(sys.argv)
     register_fonts()
     apply_theme(app)
+
+    # App identity — taskbar / titlebar icon + desktop metadata.
+    app.setApplicationName(__app_name__)
+    app.setApplicationDisplayName(__app_name__)
+    app.setApplicationVersion(__version__)
+    if APP_ICON.exists():
+        app.setWindowIcon(QIcon(str(APP_ICON)))
+
     window = MainWindow()
     window.show()
 

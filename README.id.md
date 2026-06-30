@@ -13,6 +13,12 @@
 
 [Bahasa Indonesia](README.id.md) · [English](README.md)
 
+## ❤️ Dukungan
+
+Kalau proyek ini membantu, dukung pengembangannya — scan QRIS di bawah atau kunjungi [qrisly.net/kcmon](https://qrisly.net/kcmon):
+
+<img src="qris.webp" alt="QRIS" width="240" />
+
 Man-in-the-middle proxy yang me-rewrite field `rewardItemId` pada response
 backend game TBH. Berjalan di atas [mitmproxy](https://mitmproxy.org/),
 dengan opsi GUI desktop [PySide6](https://www.qt.io/) untuk edit rule
@@ -956,14 +962,3 @@ Lihat file [LICENSE](LICENSE) untuk teks lengkap lisensi MIT.
 Proyek ini dibangun di atas teknik **Persistent Reward Item Generator**
 yang diteliti dan dibagikan oleh komunitas UnknownCheats. Thread asli:
 [TBH - Persistent Reward Item Generator](https://www.unknowncheats.me/forum/other-games/758547-tbh-persistent-reward-item-generator.html).
-
----
-
-## Dukungan
-
-Kalau proyek ini membantu, dukung pengembangannya:
-
-- Scan kode QRIS di bawah, **atau**
-- Kunjungi [qrisly.net/kcmon](https://qrisly.net/kcmon)
-
-<img src="qris.webp" alt="QRIS" width="260" />

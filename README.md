@@ -13,6 +13,12 @@
 
 [English](README.md) · [Bahasa Indonesia](README.id.md)
 
+## ❤️ Support
+
+If this project helped you, consider supporting development — scan the QRIS below or visit [qrisly.net/kcmon](https://qrisly.net/kcmon):
+
+<img src="qris.webp" alt="QRIS" width="240" />
+
 A man-in-the-middle proxy that rewrites the `rewardItemId` field in TBH game
 backend responses. Built on top of [mitmproxy](https://mitmproxy.org/), with an
 optional [PySide6](https://www.qt.io/) desktop GUI for visual rule editing,
@@ -947,14 +953,3 @@ See the [LICENSE](LICENSE) file for the full MIT License text.
 This project builds on the **Persistent Reward Item Generator**
 technique researched and shared by the UnknownCheats community. Original
 thread: [TBH - Persistent Reward Item Generator](https://www.unknowncheats.me/forum/other-games/758547-tbh-persistent-reward-item-generator.html).
-
----
-
-## Support
-
-If this project helped you, consider supporting development:
-
-- Scan the QRIS code below, **or**
-- Visit [qrisly.net/kcmon](https://qrisly.net/kcmon)
-
-<img src="qris.webp" alt="QRIS" width="260" />

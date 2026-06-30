@@ -411,7 +411,7 @@ python -m pip install --break-system-packages -r requirements-desktop.txt
 **Option B — virtual environment (recommended for isolation):**
 
 ```bash
-cd TBH
+cd tbh-reward-item
 python -m venv .venv
 .venv/bin/pip install -r requirements-desktop.txt
 ./scripts/launch_desktop.sh          # checks + launch
@@ -466,7 +466,7 @@ windows\launch_desktop.bat
 **Option B — virtual environment (recommended for isolation):**
 
 ```bat
-cd TBH
+cd tbh-reward-item
 python -m venv .venv
 .venv\Scripts\pip install -r requirements-desktop.txt
 windows\launch_desktop.bat            :: checks + launch
@@ -502,7 +502,7 @@ working out of the box with no manual config edits:
 
 1. **Install dependencies** (one-time):
    ```bat
-   cd TBH
+   cd tbh-reward-item
    python -m venv .venv
    .venv\Scripts\pip install -r requirements-desktop.txt
    .venv\Scripts\pip install mitmproxy

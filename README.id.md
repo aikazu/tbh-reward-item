@@ -415,7 +415,7 @@ python -m pip install --break-system-packages -r requirements-desktop.txt
 **Opsi B — virtual environment (direkomendasikan untuk isolasi):**
 
 ```bash
-cd TBH
+cd tbh-reward-item
 python -m venv .venv
 .venv/bin/pip install -r requirements-desktop.txt
 ./scripts/launch_desktop.sh          # cek + jalankan
@@ -472,7 +472,7 @@ windows\launch_desktop.bat
 **Opsi B — virtual environment (direkomendasikan untuk isolasi):**
 
 ```bat
-cd TBH
+cd tbh-reward-item
 python -m venv .venv
 .venv\Scripts\pip install -r requirements-desktop.txt
 windows\launch_desktop.bat            :: cek + jalankan
@@ -508,7 +508,7 @@ full tanpa edit config manual:
 
 1. **Install dependensi** (sekali):
    ```bat
-   cd TBH
+   cd tbh-reward-item
    python -m venv .venv
    .venv\Scripts\pip install -r requirements-desktop.txt
    .venv\Scripts\pip install mitmproxy

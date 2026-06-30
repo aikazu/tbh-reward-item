@@ -302,7 +302,7 @@ Saat dimatikan, picker berperilaku seperti biasa (tanpa noise suffix).
 Addon punya **TamperDetector pasif** yang:
 
 - Memantau response `POST /data/gameLog/v2/TemperedItem/90`
-- Mencatat tiap mismatch ke `captures/tamper-events.jsonl` dengan field
+- Mencatat tiap mismatch ke `logs/tamper-events.jsonl` dengan field
   terstruktur: `itemKey`, `original_id`, `used_id`, `original_rarity`,
   `used_rarity`, `original_tier`, `used_tier`, `last3_preserved`
 - Mencetak `TAMPER WARNING: N mismatch(es)... Session total: M` ke
@@ -908,7 +908,6 @@ TBH/
 │   └── analysis/                     # forensik jaringan + write-up capture
 │       ├── tbh-network-forensics.md  # notebook berjalan (suffix system, tid mapping, §10.12)
 │       └── capture-20260628-193055.md # forensik capture pertama
-├── captures/                         # file .flow, tamper-events.jsonl, item-catalog.json
 ├── requirements.txt                  # mitmproxy
 ├── requirements-desktop.txt          # PySide6, requests, bs4, lxml, pytest-qt,
 │                                     #   playwright, cloakbrowser, Pillow

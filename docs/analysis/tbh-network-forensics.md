@@ -1,6 +1,6 @@
 # TBH Network Forensics & Evasion Notes
 
-**Owner**: the analyst the analyst (the account owner) — Software Developer / Presales Engineer / Cybersecurity Analyst-Engineer
+**Owner**: the account owner — Software Developer / Presales Engineer / Cybersecurity Analyst-Engineer
 **Analyst**: the player (Hermes agent, MiniMax-M3)
 **Date opened**: 2026-06-28
 **Status**: active research — keep updating as new captures arrive

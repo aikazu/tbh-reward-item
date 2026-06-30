@@ -29,7 +29,8 @@ src/config.json.tmp
 src/config.json
 tests/ui/_artifacts/
 
-# Raw mitmproxy captures (may contain auth tokens in headers)
-captures/*.flow
-captures/*.log
-captures/.last-session
+# Runtime logs (TamperDetector output — TamperDetector auto-creates the dir)
+logs/
+
+# Code-graph tooling output (regenerable via /graphify)
+graphify-out/

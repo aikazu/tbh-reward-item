@@ -186,7 +186,7 @@ When `true`, the addon intercepts `SteamItemInfo/mine` in addition to
 - Integration: replay `captures/cap-20260628-195045.flow` through the
   addon → verify `pendingTx.tid` matches the rewritten `rewardItemId`.
 - Live verification: run addon with `rewrite_pending_tx=true`, open
-  boxes, check `captures/tamper-events.jsonl` for zero new reports.
+  boxes, check `logs/tamper-events.jsonl` for zero new reports.
 
 ---
 

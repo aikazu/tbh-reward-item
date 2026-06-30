@@ -23,7 +23,7 @@ the client ships a ``TamperedItemIdDetected`` telemetry to the server.
 
 This addon has no idea whether your swap will trigger that. Pick replacements
 whose last-3 matches what the box originally drops — or accept the reports.
-Read ``captures/tamper-events.jsonl`` after a session to see what got flagged.
+Read ``logs/tamper-events.jsonl`` after a session to see what got flagged.
 """
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ def log_info(message: str) -> None:
 # Endpoint: POST /data/gameLog/v2/TemperedItem/90
 # Body: {"msg":"TamperedItemIdDetected","data":{"mismatches":["<ik>:<orig>-><used>",...]}}
 TAMPER_URL_MARKER = "/data/gameLog/v2/TemperedItem/"
-TAMPER_EVENTS_PATH = Path(__file__).resolve().parent.parent / "captures" / "tamper-events.jsonl"
+TAMPER_EVENTS_PATH = Path(__file__).resolve().parent.parent / "logs" / "tamper-events.jsonl"
 
 _RARITY_NAMES = {
     "0": "Common", "1": "Uncommon", "2": "Rare", "3": "Legendary",
@@ -75,7 +75,7 @@ class TamperDetector:
     /data/gameLog/v2/TemperedItem/90. The mismatch data lives in the
     REQUEST body (not response — server replies 204 No Content). This
     detector reads the request body and appends structured records to
-    captures/tamper-events.jsonl.
+    logs/tamper-events.jsonl.
     """
 
     def __init__(self, events_path: Path = TAMPER_EVENTS_PATH):

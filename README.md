@@ -300,7 +300,7 @@ When disabled, the picker behaves as before (no suffix noise).
 The addon includes a **passive TamperDetector** that:
 
 - Watches `POST /data/gameLog/v2/TemperedItem/90` responses
-- Logs each mismatch to `captures/tamper-events.jsonl` with structured
+- Logs each mismatch to `logs/tamper-events.jsonl` with structured
   fields: `itemKey`, `original_id`, `used_id`, `original_rarity`,
   `used_rarity`, `original_tier`, `used_tier`, `last3_preserved`
 - Prints `TAMPER WARNING: N mismatch(es)... Session total: M` to stdout
@@ -897,7 +897,6 @@ TBH/
 │   └── analysis/                     # network forensics + capture write-ups
 │       ├── tbh-network-forensics.md  # rolling notebook (suffix system, tid mapping, §10.12)
 │       └── capture-20260628-193055.md # first capture forensics
-├── captures/                         # .flow files, tamper-events.jsonl, item-catalog.json
 ├── requirements.txt                  # mitmproxy
 ├── requirements-desktop.txt          # PySide6, requests, bs4, lxml, pytest-qt,
 │                                     #   playwright, cloakbrowser, Pillow

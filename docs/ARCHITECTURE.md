@@ -267,7 +267,7 @@ response(flow) called by mitmproxy
   - `original` = what the server actually minted (real rewardItemId)
   - `used` = what the client has cached (our rewritten rewardItemId)
 - **Parsing**: `_parse_mismatch()` extracts itemKey, orig_id, used_id, decodes rarity (3rd digit) and tier (last 3 digits), checks if last3 preserved.
-- **Output**: Appends to `captures/tamper-events.jsonl`, one JSON record per line.
+- **Output**: Appends to `logs/tamper-events.jsonl`, one JSON record per line.
 - **Never modifies traffic** — pure passive monitor.
 
 ### 4.4 PendingTxRewriter (Strategy B) — gid/tid Rewrite

@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QApplication
 from tbh_desktop import config_io
 from tbh_desktop.paths import CONFIG_PATH
 from tbh_desktop.ui.main_window import MainWindow
+from tbh_desktop.ui.support_dialog import SupportDialog
 from tbh_desktop.ui.theme import apply_theme, register_fonts
 
 
@@ -31,6 +32,13 @@ def main() -> int:
     apply_theme(app)
     window = MainWindow()
     window.show()
+
+    # QRIS support popup — once per launch. Wrapped so a popup failure
+    # (missing image, theme glitch) never blocks the app from running.
+    try:
+        SupportDialog(parent=window).exec()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[TBH] support popup skipped: {exc}", flush=True)
 
     # --- Graceful shutdown wiring -------------------------------------------
     # aboutToQuit fires on app.quit() (triggered by SIGINT handler below) and

@@ -69,7 +69,7 @@ REM Auto-generate config.json from config.default.json if missing (mirrors
 REM the Linux launch_desktop.sh logic).
 if not exist "src\config.json" if exist "src\config.default.json" (
     "!_PY_INTERP!" -c "import sys; sys.path.insert(0, r'%CD%\src'); from config_setup import ensure_config, CONFIG_PATH; ensure_config(CONFIG_PATH)" >nul 2>&1
-    if exist "src\config.json" echo [OK]  src\config.json (auto-generated from config.default.json)
+    if exist "src\config.json" echo [OK]  src\config.json - auto-generated from config.default.json
 )
 
 if not exist "src\config.json" (
@@ -94,14 +94,14 @@ if !errorlevel! equ 0 (
     if !errorlevel! equ 0 (
         echo [OK]  CloakBrowser binary downloaded
     ) else (
-        echo [WARN] CloakBrowser binary not downloaded yet — will auto-download (~200MB) on first scrape
+        echo [WARN] CloakBrowser binary not downloaded yet - will auto-download ~200MB on first scrape
     )
 )
 
 REM ── Summary ───────────────────────────────────────────────────────────────
 echo.
 if !ERRORS! gtr 0 (
-    echo [FAIL] !ERRORS! check(s) failed. Fix the issues above before launching.
+    echo [FAIL] !ERRORS! check[s] failed. Fix the issues above before launching.
     exit /b 1
 )
 

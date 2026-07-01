@@ -448,14 +448,29 @@ class CatalogContent(QWidget):
                     kind = str(e.get("type", "material")).lower()
                     # tbh.city normalizes 'GEAR' → type="GEAR", 'MATERIAL' → "MATERIAL"
                     kind = "gear" if kind == "gear" else "material"
+                    if kind == "gear":
+                        # Read the real slot_category from items_normalized
+                        # so the Weapon/Off-hand/Armor/Accessory filter
+                        # actually works for items loaded from this
+                        # path. Empty when items_normalized is missing
+                        # the field (shouldn't happen with tbh.city v2
+                        # but keep the empty-string fallback as a
+                        # safety net).
+                        slot_cat = str(e.get("slot_category") or "").strip()
+                        # The gear cache uses canonical title-case
+                        # ("Weapon", "Off-hand", "Armor", "Accessory");
+                        # tbh.city uses those exact strings too, so we
+                        # don't transform them here.
+                    else:
+                        slot_cat = ""  # materials don't have slots
                     _append({
                         "id": int(e["id"]),
                         "name": str(e.get("name", f"#{e['id']}")),
                         "kind": kind,
                         "rarity": str(e.get("grade", e.get("rarity", "COMMON"))).upper(),
                         "obtainable": bool(e.get("obtainable", True)),
-                        "slot_category": "",  # materials don't have slots
-                        "slot_type": "",
+                        "slot_category": slot_cat,
+                        "slot_type": str(e.get("slot_type", "")),
                         "family": str(e.get("family", "CRAFTING")).upper(),
                     })
 

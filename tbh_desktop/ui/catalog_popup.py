@@ -765,6 +765,11 @@ class CatalogPopup(QMenu):
             self.content.set_axis_mode(axis)
         else:
             self.content.set_axis_mode(None)
+        # Show() before popup_at so Qt finalizes widget visibility —
+        # otherwise set_axis_mode's setVisible() calls don't take effect
+        # and the user sees BOTH chip rows even in gear/item mode.
+        if not self.isVisible():
+            self.show()
         self.popup_at()
         return bool(self.last_picked_ids)
 
@@ -792,6 +797,11 @@ class CatalogPopup(QMenu):
             self.content.set_axis_mode(axis)
         else:
             self.content.set_axis_mode(None)
+        # Show() before popup_at so Qt finalizes widget visibility —
+        # otherwise set_axis_mode's setVisible() calls don't take effect
+        # and the user sees BOTH chip rows even in gear/item mode.
+        if not self.isVisible():
+            self.show()
         self.popup_at()
         return bool(self.last_picked_ids)
 

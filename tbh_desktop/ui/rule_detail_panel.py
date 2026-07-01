@@ -273,15 +273,15 @@ class RuleDetailPanel(QWidget):
         self.level_label = QLabel("")
         self.level_label.setVisible(False)
 
-        # Range field row: enabled checkbox + min/max spinboxes.
+        # Range field row: min/max spinboxes. The enabled toggle
+        # lives on the rule-list card (RangeCard) — single source of
+        # truth for on/off so the user can't get confused by two
+        # toggles disagreeing. This panel only edits min/max + chips.
         self._range_field_row = QWidget()
         range_layout = QHBoxLayout(self._range_field_row)
         range_layout.setContentsMargins(0, 0, 0, 0)
         range_layout.setSpacing(8)
         range_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.range_enabled_checkbox = QCheckBox("Enabled")
-        self.range_enabled_checkbox.setObjectName("range_enabled_checkbox")
-        range_layout.addWidget(self.range_enabled_checkbox)
         range_min_label = QLabel("min")
         range_min_label.setStyleSheet(
             f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
@@ -311,9 +311,6 @@ class RuleDetailPanel(QWidget):
         self._range_field_row.setVisible(False)
         # Wire range field edits back to main_window via a single signal.
         # main_window handles persisting to ConfigEditor's RangeState.
-        self.range_enabled_checkbox.toggled.connect(
-            lambda _v: self.range_edited.emit()
-        )
         self.range_min_value.valueChanged.connect(
             lambda _v: self.range_edited.emit()
         )
@@ -321,8 +318,13 @@ class RuleDetailPanel(QWidget):
             lambda _v: self.range_edited.emit()
         )
 
-        # Pick buttons row.
-        btn_row = QHBoxLayout()
+        # Pick buttons row. 'Pick pool' is hidden when the range rule is
+        # selected (the range matches by itemId, not pool — offering a
+        # 'Pick pool' button for a non-pool rule is misleading). 'Pick
+        # gear' / 'Pick item' stay visible for both modes.
+        self._btn_row = QWidget()
+        btn_row = QHBoxLayout(self._btn_row)
+        btn_row.setContentsMargins(0, 0, 0, 0)
         btn_row.setSpacing(8)
         self.btn_pick_pool_id = QPushButton("Pick pool")
         self.btn_pick_pool_id.setObjectName("btn_pick_pool_id_detail")
@@ -353,7 +355,7 @@ class RuleDetailPanel(QWidget):
         btn_row.addWidget(self.btn_pick_item)
 
         btn_row.addStretch()
-        form_layout.addLayout(btn_row)
+        form_layout.addWidget(self._btn_row)
 
         # REPLACES WITH section.
         replaces_label = QLabel("REPLACES WITH")
@@ -537,7 +539,9 @@ class RuleDetailPanel(QWidget):
         self._range_field_row.setVisible(True)
         self.range_min_value.setValue(int(self._range_min))
         self.range_max_value.setValue(int(self._range_max))
-        self.range_enabled_checkbox.setChecked(bool(self._range_enabled))
+        # Range doesn't have a pool — hide 'Pick pool' so the user
+        # isn't tempted to bind this non-pool rule to one.
+        self.btn_pick_pool_id.setVisible(False)
         self.chip_row.set_ids(self._range_replacement_ids)
         n = len(self._range_replacement_ids)
         self.chip_count_label.setText(
@@ -572,6 +576,8 @@ class RuleDetailPanel(QWidget):
         # Pool-id row visible; range row hidden.
         self._pool_field_row.setVisible(True)
         self._range_field_row.setVisible(False)
+        # Rule has a pool — show 'Pick pool' again.
+        self.btn_pick_pool_id.setVisible(True)
         # Render one chip per pool id so the user can see + remove each.
         self._refresh_pool_chips()
         self.chip_row.set_ids(self._replacement_ids)

@@ -34,7 +34,9 @@ def test_panel_show_empty_method(qapp) -> None:
 
 def test_panel_set_range_data_populates_form(qapp) -> None:
     """set_range_data renders the same panel with min/max instead of
-    pool chips — there's no separate 'range summary' half-state."""
+    pool chips — there's no separate 'range summary' half-state.
+    The enabled checkbox lives on the rule-list card (single
+    source of truth), so the detail panel only shows min/max + chips."""
     panel = RuleDetailPanel()
     panel.set_range_data(
         enabled=True,
@@ -46,7 +48,9 @@ def test_panel_set_range_data_populates_form(qapp) -> None:
     assert "range" in panel.banner_name.text().lower()
     assert panel.range_min_value.value() == 100
     assert panel.range_max_value.value() == 999
-    assert panel.range_enabled_checkbox.isChecked() is True
+    # Pick pool is hidden for range (range matches by itemId, not
+    # pool — offering it would be misleading).
+    assert panel.btn_pick_pool_id.isVisible() is False
     assert len(panel.chip_row._chips) == 2
 
 

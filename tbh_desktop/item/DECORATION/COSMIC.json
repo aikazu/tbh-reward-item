@@ -1,0 +1,23 @@
+[
+  {
+    "id": 119002,
+    "name": "Chaos Diamond",
+    "grade": "COSMIC",
+    "rarity": "Cosmic",
+    "type": "MATERIAL",
+    "icon": "sprites/sharedassets0/Item_119002.png",
+    "image": "https://tbh.city/sprites/sharedassets0/sharedassets0/Item_119002.png",
+    "stat_types": [],
+    "unique_mod": null,
+    "gear_id": "",
+    "slot_category": "",
+    "slot_type": "",
+    "family": "DECORATION",
+    "hero_class": null,
+    "source_count": 0,
+    "obtainable": true,
+    "only_torment": false,
+    "market_tradable": true,
+    "drop_cooldown": null
+  }
+]

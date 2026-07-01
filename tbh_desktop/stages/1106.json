@@ -1,0 +1,4349 @@
+{
+  "id": 1106,
+  "act": 1,
+  "stage_no": 6,
+  "stage_level": 7,
+  "name": {
+    "en": "Rumstreet Square",
+    "es": "Plaza Rumstreet",
+    "fr": "Place de Rumstreet",
+    "de": "Rumstraßenplatz",
+    "pt": "Praça Rumstreet",
+    "ru": "Площадь Рамстрит",
+    "pl": "Plac Rumstreet",
+    "tr": "Rumstreet Meydanı",
+    "uk": "Площа Рамстріт",
+    "id": "Alun-alun Rumstreet",
+    "vi": "Quảng trường Rumstreet",
+    "th": "จัตุรัสรัมสตรีท",
+    "ja": "ラムストリート広場",
+    "ko": "럼스트리트 광장",
+    "zh-hans": "朗姆街广场",
+    "zh-hant": "蘭姆街廣場"
+  },
+  "type": "NORMAL",
+  "difficulty": "NORMAL",
+  "next_stage": 1107,
+  "waves": {
+    "count": 12,
+    "monsters_per_wave": 5
+  },
+  "monsters": [
+    {
+      "id": 10041,
+      "weight": 1000,
+      "name": {
+        "en": "Orc",
+        "es": "Orco",
+        "fr": "Orc",
+        "de": "Ork",
+        "pt": "Orc",
+        "ru": "Орк",
+        "pl": "Ork",
+        "tr": "Ork",
+        "uk": "Орк",
+        "id": "Orc",
+        "vi": "Orc",
+        "th": "ออร์ค",
+        "ja": "オーク",
+        "ko": "오크",
+        "zh-hans": "兽人",
+        "zh-hant": "獸人"
+      },
+      "max_life": 65
+    },
+    {
+      "id": 10042,
+      "weight": 1000,
+      "name": {
+        "en": "Orc Warrior",
+        "es": "Guerrero orco",
+        "fr": "Guerrier orc",
+        "de": "Orkkrieger",
+        "pt": "Guerreiro orc",
+        "ru": "Орк-воин",
+        "pl": "Ork wojownik",
+        "tr": "Ork Savaşçısı",
+        "uk": "Орк-воїн",
+        "id": "Pejuang Orc",
+        "vi": "Chiến binh Orc",
+        "th": "ออร์คนักรบ",
+        "ja": "オークウォリアー",
+        "ko": "오크 전사",
+        "zh-hans": "兽人战士",
+        "zh-hant": "獸人戰士"
+      },
+      "max_life": 95
+    },
+    {
+      "id": 10043,
+      "weight": 600,
+      "name": {
+        "en": "Elite Orc",
+        "es": "Orco élite",
+        "fr": "Orc d'élite",
+        "de": "Elite-Ork",
+        "pt": "Orc de elite",
+        "ru": "Элитный орк",
+        "pl": "Elitarny ork",
+        "tr": "Seçkin Ork",
+        "uk": "Елітний орк",
+        "id": "Orc Elite",
+        "vi": "Orc Tinh Nhuệ",
+        "th": "ออร์คชั้นยอด",
+        "ja": "エリートオーク",
+        "ko": "정예 오크",
+        "zh-hans": "精英兽人",
+        "zh-hant": "精英獸人"
+      },
+      "max_life": 185
+    },
+    {
+      "id": 10011,
+      "weight": 1000,
+      "name": {
+        "en": "Slime",
+        "es": "Limo",
+        "fr": "Slime",
+        "de": "Schleim",
+        "pt": "Slime",
+        "ru": "Слизь",
+        "pl": "Szlam",
+        "tr": "Balçık",
+        "uk": "Слиз",
+        "id": "Slime",
+        "vi": "Slime",
+        "th": "สไลม์",
+        "ja": "スライム",
+        "ko": "슬라임",
+        "zh-hans": "史莱姆",
+        "zh-hant": "史萊姆"
+      },
+      "max_life": 50
+    }
+  ],
+  "boss": {
+    "id": 10051,
+    "name": {
+      "en": "Skeleton",
+      "es": "Esqueleto",
+      "fr": "Squelette",
+      "de": "Skelett",
+      "pt": "Esqueleto",
+      "ru": "Скелет",
+      "pl": "Szkielet",
+      "tr": "İskelet",
+      "uk": "Скелет",
+      "id": "Tengkorak",
+      "vi": "Bộ xương",
+      "th": "โครงกระดูก",
+      "ja": "スケルトン",
+      "ko": "해골",
+      "zh-hans": "骷髅",
+      "zh-hant": "骷髏"
+    },
+    "scale": 3,
+    "hp": 1770,
+    "damage": 186,
+    "gold": 123,
+    "exp": 1254
+  },
+  "rewards": {
+    "expected_gold_per_clear": 4633,
+    "expected_exp_per_clear": 11704,
+    "avg_monster_hp": 526.1,
+    "avg_monster_dmg": 43.2
+  },
+  "drops": {
+    "stage_key": 1106,
+    "stage_no": 6,
+    "act": 1,
+    "monster_pool": [
+      {
+        "drop_key": 9100511,
+        "difficulty_variant": 1,
+        "entries": [
+          {
+            "item_id": 300002,
+            "weight": 885429,
+            "hero_condition": null,
+            "group": 1000050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 310002,
+            "weight": 885429,
+            "hero_condition": null,
+            "group": 1000050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 320002,
+            "weight": 885429,
+            "hero_condition": null,
+            "group": 1000050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 330002,
+            "weight": 885429,
+            "hero_condition": null,
+            "group": 1000050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 340002,
+            "weight": 221357,
+            "hero_condition": 501,
+            "group": 100005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 350002,
+            "weight": 221357,
+            "hero_condition": 601,
+            "group": 100005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 400002,
+            "weight": 126518,
+            "hero_condition": null,
+            "group": 1001050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 410002,
+            "weight": 126518,
+            "hero_condition": null,
+            "group": 1001050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 420002,
+            "weight": 126518,
+            "hero_condition": null,
+            "group": 1001050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 430002,
+            "weight": 126518,
+            "hero_condition": null,
+            "group": 1001050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 440002,
+            "weight": 31580,
+            "hero_condition": 501,
+            "group": 100105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 450002,
+            "weight": 31580,
+            "hero_condition": 601,
+            "group": 100105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 500002,
+            "weight": 1082190,
+            "hero_condition": null,
+            "group": 1002050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 510002,
+            "weight": 1082190,
+            "hero_condition": null,
+            "group": 1002050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 520002,
+            "weight": 1082190,
+            "hero_condition": null,
+            "group": 1002050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 530002,
+            "weight": 1082190,
+            "hero_condition": null,
+            "group": 1002050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 301021,
+            "weight": 267119,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 301022,
+            "weight": 267119,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 311021,
+            "weight": 267119,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 311022,
+            "weight": 267119,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 321021,
+            "weight": 267119,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 321022,
+            "weight": 267119,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 331021,
+            "weight": 267119,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 331022,
+            "weight": 267119,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 341021,
+            "weight": 66780,
+            "hero_condition": 501,
+            "group": 110005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 341022,
+            "weight": 66780,
+            "hero_condition": 501,
+            "group": 110005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 351021,
+            "weight": 66780,
+            "hero_condition": 601,
+            "group": 110005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 351022,
+            "weight": 66780,
+            "hero_condition": 601,
+            "group": 110005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 401021,
+            "weight": 38160,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 401022,
+            "weight": 38160,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 411021,
+            "weight": 38160,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 411022,
+            "weight": 38160,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 421021,
+            "weight": 38160,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 421022,
+            "weight": 38160,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 431021,
+            "weight": 38160,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 431022,
+            "weight": 38160,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 441021,
+            "weight": 9540,
+            "hero_condition": 501,
+            "group": 110105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 441022,
+            "weight": 9540,
+            "hero_condition": 501,
+            "group": 110105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 451021,
+            "weight": 9540,
+            "hero_condition": 601,
+            "group": 110105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 451022,
+            "weight": 9540,
+            "hero_condition": 601,
+            "group": 110105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 501021,
+            "weight": 305278,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 501022,
+            "weight": 305278,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 511021,
+            "weight": 305278,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 511022,
+            "weight": 305278,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 521021,
+            "weight": 305278,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 521022,
+            "weight": 305278,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 531021,
+            "weight": 305278,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 531022,
+            "weight": 305278,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 302021,
+            "weight": 17724,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 302022,
+            "weight": 17724,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 312021,
+            "weight": 17724,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 312022,
+            "weight": 17724,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 322021,
+            "weight": 17724,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 322022,
+            "weight": 17724,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 332021,
+            "weight": 17724,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 332022,
+            "weight": 17724,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 342021,
+            "weight": 4431,
+            "hero_condition": 501,
+            "group": 120005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 342022,
+            "weight": 4431,
+            "hero_condition": 501,
+            "group": 120005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 352021,
+            "weight": 4431,
+            "hero_condition": 601,
+            "group": 120005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 352022,
+            "weight": 4431,
+            "hero_condition": 601,
+            "group": 120005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 402021,
+            "weight": 2532,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 402022,
+            "weight": 2532,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 412021,
+            "weight": 2532,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 412022,
+            "weight": 2532,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 422021,
+            "weight": 2532,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 422022,
+            "weight": 2532,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 432021,
+            "weight": 2532,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 432022,
+            "weight": 2532,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 442021,
+            "weight": 633,
+            "hero_condition": 501,
+            "group": 120105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 442022,
+            "weight": 633,
+            "hero_condition": 501,
+            "group": 120105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 452021,
+            "weight": 633,
+            "hero_condition": 601,
+            "group": 120105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 452022,
+            "weight": 633,
+            "hero_condition": 601,
+            "group": 120105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 502021,
+            "weight": 20255,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 502022,
+            "weight": 20255,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 512021,
+            "weight": 20255,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 512022,
+            "weight": 20255,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 522021,
+            "weight": 20255,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 522022,
+            "weight": 20255,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 532021,
+            "weight": 20255,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 532022,
+            "weight": 20255,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 140001,
+            "weight": 148307,
+            "hero_condition": null,
+            "group": 1053201,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 140002,
+            "weight": 148307,
+            "hero_condition": null,
+            "group": 1053201,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 140003,
+            "weight": 148307,
+            "hero_condition": null,
+            "group": 1053201,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 140004,
+            "weight": 148307,
+            "hero_condition": null,
+            "group": 1053201,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 110001,
+            "weight": 72635,
+            "hero_condition": null,
+            "group": 1053001,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 110002,
+            "weight": 72635,
+            "hero_condition": null,
+            "group": 1053001,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 110003,
+            "weight": 72635,
+            "hero_condition": null,
+            "group": 1053001,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 110004,
+            "weight": 72635,
+            "hero_condition": null,
+            "group": 1053001,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 110005,
+            "weight": 72635,
+            "hero_condition": null,
+            "group": 1053001,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          }
+        ]
+      }
+    ],
+    "boss_pool": [
+      {
+        "drop_key": 9200511,
+        "difficulty_variant": 1,
+        "entries": [
+          {
+            "item_id": 300002,
+            "weight": 7385565,
+            "hero_condition": null,
+            "group": 1000050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 310002,
+            "weight": 7385565,
+            "hero_condition": null,
+            "group": 1000050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 320002,
+            "weight": 7385565,
+            "hero_condition": null,
+            "group": 1000050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 330002,
+            "weight": 7385565,
+            "hero_condition": null,
+            "group": 1000050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 340002,
+            "weight": 2109603,
+            "hero_condition": 501,
+            "group": 100005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 350002,
+            "weight": 2109603,
+            "hero_condition": 601,
+            "group": 100005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 400002,
+            "weight": 1772535,
+            "hero_condition": null,
+            "group": 1001050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 410002,
+            "weight": 1772535,
+            "hero_condition": null,
+            "group": 1001050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 420002,
+            "weight": 1772535,
+            "hero_condition": null,
+            "group": 1001050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 430002,
+            "weight": 1772535,
+            "hero_condition": null,
+            "group": 1001050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 440002,
+            "weight": 506305,
+            "hero_condition": 501,
+            "group": 100105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 450002,
+            "weight": 506305,
+            "hero_condition": 601,
+            "group": 100105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 500002,
+            "weight": 7385565,
+            "hero_condition": null,
+            "group": 1002050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 510002,
+            "weight": 7385565,
+            "hero_condition": null,
+            "group": 1002050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 520002,
+            "weight": 7385565,
+            "hero_condition": null,
+            "group": 1002050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 530002,
+            "weight": 7385565,
+            "hero_condition": null,
+            "group": 1002050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 301021,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 301022,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 311021,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 311022,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 321021,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 321022,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 331021,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 331022,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1100050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 341021,
+            "weight": 4579774,
+            "hero_condition": 501,
+            "group": 110005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 341022,
+            "weight": 4579774,
+            "hero_condition": 501,
+            "group": 110005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 351021,
+            "weight": 4579774,
+            "hero_condition": 601,
+            "group": 110005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 351022,
+            "weight": 4579774,
+            "hero_condition": 601,
+            "group": 110005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 401021,
+            "weight": 1924014,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 401022,
+            "weight": 1924014,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 411021,
+            "weight": 1924014,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 411022,
+            "weight": 1924014,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 421021,
+            "weight": 1924014,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 421022,
+            "weight": 1924014,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 431021,
+            "weight": 1924014,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 431022,
+            "weight": 1924014,
+            "hero_condition": null,
+            "group": 1101050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 441021,
+            "weight": 549573,
+            "hero_condition": 501,
+            "group": 110105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 441022,
+            "weight": 549573,
+            "hero_condition": 501,
+            "group": 110105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 451021,
+            "weight": 549573,
+            "hero_condition": 601,
+            "group": 110105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 451022,
+            "weight": 549573,
+            "hero_condition": 601,
+            "group": 110105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 501021,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 501022,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 511021,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 511022,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 521021,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 521022,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 531021,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 531022,
+            "weight": 16033451,
+            "hero_condition": null,
+            "group": 1102050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 302021,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 302022,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 312021,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 312022,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 322021,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 322022,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 332021,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 332022,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1200050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 342021,
+            "weight": 1527786,
+            "hero_condition": 501,
+            "group": 120005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 342022,
+            "weight": 1527786,
+            "hero_condition": 501,
+            "group": 120005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 352021,
+            "weight": 1527786,
+            "hero_condition": 601,
+            "group": 120005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 352022,
+            "weight": 1527786,
+            "hero_condition": 601,
+            "group": 120005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 402021,
+            "weight": 641851,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 402022,
+            "weight": 641851,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 412021,
+            "weight": 641851,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 412022,
+            "weight": 641851,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 422021,
+            "weight": 641851,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 422022,
+            "weight": 641851,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 432021,
+            "weight": 641851,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 432022,
+            "weight": 641851,
+            "hero_condition": null,
+            "group": 1201050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 442021,
+            "weight": 183305,
+            "hero_condition": 501,
+            "group": 120105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 442022,
+            "weight": 183305,
+            "hero_condition": 501,
+            "group": 120105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 452021,
+            "weight": 183305,
+            "hero_condition": 601,
+            "group": 120105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 452022,
+            "weight": 183305,
+            "hero_condition": 601,
+            "group": 120105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 502021,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 502022,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 512021,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 512022,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 522021,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 522022,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 532021,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 532022,
+            "weight": 5348703,
+            "hero_condition": null,
+            "group": 1202050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 303021,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1300050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 303022,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1300050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 313021,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1300050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 313022,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1300050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 323021,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1300050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 323022,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1300050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 333021,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1300050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 333022,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1300050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 343021,
+            "weight": 209387,
+            "hero_condition": 501,
+            "group": 130005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 343022,
+            "weight": 209387,
+            "hero_condition": 501,
+            "group": 130005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 353021,
+            "weight": 209387,
+            "hero_condition": 601,
+            "group": 130005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 353022,
+            "weight": 209387,
+            "hero_condition": 601,
+            "group": 130005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 403021,
+            "weight": 87982,
+            "hero_condition": null,
+            "group": 1301050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 403022,
+            "weight": 87982,
+            "hero_condition": null,
+            "group": 1301050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 413021,
+            "weight": 87982,
+            "hero_condition": null,
+            "group": 1301050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 413022,
+            "weight": 87982,
+            "hero_condition": null,
+            "group": 1301050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 423021,
+            "weight": 87982,
+            "hero_condition": null,
+            "group": 1301050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 423022,
+            "weight": 87982,
+            "hero_condition": null,
+            "group": 1301050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 433021,
+            "weight": 87982,
+            "hero_condition": null,
+            "group": 1301050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 433022,
+            "weight": 87982,
+            "hero_condition": null,
+            "group": 1301050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 443021,
+            "weight": 25118,
+            "hero_condition": 501,
+            "group": 130105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 443022,
+            "weight": 25118,
+            "hero_condition": 501,
+            "group": 130105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 453021,
+            "weight": 25118,
+            "hero_condition": 601,
+            "group": 130105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 453022,
+            "weight": 25118,
+            "hero_condition": 601,
+            "group": 130105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 503021,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1302050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 503022,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1302050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 513021,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1302050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 513022,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1302050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 523021,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1302050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 523022,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1302050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 533021,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1302050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 533022,
+            "weight": 733095,
+            "hero_condition": null,
+            "group": 1302050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 304021,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1400050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 304022,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1400050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 314021,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1400050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 314022,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1400050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 324021,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1400050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 324022,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1400050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 334021,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1400050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 334022,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1400050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 344021,
+            "weight": 48456,
+            "hero_condition": 501,
+            "group": 140005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 344022,
+            "weight": 48456,
+            "hero_condition": 501,
+            "group": 140005001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 354021,
+            "weight": 48456,
+            "hero_condition": 601,
+            "group": 140005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 354022,
+            "weight": 48456,
+            "hero_condition": 601,
+            "group": 140005002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 404021,
+            "weight": 20434,
+            "hero_condition": null,
+            "group": 1401050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 404022,
+            "weight": 20434,
+            "hero_condition": null,
+            "group": 1401050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 414021,
+            "weight": 20434,
+            "hero_condition": null,
+            "group": 1401050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 414022,
+            "weight": 20434,
+            "hero_condition": null,
+            "group": 1401050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 424021,
+            "weight": 20434,
+            "hero_condition": null,
+            "group": 1401050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 424022,
+            "weight": 20434,
+            "hero_condition": null,
+            "group": 1401050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 434021,
+            "weight": 20434,
+            "hero_condition": null,
+            "group": 1401050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 434022,
+            "weight": 20434,
+            "hero_condition": null,
+            "group": 1401050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 444021,
+            "weight": 5726,
+            "hero_condition": 501,
+            "group": 140105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 444022,
+            "weight": 5726,
+            "hero_condition": 501,
+            "group": 140105001,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 454021,
+            "weight": 5726,
+            "hero_condition": 601,
+            "group": 140105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 454022,
+            "weight": 5726,
+            "hero_condition": 601,
+            "group": 140105002,
+            "is_dlc_hero": true,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 504021,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1402050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 504022,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1402050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 514021,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1402050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 514022,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1402050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 524021,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1402050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 524022,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1402050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 534021,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1402050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 534022,
+            "weight": 170026,
+            "hero_condition": null,
+            "group": 1402050,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 190001,
+            "weight": 1978358,
+            "hero_condition": null,
+            "group": null,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 140001,
+            "weight": 5068852,
+            "hero_condition": null,
+            "group": 1053201,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 140002,
+            "weight": 5068852,
+            "hero_condition": null,
+            "group": 1053201,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 140003,
+            "weight": 5068852,
+            "hero_condition": null,
+            "group": 1053201,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 140004,
+            "weight": 5068852,
+            "hero_condition": null,
+            "group": 1053201,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 190001,
+            "weight": 3957,
+            "hero_condition": null,
+            "group": null,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 110001,
+            "weight": 1572503,
+            "hero_condition": null,
+            "group": 1053001,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 110002,
+            "weight": 1572503,
+            "hero_condition": null,
+            "group": 1053001,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 110003,
+            "weight": 1572503,
+            "hero_condition": null,
+            "group": 1053001,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 110004,
+            "weight": 1572503,
+            "hero_condition": null,
+            "group": 1053001,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          },
+          {
+            "item_id": 110005,
+            "weight": 1572503,
+            "hero_condition": null,
+            "group": 1053001,
+            "is_dlc_hero": false,
+            "drop_type": "EachDropOneWeight_DLCVariant"
+          }
+        ]
+      }
+    ],
+    "first_clear": [],
+    "stage_level": 7,
+    "name_localized": {
+      "en": "Rumstreet Square",
+      "es": "Plaza Rumstreet",
+      "fr": "Place de Rumstreet",
+      "de": "Rumstraßenplatz",
+      "pt": "Praça Rumstreet",
+      "ru": "Площадь Рамстрит",
+      "pl": "Plac Rumstreet",
+      "tr": "Rumstreet Meydanı",
+      "uk": "Площа Рамстріт",
+      "id": "Alun-alun Rumstreet",
+      "vi": "Quảng trường Rumstreet",
+      "th": "จัตุรัสรัมสตรีท",
+      "ja": "ラムストリート広場",
+      "ko": "럼스트리트 광장",
+      "zh-hans": "朗姆街广场",
+      "zh-hant": "蘭姆街廣場"
+    }
+  },
+  "is_demo": true,
+  "flattened_drops": [
+    {
+      "item_id": 300002,
+      "weight": 885429,
+      "source": "monster",
+      "group": 1000050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 310002,
+      "weight": 885429,
+      "source": "monster",
+      "group": 1000050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 320002,
+      "weight": 885429,
+      "source": "monster",
+      "group": 1000050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 330002,
+      "weight": 885429,
+      "source": "monster",
+      "group": 1000050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 340002,
+      "weight": 221357,
+      "source": "monster",
+      "group": 100005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 350002,
+      "weight": 221357,
+      "source": "monster",
+      "group": 100005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 400002,
+      "weight": 126518,
+      "source": "monster",
+      "group": 1001050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 410002,
+      "weight": 126518,
+      "source": "monster",
+      "group": 1001050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 420002,
+      "weight": 126518,
+      "source": "monster",
+      "group": 1001050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 430002,
+      "weight": 126518,
+      "source": "monster",
+      "group": 1001050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 440002,
+      "weight": 31580,
+      "source": "monster",
+      "group": 100105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 450002,
+      "weight": 31580,
+      "source": "monster",
+      "group": 100105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 500002,
+      "weight": 1082190,
+      "source": "monster",
+      "group": 1002050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 510002,
+      "weight": 1082190,
+      "source": "monster",
+      "group": 1002050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 520002,
+      "weight": 1082190,
+      "source": "monster",
+      "group": 1002050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 530002,
+      "weight": 1082190,
+      "source": "monster",
+      "group": 1002050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 301021,
+      "weight": 267119,
+      "source": "monster",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 301022,
+      "weight": 267119,
+      "source": "monster",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 311021,
+      "weight": 267119,
+      "source": "monster",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 311022,
+      "weight": 267119,
+      "source": "monster",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 321021,
+      "weight": 267119,
+      "source": "monster",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 321022,
+      "weight": 267119,
+      "source": "monster",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 331021,
+      "weight": 267119,
+      "source": "monster",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 331022,
+      "weight": 267119,
+      "source": "monster",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 341021,
+      "weight": 66780,
+      "source": "monster",
+      "group": 110005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 341022,
+      "weight": 66780,
+      "source": "monster",
+      "group": 110005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 351021,
+      "weight": 66780,
+      "source": "monster",
+      "group": 110005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 351022,
+      "weight": 66780,
+      "source": "monster",
+      "group": 110005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 401021,
+      "weight": 38160,
+      "source": "monster",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 401022,
+      "weight": 38160,
+      "source": "monster",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 411021,
+      "weight": 38160,
+      "source": "monster",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 411022,
+      "weight": 38160,
+      "source": "monster",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 421021,
+      "weight": 38160,
+      "source": "monster",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 421022,
+      "weight": 38160,
+      "source": "monster",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 431021,
+      "weight": 38160,
+      "source": "monster",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 431022,
+      "weight": 38160,
+      "source": "monster",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 441021,
+      "weight": 9540,
+      "source": "monster",
+      "group": 110105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 441022,
+      "weight": 9540,
+      "source": "monster",
+      "group": 110105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 451021,
+      "weight": 9540,
+      "source": "monster",
+      "group": 110105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 451022,
+      "weight": 9540,
+      "source": "monster",
+      "group": 110105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 501021,
+      "weight": 305278,
+      "source": "monster",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 501022,
+      "weight": 305278,
+      "source": "monster",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 511021,
+      "weight": 305278,
+      "source": "monster",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 511022,
+      "weight": 305278,
+      "source": "monster",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 521021,
+      "weight": 305278,
+      "source": "monster",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 521022,
+      "weight": 305278,
+      "source": "monster",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 531021,
+      "weight": 305278,
+      "source": "monster",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 531022,
+      "weight": 305278,
+      "source": "monster",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 302021,
+      "weight": 17724,
+      "source": "monster",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 302022,
+      "weight": 17724,
+      "source": "monster",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 312021,
+      "weight": 17724,
+      "source": "monster",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 312022,
+      "weight": 17724,
+      "source": "monster",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 322021,
+      "weight": 17724,
+      "source": "monster",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 322022,
+      "weight": 17724,
+      "source": "monster",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 332021,
+      "weight": 17724,
+      "source": "monster",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 332022,
+      "weight": 17724,
+      "source": "monster",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 342021,
+      "weight": 4431,
+      "source": "monster",
+      "group": 120005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 342022,
+      "weight": 4431,
+      "source": "monster",
+      "group": 120005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 352021,
+      "weight": 4431,
+      "source": "monster",
+      "group": 120005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 352022,
+      "weight": 4431,
+      "source": "monster",
+      "group": 120005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 402021,
+      "weight": 2532,
+      "source": "monster",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 402022,
+      "weight": 2532,
+      "source": "monster",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 412021,
+      "weight": 2532,
+      "source": "monster",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 412022,
+      "weight": 2532,
+      "source": "monster",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 422021,
+      "weight": 2532,
+      "source": "monster",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 422022,
+      "weight": 2532,
+      "source": "monster",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 432021,
+      "weight": 2532,
+      "source": "monster",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 432022,
+      "weight": 2532,
+      "source": "monster",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 442021,
+      "weight": 633,
+      "source": "monster",
+      "group": 120105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 442022,
+      "weight": 633,
+      "source": "monster",
+      "group": 120105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 452021,
+      "weight": 633,
+      "source": "monster",
+      "group": 120105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 452022,
+      "weight": 633,
+      "source": "monster",
+      "group": 120105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 502021,
+      "weight": 20255,
+      "source": "monster",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 502022,
+      "weight": 20255,
+      "source": "monster",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 512021,
+      "weight": 20255,
+      "source": "monster",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 512022,
+      "weight": 20255,
+      "source": "monster",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 522021,
+      "weight": 20255,
+      "source": "monster",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 522022,
+      "weight": 20255,
+      "source": "monster",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 532021,
+      "weight": 20255,
+      "source": "monster",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 532022,
+      "weight": 20255,
+      "source": "monster",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 140001,
+      "weight": 148307,
+      "source": "monster",
+      "group": 1053201,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 140002,
+      "weight": 148307,
+      "source": "monster",
+      "group": 1053201,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 140003,
+      "weight": 148307,
+      "source": "monster",
+      "group": 1053201,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 140004,
+      "weight": 148307,
+      "source": "monster",
+      "group": 1053201,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 110001,
+      "weight": 72635,
+      "source": "monster",
+      "group": 1053001,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 110002,
+      "weight": 72635,
+      "source": "monster",
+      "group": 1053001,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 110003,
+      "weight": 72635,
+      "source": "monster",
+      "group": 1053001,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 110004,
+      "weight": 72635,
+      "source": "monster",
+      "group": 1053001,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 110005,
+      "weight": 72635,
+      "source": "monster",
+      "group": 1053001,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 300002,
+      "weight": 7385565,
+      "source": "boss",
+      "group": 1000050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 310002,
+      "weight": 7385565,
+      "source": "boss",
+      "group": 1000050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 320002,
+      "weight": 7385565,
+      "source": "boss",
+      "group": 1000050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 330002,
+      "weight": 7385565,
+      "source": "boss",
+      "group": 1000050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 340002,
+      "weight": 2109603,
+      "source": "boss",
+      "group": 100005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 350002,
+      "weight": 2109603,
+      "source": "boss",
+      "group": 100005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 400002,
+      "weight": 1772535,
+      "source": "boss",
+      "group": 1001050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 410002,
+      "weight": 1772535,
+      "source": "boss",
+      "group": 1001050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 420002,
+      "weight": 1772535,
+      "source": "boss",
+      "group": 1001050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 430002,
+      "weight": 1772535,
+      "source": "boss",
+      "group": 1001050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 440002,
+      "weight": 506305,
+      "source": "boss",
+      "group": 100105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 450002,
+      "weight": 506305,
+      "source": "boss",
+      "group": 100105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 500002,
+      "weight": 7385565,
+      "source": "boss",
+      "group": 1002050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 510002,
+      "weight": 7385565,
+      "source": "boss",
+      "group": 1002050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 520002,
+      "weight": 7385565,
+      "source": "boss",
+      "group": 1002050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 530002,
+      "weight": 7385565,
+      "source": "boss",
+      "group": 1002050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 301021,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 301022,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 311021,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 311022,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 321021,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 321022,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 331021,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 331022,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1100050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 341021,
+      "weight": 4579774,
+      "source": "boss",
+      "group": 110005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 341022,
+      "weight": 4579774,
+      "source": "boss",
+      "group": 110005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 351021,
+      "weight": 4579774,
+      "source": "boss",
+      "group": 110005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 351022,
+      "weight": 4579774,
+      "source": "boss",
+      "group": 110005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 401021,
+      "weight": 1924014,
+      "source": "boss",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 401022,
+      "weight": 1924014,
+      "source": "boss",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 411021,
+      "weight": 1924014,
+      "source": "boss",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 411022,
+      "weight": 1924014,
+      "source": "boss",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 421021,
+      "weight": 1924014,
+      "source": "boss",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 421022,
+      "weight": 1924014,
+      "source": "boss",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 431021,
+      "weight": 1924014,
+      "source": "boss",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 431022,
+      "weight": 1924014,
+      "source": "boss",
+      "group": 1101050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 441021,
+      "weight": 549573,
+      "source": "boss",
+      "group": 110105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 441022,
+      "weight": 549573,
+      "source": "boss",
+      "group": 110105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 451021,
+      "weight": 549573,
+      "source": "boss",
+      "group": 110105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 451022,
+      "weight": 549573,
+      "source": "boss",
+      "group": 110105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 501021,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 501022,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 511021,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 511022,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 521021,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 521022,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 531021,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 531022,
+      "weight": 16033451,
+      "source": "boss",
+      "group": 1102050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 302021,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 302022,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 312021,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 312022,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 322021,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 322022,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 332021,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 332022,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1200050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 342021,
+      "weight": 1527786,
+      "source": "boss",
+      "group": 120005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 342022,
+      "weight": 1527786,
+      "source": "boss",
+      "group": 120005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 352021,
+      "weight": 1527786,
+      "source": "boss",
+      "group": 120005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 352022,
+      "weight": 1527786,
+      "source": "boss",
+      "group": 120005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 402021,
+      "weight": 641851,
+      "source": "boss",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 402022,
+      "weight": 641851,
+      "source": "boss",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 412021,
+      "weight": 641851,
+      "source": "boss",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 412022,
+      "weight": 641851,
+      "source": "boss",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 422021,
+      "weight": 641851,
+      "source": "boss",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 422022,
+      "weight": 641851,
+      "source": "boss",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 432021,
+      "weight": 641851,
+      "source": "boss",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 432022,
+      "weight": 641851,
+      "source": "boss",
+      "group": 1201050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 442021,
+      "weight": 183305,
+      "source": "boss",
+      "group": 120105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 442022,
+      "weight": 183305,
+      "source": "boss",
+      "group": 120105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 452021,
+      "weight": 183305,
+      "source": "boss",
+      "group": 120105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 452022,
+      "weight": 183305,
+      "source": "boss",
+      "group": 120105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 502021,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 502022,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 512021,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 512022,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 522021,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 522022,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 532021,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 532022,
+      "weight": 5348703,
+      "source": "boss",
+      "group": 1202050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 303021,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1300050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 303022,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1300050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 313021,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1300050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 313022,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1300050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 323021,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1300050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 323022,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1300050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 333021,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1300050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 333022,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1300050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 343021,
+      "weight": 209387,
+      "source": "boss",
+      "group": 130005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 343022,
+      "weight": 209387,
+      "source": "boss",
+      "group": 130005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 353021,
+      "weight": 209387,
+      "source": "boss",
+      "group": 130005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 353022,
+      "weight": 209387,
+      "source": "boss",
+      "group": 130005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 403021,
+      "weight": 87982,
+      "source": "boss",
+      "group": 1301050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 403022,
+      "weight": 87982,
+      "source": "boss",
+      "group": 1301050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 413021,
+      "weight": 87982,
+      "source": "boss",
+      "group": 1301050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 413022,
+      "weight": 87982,
+      "source": "boss",
+      "group": 1301050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 423021,
+      "weight": 87982,
+      "source": "boss",
+      "group": 1301050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 423022,
+      "weight": 87982,
+      "source": "boss",
+      "group": 1301050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 433021,
+      "weight": 87982,
+      "source": "boss",
+      "group": 1301050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 433022,
+      "weight": 87982,
+      "source": "boss",
+      "group": 1301050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 443021,
+      "weight": 25118,
+      "source": "boss",
+      "group": 130105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 443022,
+      "weight": 25118,
+      "source": "boss",
+      "group": 130105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 453021,
+      "weight": 25118,
+      "source": "boss",
+      "group": 130105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 453022,
+      "weight": 25118,
+      "source": "boss",
+      "group": 130105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 503021,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1302050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 503022,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1302050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 513021,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1302050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 513022,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1302050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 523021,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1302050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 523022,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1302050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 533021,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1302050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 533022,
+      "weight": 733095,
+      "source": "boss",
+      "group": 1302050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 304021,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1400050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 304022,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1400050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 314021,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1400050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 314022,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1400050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 324021,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1400050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 324022,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1400050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 334021,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1400050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 334022,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1400050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 344021,
+      "weight": 48456,
+      "source": "boss",
+      "group": 140005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 344022,
+      "weight": 48456,
+      "source": "boss",
+      "group": 140005001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 354021,
+      "weight": 48456,
+      "source": "boss",
+      "group": 140005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 354022,
+      "weight": 48456,
+      "source": "boss",
+      "group": 140005002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 404021,
+      "weight": 20434,
+      "source": "boss",
+      "group": 1401050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 404022,
+      "weight": 20434,
+      "source": "boss",
+      "group": 1401050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 414021,
+      "weight": 20434,
+      "source": "boss",
+      "group": 1401050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 414022,
+      "weight": 20434,
+      "source": "boss",
+      "group": 1401050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 424021,
+      "weight": 20434,
+      "source": "boss",
+      "group": 1401050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 424022,
+      "weight": 20434,
+      "source": "boss",
+      "group": 1401050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 434021,
+      "weight": 20434,
+      "source": "boss",
+      "group": 1401050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 434022,
+      "weight": 20434,
+      "source": "boss",
+      "group": 1401050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 444021,
+      "weight": 5726,
+      "source": "boss",
+      "group": 140105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 444022,
+      "weight": 5726,
+      "source": "boss",
+      "group": 140105001,
+      "hero_condition": 501,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 454021,
+      "weight": 5726,
+      "source": "boss",
+      "group": 140105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 454022,
+      "weight": 5726,
+      "source": "boss",
+      "group": 140105002,
+      "hero_condition": 601,
+      "is_dlc_hero": true,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 504021,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1402050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 504022,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1402050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 514021,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1402050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 514022,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1402050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 524021,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1402050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 524022,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1402050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 534021,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1402050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 534022,
+      "weight": 170026,
+      "source": "boss",
+      "group": 1402050,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 190001,
+      "weight": 1978358,
+      "source": "boss",
+      "group": null,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 140001,
+      "weight": 5068852,
+      "source": "boss",
+      "group": 1053201,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 140002,
+      "weight": 5068852,
+      "source": "boss",
+      "group": 1053201,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 140003,
+      "weight": 5068852,
+      "source": "boss",
+      "group": 1053201,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 140004,
+      "weight": 5068852,
+      "source": "boss",
+      "group": 1053201,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 190001,
+      "weight": 3957,
+      "source": "boss",
+      "group": null,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 110001,
+      "weight": 1572503,
+      "source": "boss",
+      "group": 1053001,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 110002,
+      "weight": 1572503,
+      "source": "boss",
+      "group": 1053001,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 110003,
+      "weight": 1572503,
+      "source": "boss",
+      "group": 1053001,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 110004,
+      "weight": 1572503,
+      "source": "boss",
+      "group": 1053001,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    },
+    {
+      "item_id": 110005,
+      "weight": 1572503,
+      "source": "boss",
+      "group": 1053001,
+      "hero_condition": null,
+      "is_dlc_hero": false,
+      "drop_type": "EachDropOneWeight_DLCVariant"
+    }
+  ]
+}

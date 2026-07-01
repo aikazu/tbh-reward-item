@@ -1,0 +1,19 @@
+{
+  "kind": "gear",
+  "categories": [
+    "weapon",
+    "offhand",
+    "armor",
+    "accessory"
+  ],
+  "rarities": [
+    "legendary",
+    "immortal",
+    "arcana",
+    "beyond",
+    "celestial",
+    "divine",
+    "cosmic"
+  ],
+  "total": 28
+}

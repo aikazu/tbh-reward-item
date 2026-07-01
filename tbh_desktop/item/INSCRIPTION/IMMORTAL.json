@@ -1,0 +1,23 @@
+[
+  {
+    "id": 134001,
+    "name": "Scroll of Immortal Inscription",
+    "grade": "IMMORTAL",
+    "rarity": "Immortal",
+    "type": "MATERIAL",
+    "icon": "sprites/sharedassets0/Item_134001.png",
+    "image": "https://tbh.city/sprites/sharedassets0/sharedassets0/Item_134001.png",
+    "stat_types": [],
+    "unique_mod": null,
+    "gear_id": "",
+    "slot_category": "",
+    "slot_type": "",
+    "family": "INSCRIPTION",
+    "hero_class": null,
+    "source_count": 60,
+    "obtainable": true,
+    "only_torment": false,
+    "market_tradable": true,
+    "drop_cooldown": null
+  }
+]

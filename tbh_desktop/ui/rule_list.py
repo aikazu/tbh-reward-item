@@ -162,8 +162,8 @@ class _RangeCard(QFrame):
 
     def set_data(self, data: dict) -> None:
         enabled = bool(data.get("enabled", False))
-        lo = int(data.get("match_min_item_id") or 0)
-        hi = int(data.get("match_max_item_id") or 0)
+        lo = int(data.get("min_pool_id") or 0)
+        hi = int(data.get("max_pool_id") or 0)
         n = len(data.get("replacement_reward_item_ids") or [])
         # Block signals while setting so the toggled signal doesn't
         # fire from inside set_data — only fires on user clicks.
@@ -221,8 +221,8 @@ class RuleListView(QListView):
         self._range = dict(data.get("range_replacement") or {
             "enabled": False,
             "name": "Pool range",
-            "match_min_item_id": 0,
-            "match_max_item_id": 0,
+            "min_pool_id": 0,
+            "max_pool_id": 0,
             "replacement_reward_item_ids": [],
         })
         self._rebuild_cards()

@@ -908,61 +908,119 @@ class MainWindow(QMainWindow):
         Crafting / Decoration / Engraving / Inscription / Offering /
         Soulstone). The picker is pre-scoped to that chip row.
 
-        Pool-scoped rule: replacement candidates are restricted to the
-        union of the rule's pool drop tables (per user feedback —
+        Pool-scoped rule: replacement candidates are restricted to
+        the union of the rule's pool drop tables (per user feedback —
         replacement must be drawn from one of the pools the rule
-        targets). Multi-pool rule = union across all pool_ids. Range /
-        fallback rules: full catalog.
+        targets).
+
+        Range rule: replacement candidates are restricted to the
+        item-id range [match_min, match_max] — same scoping logic as
+        the proxy addon (the range match runs at proxy time on the
+        item id; the picker shouldn't offer ids that can't match).
+
+        Fallback (no target / no scope): full catalog.
         """
         from tbh_desktop.ui.active_target import RangeTarget, RuleTarget
         target = self.editor.rule_list().active_target()
-        # Use the card's actual pool_ids (not the legacy single
-        # target.pool_id, which only carries the first pool for
-        # multi-pool rules). If the card has any pool set, the rule
-        # is pool-scoped and we restrict the picker.
-        card_pool_ids: list[int] = []
+
+        # --- Pool rule scope ---
         if isinstance(target, RuleTarget):
             card_pool_ids = self._card_pool_ids(target)
-        if isinstance(target, RuleTarget) and card_pool_ids:
-            allowed = self._pool_drop_item_ids(card_pool_ids)
-            if not allowed:
-                from PySide6.QtWidgets import QMessageBox
-                QMessageBox.warning(
-                    self,
-                    "No drop data for these pools",
-                    f"This rule's {len(card_pool_ids)} pool(s) "
-                    f"({', '.join(str(p) for p in card_pool_ids[:5])}{'…' if len(card_pool_ids) > 5 else ''}) "
-                    f"have no cached drop entries.\n\n"
-                    f"Coba Pick pool lagi dan pilih stage yang sudah di-scrape "
-                    f"(klik Scrape data dulu kalau stages_index.json masih kosong).",
-                )
+            if card_pool_ids:
+                allowed = self._pool_drop_item_ids(card_pool_ids)
+                if not allowed:
+                    from PySide6.QtWidgets import QMessageBox
+                    QMessageBox.warning(
+                        self,
+                        "No drop data for these pools",
+                        f"This rule's {len(card_pool_ids)} pool(s) "
+                        f"({', '.join(str(p) for p in card_pool_ids[:5])}{'…' if len(card_pool_ids) > 5 else ''}) "
+                        f"have no cached drop entries.\n\n"
+                        f"Coba Pick pool lagi dan pilih stage yang sudah di-scrape "
+                        f"(klik Scrape data dulu kalau stages_index.json masih kosong).",
+                    )
+                    return
+                self._open_picker_with_scope(allowed, axis)
                 return
-            self.catalog_popup.exec_for_replacement_scoped(allowed, axis=axis)
-            ids = self.catalog_popup.last_picked_ids
-            if ids:
-                # Defensive: re-filter against the allowed set in case
-                # the user somehow picked an id the dialog didn't block.
-                safe = [i for i in ids if int(i) in allowed]
-                dropped = len(ids) - len(safe)
-                if dropped:
-                    self._on_log(
-                        f"Warning: {dropped} picked id(s) were outside "
-                        f"the pool drop table and were discarded."
-                    )
-                if safe:
-                    self.editor.add_ids_to_selected_rule(safe)
-                    self._on_log(
-                        f"Added {len(safe)} replacement id(s) from "
-                        f"{len(card_pool_ids)} pool(s) "
-                        f"(union has {len(allowed)} item(s))."
-                    )
+
+        # --- Range rule: full catalog (NOT scoped) ---
+        # Range replacement hits every pool whose drop_key falls in
+        # [min_pool_id, max_pool_id] — that crosses many pools, so any
+        # item in the catalog is a valid replacement. Don't filter by
+        # item-id range; the user picks freely from the whole list.
+        if isinstance(target, RangeTarget):
+            self._open_picker_with_scope([], axis)
             return
-        # No pool_ids on the rule: full catalog (range replacement flow).
-        self.catalog_popup.exec_for_replacement()
+
+        # --- Fallback: full catalog ---
+        self._open_picker_with_scope([], axis)
+
+    def _open_picker_with_scope(
+        self, allowed_item_ids: list[int], axis: str
+    ) -> None:
+        """Open the CatalogPopup with the given scope. Empty list
+        means no scope restriction (full catalog)."""
+        if allowed_item_ids:
+            self.catalog_popup.exec_for_replacement_scoped(
+                allowed_item_ids, axis=axis
+            )
+        else:
+            self.catalog_popup.exec_for_replacement(axis=axis)
         ids = self.catalog_popup.last_picked_ids
-        if ids:
+        if not ids:
+            return
+        # Defensive: re-filter against the allowed set in case the
+        # user somehow picked an id the dialog didn't block.
+        if allowed_item_ids:
+            safe = [i for i in ids if int(i) in allowed_item_ids]
+            dropped = len(ids) - len(safe)
+            if dropped:
+                self._on_log(
+                    f"Warning: {dropped} picked id(s) were outside "
+                    "the rule's scope and were discarded."
+                )
+            ids = safe
+        if not ids:
+            return
+        # Route to the right place (pool rule vs range rule).
+        target = self.editor.rule_list().active_target()
+        from tbh_desktop.ui.active_target import RangeTarget, RuleTarget
+        if isinstance(target, RangeTarget):
+            rs = self.editor.range_state()
+            for i in ids:
+                rs.add_ids([int(i)])
+            # Mirror into rule_list range cache so dump() picks up.
+            self.editor.rule_list()._range["replacement_reward_item_ids"] = list(
+                rs.replacement_reward_item_ids
+            )
+            self._on_log(
+                f"Added {len(ids)} replacement id(s) to range rule. "
+                f"Total: {len(rs.replacement_reward_item_ids)}"
+            )
+        elif isinstance(target, RuleTarget):
             self.editor.add_ids_to_selected_rule(ids)
-            self._on_log(f"Added {len(ids)} replacement id(s) to selected rule.")
+            self._on_log(
+                f"Added {len(ids)} replacement id(s) to "
+                f"{target.reward_kind} rule."
+            )
+        # Refresh detail panel chips.
+        from tbh_desktop.ui.active_target import RangeTarget as _RT
+        if isinstance(target, _RT):
+            self._on_rule_selected(target)
+
+    def _items_in_range(self, lo: int, hi: int) -> list[int]:
+        """Return the subset of catalog item ids that fall in
+        [lo, hi] (inclusive). Used to scope the range-rule
+        replacement picker — without this the user would be
+        offered 5875 items when they only want ids in their
+        configured range.
+        """
+        out: list[int] = []
+        for it in self.catalog_popup.content._all_items:
+            iid = int(it.get("id", 0))
+            if lo <= iid <= hi:
+                out.append(iid)
+        return out
 
     def _card_pool_ids(self, target) -> list[int]:
         """Return the pool_ids tuple stored on the active rule's card.
@@ -1090,8 +1148,8 @@ class MainWindow(QMainWindow):
             range_rule = self.editor.dump().get("range_replacement") or {}
             self.detail_panel.set_range_data(
                 enabled=bool(range_rule.get("enabled", False)),
-                match_min=int(range_rule.get("match_min_item_id", 0)),
-                match_max=int(range_rule.get("match_max_item_id", 0)),
+                match_min=int(range_rule.get("min_pool_id", 0)),
+                match_max=int(range_rule.get("max_pool_id", 0)),
                 replacement_ids=list(range_rule.get("replacement_reward_item_ids") or []),
             )
             return
@@ -1139,15 +1197,15 @@ class MainWindow(QMainWindow):
         on the rule-list card (RangeCard) — single source of truth —
         so this handler doesn't touch it."""
         rs = self.editor.range_state()
-        rs.match_min_item_id = int(self.detail_panel.range_min_value.value())
-        rs.match_max_item_id = int(self.detail_panel.range_max_value.value())
+        rs.min_pool_id = int(self.detail_panel.range_min_value.value())
+        rs.max_pool_id = int(self.detail_panel.range_max_value.value())
         # Mirror into the rule_list's own range cache so dump()
         # picks up the change.
-        self.editor.rule_list()._range["match_min_item_id"] = rs.match_min_item_id
-        self.editor.rule_list()._range["match_max_item_id"] = rs.match_max_item_id
+        self.editor.rule_list()._range["min_pool_id"] = rs.min_pool_id
+        self.editor.rule_list()._range["max_pool_id"] = rs.max_pool_id
         self._on_log(
-            f"Range rule: itemId {rs.match_min_item_id:,} "
-            f"→ {rs.match_max_item_id:,}"
+            f"Range rule: itemId {rs.min_pool_id:,} "
+            f"→ {rs.max_pool_id:,}"
         )
 
     def _on_item_browser_pick(self, item_id: int) -> None:

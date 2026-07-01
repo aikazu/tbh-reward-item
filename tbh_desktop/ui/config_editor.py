@@ -79,15 +79,15 @@ class RangeState:
     def __init__(self) -> None:
         self.enabled: bool = False
         self.name: str = "Pool range"
-        self.match_min_item_id: int = 0
-        self.match_max_item_id: int = 0
+        self.min_pool_id: int = 0
+        self.max_pool_id: int = 0
         self.replacement_reward_item_ids: list[int] = []
 
     def load(self, data: dict) -> None:
         self.enabled = bool(data.get("enabled", False))
         self.name = str(data.get("name", "Pool range"))
-        self.match_min_item_id = int(data.get("match_min_item_id") or 0)
-        self.match_max_item_id = int(data.get("match_max_item_id") or 0)
+        self.min_pool_id = int(data.get("min_pool_id") or 0)
+        self.max_pool_id = int(data.get("max_pool_id") or 0)
         self.replacement_reward_item_ids = [
             int(i) for i in (data.get("replacement_reward_item_ids") or [])
         ]
@@ -96,8 +96,8 @@ class RangeState:
         return {
             "enabled": self.enabled,
             "name": self.name,
-            "match_min_item_id": int(self.match_min_item_id),
-            "match_max_item_id": int(self.match_max_item_id),
+            "min_pool_id": int(self.min_pool_id),
+            "max_pool_id": int(self.max_pool_id),
             "replacement_reward_item_ids": list(self.replacement_reward_item_ids),
         }
 

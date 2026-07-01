@@ -28,7 +28,7 @@ SAMPLE = {
     ],
     "range_replacement": {
         "enabled": False, "name": "Pool range",
-        "match_min_item_id": 0, "match_max_item_id": 0,
+        "min_pool_id": 0, "max_pool_id": 0,
         "replacement_reward_item_ids": [7],
     },
 }
@@ -56,20 +56,20 @@ def test_range_state_load_dump_round_trip() -> None:
     rs.load({
         "enabled": True,
         "name": "Pool range",
-        "match_min_item_id": 100,
-        "match_max_item_id": 200,
+        "min_pool_id": 100,
+        "max_pool_id": 200,
         "replacement_reward_item_ids": [605041],
     })
     assert rs.enabled is True
-    assert rs.match_min_item_id == 100
-    assert rs.match_max_item_id == 200
+    assert rs.min_pool_id == 100
+    assert rs.max_pool_id == 200
     assert rs.replacement_reward_item_ids == [605041]
     out = rs.dump()
     assert out == {
         "enabled": True,
         "name": "Pool range",
-        "match_min_item_id": 100,
-        "match_max_item_id": 200,
+        "min_pool_id": 100,
+        "max_pool_id": 200,
         "replacement_reward_item_ids": [605041],
     }
 
@@ -142,7 +142,7 @@ def test_range_card_block_signals_during_set_data(qapp: QApplication) -> None:
     editor.load({**SAMPLE,
                  "range_replacement": {
                      "enabled": True, "name": "Pool range",
-                     "match_min_item_id": 100, "match_max_item_id": 200,
+                     "min_pool_id": 100, "max_pool_id": 200,
                      "replacement_reward_item_ids": [],
                  }})
     view = editor.rule_list()
@@ -153,7 +153,7 @@ def test_range_card_block_signals_during_set_data(qapp: QApplication) -> None:
     editor.load({**SAMPLE,
                  "range_replacement": {
                      "enabled": False, "name": "Pool range",
-                     "match_min_item_id": 0, "match_max_item_id": 0,
+                     "min_pool_id": 0, "max_pool_id": 0,
                      "replacement_reward_item_ids": [],
                  }})
     assert captured == []

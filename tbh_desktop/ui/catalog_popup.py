@@ -101,15 +101,18 @@ _GEAR_FILTERS: list[tuple[str, str | None]] = [
     ("Armor",      "Armor"),
     ("Accessory",  "Accessory"),
 ]
-_ITEM_FILTERS: list[tuple[str, str | None]] = [
+_ITEM_FILTERS: tuple[tuple[str, str | None], ...] = (
+    # Jul 2026: only keep families that tbh.city's items_normalized.json
+    # actually populates. Per user feedback: drop CRAFTING,
+    # OFFERING, SOULSTONE chips (they don't ship data). Keep
+    # DECORATION / ENGRAVING / INSCRIPTION — those are the families
+    # whose item ids are reused by legacy rule configs and by the
+    # gear picker.
     ("All",          None),
-    ("Crafting",     "CRAFTING"),
     ("Decoration",   "DECORATION"),
     ("Engraving",    "ENGRAVING"),
     ("Inscription",  "INSCRIPTION"),
-    ("Offering",     "OFFERING"),
-    ("Soulstone",    "SOULSTONE"),
-]
+)
 
 
 # Stage dropdown grouping — act-level groups keep the dropdown short.

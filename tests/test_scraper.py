@@ -221,15 +221,15 @@ def test_catalog_popup_two_filter_axes(qapp, tmp_path) -> None:
         assert "Off-hand" in gear_values
         assert "Armor" in gear_values
         assert "Accessory" in gear_values
-        # Item chips: All / Crafting / Decoration / Engraving /
-        # Inscription / Offering / Soulstone
+        # Item chips: All / Decoration / Engraving / Inscription
+        # (Jul 2026: CRAFTING + OFFERING + SOULSTONE removed —
+        # those material families don't appear in tbh.city's
+        # items_normalized.json so the chips only ever showed an
+        # empty filtered list).
         assert "" in item_values
-        assert "CRAFTING" in item_values
         assert "DECORATION" in item_values
         assert "ENGRAVING" in item_values
         assert "INSCRIPTION" in item_values
-        assert "OFFERING" in item_values
-        assert "SOULSTONE" in item_values
         # Chip axes are independent — clicking a gear chip must not
         # affect the item chip selection (and vice versa).
         weapon_btn = next(b for b in content._gear_filter_buttons if b.property("filter_value") == "Weapon")

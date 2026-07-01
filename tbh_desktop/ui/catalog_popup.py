@@ -466,6 +466,13 @@ class CatalogContent(QWidget):
                         # don't transform them here.
                     else:
                         slot_cat = ""  # materials don't have slots
+                    # Family field: tbh.city ships it for some materials
+                    # (DECORATION / INSCRIPTION / ENGRAVING), others
+                    # don't carry it. Default is empty string — the
+                    # chip row dropped CRAFTING in Jul 2026 and the
+                    # user doesn't want any reference to the legacy
+                    # v1 wiki default in code or tests.
+                    fam = str(e.get("family") or "").upper()
                     _append({
                         "id": int(e["id"]),
                         "name": str(e.get("name", f"#{e['id']}")),
@@ -474,7 +481,7 @@ class CatalogContent(QWidget):
                         "obtainable": bool(e.get("obtainable", True)),
                         "slot_category": slot_cat,
                         "slot_type": str(e.get("slot_type", "")),
-                        "family": str(e.get("family", "CRAFTING")).upper(),
+                        "family": fam,
                     })
 
         # Sort: rarity desc (cosmic-first), then by name. RARITY_RANK is

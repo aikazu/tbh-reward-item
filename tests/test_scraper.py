@@ -111,10 +111,13 @@ def test_slot_category_unknown_for_materials() -> None:
     assert _slot_category_from_id(200001) == "Unknown"
 
 
-def test_material_family_soulstone() -> None:
+def test_material_family_soulstone_falls_back_to_empty() -> None:
+    """SOULSTONE keywords were dropped (Jul 2026) — items whose
+    name matches those patterns now fall through to empty string
+    instead of getting a chip the picker doesn't show."""
     from tbh_desktop.tbh_city import _material_family
-    assert _material_family("Soulstone - Normal", []) == "SOULSTONE"
-    assert _material_family("Soulstone - Torment", []) == "SOULSTONE"
+    assert _material_family("Soulstone - Normal", []) == ""
+    assert _material_family("Soulstone - Torment", []) == ""
 
 
 def test_material_family_decoration_gems() -> None:
@@ -138,17 +141,23 @@ def test_material_family_inscription() -> None:
     assert _material_family("Inscription of Power", []) == "INSCRIPTION"
 
 
-def test_material_family_offering() -> None:
+def test_material_family_offering_falls_back_to_empty() -> None:
+    """OFFERING keywords were dropped (Jul 2026) — items whose name
+    matches those patterns now fall through to empty string
+    instead of getting a chip the picker doesn't show."""
     from tbh_desktop.tbh_city import _material_family
-    assert _material_family("Tribute of Valor", []) == "OFFERING"
-    assert _material_family("Offering Stone", []) == "OFFERING"
+    assert _material_family("Tribute of Valor", []) == ""
+    assert _material_family("Offering Stone", []) == ""
 
 
-def test_material_family_default_is_crafting() -> None:
+def test_material_family_default_is_empty() -> None:
+    """Default family for unmatched items is empty string — not
+    CRAFTING (the legacy v1 wiki default was dropped in Jul 2026
+    per user request to not reference that name anywhere)."""
     from tbh_desktop.tbh_city import _material_family
-    assert _material_family("Bronze Ingot", []) == "CRAFTING"
-    assert _material_family("Iron Sword", []) == "CRAFTING"
-    assert _material_family("", []) == "CRAFTING"
+    assert _material_family("Bronze Ingot", []) == ""
+    assert _material_family("Iron Sword", []) == ""
+    assert _material_family("", []) == ""
 
 
 def test_normalize_items_populates_categories() -> None:
@@ -185,7 +194,10 @@ def test_normalize_items_populates_categories() -> None:
     assert out[1]["slot_category"] == "Armor"
     assert out[1]["slot_type"] == "Helmet"
     assert out[2]["slot_category"] == ""
-    assert out[2]["family"] == "SOULSTONE"
+    # MATERIAL — Soulstone. Family keyword dropped in Jul 2026
+    # (the chip row no longer surfaces it), so the item's family
+    # field lands in the empty-string fallback bucket.
+    assert out[2]["family"] == ""
 
 
 # ---------------------------------------------------------------------------

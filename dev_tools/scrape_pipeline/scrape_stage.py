@@ -164,13 +164,17 @@ def _scrape_gear_split(out_dir: Path, items: list[dict]) -> int:
 # Family order — matches the existing RARITY_ORDER-style layout used by
 # the box loot picker. Materials without a parseable family are dropped
 # (we don't fabricate "OTHER" buckets).
+#
+# Jul 2026: CRAFTING / OFFERING / SOULSTONE removed from the family
+# map. tbh.city's items_normalized.json doesn't tag materials with
+# those legacy family names, and the picker chip row no longer
+# surfaces them — splitting items into CRAFTING/OFFERING/SOULSTONE
+# subdirectories would just create empty buckets the user can never
+# browse to.
 MATERIAL_FAMILY_HINTS: dict[str, str] = {
-    "CRAFTING": "CRAFTING",
     "DECORATION": "DECORATION",
     "ENGRAVING": "ENGRAVING",
     "INSCRIPTION": "INSCRIPTION",
-    "OFFERING": "OFFERING",
-    "SOULSTONE": "SOULSTONE",
 }
 
 
@@ -178,11 +182,11 @@ def _scrape_materials_split(out_dir: Path, items: list[dict]) -> int:
     """Group materials by (family, rarity) and write per-bucket JSON.
 
     Jul 2026: each item now carries a ``family`` field populated by
-    :func:`tbh_desktop.tbh_city._material_family` (CRAFTING /
-    DECORATION / ENGRAVING / INSCRIPTION / OFFERING / SOULSTONE). We
-    split into per-family buckets instead of dumping everything into
-    a single CRAFTING bucket — matches the v1 taskbarhero.org shape
-    the picker chips were originally designed for.
+    :func:`tbh_desktop.tbh_city._material_family` (DECORATION /
+    ENGRAVING / INSCRIPTION). We split into per-family buckets.
+    Items whose family is empty or in the dropped set
+    (CRAFTING / OFFERING / SOULSTONE) are silently skipped — they
+    don't belong in any visible chip bucket.
     """
     import json
     bucket: dict[tuple[str, str], list[dict]] = {}
@@ -194,7 +198,11 @@ def _scrape_materials_split(out_dir: Path, items: list[dict]) -> int:
             # from the wiki (e.g. "Mystic Pearl" with source_count=0).
             continue
         rarity = (it.get("grade") or "COMMON").upper()
-        family = (it.get("family") or "CRAFTING").upper()
+        family = (it.get("family") or "").upper()
+        # Skip legacy / dropped family names — those buckets are no
+        # longer surfaced in the picker chip row (Jul 2026).
+        if family not in MATERIAL_FAMILY_HINTS:
+            continue
         bucket.setdefault((family, rarity), []).append(it)
     written = 0
     for (fam, rar), items_in in bucket.items():

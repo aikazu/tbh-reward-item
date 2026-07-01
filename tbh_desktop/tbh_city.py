@@ -497,18 +497,18 @@ def _slot_category_from_id(item_id: int) -> str:
     return _SLOT_PREFIX_TO_CATEGORY.get(s[:2], _DEFAULT_SLOT_CATEGORY)
 
 
-# Material family detection — name-keyword heuristic. tbh.city's
-# /items payload doesn't expose a family field directly. These keywords
-# cover the families that the v1 taskbarhero.org drops index had:
-#   * SOULSTONE — "Soulstone" prefix or stat_types containing SoulstoneRefine
-#   * DECORATION — gems / minerals (Ruby, Sapphire, Topaz, Emerald, ...)
-#   * ENGRAVING — name contains "Engraving" / "Etching"
-#   * INSCRIPTION — name contains "Inscription" / "Scroll"
-#   * OFFERING — name contains "Offering" / "Tribute"
-#   * CRAFTING — fallback for everything else
+# Material family detection — name-keyword heuristic used as
+# fallback for materials tbh.city doesn't tag with an explicit
+# ``family`` field. (Most items arrive already tagged; this only
+# fires when the scrape missed the field.)
+#
+# Jul 2026: SOULSTONE + OFFERING keywords dropped because
+# tbh.city's items_normalized.json never produces items in
+# those families (per user feedback — don't scrape / show them).
+# CRAFTING was the v1 wiki default; tbh.city doesn't tag items
+# as CRAFTING either, so it's only the catch-all label for
+# items that arrive without an explicit family field.
 _MATERIAL_FAMILY_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    # family,    name-keywords (case-insensitive)
-    ("SOULSTONE", ("soulstone",)),
     ("DECORATION", (
         "ruby", "sapphire", "topaz", "emerald", "amethyst", "opal",
         "diamond", "pearl", "quartz", "garnet", "jade", "amber",
@@ -516,20 +516,27 @@ _MATERIAL_FAMILY_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     )),
     ("ENGRAVING", ("engraving", "engraved", "etching", "etched")),
     ("INSCRIPTION", ("inscription", "scroll", "rune")),
-    ("OFFERING", ("offering", "tribute", "sacrifice")),
 )
-_DEFAULT_MATERIAL_FAMILY = "CRAFTING"
+# Items that don't match any keyword + don't carry an explicit
+# family field land here. Empty string rather than "CRAFTING"
+# — the picker chip row dropped CRAFTING in Jul 2026 and the
+# user wants no reference to the legacy family name in code
+# or tests. Downstream code that needs a non-empty family
+# label should default to "DECORATION" (or any visible chip).
+_DEFAULT_MATERIAL_FAMILY = ""
 
 
 def _material_family(name: str, stat_types: list[str]) -> str:
-    """Infer a material family from the item's English name and stat_types.
+    """Infer a material family from the item's English name.
 
-    tbh.city's items payload doesn't carry a family field directly;
-    we use a keyword heuristic that matches the v1 taskbarhero.org drops
-    index shape (CRAFTING / DECORATION / ENGRAVING / INSCRIPTION /
-    OFFERING / SOULSTONE). Returns ``"CRAFTING"`` for anything that
-    doesn't match a known keyword — that's where crafting mats,
-    consumables, and miscellaneous drops land.
+    tbh.city's items payload carries an explicit ``family`` field
+    in most cases — this heuristic is the fallback used when the
+    field is missing. Detects 3 families (Deco / Engraving /
+    Inscription); falls through to an empty string for anything
+    that doesn't match a known keyword. Jul 2026: SOULSTONE +
+    OFFERING + CRAFTING were dropped entirely from the keyword
+    table + default — the user doesn't want any reference to
+    those legacy family names anywhere in the code.
     """
     name_lower = (name or "").lower()
     if name_lower:

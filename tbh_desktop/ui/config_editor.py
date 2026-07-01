@@ -66,12 +66,11 @@ def _ghost_button(text: str, *, tooltip: str = "") -> QPushButton:
 
 
 class _RangeForm(QWidget):
-    """Inline range replacement form. Emits pick_gear / pick_item when the
-    respective ghost button is clicked; MainWindow wires those to its
-    picker dialogs (same pattern as RuleDetailPanel)."""
+    """Inline pool-range form. Emits pick_replacement when the ghost
+    button is clicked; MainWindow wires it to its CatalogPopup dialog
+    (same pattern as RuleDetailPanel)."""
 
-    pick_gear = Signal()
-    pick_item = Signal()
+    pick_replacement = Signal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -86,16 +85,16 @@ class _RangeForm(QWidget):
         # ---- Header: title + enabled toggle ----------------------------
         header = QHBoxLayout()
         header.setSpacing(8)
-        self.section_heading = _section_label("RANGE REPLACEMENT")
+        self.section_heading = _section_label("POOL RANGE")
         header.addWidget(self.section_heading)
         header.addStretch()
         self.chk_enabled = QCheckBox("enabled")
-        self.chk_enabled.setToolTip("Enable range replacement (matches by item id range)")
+        self.chk_enabled.setToolTip("Enable pool range replacement (matches by item id range)")
         header.addWidget(self.chk_enabled)
         outer.addLayout(header)
 
-        # ---- MATCH ITEM ID section -------------------------------------
-        outer.addWidget(_section_label("MATCH ITEM ID"))
+        # ---- MATCH POOL ID section -------------------------------------
+        outer.addWidget(_section_label("MATCH POOL ID"))
         id_row = QHBoxLayout()
         id_row.setSpacing(12)
         from_col = QVBoxLayout()
@@ -132,13 +131,9 @@ class _RangeForm(QWidget):
         # ---- pick buttons ----------------------------------------------
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
-        self.btn_pick_gear = _ghost_button("Pick gear", tooltip="Pick a gear item from cache")
-        self.btn_pick_gear.setObjectName("btn_pick_gear_range")
-        self.btn_pick_gear.clicked.connect(self.pick_gear)
-        self.btn_pick_item = _ghost_button("Pick item", tooltip="Pick a non-gear item from the drops index")
+        self.btn_pick_item = _ghost_button("Pick replacement", tooltip="Pick replacement item ids from the catalog")
         self.btn_pick_item.setObjectName("btn_pick_item_range")
-        self.btn_pick_item.clicked.connect(self.pick_item)
-        btn_row.addWidget(self.btn_pick_gear)
+        self.btn_pick_item.clicked.connect(self.pick_replacement)
         btn_row.addWidget(self.btn_pick_item)
         btn_row.addStretch()
         outer.addLayout(btn_row)
@@ -168,7 +163,7 @@ class _RangeForm(QWidget):
                 return 0
         return {
             "enabled": self.chk_enabled.isChecked(),
-            "name": "Range replacement",
+            "name": "Pool range",
             "match_min_item_id": _i(self.edit_min.text()),
             "match_max_item_id": _i(self.edit_max.text()),
             "replacement_reward_item_ids": list(self._replacement_ids),
@@ -411,6 +406,12 @@ class ConfigEditor(QWidget):
                 pass  # splitter already destroyed
         QTimer.singleShot(0, _apply_split_sizes)
 
+        # ---- Add-rule buttons (one per reward kind) ---------------------
+        # Default rules (Normal / Boss / Act Reward) are pre-loaded in
+        # config.default.json — no "+ Add rule" buttons needed (the
+        # user just enables the existing cards). The X button on each
+        # rule card removes a rule if the user no longer needs it.
+
         # Make the range form focus set the active target to RangeTarget.
         for w in (
             self._range_form.chk_enabled,
@@ -439,9 +440,9 @@ class ConfigEditor(QWidget):
         out = self._rule_list.dump()
         out["range_replacement"].update(self._range_form.dump())
         # Merge mode + local_process_name into the dump. These live at the
-        # top level of config.json (parallel to specific_queue_rules /
-        # range_replacement), so we update out directly rather than
-        # tucking them under a sub-key.
+        # top level of config.json (parallel to normal_rules / boss_rules /
+        # act_rules / range_replacement), so we update out directly rather
+        # than tucking them under a sub-key.
         out.update(self._mode_form.dump())
         # Preserve passthrough fields so GUI save doesn't wipe them.
         out.update(self._loaded_passthrough)
@@ -456,14 +457,11 @@ class ConfigEditor(QWidget):
     def range_form(self) -> _RangeForm:
         return self._range_form
 
-    def selected_rule_item_id(self) -> int | None:
-        return self._rule_list.selected_rule_item_id()
+    def selected_rule_pool_id(self) -> int | None:
+        return self._rule_list.selected_rule_pool_id()
 
-    def selected_rule_level(self) -> int | None:
-        return self._rule_list.selected_rule_level()
-
-    def set_selected_rule_item_id(self, box_id: int, level: int | None) -> None:
-        self._rule_list.set_selected_rule_item_id(box_id, level)
+    def set_selected_rule_pool_id(self, pool_id: int) -> None:
+        self._rule_list.set_selected_rule_pool_id(pool_id)
 
     def add_ids_to_selected_rule(self, ids: list[int]) -> None:
         self._rule_list.add_ids_to_selected_rule(ids)
@@ -483,6 +481,20 @@ class ConfigEditor(QWidget):
         self._rule_list._range["replacement_reward_item_ids"] = list(
             self._range_form._replacement_ids
         )
+
+    def add_rule(self, reward_kind: str) -> int:
+        """Public passthrough to RuleListView.add_rule for the kind buttons."""
+        row = self._rule_list.add_rule(reward_kind)
+        # Auto-select the newly-added row so the picker can target it.
+        self._rule_list.select_row(row)
+        return row
+
+    def remove_rule(self, row: int) -> None:
+        self._rule_list.remove_rule(row)
+
+    # ---- internals ---------------------------------------------------
+    def _on_add_rule(self, reward_kind: str) -> None:
+        self.add_rule(reward_kind)
 
     # ---- event filter (range form focus) ----------------------------
     def eventFilter(self, obj, event) -> bool:  # noqa: ANN001

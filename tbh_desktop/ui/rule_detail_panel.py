@@ -132,9 +132,9 @@ class RuleDetailPanel(QWidget):
     handlers keep working without rewiring.
     """
 
-    pick_box_id = Signal()
-    pick_box_loot = Signal()
-    pick_gear = Signal()
+    pick_pool_id = Signal()
+    pick_gear = Signal()  # open CatalogPopup pre-scoped to the Gear chip
+    pick_item = Signal()  # open CatalogPopup pre-scoped to the Items chip
     remove_id_requested = Signal(int)  # item_id
     selection_cleared = Signal()  # user cleared the active target
 
@@ -143,9 +143,9 @@ class RuleDetailPanel(QWidget):
         self.setObjectName("rule_detail_panel")
         self._target: RuleTarget | RangeTarget | None = None
         self._rule_name: str = ""
-        self._item_id: int | None = None
+        self._reward_kind: str = "normal"
+        self._pool_id: int | None = None
         self._replacement_ids: list[int] = []
-        self._level: int | None = None
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -279,23 +279,34 @@ class RuleDetailPanel(QWidget):
         # Pick buttons row.
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
-        self.btn_pick_box_id = QPushButton("Pick box")
-        self.btn_pick_box_id.setObjectName("btn_pick_box_id_detail")
-        self.btn_pick_box_id.setProperty("toolbar_zone", "secondary")
-        self.btn_pick_box_id.clicked.connect(self.pick_box_id)
-        btn_row.addWidget(self.btn_pick_box_id)
+        self.btn_pick_pool_id = QPushButton("Pick pool")
+        self.btn_pick_pool_id.setObjectName("btn_pick_pool_id_detail")
+        self.btn_pick_pool_id.setProperty("toolbar_zone", "secondary")
+        self.btn_pick_pool_id.clicked.connect(self.pick_pool_id)
+        btn_row.addWidget(self.btn_pick_pool_id)
 
-        self.btn_pick_box_loot = QPushButton("Pick loot")
-        self.btn_pick_box_loot.setObjectName("btn_pick_box_loot_detail")
-        self.btn_pick_box_loot.setProperty("toolbar_zone", "secondary")
-        self.btn_pick_box_loot.clicked.connect(self.pick_box_loot)
-        btn_row.addWidget(self.btn_pick_box_loot)
-
+        # Replacement items are split into two pickers so the user
+        # never has to wade through a mixed gear+materials catalog:
+        #   * Pick gear   — CatalogPopup pre-scoped to the Gear chip
+        #                    (slot categories: Weapon / Off-hand /
+        #                    Armor / Accessory).
+        #   * Pick item   — CatalogPopup pre-scoped to the Items chip
+        #                    (family categories: Crafting / Decoration /
+        #                    Engraving / Inscription / Offering / Soulstone).
+        # Both honour the rule's pool scope (the user can't pick
+        # items that don't drop in the rule's pools).
         self.btn_pick_gear = QPushButton("Pick gear")
         self.btn_pick_gear.setObjectName("btn_pick_gear_detail")
         self.btn_pick_gear.setProperty("toolbar_zone", "secondary")
         self.btn_pick_gear.clicked.connect(self.pick_gear)
         btn_row.addWidget(self.btn_pick_gear)
+
+        self.btn_pick_item = QPushButton("Pick item")
+        self.btn_pick_item.setObjectName("btn_pick_item_detail")
+        self.btn_pick_item.setProperty("toolbar_zone", "secondary")
+        self.btn_pick_item.clicked.connect(self.pick_item)
+        btn_row.addWidget(self.btn_pick_item)
+
         btn_row.addStretch()
         form_layout.addLayout(btn_row)
 
@@ -374,8 +385,8 @@ class RuleDetailPanel(QWidget):
         self,
         *,
         name: str,
-        item_id: int | None,
-        level: int | None,
+        reward_kind: str,
+        pool_id: int | None,
         replacement_ids: list[int],
     ) -> None:
         """Populate the detail panel from a single rule's data.
@@ -385,11 +396,11 @@ class RuleDetailPanel(QWidget):
         circular import (the panel needs MainWindow to know what the
         rule list has — but MainWindow imports the panel).
         """
-        self._target = RuleTarget(row=-1, rule_index=-1, box_id=item_id, level=level)
+        self._target = RuleTarget(row=-1, rule_index=-1, reward_kind=reward_kind, pool_id=pool_id)
         self._rule_name = name
-        self._item_id = item_id
+        self._reward_kind = reward_kind
+        self._pool_id = pool_id
         self._replacement_ids = list(replacement_ids)
-        self._level = level
         self._show_rule_form()
 
     # ---- state helpers -----------------------------------------------
@@ -417,31 +428,24 @@ class RuleDetailPanel(QWidget):
     def _show_rule_form(self) -> None:
         self.empty_label.setVisible(False)
         self.form.setVisible(True)
-        # Banner: rule name + dot + item id.
+        # Banner: rule name + dot + pool id (replaces v1's item_id + level).
         self.banner_name.setText(self._rule_name or "(unnamed rule)")
         self.banner_dot.setStyleSheet(f"color: {MOCHA['green']}; font-size: 14px;")
-        if self._item_id is not None:
+        if self._pool_id is not None:
             self.banner_id.setVisible(True)
-            self.banner_id.setText(str(self._item_id))
+            self.banner_id.setText(str(self._pool_id))
         else:
             self.banner_id.setVisible(False)
+        kind = self._reward_kind or "rule"
         self.subtitle_label.setText(
-            "Edit this rule's item ID, level, and the rewards it cycles through."
+            f"Edit this {kind} rule's pool id and the rewards it cycles through."
         )
-        # Form fields. Show "—" only for fields that exist conceptually
-        # (item_id always exists for a rule); hide level entirely when
-        # unknown so the layout doesn't read as "broken empty field".
+        # Form fields. Show "—" when pool id isn't set yet; the level
+        # cell is gone (v2 has no per-rule level — pool_id is the only
+        # numeric selector).
         self.item_id_value.setText(
-            str(self._item_id) if self._item_id is not None else "—"
+            str(self._pool_id) if self._pool_id is not None else "—"
         )
-        if self._level is not None:
-            self.level_value.setVisible(True)
-            self.level_label.setVisible(True)
-            self.level_value.setText(str(self._level))
-        else:
-            # Hide the level cell — it adds noise when no level is set.
-            self.level_value.setVisible(False)
-            self.level_label.setVisible(False)
         # Chip row.
         self.chip_row.set_ids(self._replacement_ids)
         n = len(self._replacement_ids)

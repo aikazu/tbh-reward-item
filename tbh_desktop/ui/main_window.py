@@ -223,7 +223,7 @@ class MainWindow(QMainWindow):
         # Range card enabled checkbox (in the rule list) toggles
         # RangeState directly — same effect as flipping the switch
         # in the detail panel's range form.
-        self.editor.rule_list().range_toggled.connect(self._on_range_toggled)
+        self.editor.rule_list().range_toggled.connect(self._on_detail_range_edited)
         # Catalog dock picks still route to the active target.
         self.item_browser.item_picked.connect(self._on_item_browser_pick)
         self.item_browser.items_picked.connect(self._on_item_browser_picks)
@@ -1134,45 +1134,21 @@ class MainWindow(QMainWindow):
             )
 
     def _on_detail_range_edited(self) -> None:
-        """Persist a range-form edit (enabled / min / max) from the
-        detail panel back into ConfigEditor's RangeState."""
+        """Persist a range-form edit (min / max) from the detail panel
+        back into ConfigEditor's RangeState. The enabled toggle is
+        on the rule-list card (RangeCard) — single source of truth —
+        so this handler doesn't touch it."""
         rs = self.editor.range_state()
-        rs.enabled = self.detail_panel.range_enabled_checkbox.isChecked()
         rs.match_min_item_id = int(self.detail_panel.range_min_value.value())
         rs.match_max_item_id = int(self.detail_panel.range_max_value.value())
         # Mirror into the rule_list's own range cache so dump()
         # picks up the change.
-        self.editor.rule_list()._range["enabled"] = rs.enabled
         self.editor.rule_list()._range["match_min_item_id"] = rs.match_min_item_id
         self.editor.rule_list()._range["match_max_item_id"] = rs.match_max_item_id
-        # Keep the on-card checkbox in sync (in case the edit was
-        # made in the detail panel's range form).
-        if self.editor.rule_list()._range_card is not None:
-            self.editor.rule_list()._range_card.chk_enabled.blockSignals(True)
-            self.editor.rule_list()._range_card.chk_enabled.setChecked(rs.enabled)
-            self.editor.rule_list()._range_card.chk_enabled.blockSignals(False)
         self._on_log(
-            f"Range rule: enabled={rs.enabled}, "
-            f"itemId {rs.match_min_item_id:,} → {rs.match_max_item_id:,}"
+            f"Range rule: itemId {rs.match_min_item_id:,} "
+            f"→ {rs.match_max_item_id:,}"
         )
-
-    def _on_range_toggled(self, enabled: bool) -> None:
-        """User toggled the enabled checkbox on the range card in the
-        rule list. Update RangeState (and the mirror in rule_list)
-        so the next save reflects the change. If the detail panel
-        is currently showing the range form, sync its checkbox too."""
-        rs = self.editor.range_state()
-        rs.enabled = bool(enabled)
-        self.editor.rule_list()._range["enabled"] = rs.enabled
-        # If the user is on the range form in the detail panel,
-        # sync the checkbox there so both views agree.
-        target = self.editor.rule_list().active_target()
-        from tbh_desktop.ui.active_target import RangeTarget
-        if isinstance(target, RangeTarget):
-            self.detail_panel.range_enabled_checkbox.blockSignals(True)
-            self.detail_panel.range_enabled_checkbox.setChecked(rs.enabled)
-            self.detail_panel.range_enabled_checkbox.blockSignals(False)
-        self._on_log(f"Range rule: enabled={rs.enabled}")
 
     def _on_item_browser_pick(self, item_id: int) -> None:
         """Route a single-item pick from the catalog dock to the active target."""

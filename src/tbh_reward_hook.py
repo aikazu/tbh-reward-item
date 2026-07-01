@@ -34,7 +34,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from tbh_proxy_config import CONFIG_PATH, ProxyConfig, QueueRule, RangeRule
+from tbh_proxy_config import CONFIG_PATH, ProxyConfig, PoolRule, RangeRule
 
 ITEM_FIELD_RE = re.compile(r'\\?"itemId\\?"\s*:\s*(?P<item_id>\d+)(?!\d)')
 REWARD_FIELD_RE = re.compile(r'(\\?"rewardItemId\\?"\s*:\s*)(?P<reward_id>\d+)(?!\d)')
@@ -155,7 +155,9 @@ def _empty_config():
         only_post=True,
         require_boxes_marker=True,
         url_contains=("/backend-function/base/v1",),
-        specific_queue_rules=(),
+        normal_rules=(),
+        boss_rules=(),
+        act_rules=(),
         range_replacement=RangeRule(
             enabled=False,
             name="Range replacement",
@@ -298,11 +300,11 @@ class PendingTxRewriter:
 
 
 class ReplacementDetail:
-    __slots__ = ("rule_name", "item_id", "old_reward_item_id", "new_reward_item_id")
+    __slots__ = ("rule_name", "pool_id", "old_reward_item_id", "new_reward_item_id")
 
-    def __init__(self, rule_name, item_id, old_reward_item_id, new_reward_item_id):
+    def __init__(self, rule_name, pool_id, old_reward_item_id, new_reward_item_id):
         self.rule_name = rule_name
-        self.item_id = item_id
+        self.pool_id = pool_id
         self.old_reward_item_id = old_reward_item_id
         self.new_reward_item_id = new_reward_item_id
 
@@ -323,34 +325,40 @@ class RewardRewriter:
     """Manual substitution. Cycles through ``replacement_reward_item_ids`` per
     rule and substitutes the original ``rewardItemId`` with the next entry.
 
-    For each ``itemId`` in the body, the rewriter checks:
-    1. ``specific_queue_rules`` — keyed by exact itemId; if a rule matches
+    For each ``itemId`` (= tbh.city pool_id) in the body, the rewriter checks:
+    1. ``all_pool_rules`` — keyed by exact pool_id; if a rule matches
        and is enabled and has replacements, cycle through that rule's list.
     2. ``range_replacement`` — if itemId falls in [min, max] and the rule is
        enabled, cycle through the range's list.
 
-    Each rule keeps its own cycle index, so different box kinds pick
+    Each rule keeps its own cycle index, so different pool kinds pick
     different replacements. Originals are not touched if no rule matches.
     """
 
     def __init__(self, config: ProxyConfig):
         self.config = config
-        self._queue_indexes: dict[int, int] = {}
+        self._pool_indexes: dict[int, int] = {}
         self._range_index = 0
 
     def rewrite(self, body: str) -> RewriteResult:
-        queue_rules = {
-            rule.item_id: rule
-            for rule in self.config.specific_queue_rules
-            if rule.enabled and rule.item_id and rule.replacement_reward_item_ids
-        }
+        # Multi-pool rule lookup. Each rule maps its pool_ids to the
+        # same rule object — when an itemId on the wire matches any of
+        # them, the rule fires and cycles through its replacement list.
+        # Cycle index is per-pool (not per-rule) so two distinct pools
+        # in the same rule don't sync their cycle positions.
+        pool_rules: dict[int, PoolRule] = {}
+        for rule in self.config.all_pool_rules():
+            if not rule.enabled or not rule.pool_ids or not rule.replacement_reward_item_ids:
+                continue
+            for pool_id in rule.pool_ids:
+                pool_rules[pool_id] = rule
         details: list[ReplacementDetail] = []
         pieces: list[str] = []
         copied_until = 0
 
         for item_match in ITEM_FIELD_RE.finditer(body):
             item_id = int(item_match.group("item_id"))
-            replacement_id, chosen_name = self._pick_replacement(item_id, queue_rules)
+            replacement_id, chosen_name = self._pick_replacement(item_id, pool_rules)
 
             if replacement_id is None:
                 continue
@@ -371,7 +379,7 @@ class RewardRewriter:
             details.append(
                 ReplacementDetail(
                     rule_name=chosen_name,
-                    item_id=item_id,
+                    pool_id=item_id,
                     old_reward_item_id=old_reward_id,
                     new_reward_item_id=replacement_id,
                 )
@@ -383,13 +391,13 @@ class RewardRewriter:
         pieces.append(body[copied_until:])
         return RewriteResult(body="".join(pieces), details=tuple(details))
 
-    def _pick_replacement(self, item_id: int, queue_rules: dict[int, QueueRule]):
-        # Specific rule for this exact box kind wins over range.
-        rule = queue_rules.get(item_id)
+    def _pick_replacement(self, item_id: int, pool_rules: dict[int, PoolRule]):
+        # Specific rule for this exact pool_id wins over range.
+        rule = pool_rules.get(item_id)
         if rule is not None:
-            idx = self._queue_indexes.get(item_id, 0)
+            idx = self._pool_indexes.get(item_id, 0)
             replacement_id = rule.replacement_reward_item_ids[idx % len(rule.replacement_reward_item_ids)]
-            self._queue_indexes[item_id] = idx + 1
+            self._pool_indexes[item_id] = idx + 1
             return replacement_id, rule.name
 
         # Fallback: range match.
@@ -428,17 +436,20 @@ class TBHRewardHook:
             pass
 
     def _log_load_state(self):
-        active_specific = [r for r in self.config.specific_queue_rules
-                           if r.enabled and r.replacement_reward_item_ids]
+        active_pool = [r for r in self.config.all_pool_rules()
+                       if r.enabled and r.replacement_reward_item_ids]
         range_active = (self.config.range_replacement.enabled
                         and bool(self.config.range_replacement.replacement_reward_item_ids))
         log_info(
             f"TBH Reward Proxy loaded: "
-            f"{len(active_specific)} specific rules active, "
+            f"{len(active_pool)} pool rules active "
+            f"(normal={sum(1 for r in self.config.normal_rules if r.enabled)}, "
+            f"boss={sum(1 for r in self.config.boss_rules if r.enabled)}, "
+            f"act={sum(1 for r in self.config.act_rules if r.enabled)}), "
             f"range={'on' if range_active else 'off'}, "
             f"pendingTx rewrite={'on' if self.config.rewrite_pending_tx else 'off'}."
         )
-        if not active_specific and not range_active:
+        if not active_pool and not range_active:
             log_info("no replacements configured — addon is a pass-through.")
 
     @staticmethod
@@ -507,7 +518,7 @@ class TBHRewardHook:
         for detail in result.details:
             log_info(
                 f"TBH Reward Proxy replaced [{detail.rule_name}] "
-                f"itemId={detail.item_id}: "
+                f"pool_id={detail.pool_id}: "
                 f"rewardItemId={detail.old_reward_item_id}->{detail.new_reward_item_id}"
             )
             # Record mapping for Strategy B pendingTx rewrite
@@ -523,20 +534,23 @@ def _extract_reward_ids(body: str):
 
 
 def run_self_test():
-    # Specific rule: only the configured itemId gets rewritten.
+    # Normal rule: only the configured pool_id gets rewritten.
     config = ProxyConfig(
         listen_port=8877,
         only_post=True,
         require_boxes_marker=True,
         url_contains=("/backend-function/base/v1",),
-        specific_queue_rules=(
-            QueueRule(
+        normal_rules=(
+            PoolRule(
                 enabled=True,
-                name="Normal Box (manual)",
-                item_id=910801,
+                name="Pasture normal",
+                pool_ids=(9100111,),
                 replacement_reward_item_ids=(419171, 419172),
+                rule_kind="normal",
             ),
         ),
+        boss_rules=(),
+        act_rules=(),
         range_replacement=RangeRule(
             enabled=False,
             name="Range replacement",
@@ -549,16 +563,16 @@ def run_self_test():
 
     body = (
         '{"boxes":['
-        '{"itemId":910801,"rewardItemId":1001},'
-        '{"itemId":910801,"rewardItemId":1002},'
-        '{"itemId":920801,"rewardItemId":1003}'
+        '{"itemId":9100111,"rewardItemId":1001},'
+        '{"itemId":9100111,"rewardItemId":1002},'
+        '{"itemId":9200111,"rewardItemId":1003}'
         ']}'
     )
     result = rewriter.rewrite(body)
     assert result.modified_count == 2, result
     new_ids = _extract_reward_ids(result.body)
     assert new_ids == [419171, 419172, 1003], new_ids
-    print(f"  specific rule: [419171, 419172, 1003]")
+    print(f"  normal rule: [419171, 419172, 1003]")
 
     # Range rule: any itemId in range gets rewritten.
     config_range = ProxyConfig(
@@ -566,7 +580,9 @@ def run_self_test():
         only_post=True,
         require_boxes_marker=True,
         url_contains=("/backend-function/base/v1",),
-        specific_queue_rules=(),
+        normal_rules=(),
+        boss_rules=(),
+        act_rules=(),
         range_replacement=RangeRule(
             enabled=True,
             name="Range replacement",
@@ -588,7 +604,9 @@ def run_self_test():
         only_post=True,
         require_boxes_marker=True,
         url_contains=("/backend-function/base/v1",),
-        specific_queue_rules=(),
+        normal_rules=(),
+        boss_rules=(),
+        act_rules=(),
         range_replacement=RangeRule(
             enabled=False,
             name="Range replacement",
@@ -598,17 +616,49 @@ def run_self_test():
         ),
     )
     rewriter_empty = RewardRewriter(empty_config)
-    body3 = '{"boxes":[{"itemId":910801,"rewardItemId":12345}]}'
+    body3 = '{"boxes":[{"itemId":9100111,"rewardItemId":12345}]}'
     result3 = rewriter_empty.rewrite(body3)
     assert result3.modified_count == 0, result3
     assert _extract_reward_ids(result3.body) == [12345]
     print(f"  empty config: pass-through, original [12345] preserved")
 
-    # No specific rule for itemId: pass-through.
-    body4 = '{"boxes":[{"itemId":920801,"rewardItemId":12345}]}'
-    result4 = rewriter.rewrite(body4)  # rewriter has specific rule for 910801 only
+    # No specific rule for pool_id: pass-through.
+    body4 = '{"boxes":[{"itemId":9200111,"rewardItemId":12345}]}'
+    result4 = rewriter.rewrite(body4)  # rewriter has normal rule for 9100111 only
     assert result4.modified_count == 0, result4
-    print(f"  no rule for itemId: pass-through")
+    print(f"  no rule for pool_id: pass-through")
+
+    # Cross-kind: act rule does NOT match normal pool (or vice versa).
+    config_act_only = ProxyConfig(
+        listen_port=8877,
+        only_post=True,
+        require_boxes_marker=True,
+        url_contains=("/backend-function/base/v1",),
+        normal_rules=(),
+        boss_rules=(),
+        act_rules=(
+            PoolRule(
+                enabled=True,
+                name="Act 1 boss",
+                pool_ids=(9301011,),
+                replacement_reward_item_ids=(419171,),
+                rule_kind="act",
+            ),
+        ),
+        range_replacement=RangeRule(
+            enabled=False,
+            name="Range replacement",
+            match_min_item_id=500000,
+            match_max_item_id=950000,
+            replacement_reward_item_ids=(),
+        ),
+    )
+    rewriter_act = RewardRewriter(config_act_only)
+    body5 = '{"boxes":[{"itemId":9301011,"rewardItemId":1},{"itemId":9100111,"rewardItemId":2}]}'
+    result5 = rewriter_act.rewrite(body5)
+    assert result5.modified_count == 1, result5
+    assert _extract_reward_ids(result5.body) == [419171, 2]
+    print(f"  act rule: only pool 9301011 rewritten, normal pool 9100111 untouched")
 
     # Strategy B: PendingTxRewriter rewrites gid + tid in DynamoDB-format
     # SteamItemInfo/mine responses to match the rewritten rewardItemId.

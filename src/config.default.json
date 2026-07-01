@@ -1,8 +1,8 @@
 {
     "_comment_mode": "Optional. 'local' uses mitmproxy --mode local:<name> (scoped spawn — no system proxy, no Steam Launch Options). 'regular' binds listen_port and expects the client to set HTTP_PROXY. When omitted, the loader picks a platform-aware default: 'local' on Windows (recommended — see CLAUDE.md), 'regular' on Linux/macOS. When mode='local', local_process_name is required.",
-    "_comment_box_ids": "Box itemIds verified from capture 2026-06-28: 910801=Normal Box, 920801=Stage Boss Box, 930901=Act Boss Box. Previous default (910901/920901) was WRONG and never matched.",
-    "_comment_suffix": "CRITICAL: the client validator checks the last 3 digits of rewardItemId (rarity*100+tier). Pick replacements whose last-3 MATCHES the box's original reward suffix, or the client ships TamperedItemIdDetected. See docs/analysis/tbh-network-forensics.md §10.8+§10.12. Normal Box pool is suffix-heavy on 171; Stage Boss Box on 004. For full evasion rewrite pendingTx.tid too (Strategy B, §10.12).",
-    "_comment_rewrite_pending_tx": "Strategy B: when true, also rewrites pendingTx.gid + .tid in SteamItemInfo/mine responses to match the rewritten rewardItemId. Eliminates TamperedItemIdDetected for cross-suffix swaps. Optional — loader picks a platform-aware default when this field is omitted: ON on Windows (pairs with default mode=local for a working out-of-the-box setup), OFF on Linux/macOS (historic conservative default; flip explicitly after testing).",
+    "_comment_rules": "Three pre-loaded default rules (Normal Reward / Boss Reward / Act Reward) appear in the rule list at startup. Each starts disabled and with pool_id=null — the user enables the rule via its checkbox, picks the target pool via the Pick pool button, and picks replacement item ids via Pick replacement. All three default pools are visible in the Catalog popup (tbh.city drop_key, e.g. 9100111 for Act 1 normal drops).",
+    "_comment_suffix": "CRITICAL: the client validator checks the last 3 digits of rewardItemId (rarity*100+tier). Pick replacements whose last-3 matches the original drop's suffix, or the client ships TamperedItemIdDetected. See docs/analysis/tbh-network-forensics.md §10.8.",
+    "_comment_rewrite_pending_tx": "Strategy B: when true, also rewrite pendingTx.gid + .tid in SteamItemInfo/mine responses. Eliminates TamperedItemIdDetected for cross-suffix swaps. Loader picks a platform-aware default when this field is omitted.",
     "local_process_name": "TaskBarHero.exe",
     "listen_port": 8877,
     "only_post": true,
@@ -11,33 +11,36 @@
     "url_contains": [
         "/backend-function/base/v1"
     ],
-    "specific_queue_rules": [
+    "normal_rules": [
         {
             "enabled": false,
-            "name": "Normal Box",
-            "item_id": 910801,
-            "replacement_reward_item_ids": [
-                419171
-            ]
-        },
+            "name": "Normal Reward",
+            "reward_kind": "normal",
+            "pool_ids": [],
+            "replacement_reward_item_ids": []
+        }
+    ],
+    "boss_rules": [
         {
             "enabled": false,
-            "name": "Stage Boss Box",
-            "item_id": 920801,
-            "replacement_reward_item_ids": [
-                114004
-            ]
-        },
+            "name": "Boss Reward",
+            "reward_kind": "boss",
+            "pool_ids": [],
+            "replacement_reward_item_ids": []
+        }
+    ],
+    "act_rules": [
         {
             "enabled": false,
-            "name": "Act Boss Box",
-            "item_id": 930901,
+            "name": "Act Reward",
+            "reward_kind": "act",
+            "pool_ids": [],
             "replacement_reward_item_ids": []
         }
     ],
     "range_replacement": {
         "enabled": false,
-        "name": "Range replacement",
+        "name": "Pool range",
         "match_min_item_id": 500000,
         "match_max_item_id": 950000,
         "replacement_reward_item_ids": []

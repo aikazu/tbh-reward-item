@@ -17,14 +17,20 @@ from PySide6.QtCore import (
     Signal,
 )
 from PySide6.QtWidgets import (
+    QCheckBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
     QListView,
     QStyledItemDelegate,
     QStyleOptionViewItem,
+    QVBoxLayout,
     QWidget,
 )
 
 from tbh_desktop.ui.active_target import ActiveTarget, RangeTarget, RuleTarget
 from tbh_desktop.ui.rule_card import REWARD_KINDS, RuleCard
+from tbh_desktop.ui.theme import MOCHA
 
 
 # Maps a flat row index back to (reward_kind, rule_index).
@@ -98,8 +104,89 @@ class _RuleCardDelegate(QStyledItemDelegate):
         painter.fillRect(option.rect, option.palette.base())
 
 
+class _RangeCard(QFrame):
+    """Compact summary card for the range-replacement rule.
+
+    Rendered as the last row in the rule list (after Act rules) so
+    the user can enable / disable + click to edit the range rule
+    in one place. The enabled checkbox toggles directly on the
+    card — the user no longer has to open the detail panel just
+    to flip the on/off switch. RangeState is updated immediately
+    via the ``toggled`` signal.
+
+    Jul 2026: previously this card only showed a status badge
+    ("OFF" / "ON" with no click action), which made it look like a
+    broken label instead of an interactive rule. The badge is
+    gone; the checkbox is now the on/off control.
+    """
+
+    toggled = Signal(bool)  # emits new enabled state
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setObjectName("range_card")
+        self.setFrameShape(QFrame.Shape.NoFrame)
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(12, 10, 12, 10)
+        outer.setSpacing(4)
+
+        # Title row — checkbox replaces the old "OFF / ON" status
+        # badge so the user can toggle the rule from the card.
+        title_row = QHBoxLayout()
+        title_row.setSpacing(8)
+        self.chk_enabled = QCheckBox()
+        self.chk_enabled.setObjectName("range_card_enabled")
+        self.chk_enabled.setToolTip(
+            "Enable pool range replacement. When on, every itemId "
+            "between min and max gets the replacement ids below."
+        )
+        self.chk_enabled.toggled.connect(self.toggled.emit)
+        title_row.addWidget(self.chk_enabled)
+        title = QLabel("Pool range")
+        title.setObjectName("range_card_title")
+        title.setStyleSheet(
+            f"color: {MOCHA['text']}; font-size: 14px; font-weight: 700;"
+        )
+        title_row.addWidget(title)
+        title_row.addStretch()
+        outer.addLayout(title_row)
+
+        # Detail row — min/max range + chip count.
+        self.detail_label = QLabel("(not configured)")
+        self.detail_label.setObjectName("range_card_detail")
+        self.detail_label.setStyleSheet(
+            f"color: {MOCHA['subtext']}; font-size: 11px;"
+        )
+        outer.addWidget(self.detail_label)
+
+    def set_data(self, data: dict) -> None:
+        enabled = bool(data.get("enabled", False))
+        lo = int(data.get("match_min_item_id") or 0)
+        hi = int(data.get("match_max_item_id") or 0)
+        n = len(data.get("replacement_reward_item_ids") or [])
+        # Block signals while setting so the toggled signal doesn't
+        # fire from inside set_data — only fires on user clicks.
+        self.chk_enabled.blockSignals(True)
+        self.chk_enabled.setChecked(enabled)
+        self.chk_enabled.blockSignals(False)
+        if lo and hi:
+            range_str = f"itemId {lo:,} → {hi:,}"
+        elif lo or hi:
+            range_str = f"itemId {lo or hi:,} (one side)"
+        else:
+            range_str = "no range"
+        self.detail_label.setText(
+            f"{range_str} · {n} replacement id{'s' if n != 1 else ''}"
+        )
+
+    def is_enabled(self) -> bool:
+        return self.chk_enabled.isChecked()
+
+
 class RuleListView(QListView):
     rule_selected = Signal(object)  # emits RuleTarget
+    range_toggled = Signal(bool)  # emits new enabled state for range rule
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -114,8 +201,12 @@ class RuleListView(QListView):
         self._range: dict[str, Any] = {}
         self._active_target: ActiveTarget | None = None
         self._cards: list[RuleCard] = []
-        # Map visual row -> (reward_kind, rule_index) — built by _rebuild_cards.
+        self._range_card: _RangeCard | None = None
+        # Map visual row -> (reward_kind, rule_index). The range card
+        # lives at a special row index ``RANGE_ROW`` so callers can
+        # detect a range selection by row position.
         self._row_map: list[tuple[str, int]] = []
+        self._range_row: int = -1  # -1 until _rebuild_cards runs
 
         # Set up a model up front so selectionModel() is non-None and we can
         # wire currentRowChanged. _rebuild_cards() replaces it as needed.
@@ -258,29 +349,42 @@ class RuleListView(QListView):
             c.setParent(None)
             c.deleteLater()
         self._cards.clear()
+        if self._range_card is not None:
+            self._range_card.setParent(None)
+            self._range_card.deleteLater()
+            self._range_card = None
         self._row_map.clear()
 
         # Flatten the 3 rule lists into a single visual row stream.
-        # Locked default rules first (read from _rules), then any user-added
-        # rule still in _rules that doesn't have a card yet.
         flat: list[tuple[str, dict[str, Any], bool]] = []  # (kind, rule, locked)
         for _, kind in REWARD_KINDS:
             for r in self._rules.get(kind, []):
                 # Default rules (loaded from config) and user-added rules
-                # (added via the + Normal/Boss/Act button) are both editable.
-                # The locked flag would only matter if we had rules the
-                # user shouldn't be able to remove — we don't.
-                locked = False
-                flat.append((kind, r, locked))
+                # are both editable. The locked flag is unused (no
+                # rules are read-only) but kept for API parity.
+                flat.append((kind, r, False))
 
-        self._model.set_row_count(len(flat))
-        for i, (kind, rule, locked) in enumerate(flat):
+        # Append the range card at the end so the user can click it to
+        # switch the detail panel to the range form. Selecting this
+        # row emits RangeTarget via rule_selected.
+        self._model.set_row_count(len(flat) + 1)
+        for i, (kind, rule, _locked) in enumerate(flat):
             card = RuleCard(self)
-            card.set_data(rule, locked=locked)
+            card.set_data(rule, locked=False)
             idx = self._model.index(i, 0)
             self.setIndexWidget(idx, card)
             self._cards.append(card)
             self._row_map.append((kind, i))
+
+        # Render the range card at row N.
+        self._range_row = len(flat)
+        range_idx = self._model.index(self._range_row, 0)
+        self._range_card = _RangeCard(self)
+        self._range_card.set_data(self._range)
+        # Forward the toggle to main_window so the enabled state
+        # lands in RangeState (and is included in the next save).
+        self._range_card.toggled.connect(self.range_toggled.emit)
+        self.setIndexWidget(range_idx, self._range_card)
 
         self.set_active_target(self._active_target)
 
@@ -289,6 +393,11 @@ class RuleListView(QListView):
             self.set_active_target(None)
             return
         row = current.row()
+        if row == self._range_row and self._range_card is not None:
+            target = RangeTarget()
+            self.set_active_target(target)
+            self.rule_selected.emit(target)
+            return
         if 0 <= row < len(self._cards):
             card = self._cards[row]
             kind, rule_index = self._row_map[row]

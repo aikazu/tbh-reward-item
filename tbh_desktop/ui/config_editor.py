@@ -65,141 +65,54 @@ def _ghost_button(text: str, *, tooltip: str = "") -> QPushButton:
     return btn
 
 
-class _RangeForm(QWidget):
-    """Inline pool-range form. Emits pick_replacement when the ghost
-    button is clicked; MainWindow wires it to its CatalogPopup dialog
-    (same pattern as RuleDetailPanel)."""
+class RangeState:
+    """Headless holder for the range-replacement rule.
 
-    pick_replacement = Signal()
+    Jul 2026: the range form USED to be a separate widget in the
+    left-hand ConfigEditor splitter, which made the UI feel like
+    two parallel forms. Now the right-hand RuleDetailPanel renders
+    both pool rules AND range rules in the same form. RangeState is
+    just the data layer (load / dump / add_ids / remove_id); the
+    panel reads from and writes to it directly.
+    """
 
-    def __init__(self, parent: QWidget | None = None) -> None:
-        super().__init__(parent)
-        self.setObjectName("range_form")
-        self._chips: list[ItemCard] = []
-        self._replacement_ids: list[int] = []
+    def __init__(self) -> None:
+        self.enabled: bool = False
+        self.name: str = "Pool range"
+        self.match_min_item_id: int = 0
+        self.match_max_item_id: int = 0
+        self.replacement_reward_item_ids: list[int] = []
 
-        outer = QVBoxLayout(self)
-        outer.setContentsMargins(12, 10, 12, 12)
-        outer.setSpacing(10)
-
-        # ---- Header: title + enabled toggle ----------------------------
-        header = QHBoxLayout()
-        header.setSpacing(8)
-        self.section_heading = _section_label("POOL RANGE")
-        header.addWidget(self.section_heading)
-        header.addStretch()
-        self.chk_enabled = QCheckBox("enabled")
-        self.chk_enabled.setToolTip("Enable pool range replacement (matches by item id range)")
-        header.addWidget(self.chk_enabled)
-        outer.addLayout(header)
-
-        # ---- MATCH POOL ID section -------------------------------------
-        outer.addWidget(_section_label("MATCH POOL ID"))
-        id_row = QHBoxLayout()
-        id_row.setSpacing(12)
-        from_col = QVBoxLayout()
-        self.lbl_min = QLabel("from")
-        self.lbl_min.setStyleSheet(f"color: {MOCHA['overlay1']}; font-size: 10px;")
-        self.edit_min = _mono_input(placeholder="500000")
-        from_col.addWidget(self.lbl_min)
-        from_col.addWidget(self.edit_min)
-        to_col = QVBoxLayout()
-        self.lbl_max = QLabel("to")
-        self.lbl_max.setStyleSheet(f"color: {MOCHA['overlay1']}; font-size: 10px;")
-        self.edit_max = _mono_input(placeholder="950000")
-        to_col.addWidget(self.lbl_max)
-        to_col.addWidget(self.edit_max)
-        id_row.addLayout(from_col)
-        id_row.addLayout(to_col)
-        id_row.addStretch()
-        outer.addLayout(id_row)
-
-        # ---- REPLACES WITH section -------------------------------------
-        outer.addWidget(_section_label("REPLACES WITH"))
-        self.edit_ids = _mono_input(placeholder="605041, 605051, 605061")
-        self.edit_ids.setMinimumWidth(0)
-        self.edit_ids.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        outer.addWidget(self.edit_ids)
-
-        # ---- chip row (visual mirror of the IDs above) -----------------
-        self._chip_row = QHBoxLayout()
-        self._chip_row.setContentsMargins(0, 0, 0, 0)
-        self._chip_row.setSpacing(6)
-        self._chip_row.addStretch()
-        outer.addLayout(self._chip_row)
-
-        # ---- pick buttons ----------------------------------------------
-        btn_row = QHBoxLayout()
-        btn_row.setSpacing(8)
-        self.btn_pick_item = _ghost_button("Pick replacement", tooltip="Pick replacement item ids from the catalog")
-        self.btn_pick_item.setObjectName("btn_pick_item_range")
-        self.btn_pick_item.clicked.connect(self.pick_replacement)
-        btn_row.addWidget(self.btn_pick_item)
-        btn_row.addStretch()
-        outer.addLayout(btn_row)
-
-        # ---- bottom rule line ------------------------------------------
-        rule = QFrame()
-        rule.setFrameShape(QFrame.Shape.HLine)
-        rule.setFrameShadow(QFrame.Shadow.Plain)
-        rule.setStyleSheet(f"color: {MOCHA['surface0']}; background: {MOCHA['surface0']};")
-        rule.setFixedHeight(1)
-
-    # ---- public API --------------------------------------------------
     def load(self, data: dict) -> None:
-        self.chk_enabled.setChecked(bool(data.get("enabled", False)))
-        self.edit_min.setText(str(data.get("match_min_item_id") or ""))
-        self.edit_max.setText(str(data.get("match_max_item_id") or ""))
-        ids = data.get("replacement_reward_item_ids") or []
-        self.edit_ids.setText(", ".join(str(i) for i in ids))
-        self._replacement_ids = [int(i) for i in ids]
-        self._rebuild_chips()
+        self.enabled = bool(data.get("enabled", False))
+        self.name = str(data.get("name", "Pool range"))
+        self.match_min_item_id = int(data.get("match_min_item_id") or 0)
+        self.match_max_item_id = int(data.get("match_max_item_id") or 0)
+        self.replacement_reward_item_ids = [
+            int(i) for i in (data.get("replacement_reward_item_ids") or [])
+        ]
 
     def dump(self) -> dict:
-        def _i(s: str) -> int:
-            try:
-                return int((s or "").strip())
-            except ValueError:
-                return 0
         return {
-            "enabled": self.chk_enabled.isChecked(),
-            "name": "Pool range",
-            "match_min_item_id": _i(self.edit_min.text()),
-            "match_max_item_id": _i(self.edit_max.text()),
-            "replacement_reward_item_ids": list(self._replacement_ids),
+            "enabled": self.enabled,
+            "name": self.name,
+            "match_min_item_id": int(self.match_min_item_id),
+            "match_max_item_id": int(self.match_max_item_id),
+            "replacement_reward_item_ids": list(self.replacement_reward_item_ids),
         }
 
     def add_ids(self, ids: list[int]) -> None:
-        before = set(self._replacement_ids)
+        before = set(self.replacement_reward_item_ids)
         for i in ids:
+            i = int(i)
             if i not in before:
-                self._replacement_ids.append(int(i))
-                before.add(int(i))
-        self.edit_ids.setText(", ".join(str(i) for i in self._replacement_ids))
-        self._rebuild_chips()
+                self.replacement_reward_item_ids.append(i)
+                before.add(i)
 
-    def _rebuild_chips(self) -> None:
-        for chip in self._chips:
-            chip.setParent(None)
-            chip.deleteLater()
-        self._chips.clear()
-        for i, item_id in enumerate(self._replacement_ids):
-            label, rarity = resolve_item_label(item_id)
-            chip = ItemCard(self)
-            chip.set_compact(True)
-            chip.setObjectName(f"range_chip_{item_id}")
-            chip.set_data({"id": item_id, "name": label, "rarity": rarity})
-            chip.setStyleSheet(chip_style(rarity, compact=True))
-            chip.setToolTip(f"{label} (#{item_id}) — click to remove")
-            chip.mousePressEvent = lambda _e, _id=item_id: self._remove_id(_id)  # type: ignore[method-assign]
-            self._chip_row.insertWidget(i, chip)
-            self._chips.append(chip)
-
-    def _remove_id(self, item_id: int) -> None:
-        if item_id in self._replacement_ids:
-            self._replacement_ids.remove(item_id)
-            self.edit_ids.setText(", ".join(str(i) for i in self._replacement_ids))
-            self._rebuild_chips()
+    def remove_id(self, item_id: int) -> None:
+        item_id = int(item_id)
+        if item_id in self.replacement_reward_item_ids:
+            self.replacement_reward_item_ids.remove(item_id)
 
 
 class _ProxyModeForm(QWidget):
@@ -361,36 +274,26 @@ class ConfigEditor(QWidget):
         self._splitter.setChildrenCollapsible(False)
 
         self._rule_list = RuleListView()
-        self._range_form = _RangeForm()
+        self._range_state = RangeState()
         self._mode_form = _ProxyModeForm()
 
-        # Wrap range form in a labelled container so users see what it is.
-        self._range_wrap = QWidget()
-        range_layout = QVBoxLayout(self._range_wrap)
-        range_layout.setContentsMargins(0, 4, 0, 0)
-        range_layout.setSpacing(4)
-        range_heading = QLabel("RANGE REPLACEMENT")
-        range_heading.setObjectName("panel_heading")
-        range_heading.setStyleSheet(
-            f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
-            f" letter-spacing: 2px; padding: 0 4px;"
-        )
-        range_layout.addWidget(range_heading)
-        range_layout.addWidget(self._range_form)
+        # Jul 2026: range replacement is edited in the right-side
+        # ``RuleDetailPanel`` via ``set_range_data`` (focus on the
+        # range row → ``RuleTarget(RangeTarget())`` → detail panel
+        # switches to the min/max form). No duplicate form on the
+        # left.
 
         self._splitter.addWidget(self._rule_list)
-        self._splitter.addWidget(self._range_wrap)
         self._splitter.addWidget(self._mode_form)
-        # Rules get the dominant share (stretch 4) — range form + mode
-        # form each get 1. setStretchFactor controls resize
-        # proportionality; setSizes is the initial pixel split but only
-        # takes effect if it fits in the available height — the actual
-        # split gets computed on first resize/show. We defer the setSizes
-        # call to after show via _apply_initial_sizes below.
+        # Rules get the dominant share (stretch 4) — mode form gets 1.
+        # setStretchFactor controls resize proportionality; setSizes is
+        # the initial pixel split but only takes effect if it fits in
+        # the available height — the actual split gets computed on
+        # first resize/show. We defer the setSizes call to after show
+        # via _apply_initial_sizes below.
         self._splitter.setStretchFactor(0, 4)
         self._splitter.setStretchFactor(1, 1)
-        self._splitter.setStretchFactor(2, 1)
-        self._splitter.setSizes([520, 160, 140])
+        self._splitter.setSizes([600, 140])
         outer.addWidget(self._splitter)
         # Apply the requested sizes once the widget is visible — without
         # this the initial paint uses Qt's default 50/50 split and the
@@ -412,20 +315,17 @@ class ConfigEditor(QWidget):
         # user just enables the existing cards). The X button on each
         # rule card removes a rule if the user no longer needs it.
 
-        # Make the range form focus set the active target to RangeTarget.
-        for w in (
-            self._range_form.chk_enabled,
-            self._range_form.edit_min,
-            self._range_form.edit_max,
-            self._range_form.edit_ids,
-        ):
-            w.installEventFilter(self)
+        # The detail panel handles range editing via set_range_data.
+        # MainWindow calls editor.range_state() to read/write the
+        # headless state holder. The detail panel + rule list stay
+        # in sync because main_window routes set_range_data and
+        # range_state mutation through the same RangeState instance.
         self._active_target_kind: str = "none"
 
     # ---- public API (back-compat) -----------------------------------
     def load(self, data: dict[str, Any]) -> None:
         self._rule_list.load(data)
-        self._range_form.load(data.get("range_replacement") or {})
+        self._range_state.load(data.get("range_replacement") or {})
         self._mode_form.load(data)
         # Preserve fields the GUI doesn't edit so dump() roundtrips them.
         # These are set-once in config.default.json and rarely changed;
@@ -438,7 +338,7 @@ class ConfigEditor(QWidget):
 
     def dump(self) -> dict[str, Any]:
         out = self._rule_list.dump()
-        out["range_replacement"].update(self._range_form.dump())
+        out["range_replacement"] = self._range_state.dump()
         # Merge mode + local_process_name into the dump. These live at the
         # top level of config.json (parallel to normal_rules / boss_rules /
         # act_rules / range_replacement), so we update out directly rather
@@ -454,8 +354,8 @@ class ConfigEditor(QWidget):
     def rule_list(self) -> RuleListView:
         return self._rule_list
 
-    def range_form(self) -> _RangeForm:
-        return self._range_form
+    def range_state(self) -> RangeState:
+        return self._range_state
 
     def selected_rule_pool_id(self) -> int | None:
         return self._rule_list.selected_rule_pool_id()
@@ -477,9 +377,11 @@ class ConfigEditor(QWidget):
     def add_ids_to_range(self, ids: list[int]) -> None:
         # Route through the active-target system for symmetry.
         self._rule_list.set_active_target(RangeTarget())
-        self._range_form.add_ids(ids)
+        self._range_state.add_ids(ids)
+        # Mirror into the rule_list's own range cache so dump()
+        # picks up the change.
         self._rule_list._range["replacement_reward_item_ids"] = list(
-            self._range_form._replacement_ids
+            self._range_state.replacement_reward_item_ids
         )
 
     def add_rule(self, reward_kind: str) -> int:
@@ -496,14 +398,12 @@ class ConfigEditor(QWidget):
     def _on_add_rule(self, reward_kind: str) -> None:
         self.add_rule(reward_kind)
 
-    # ---- event filter (range form focus) ----------------------------
+    # ---- event filter (rule list focus) ------------------------------
     def eventFilter(self, obj, event) -> bool:  # noqa: ANN001
         from PySide6.QtCore import QEvent
-        if event.type() == QEvent.Type.FocusIn and obj in (
-            self._range_form.chk_enabled,
-            self._range_form.edit_min,
-            self._range_form.edit_max,
-            self._range_form.edit_ids,
-        ):
-            self._rule_list.set_active_target(RangeTarget())
+        # Range form is gone (range now lives in the detail panel).
+        # The rule list focuses here on clicks; emit a rule_selected
+        # so the detail panel populates.
+        if event.type() == QEvent.Type.FocusIn and obj is self._rule_list:
+            return False  # let Qt do its default; rule_selected already wired
         return super().eventFilter(obj, event)

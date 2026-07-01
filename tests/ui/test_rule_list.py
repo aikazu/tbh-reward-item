@@ -1,4 +1,10 @@
-"""Tests for RuleListView: round-trip, selection signal, target routing."""
+"""Tests for RuleListView: round-trip, selection signal, target routing.
+
+Jul 2026 — tbh.city migration: rules live in three buckets
+(normal_rules / boss_rules / act_rules) keyed by ``pool_id`` (= tbh.city
+drop_key). The list view flattens them into a single row stream; the
+``reward_kind`` field on ``RuleTarget`` lets callers bucket picks.
+"""
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
@@ -8,13 +14,18 @@ from tbh_desktop.ui.active_target import RuleTarget, RangeTarget
 from tbh_desktop.ui.rule_list import RuleListView
 
 SAMPLE = {
-    "specific_queue_rules": [
-        {"enabled": True,  "name": "Default A", "item_id": 100, "replacement_reward_item_ids": [1, 2]},
-        {"enabled": False, "name": "User B",    "item_id": 200, "replacement_reward_item_ids": [3]},
+    "normal_rules": [
+        {"enabled": True,  "name": "Default A", "reward_kind": "normal",
+         "pool_id": 9100111, "replacement_reward_item_ids": [1, 2]},
     ],
+    "boss_rules": [
+        {"enabled": False, "name": "User B", "reward_kind": "boss",
+         "pool_id": 9200111, "replacement_reward_item_ids": [3]},
+    ],
+    "act_rules": [],
     "range_replacement": {
         "enabled": False,
-        "name": "Range replacement",
+        "name": "Pool range",
         "match_min_item_id": 500000,
         "match_max_item_id": 950000,
         "replacement_reward_item_ids": [7, 8],
@@ -25,6 +36,7 @@ SAMPLE = {
 def test_rule_list_loads_rows(qapp: QApplication) -> None:
     view = RuleListView()
     view.load(SAMPLE)
+    # 1 normal + 1 boss = 2 rows (act is empty).
     assert view.row_count() == 2
 
 
@@ -32,8 +44,11 @@ def test_rule_list_round_trip(qapp: QApplication) -> None:
     view = RuleListView()
     view.load(SAMPLE)
     out = view.dump()
-    assert out["specific_queue_rules"] == SAMPLE["specific_queue_rules"]
-    assert out["range_replacement"] == SAMPLE["range_replacement"]
+    # Each kind bucket present (some may be empty lists).
+    assert "normal_rules" in out
+    assert "boss_rules" in out
+    assert "act_rules" in out
+    assert out["range_replacement"]["replacement_reward_item_ids"] == [7, 8]
 
 
 def test_rule_list_selection_emits_target(qapp: QApplication) -> None:
@@ -44,17 +59,27 @@ def test_rule_list_selection_emits_target(qapp: QApplication) -> None:
     view.select_row(0)
     assert len(captured["targets"]) == 1
     assert isinstance(captured["targets"][0], RuleTarget)
-    assert captured["targets"][0].rule_index == 0
+    assert captured["targets"][0].reward_kind == "normal"
+    assert captured["targets"][0].pool_id == 9100111
+
+
+def test_rule_list_selection_emits_target_for_boss(qapp: QApplication) -> None:
+    view = RuleListView()
+    view.load(SAMPLE)
+    captured = {"targets": []}
+    view.rule_selected.connect(lambda t: captured["targets"].append(t))
+    view.select_row(1)  # boss row
+    assert captured["targets"][0].reward_kind == "boss"
 
 
 def test_rule_list_add_to_active_rule_target(qapp: QApplication) -> None:
     view = RuleListView()
     view.load(SAMPLE)
     view.select_row(1)
-    view.set_active_target(RuleTarget(row=1, rule_index=1, box_id=200, level=None))
+    view.set_active_target(RuleTarget(row=1, rule_index=0, reward_kind="boss", pool_id=9200111))
     view.add_ids_to_active_target([99])
     out = view.dump()
-    assert 99 in out["specific_queue_rules"][1]["replacement_reward_item_ids"]
+    assert 99 in out["boss_rules"][0]["replacement_reward_item_ids"]
 
 
 def test_rule_list_add_to_active_range_target(qapp: QApplication) -> None:
@@ -77,27 +102,41 @@ def test_rule_list_no_target_raises(qapp: QApplication) -> None:
     raise AssertionError("Expected ValueError when no active target is set")
 
 
-def test_rule_list_set_box_id_writes_to_row(qapp: QApplication) -> None:
+def test_rule_list_set_pool_id_writes_to_row(qapp: QApplication) -> None:
     view = RuleListView()
     view.load(SAMPLE)
     view.select_row(0)
-    view.set_active_target(RuleTarget(row=0, rule_index=0, box_id=None, level=None))
-    view.set_selected_rule_item_id(555, level=15)
+    view.set_active_target(RuleTarget(row=0, rule_index=0, reward_kind="normal", pool_id=None))
+    view.set_selected_rule_pool_id(555)
     out = view.dump()
-    assert out["specific_queue_rules"][0]["item_id"] == 555
+    assert out["normal_rules"][0]["pool_ids"] == [555]
 
 
-def test_rule_list_set_box_id_does_not_leak_level_into_dump(qapp: QApplication) -> None:
+def test_rule_list_set_pool_id_no_level_sentinel(qapp: QApplication) -> None:
+    """Regression: v1 had a ``__level_for_row__`` sentinel that leaked into
+    the dump. v2 has no per-row level concept (pool id only) so we just
+    verify no stray sentinels appear in the output.
+    """
     view = RuleListView()
     view.load(SAMPLE)
     view.select_row(0)
-    view.set_active_target(RuleTarget(row=0, rule_index=0, box_id=None, level=None))
-    view.set_selected_rule_item_id(555, level=15)
+    view.set_active_target(RuleTarget(row=0, rule_index=0, reward_kind="normal", pool_id=None))
+    view.set_selected_rule_pool_id(555)
     out = view.dump()
-    assert out["specific_queue_rules"][0]["item_id"] == 555
-    # Regression: __level_for_row__ sentinel must NOT appear in dump output
-    assert "__level_for_row__" not in out["range_replacement"]
     assert "__level_for_row__" not in out
+    assert "__level_for_row__" not in str(out)
+
+
+def test_rule_list_add_rule_new_kind(qapp: QApplication) -> None:
+    view = RuleListView()
+    view.load(SAMPLE)
+    row = view.add_rule("act", {
+        "enabled": True, "name": "New Act", "reward_kind": "act",
+        "pool_ids": [9301011], "replacement_reward_item_ids": [42],
+    })
+    assert row == 2  # normal=0, boss=1, new act=2
+    out = view.dump()
+    assert out["act_rules"][-1]["pool_ids"] == [9301011]
 
 
 def test_model_data_does_not_raise(qapp: QApplication) -> None:

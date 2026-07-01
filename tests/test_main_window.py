@@ -1,4 +1,8 @@
-"""Tests for main_window. Skipped by default (mark.gui); run with `pytest -m gui`."""
+"""Tests for main_window. Skipped by default (mark.gui); run with `pytest -m gui`.
+
+Jul 2026: ScrapeRunner replaced GearScraperRunner (tbh.city pipeline).
+Backwards-compat alias kept — see ``tbh_desktop.scrape_runner.GearScraperRunner``.
+"""
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -17,7 +21,7 @@ def window(qtbot):
     with patch("tbh_desktop.ui.main_window.config_io") as mock_cio, patch(
         "tbh_desktop.ui.main_window.scraper"
     ), patch("tbh_desktop.ui.main_window.ProxyRunner") as mock_runner_cls, patch(
-        "tbh_desktop.ui.main_window.GearScraperRunner"
+        "tbh_desktop.ui.main_window.ScrapeRunner"
     ):
         mock_cio.load_config.return_value = {
             "listen_port": 8877,
@@ -78,16 +82,16 @@ def test_start_saves_and_starts_on_yes(window, monkeypatch):
     mock_cio.save_config.assert_called_once()
     mock_runner.start.assert_called_once()
 
-
 def test_scrape_gear_button_starts_scraper_runner(qtbot):
-    """btn_refresh_gear ('Scrape Data') must start the GearScraperRunner
+    """btn_refresh_gear ('Scrape Data') must start the ScrapeRunner
     (background thread) and log a progress message. The button is disabled
-    while scraping and re-enabled when done."""
+    while scraping and re-enabled when done.
+    """
     logs: list[str] = []
     with patch("tbh_desktop.ui.main_window.config_io") as mock_cio, patch(
         "tbh_desktop.ui.main_window.scraper"
     ), patch("tbh_desktop.ui.main_window.ProxyRunner"), patch(
-        "tbh_desktop.ui.main_window.GearScraperRunner"
+        "tbh_desktop.ui.main_window.ScrapeRunner"
     ) as mock_runner_cls:
         mock_cio.load_config.return_value = {
             "listen_port": 8877,
@@ -144,7 +148,7 @@ def test_pick_gear_uses_cache_dir_picker(qtbot, monkeypatch, tmp_path):
     with patch("tbh_desktop.ui.main_window.config_io") as mock_cio, patch(
         "tbh_desktop.ui.main_window.scraper"
     ), patch("tbh_desktop.ui.main_window.ProxyRunner"), patch(
-        "tbh_desktop.ui.main_window.GearScraperRunner"
+        "tbh_desktop.ui.main_window.ScrapeRunner"
     ):
         mock_cio.load_config.return_value = {
             "listen_port": 8877,
@@ -182,7 +186,7 @@ def test_pick_gear_empty_cache_logs_hint(qtbot, monkeypatch, tmp_path):
     with patch("tbh_desktop.ui.main_window.config_io") as mock_cio, patch(
         "tbh_desktop.ui.main_window.scraper"
     ), patch("tbh_desktop.ui.main_window.ProxyRunner"), patch(
-        "tbh_desktop.ui.main_window.GearScraperRunner"
+        "tbh_desktop.ui.main_window.ScrapeRunner"
     ):
         mock_cio.load_config.return_value = {
             "listen_port": 8877,

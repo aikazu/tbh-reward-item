@@ -3,6 +3,12 @@
 These exercise the core rewrite logic without mitmproxy. The self-test in
 ``src/tbh_reward_hook.py`` covers the same logic, but these run under pytest
 so regressions are caught in CI.
+
+Jul 2026 — tbh.city migration: rules are now ``PoolRule`` (Normal/Boss/Act)
+keyed by ``pool_id`` (= tbh.city drop_key), not ``QueueRule`` keyed by
+``item_id``. The wire format is identical (itemId in body is the same
+integer as pool_id in config) so the match logic works the same; the
+config schema just splits the rules into three named buckets.
 """
 from __future__ import annotations
 
@@ -18,7 +24,7 @@ _SRC = Path(__file__).resolve().parent.parent / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
-from tbh_proxy_config import ProxyConfig, QueueRule, RangeRule  # type: ignore[import-not-found]
+from tbh_proxy_config import PoolRule, ProxyConfig, RangeRule  # type: ignore[import-not-found]
 from tbh_reward_hook import (  # type: ignore[import-not-found]
     RewardRewriter,
     TamperDetector,
@@ -32,13 +38,15 @@ from tbh_reward_hook import (  # type: ignore[import-not-found]
 # ─── helpers ──────────────────────────────────────────────────────────
 
 def _make_config(
-    specific: tuple[QueueRule, ...] = (),
+    normal: tuple[PoolRule, ...] = (),
+    boss: tuple[PoolRule, ...] = (),
+    act: tuple[PoolRule, ...] = (),
     range_rule: RangeRule | None = None,
 ) -> ProxyConfig:
     if range_rule is None:
         range_rule = RangeRule(
             enabled=False,
-            name="Range replacement",
+            name="Pool range",
             match_min_item_id=500000,
             match_max_item_id=950000,
             replacement_reward_item_ids=(),
@@ -48,7 +56,9 @@ def _make_config(
         only_post=True,
         require_boxes_marker=True,
         url_contains=("/backend-function/base/v1",),
-        specific_queue_rules=specific,
+        normal_rules=normal,
+        boss_rules=boss,
+        act_rules=act,
         range_replacement=range_rule,
     )
 
@@ -66,17 +76,18 @@ def _box_body(pairs: list[tuple[int, int]]) -> str:
 class TestSpecificRuleCycle:
     def test_cycles_through_replacements(self):
         config = _make_config(
-            specific=(
-                QueueRule(
+            normal=(
+                PoolRule(
                     enabled=True,
                     name="Normal Box",
-                    item_id=910801,
+                    pool_ids=(9100111,),
                     replacement_reward_item_ids=(419171, 519171),
+                    rule_kind="normal",
                 ),
             )
         )
         rewriter = RewardRewriter(config)
-        body = _box_body([(910801, 100), (910801, 200), (910801, 300)])
+        body = _box_body([(9100111, 100), (9100111, 200), (9100111, 300)])
         result = rewriter.rewrite(body)
         assert result.modified_count == 3
         ids = _extract_reward_ids(result.body)
@@ -84,47 +95,47 @@ class TestSpecificRuleCycle:
 
     def test_single_replacement_repeats(self):
         config = _make_config(
-            specific=(
-                QueueRule(True, "Single", 910801, (419171,)),
+            normal=(
+                PoolRule(True, "Single", (9100111,), (419171,), "normal"),
             )
         )
         rewriter = RewardRewriter(config)
-        body = _box_body([(910801, 1), (910801, 2)])
+        body = _box_body([(9100111, 1), (9100111, 2)])
         result = rewriter.rewrite(body)
         ids = _extract_reward_ids(result.body)
         assert ids == [419171, 419171]
 
     def test_disabled_rule_is_noop(self):
         config = _make_config(
-            specific=(
-                QueueRule(False, "Disabled", 910801, (419171,)),
+            normal=(
+                PoolRule(False, "Disabled", (9100111,), (419171,), "normal"),
             )
         )
         rewriter = RewardRewriter(config)
-        body = _box_body([(910801, 999)])
+        body = _box_body([(9100111, 999)])
         result = rewriter.rewrite(body)
         assert result.modified_count == 0
         assert _extract_reward_ids(result.body) == [999]
 
     def test_empty_replacements_is_noop(self):
         config = _make_config(
-            specific=(
-                QueueRule(True, "Empty", 910801, ()),
+            normal=(
+                PoolRule(True, "Empty", (9100111,), (), "normal"),
             )
         )
         rewriter = RewardRewriter(config)
-        body = _box_body([(910801, 999)])
+        body = _box_body([(9100111, 999)])
         result = rewriter.rewrite(body)
         assert result.modified_count == 0
 
     def test_no_rule_for_itemid_passes_through(self):
         config = _make_config(
-            specific=(
-                QueueRule(True, "Normal Box", 910801, (419171,)),
+            normal=(
+                PoolRule(True, "Normal Box", (9100111,), (419171,), "normal"),
             )
         )
         rewriter = RewardRewriter(config)
-        body = _box_body([(920801, 12345)])  # different box kind
+        body = _box_body([(9200111, 12345)])  # different pool (boss)
         result = rewriter.rewrite(body)
         assert result.modified_count == 0
         assert _extract_reward_ids(result.body) == [12345]
@@ -201,20 +212,20 @@ class TestRangeRule:
 class TestSpecificOverRange:
     def test_specific_wins_over_range(self):
         config = _make_config(
-            specific=(
-                QueueRule(True, "Normal Box", 910801, (419171,)),
+            normal=(
+                PoolRule(True, "Normal Box", (9100111,), (419171,), "normal"),
             ),
             range_rule=RangeRule(
                 enabled=True,
-                name="Range",
+                name="Pool range",
                 match_min_item_id=500000,
                 match_max_item_id=950000,
                 replacement_reward_item_ids=(999999,),
             ),
         )
         rewriter = RewardRewriter(config)
-        # 910801 falls in range [500000, 950000] but specific rule wins
-        body = _box_body([(910801, 1), (700000, 2)])
+        # 9100111 falls in range [500000, 950000] but specific rule wins
+        body = _box_body([(9100111, 1), (700000, 2)])
         result = rewriter.rewrite(body)
         ids = _extract_reward_ids(result.body)
         assert ids == [419171, 999999]
@@ -224,7 +235,7 @@ class TestEmptyConfig:
     def test_empty_config_passes_through(self):
         config = _make_config()
         rewriter = RewardRewriter(config)
-        body = _box_body([(910801, 12345)])
+        body = _box_body([(9100111, 12345)])
         result = rewriter.rewrite(body)
         assert result.modified_count == 0
         assert _extract_reward_ids(result.body) == [12345]
@@ -233,17 +244,17 @@ class TestEmptyConfig:
 class TestDetailTracking:
     def test_details_capture_old_and_new(self):
         config = _make_config(
-            specific=(
-                QueueRule(True, "Test", 910801, (419171,)),
+            normal=(
+                PoolRule(True, "Test", (9100111,), (419171,), "normal"),
             )
         )
         rewriter = RewardRewriter(config)
-        body = _box_body([(910801, 100)])
+        body = _box_body([(9100111, 100)])
         result = rewriter.rewrite(body)
         assert len(result.details) == 1
         d = result.details[0]
         assert d.rule_name == "Test"
-        assert d.item_id == 910801
+        assert d.pool_id == 9100111
         assert d.old_reward_item_id == 100
         assert d.new_reward_item_id == 419171
 

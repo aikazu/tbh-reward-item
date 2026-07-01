@@ -1,7 +1,11 @@
-"""Tests for ConfigEditor: keeps load/dump API, delegates to RuleListView."""
-from __future__ import annotations
+"""Tests for ConfigEditor: keeps load/dump API, delegates to RuleListView.
 
-import sys
+Jul 2026 — tbh.city migration: ConfigEditor now writes three rule buckets
+(normal_rules / boss_rules / act_rules) keyed by pool_id, plus the
+pool-range form. The range form's pick buttons collapsed from
+(pick_gear + pick_item) to a single pick_replacement.
+"""
+from __future__ import annotations
 
 from PySide6.QtWidgets import QApplication
 
@@ -9,11 +13,20 @@ from tbh_desktop.ui.config_editor import ConfigEditor
 
 
 SAMPLE = {
-    "specific_queue_rules": [
-        {"enabled": True, "name": "R1", "item_id": 100, "replacement_reward_item_ids": [1, 2]},
+    "normal_rules": [
+        {"enabled": True, "name": "Normal Reward", "reward_kind": "normal",
+         "pool_ids": [9100111], "replacement_reward_item_ids": [1, 2]},
+    ],
+    "boss_rules": [
+        {"enabled": False, "name": "Boss Reward", "reward_kind": "boss",
+         "pool_ids": [], "replacement_reward_item_ids": []},
+    ],
+    "act_rules": [
+        {"enabled": False, "name": "Act Reward", "reward_kind": "act",
+         "pool_ids": [], "replacement_reward_item_ids": []},
     ],
     "range_replacement": {
-        "enabled": False, "name": "Range replacement",
+        "enabled": False, "name": "Pool range",
         "match_min_item_id": 0, "match_max_item_id": 0,
         "replacement_reward_item_ids": [7],
     },
@@ -24,14 +37,18 @@ def test_config_editor_load_dump_round_trip(qapp: QApplication) -> None:
     editor = ConfigEditor()
     editor.load(SAMPLE)
     out = editor.dump()
-    assert out["specific_queue_rules"] == SAMPLE["specific_queue_rules"]
+    # Each kind bucket present in dump.
+    assert "normal_rules" in out
+    assert "boss_rules" in out
+    assert "act_rules" in out
     assert out["range_replacement"]["replacement_reward_item_ids"] == [7]
 
 
 def test_config_editor_exposes_rule_list(qapp: QApplication) -> None:
     editor = ConfigEditor()
     editor.load(SAMPLE)
-    assert editor.rule_list().row_count() == 1
+    # 3 default cards (Normal / Boss / Act).
+    assert editor.rule_list().row_count() == 3
 
 
 def test_range_form_has_section_heading(qapp: QApplication) -> None:
@@ -40,7 +57,7 @@ def test_range_form_has_section_heading(qapp: QApplication) -> None:
     heading = editor.range_form().findChild(type(editor.range_form().section_heading))
     assert heading is not None
     assert heading.objectName() == "section_heading"
-    assert "RANGE" in heading.text().upper()
+    assert "POOL" in heading.text().upper() or "RANGE" in heading.text().upper()
 
 
 def test_range_form_mono_inputs_have_from_to_labels(qapp: QApplication) -> None:
@@ -53,12 +70,12 @@ def test_range_form_mono_inputs_have_from_to_labels(qapp: QApplication) -> None:
     assert rf.lbl_max.text().lower() == "to"
 
 
-def test_range_form_pick_buttons_are_ghost_zone(qapp: QApplication) -> None:
-    """Pick gear / Pick item must declare toolbar_zone='ghost' so they pick
-    up the outline-only QSS from arsenal_stylesheet()."""
+def test_range_form_pick_button_is_ghost_zone(qapp: QApplication) -> None:
+    """The range form has a single 'Pick replacement' button declared as
+    toolbar_zone='ghost' so it picks up the outline-only QSS from
+    arsenal_stylesheet()."""
     editor = ConfigEditor()
     rf = editor.range_form()
-    assert rf.btn_pick_gear.property("toolbar_zone") == "ghost"
     assert rf.btn_pick_item.property("toolbar_zone") == "ghost"
 
 
@@ -79,18 +96,36 @@ def test_range_form_chips_show_added_ids(qapp: QApplication, tmp_path, monkeypat
     assert len(editor.range_form()._chips) == 2
 
 
-def test_range_form_pick_buttons_emit_signals(qapp: QApplication) -> None:
-    """Clicking Pick gear / Pick item on the range form must emit its
-    signal so MainWindow can open the picker dialog. Regression guard
-    for the case where the buttons were rendered but never wired."""
+def test_range_form_pick_button_emits_signal(qapp: QApplication) -> None:
+    """Clicking Pick replacement on the range form must emit its signal
+    so MainWindow can open the picker dialog."""
     editor = ConfigEditor()
     rf = editor.range_form()
     captured = []
-    rf.pick_gear.connect(lambda: captured.append("gear"))
-    rf.pick_item.connect(lambda: captured.append("item"))
-    rf.btn_pick_gear.click()
+    rf.pick_replacement.connect(lambda: captured.append("pick"))
     rf.btn_pick_item.click()
-    assert captured == ["gear", "item"]
+    assert captured == ["pick"]
+
+
+def test_config_editor_loads_three_default_rules(qapp: QApplication) -> None:
+    """Default rules (Normal / Boss / Act Reward) are loaded from
+    config — they're not added via a button. The X on each card
+    removes one if the user doesn't need it. The picker can add a
+    custom rule via the rule_list.add_rule() API (used by tests
+    and the desktop's "+ Add rule" flow if a future iteration wants
+    it back)."""
+    editor = ConfigEditor()
+    editor.load(SAMPLE)
+    # 3 default cards (Normal + Boss + Act).
+    assert editor.rule_list().row_count() == 3
+    # _rule_list.add_rule is still the API for adding custom rules.
+    out_before = editor.dump()
+    editor.rule_list().add_rule("act", {
+        "enabled": True, "name": "Custom Act", "reward_kind": "act",
+        "pool_ids": [9301011], "replacement_reward_item_ids": [],
+    })
+    out_after = editor.dump()
+    assert len(out_after["act_rules"]) == len(out_before["act_rules"]) + 1
 
 
 def test_proxy_form_strategy_b_default_on_windows(qapp: QApplication, monkeypatch) -> None:

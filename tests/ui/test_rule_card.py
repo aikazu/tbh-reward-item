@@ -1,4 +1,10 @@
-"""Tests for RuleCard: per-row pick buttons, chip row, signals."""
+"""Tests for RuleCard: pool_id + reward_kind (Normal/Boss/Act), chip row, signals.
+
+Jul 2026 — tbh.city migration: cards now carry ``reward_kind`` + ``pool_id``
+instead of v1's ``item_id`` + ``stage_type``. The pick signals collapsed
+from three (pick_box_id / pick_box_loot / pick_gear) to two (pick_pool_id /
+pick_replacement); the buttons live only in the DETAIL panel.
+"""
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
@@ -8,17 +14,14 @@ from tbh_desktop.ui.rule_card import RuleCard
 
 
 def _capture(card: RuleCard) -> dict[str, list]:
-    """Wire all RuleCard signals to a dict for inspection."""
     captured: dict[str, list] = {
-        "pick_box_id": [],
-        "pick_box_loot": [],
-        "pick_gear": [],
+        "pick_pool_id": [],
+        "pick_replacement": [],
         "remove": [],
         "edited": [],
     }
-    card.pick_box_id.connect(lambda: captured["pick_box_id"].append(True))
-    card.pick_box_loot.connect(lambda: captured["pick_box_loot"].append(True))
-    card.pick_gear.connect(lambda: captured["pick_gear"].append(True))
+    card.pick_pool_id.connect(lambda: captured["pick_pool_id"].append(True))
+    card.pick_replacement.connect(lambda: captured["pick_replacement"].append(True))
     card.remove.connect(lambda: captured["remove"].append(True))
     card.edited.connect(lambda: captured["edited"].append(True))
     return captured
@@ -29,40 +32,57 @@ def test_rule_card_renders_from_dict(qapp: QApplication) -> None:
     card.set_data({
         "enabled": True,
         "name": "Test rule",
-        "item_id": 12345,
+        "reward_kind": "normal",
+        "pool_id": 9100111,
         "replacement_reward_item_ids": [529191, 419191],
     })
     assert card.name() == "Test rule"
-    assert card.item_id() == 12345
+    assert card.pool_id() == 9100111
+    assert card.reward_kind() == "normal"
     assert card.replacement_ids() == [529191, 419191]
+
+
+def test_rule_card_renders_boss_kind(qapp: QApplication) -> None:
+    card = RuleCard()
+    card.set_data({
+        "enabled": True, "name": "Boss", "reward_kind": "boss",
+        "pool_id": 9200111, "replacement_reward_item_ids": [],
+    })
+    assert card.reward_kind() == "boss"
+    assert card.pool_id() == 9200111
+
+
+def test_rule_card_renders_act_kind(qapp: QApplication) -> None:
+    card = RuleCard()
+    card.set_data({
+        "enabled": True, "name": "Act 1 boss", "reward_kind": "act",
+        "pool_id": 9301011, "replacement_reward_item_ids": [],
+    })
+    assert card.reward_kind() == "act"
 
 
 def test_rule_card_pick_signals_still_emitted(qapp: QApplication) -> None:
     """Pick buttons live in the DETAIL panel, not the rule card (no UI
     duplication). The RuleCard still exposes the pick_* signals so
     MainWindow can trigger them programmatically when the user clicks
-    the DETAIL-panel buttons — we just don't render duplicate
-    buttons on the rule card itself. This test emits the signals
-    directly to verify the contract still holds."""
+    the DETAIL-panel buttons."""
     card = RuleCard()
     card.set_data({
-        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [],
+        "enabled": True, "name": "r", "reward_kind": "normal",
+        "pool_id": 9100111, "replacement_reward_item_ids": [],
     })
     captured = _capture(card)
-    # The rule card itself doesn't render pick buttons anymore — but
-    # the signals must still fire when the DETAIL-panel buttons do.
-    card.pick_box_id.emit()
-    card.pick_box_loot.emit()
-    card.pick_gear.emit()
-    assert captured["pick_box_id"] == [True]
-    assert captured["pick_box_loot"] == [True]
-    assert captured["pick_gear"] == [True]  # noqa: F841
+    card.pick_pool_id.emit()
+    card.pick_replacement.emit()
+    assert captured["pick_pool_id"] == [True]
+    assert captured["pick_replacement"] == [True]
 
 
 def test_rule_card_add_chip_appends(qapp: QApplication) -> None:
     card = RuleCard()
     card.set_data({
-        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [10],
+        "enabled": True, "name": "r", "reward_kind": "normal",
+        "pool_id": 9100111, "replacement_reward_item_ids": [10],
     })
     card.add_ids([20, 30])
     assert card.replacement_ids() == [10, 20, 30]
@@ -71,7 +91,8 @@ def test_rule_card_add_chip_appends(qapp: QApplication) -> None:
 def test_rule_card_add_chip_dedupes(qapp: QApplication) -> None:
     card = RuleCard()
     card.set_data({
-        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [10, 20],
+        "enabled": True, "name": "r", "reward_kind": "normal",
+        "pool_id": 9100111, "replacement_reward_item_ids": [10, 20],
     })
     card.add_ids([20, 30, 10])
     assert card.replacement_ids() == [10, 20, 30]
@@ -80,7 +101,8 @@ def test_rule_card_add_chip_dedupes(qapp: QApplication) -> None:
 def test_rule_card_remove_chip(qapp: QApplication) -> None:
     card = RuleCard()
     card.set_data({
-        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [10, 20, 30],
+        "enabled": True, "name": "r", "reward_kind": "normal",
+        "pool_id": 9100111, "replacement_reward_item_ids": [10, 20, 30],
     })
     card.remove_id(20)
     assert card.replacement_ids() == [10, 30]
@@ -89,7 +111,8 @@ def test_rule_card_remove_chip(qapp: QApplication) -> None:
 def test_rule_card_set_active_toggles_border(qapp: QApplication) -> None:
     card = RuleCard()
     card.set_data({
-        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [],
+        "enabled": True, "name": "r", "reward_kind": "normal",
+        "pool_id": 9100111, "replacement_reward_item_ids": [],
     })
     card.set_active(True)
     assert card.is_active() is True
@@ -97,30 +120,11 @@ def test_rule_card_set_active_toggles_border(qapp: QApplication) -> None:
     assert card.is_active() is False
 
 
-def test_rule_card_pick_signals_still_emitted(qapp: QApplication) -> None:
-    """Pick buttons live in the DETAIL panel, not the rule card (no UI
-    duplication). The RuleCard still exposes the pick_* signals so
-    MainWindow can trigger them programmatically when the user clicks
-    the DETAIL-panel buttons — we just don't render duplicate
-    buttons on the rule card itself. This test emits the signals
-    directly to verify the contract still holds."""
-    card = RuleCard()
-    card.set_data({
-        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [],
-    })
-    captured = _capture(card)
-    card.pick_box_id.emit()
-    card.pick_box_loot.emit()
-    card.pick_gear.emit()
-    assert captured["pick_box_id"] == [True]
-    assert captured["pick_box_loot"] == [True]
-    assert captured["pick_gear"] == [True]  # noqa: F841
-
-
 def test_rule_card_remove_emits_signal(qapp: QApplication) -> None:
     card = RuleCard()
     card.set_data({
-        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [],
+        "enabled": True, "name": "r", "reward_kind": "normal",
+        "pool_id": 9100111, "replacement_reward_item_ids": [],
     })
     captured = _capture(card)
     card.btn_remove.click()
@@ -130,7 +134,8 @@ def test_rule_card_remove_emits_signal(qapp: QApplication) -> None:
 def test_rule_card_locked_disables_remove(qapp: QApplication) -> None:
     card = RuleCard()
     card.set_data({
-        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [],
+        "enabled": True, "name": "r", "reward_kind": "normal",
+        "pool_id": 9100111, "replacement_reward_item_ids": [],
     }, locked=True)
     assert card.btn_remove.isEnabled() is False
 
@@ -140,10 +145,10 @@ def test_rule_card_chip_click_removes_id(qapp: QApplication) -> None:
     from PySide6.QtGui import QMouseEvent
     card = RuleCard()
     card.set_data({
-        "enabled": True, "name": "r", "item_id": 1, "replacement_reward_item_ids": [10, 20, 30],
+        "enabled": True, "name": "r", "reward_kind": "normal",
+        "pool_id": 9100111, "replacement_reward_item_ids": [10, 20, 30],
     })
     captured = _capture(card)
-    # Click the chip for id=20 (index 1 in _replacement_ids after rebuild)
     chip = card._chips[1]
     event = QMouseEvent(QEvent.Type.MouseButtonPress, QPoint(5, 5), Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton, Qt.KeyboardModifier.NoModifier)
     chip.mousePressEvent(event)
@@ -152,49 +157,32 @@ def test_rule_card_chip_click_removes_id(qapp: QApplication) -> None:
 
 
 def test_rule_card_has_section_heading(qapp: QApplication) -> None:
-    """Arsenal directive: every rule card shows a Cinzel section label."""
     card = RuleCard()
     assert card.findChild(type(card.section_heading)) is not None
     assert card.section_heading.objectName() == "section_heading"
 
 
-def test_rule_card_item_id_display_is_mono(qapp: QApplication) -> None:
-    """The static 'ID' + value display must use a monospace font (JetBrains
-    Mono family) so IDs line up vertically across cards."""
+def test_rule_card_pool_id_display_is_mono(qapp: QApplication) -> None:
     card = RuleCard()
-    # The internal mono label for the item id is exposed via _item_id_display.
-    assert card.item_id_display.font().families() == card.item_id_display.font().families()
-    family_str = " ".join(card.item_id_display.font().families()).lower()
+    family_str = " ".join(card.pool_id_display.font().families()).lower()
     assert "mono" in family_str or "jetbrains" in family_str
 
 
 def test_rule_card_chips_have_rarity_border(qapp: QApplication) -> None:
-    """Each chip must show a rarity-tinted left border (LEGENDARY → yellow).
-
-    The border is now drawn directly in :class:`ItemCard`'s ``paintEvent``
-    (QSS dynamic-property selectors were unreliable for chips whose
-    objectName was renamed by their parent). Verify the paint path is
-    wired by checking the chip's rarity color + the autoFill flag.
-    """
     from tbh_desktop.ui.theme import RARITY
     card = RuleCard()
     card.set_data({
-        "enabled": True, "name": "r", "item_id": 1,
-        "replacement_reward_item_ids": [10],
+        "enabled": True, "name": "r", "reward_kind": "normal",
+        "pool_id": 9100111, "replacement_reward_item_ids": [10],
     })
     chip = card._chips[0]
-    assert chip.rarity_color() == RARITY["COMMON"]  # id=10 not in drops index → COMMON
-    # paintEvent is overridden — verify by checking the method exists on
-    # the class (regression guard against accidentally falling back to
-    # the QSS-only path which renders an empty chip).
+    assert chip.rarity_color() == RARITY["COMMON"]
     from PySide6.QtWidgets import QFrame
     from tbh_desktop.ui.item_card import ItemCard
     assert ItemCard.paintEvent is not QFrame.paintEvent
 
 
 def test_rule_card_unknown_id_shows_fallback_label(qapp: QApplication) -> None:
-    """If the item id isn't in the drops index cache, the chip label falls
-    back to 'Unknown #<id>' in mono so the user still sees what the chip is."""
     from tbh_desktop.ui.rule_card import resolve_item_label
     label, rarity = resolve_item_label(999_999_999)
     assert "999999999" in label
@@ -202,8 +190,6 @@ def test_rule_card_unknown_id_shows_fallback_label(qapp: QApplication) -> None:
 
 
 def test_rule_card_known_id_resolves_name(qapp: QApplication, tmp_path, monkeypatch) -> None:
-    """When the drops index cache contains the id, resolve_item_label returns
-    the item's name and rarity from the cache."""
     import json
     drops = tmp_path / "drops_index.json"
     drops.write_text(json.dumps([

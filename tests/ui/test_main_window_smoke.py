@@ -60,8 +60,8 @@ def test_main_window_screenshot(qapp, workdir, tmp_path: Path) -> None:
 
 
 def test_main_window_toolbar_has_four_zones(qapp, workdir) -> None:
-    """Arsenal directive: toolbar groups buttons into 4 intent zones
-    (PROXY, DATA, CONFIG, STEAM). Zones are demarcated by QToolBar
+    """Arsenal directive: toolbar groups buttons into 3 intent zones
+    (PROXY, DATA, CONFIG+STEAM). Zones are demarcated by QToolBar
     separators (the thin vertical bars between button groups) — no
     extra zone-label text so the toolbar stays compact on narrow
     windows. Buttons inside each zone declare ``toolbar_zone='primary'``
@@ -72,11 +72,12 @@ def test_main_window_toolbar_has_four_zones(qapp, workdir) -> None:
     assert win.btn_stop.property("toolbar_zone") == "primary"
     # Secondary tier (flat outline — everything else in the toolbar).
     assert win.btn_refresh_gear.property("toolbar_zone") == "secondary"
-    assert win.btn_check_data.property("toolbar_zone") == "secondary"
     assert win.btn_save.property("toolbar_zone") == "secondary"
     assert win.btn_reset.property("toolbar_zone") == "secondary"
     assert win.btn_copy_steam.property("toolbar_zone") == "secondary"
-    assert win.btn_catalog.property("toolbar_zone") == "secondary"
+    # (Catalog button removed in Jul 2026; View menu action opens the
+    # popup instead. btn_check_data was a dead button that pointed at
+    # a method that never existed — also removed.)
     # Zone demarcation: separator widgets between groups (no text
     # labels — keeps the toolbar compact).
     from PySide6.QtWidgets import QLabel

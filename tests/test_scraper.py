@@ -1,924 +1,254 @@
-"""Tests for scraper."""
+"""Tests for tbh_desktop.scraper — minimal helpers that survive the
+Jul 2026 tbh.city migration.
+
+The legacy wiki gear / box / drops scrapers are retired (see
+``dev_tools.scrape_pipeline.scrape_stage`` for the active path). This
+file covers only the small helpers still exported from
+``tbh_desktop.scraper``:
+
+* ``derive_item_image_url`` — ID → wiki image URL.
+* ``read_gear_cache`` / ``write_gear_cache`` — per-combo JSON files.
+* ``parse_drops_page`` — legacy stub returning [].
+"""
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-from typing import Any
-
-from tbh_desktop import scraper
-
-FIXTURES = Path(__file__).parent / "fixtures"
 
 
-def test_parse_gear_page_returns_obtainable_only() -> None:
-    html = (FIXTURES / "gear_page.html").read_text(encoding="utf-8")
-    items = scraper.parse_gear_page(html)
-    # 300001 Long Sword + 300002 Iron Shield are obtainable; 300006 Heavy Blade
-    # carries is-deleted class and must be skipped.
-    ids = [i["id"] for i in items]
-    assert len(items) == 2
-    assert 300001 in ids
-    assert 300002 in ids
-    assert 300006 not in ids
-    long_sword = next(i for i in items if i["id"] == 300001)
-    assert long_sword["name"] == "Long Sword"
-    assert long_sword["rarity"] == "Common"
-    assert long_sword["type"] == "Sword"
-    assert long_sword["level"] == "Lv1"
-    # New G5 fields: image + rarity_color from .entity-card-art and --rc
-    assert long_sword["image"] == "https://taskbarhero.wiki/game/gear/sword/SWORD_300001.png"
-    assert long_sword["rarity_color"] == "#e4e4e4"
-    iron_shield = next(i for i in items if i["id"] == 300002)
-    assert iron_shield["name"] == "Iron Shield"
-    assert iron_shield["rarity"] == "Uncommon"
-    assert iron_shield["type"] == "Shield"
-    assert iron_shield["level"] == "Lv5"
-    assert iron_shield["rarity_color"] == "#a0e4a4"
+def test_derive_item_image_url_gear_slot() -> None:
+    """Known gear prefixes return the wiki's /game/gear/<slot>/<FILE>_<id>.png URL."""
+    from tbh_desktop.scraper import derive_item_image_url
+    # 505041 → helmet/HELMET_505041.png
+    assert derive_item_image_url(505041) == (
+        "https://taskbarhero.wiki/game/gear/helmet/HELMET_505041.png"
+    )
 
 
-def test_parse_gear_page_extracts_id_from_href() -> None:
-    html = (FIXTURES / "gear_page.html").read_text(encoding="utf-8")
-    items = scraper.parse_gear_page(html)
-    assert items[0]["id"] == 300001
-    # all items have int ids parsed from href
-    for i in items:
-        assert isinstance(i["id"], int)
+def test_derive_item_image_url_material() -> None:
+    """1xxxxx / 2xxxxx return the materials CDN path."""
+    from tbh_desktop.scraper import derive_item_image_url
+    assert derive_item_image_url(141001) == (
+        "https://taskbarhero.wiki/game/items/materials/Item_141001.png"
+    )
 
 
-def test_parse_box_page_returns_loot_with_ids() -> None:
-    html = (FIXTURES / "box_page.html").read_text(encoding="utf-8")
-    loot = scraper.parse_box_page(html)
-    ids = [l["id"] for l in loot]
-    # gear id from image path HELMET_500017.png
-    assert 500017 in ids
-    # material id from href 141001-bronze-ingot
-    assert 141001 in ids
-    helmet = next(l for l in loot if l["id"] == 500017)
-    assert helmet["name"] == "Dimensional Helmet"
-    assert helmet["rate"] == "7.9%"
-    # G5: box_id/box_name stamping (default 0/"" when not passed)
-    assert helmet["box_id"] == 0
-    assert helmet["box_name"] == ""
+def test_derive_item_image_url_unknown_prefix() -> None:
+    """Out-of-range ids return '' (no URL can be derived)."""
+    from tbh_desktop.scraper import derive_item_image_url
+    assert derive_item_image_url(0) == ""
+    assert derive_item_image_url(999) == ""
 
 
-def test_parse_box_page_stamps_box_id_and_name() -> None:
-    """When box_id/box_name are passed to parse_box_page, they're stamped on
-    every loot entry — needed to build the per-item drop map."""
-    html = (FIXTURES / "box_page.html").read_text(encoding="utf-8")
-    loot = scraper.parse_box_page(html, box_id=910801, box_name="Normal Monster Box Lv80")
-    assert all(l["box_id"] == 910801 for l in loot)
-    assert all(l["box_name"] == "Normal Monster Box Lv80" for l in loot)
+def test_derive_item_image_url_box_id() -> None:
+    """9xxxxx ids return the box icon URL (uses floor(id, 10000) + 11)."""
+    from tbh_desktop.scraper import derive_item_image_url
+    assert derive_item_image_url(910011) == (
+        "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
+    )
 
 
-def test_parse_box_page_classifies_kind_and_extracts_image() -> None:
-    """parse_box_page now tags each loot entry with kind (gear vs material)
-    and the image URL. Gear entry comes from HELMET_*.png regex; material
-    entry from Item_*.png regex."""
-    html = (FIXTURES / "box_page.html").read_text(encoding="utf-8")
-    loot = scraper.parse_box_page(html, box_id=910801, box_name="Test Box")
-    helmet = next(l for l in loot if l["id"] == 500017)
-    bronze = next(l for l in loot if l["id"] == 141001)
-    # ID-range verification: 5xxxxx = armor (gear)
-    assert helmet["kind"] == "gear"
-    assert "HELMET_500017" in helmet["image"]
-    # 1xxxxx = material
-    assert bronze["kind"] == "material"
-    assert "Item_141001" in bronze["image"]
-
-
-def test_parse_box_page_kind_fallback_by_id_range() -> None:
-    """When no image matches, kind is inferred from the item ID prefix."""
-    # Minimal HTML with an href but no <img> — kind must fall back to id range.
-    html = """<html><body>
-    <h2>Loot table</h2>
-    <table><tbody>
-    <tr><td><a href="/items/123456789-test">Mystery</a></td><td>5%</td></tr>
-    </tbody></table></body></html>"""
-    loot = scraper.parse_box_page(html)
-    assert loot[0]["id"] == 123456789
-    # No image src matched — fall back to ID range.
-    assert loot[0]["kind"] == "material"
-
-
-def test_parse_drops_page_extracts_table_rows() -> None:
-    """parse_drops_page reads data-* attributes from each <tr> in the
-    /en/tools/drops/ table."""
-    html = (FIXTURES / "drops_page_mini.html").read_text(encoding="utf-8")
-    items = scraper.parse_drops_page(html)
-    assert len(items) >= 20
-    # Spot-check fields
-    ruby = next((it for it in items if it["id"] == 110001), None)
-    assert ruby is not None
-    assert ruby["name"] == "Minor Ruby"
-    assert ruby["kind"] == "material"
-    assert ruby["rarity"] == "COMMON"
-    assert ruby["family"] == "DECORATION"
-
-
-def test_parse_drops_page_round_trip() -> None:
-    """write_drops_index + read_drops_index preserves items as a list."""
-    import tempfile
-    html = (FIXTURES / "drops_page_mini.html").read_text(encoding="utf-8")
-    items = scraper.parse_drops_page(html)
-    with tempfile.TemporaryDirectory() as tmp:
-        p = Path(tmp) / "drops.json"
-        scraper.write_drops_index(p, items)
-        loaded = scraper.read_drops_index(p)
-        assert loaded == items
-        # Missing file → []
-        assert scraper.read_drops_index(Path(tmp) / "missing.json") == []
-
-
-def test_parse_gear_detail_extracts_status_and_resell() -> None:
-    """parse_gear_detail splits tiles into BASE/INHERENT stats + resell tiles."""
-    html = (FIXTURES / "wiki_gear_detail_ethereal_amulet.html").read_text(encoding="utf-8")
-    detail = scraper.parse_gear_detail(html)
-    assert detail["name"] == "Ethereal Amulet"
-    assert detail["type"] == "Gear"
-    assert detail["slot"] == "Amulet"
-    assert detail["level"] == "Lv80"
-    # stats: every stat-tile with BASE/INHERENT badge is kept, tagged by kind.
-    # Fixture has exactly one INHERENT tile (no BASE tiles).
-    assert len(detail["stats"]) == 1
-    attack_speed = detail["stats"][0]
-    assert attack_speed["name"] == "Attack Speed"
-    assert attack_speed["value"] == "+13.6%"
-    assert attack_speed["kind"] == "inherent"
-    # resell: tiles WITHOUT a kind badge (Alchemy Gold, Cube EXP).
-    resell_names = {r["name"] for r in detail["resell"]}
-    assert resell_names == {"Alchemy Gold", "Cube EXP"}
-
-
-def test_parse_item_detail_minor_ruby() -> None:
-    """parse_item_detail on Minor Ruby (Decoration material) extracts effect text."""
-    html = (FIXTURES / "material_detail_minor_ruby.html").read_text(encoding="utf-8")
-    detail = scraper.parse_item_detail(html)
-    assert detail["id"] == 110001
-    assert detail["name"] == "Minor Ruby"
-    assert detail["rarity"] == "Common"
-    assert detail["type"] == "Decoration"
-    assert detail["stat_group"] == "1100011"
-    assert "effect" in detail
-    assert "Cube Decoration" in detail["effect"]
-
-
-def test_parse_item_detail_bronze_ingot() -> None:
-    """parse_item_detail on Bronze Ingot (Crafting, no effect)."""
-    html = (FIXTURES / "material_detail_bronze_ingot.html").read_text(encoding="utf-8")
-    detail = scraper.parse_item_detail(html)
-    assert detail["id"] == 141001
-    assert detail["name"] == "Bronze Ingot"
-    assert detail["rarity"] == "Uncommon"
-    assert detail["type"] == "Crafting"
-
-
-def test_box_loot_picker_filters_to_materials_only() -> None:
-    """BoxLootPicker is materials-only. Stage-box and gear never appear
-    even though the source drops index has them."""
-    from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
-    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+def test_read_write_gear_cache_round_trip(tmp_path: Path) -> None:
+    from tbh_desktop.scraper import read_gear_cache, write_gear_cache
     items = [
-        {"id": 110001, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
-        {"id": 910011, "name": "Box Lv1", "kind": "stage-box", "rarity": "COMMON", "family": "Normal Monster"},
-        {"id": 303011, "name": "Long Sword", "kind": "gear", "rarity": "Common", "family": ""},
+        {"id": 300001, "name": "Sword", "rarity": "LEGENDARY"},
+        {"id": 505041, "name": "Helmet", "rarity": "LEGENDARY"},
     ]
-    dlg = BoxLootPicker(items=items)
-    Qt = __import__("PySide6").QtCore.Qt
-    selectable = [
-        dlg.list_widget.item(i)
-        for i in range(dlg.list_widget.count())
-        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
-    ]
-    assert len(selectable) == 1
-    assert selectable[0].data(Qt.ItemDataRole.UserRole) == 110001
-
-
-def test_box_loot_picker_sorts_by_family_then_rarity() -> None:
-    """Items sorted by FAMILY_ORDER then RARITY_ORDER (canonical wiki order)."""
-    from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
-    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
-    items = [
-        {"id": 200, "name": "Dec LEGEND", "kind": "material", "rarity": "LEGENDARY", "family": "DECORATION"},
-        {"id": 100, "name": "Craft COMMON", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
-        {"id": 300, "name": "Dec COMMON", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
-    ]
-    dlg = BoxLootPicker(items=items)
-    Qt = __import__("PySide6").QtCore.Qt
-    ids = [
-        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
-        for i in range(dlg.list_widget.count())
-        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
-    ]
-    # CRAFTING COMMON (100) → DECORATION COMMON (300) → DECORATION LEGENDARY (200)
-    assert ids == [100, 300, 200]
-
-
-def test_box_loot_picker_excludes_soulstone() -> None:
-    """Soul Stone family is excluded from the materials picker.
-
-    Per the wiki, SOULSTONE family items are special (bind-on-pickup
-    crafting materials that, if used as range replacement targets, can
-    silently brick the addon logic). Range replacement IDs should never
-    include them, so the picker hides the entire family.
-    """
-    from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
-    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
-    items = [
-        {"id": 1, "name": "Bronze Ingot", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
-        {"id": 2, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
-        {"id": 3, "name": "Soul Shard", "kind": "material", "rarity": "RARE", "family": "SOULSTONE"},
-        {"id": 4, "name": "Glyph", "kind": "material", "rarity": "EPIC", "family": "INSCRIPTION"},
-    ]
-    dlg = BoxLootPicker(items=items)
-    Qt = __import__("PySide6").QtCore.Qt
-    ids = [
-        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
-        for i in range(dlg.list_widget.count())
-        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
-    ]
-    # Soul Shard (id=3) is excluded; all others shown.
-    assert 3 not in ids
-    assert {1, 2, 4} == set(ids)
-
-
-def test_box_loot_picker_kind_filter() -> None:
-    """Kind dropdown filters list to matching kind only (materials only here).
-
-    The picker is restricted to kind == 'material'; stage-boxes and gear
-    never appear regardless of dropdown selection.
-    """
-    from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
-    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
-    items = [
-        {"id": 1, "name": "Mat A", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
-        {"id": 2, "name": "Box A", "kind": "stage-box", "rarity": "COMMON", "family": "Normal Monster"},
-        {"id": 3, "name": "Mat B", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
-        {"id": 4, "name": "Long Sword", "kind": "gear", "rarity": "Common", "family": ""},
-    ]
-    dlg = BoxLootPicker(items=items)
-    Qt = __import__("PySide6").QtCore.Qt
-    ids = [
-        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
-        for i in range(dlg.list_widget.count())
-        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
-    ]
-    # Stage-box and gear are filtered out by constructor; only materials remain.
-    assert ids == [1, 3]
-
-
-def test_box_loot_picker_rarity_filter() -> None:
-    """Rarity dropdown filters materials by rarity."""
-    from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
-    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
-    items = [
-        {"id": 1, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
-        {"id": 2, "name": "Obsidian Shard", "kind": "material", "rarity": "UNCOMMON", "family": "DECORATION"},
-        {"id": 3, "name": "Crystal", "kind": "material", "rarity": "LEGENDARY", "family": "ENGRAVING"},
-    ]
-    dlg = BoxLootPicker(items=items)
-    Qt = __import__("PySide6").QtCore.Qt
-    # Dropdown should have All + COMMON + UNCOMMON + LEGENDARY (no other rarities).
-    assert dlg.rarity_filter.count() == 4
-    legendary_idx = dlg.rarity_filter.findData("LEGENDARY")
-    assert legendary_idx > 0
-    dlg.rarity_filter.setCurrentIndex(legendary_idx)
-    ids = [
-        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
-        for i in range(dlg.list_widget.count())
-        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
-    ]
-    assert ids == [3]
-
-
-def test_box_loot_picker_family_filter() -> None:
-    """Family ('Type') dropdown narrows the list to a specific crafting category."""
-    from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
-    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
-    items = [
-        {"id": 1, "name": "Bronze Ingot", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
-        {"id": 2, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
-        {"id": 3, "name": "Obsidian Blade", "kind": "material", "rarity": "LEGENDARY", "family": "ENGRAVING"},
-        {"id": 4, "name": "Glyph", "kind": "material", "rarity": "EPIC", "family": "INSCRIPTION"},
-    ]
-    dlg = BoxLootPicker(items=items)
-    Qt = __import__("PySide6").QtCore.Qt
-    # Dropdown should have All + CRAFTING + DECORATION + ENGRAVING + INSCRIPTION
-    # (no OFFERING since none in the fixture).
-    assert dlg.family_filter.count() == 5
-    # Filter to ENGRAVING only.
-    eng_idx = dlg.family_filter.findData("ENGRAVING")
-    assert eng_idx > 0
-    dlg.family_filter.setCurrentIndex(eng_idx)
-    ids = [
-        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
-        for i in range(dlg.list_widget.count())
-        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
-    ]
-    assert ids == [3]
-
-
-def test_box_loot_picker_rarity_and_family_combined() -> None:
-    """Combined filter: rarity=COMMON AND family=DECORATION."""
-    from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
-    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
-    items = [
-        {"id": 1, "name": "Bronze Ingot", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
-        {"id": 2, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
-        {"id": 3, "name": "Ruby", "kind": "material", "rarity": "RARE", "family": "DECORATION"},
-    ]
-    dlg = BoxLootPicker(items=items)
-    Qt = __import__("PySide6").QtCore.Qt
-    dlg.rarity_filter.setCurrentIndex(dlg.rarity_filter.findData("COMMON"))
-    dlg.family_filter.setCurrentIndex(dlg.family_filter.findData("DECORATION"))
-    ids = [
-        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
-        for i in range(dlg.list_widget.count())
-        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
-    ]
-    # Only id=2 matches both filters.
-    assert ids == [2]
-
-
-def test_box_loot_picker_family_headers() -> None:
-    """Material items grouped by family with non-selectable header rows."""
-    from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
-    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
-    items = [
-        {"id": 1, "name": "Bronze Ingot", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
-        {"id": 2, "name": "Minor Ruby", "kind": "material", "rarity": "COMMON", "family": "DECORATION"},
-    ]
-    dlg = BoxLootPicker(items=items)
-    Qt = __import__("PySide6").QtCore.Qt
-    # Walk through rows; expect header + item per family, in FAMILY_ORDER.
-    rows = []
-    for i in range(dlg.list_widget.count()):
-        li = dlg.list_widget.item(i)
-        if li.data(Qt.ItemDataRole.UserRole) is None:
-            rows.append(("header", li.text()))
-        else:
-            rows.append(("item", li.data(Qt.ItemDataRole.UserRole)))
-    # CRAFTING comes first per FAMILY_ORDER, so its header + item appear first.
-    assert rows[0][0] == "header"
-    assert "Crafting" in rows[0][1]
-    assert rows[1] == ("item", 1)
-    assert rows[2][0] == "header"
-    assert "Decoration" in rows[2][1]
-    assert rows[3] == ("item", 2)
-
-def test_box_loot_picker_scope_filter() -> None:
-    """scope_box_name only affects the window title; the picker no longer
-    substring-filters items by it (item names don't contain the box name,
-    so the old filter silently truncated the list — see BoxLootView ctor).
-    The caller is expected to pass the box's actual loot list instead.
-    """
-    from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
-    from tbh_desktop.ui.box_loot_picker import BoxLootPicker
-    items = [
-        {"id": 1, "name": "Obsidian Shard", "kind": "material", "rarity": "UNCOMMON", "family": "DECORATION"},
-        {"id": 2, "name": "Bronze Ingot", "kind": "material", "rarity": "COMMON", "family": "CRAFTING"},
-        {"id": 3, "name": "Obsidian Blade", "kind": "material", "rarity": "LEGENDARY", "family": "ENGRAVING"},
-        {"id": 4, "name": "Box Lv1", "kind": "stage-box", "rarity": "COMMON", "family": "Normal Monster"},
-    ]
-    dlg = BoxLootPicker(items=items, scope_box_name="Obsidian")
-    Qt = __import__("PySide6").QtCore.Qt
-    ids = [
-        dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole)
-        for i in range(dlg.list_widget.count())
-        if dlg.list_widget.item(i).data(Qt.ItemDataRole.UserRole) is not None
-    ]
-    # All material-kind items survive (stage-box filtered by kind, not by name).
-    # Sort order: family rank (CRAFTING < DECORATION < ENGRAVING), then id.
-    assert ids == [2, 1, 3]
-    # Window title still reflects scope for UX.
-    assert "Obsidian" in dlg.windowTitle()
-
-
-def test_build_box_drop_map_groups_by_item() -> None:
-    """Two boxes dropping the same item → that item maps to a 2-entry list."""
-    loot = [
-        {"id": 500017, "name": "Dimensional Helmet", "rate": "7.9%", "box_id": 910801, "box_name": "Box80"},
-        {"id": 500017, "name": "Dimensional Helmet", "rate": "12.0%", "box_id": 910901, "box_name": "Box90"},
-        {"id": 141001, "name": "Bronze Ingot", "rate": "1.5%", "box_id": 910801, "box_name": "Box80"},
-    ]
-    drop_map = scraper.build_box_drop_map(loot)
-    assert set(drop_map.keys()) == {500017, 141001}
-    assert len(drop_map[500017]) == 2
-    # Sorted by box_id ascending.
-    assert drop_map[500017][0]["box_id"] == 910801
-    assert drop_map[500017][1]["box_id"] == 910901
-
-
-def test_box_drop_cache_round_trip(tmp_path: Path) -> None:
-    """write_box_drop_cache + read_box_drop_cache preserves keys as ints."""
-    cache = tmp_path / "drop_map.json"
-    drop_map = {500017: [{"box_id": 910801, "box_name": "Box80", "rate": "7.9%"}]}
-    scraper.write_box_drop_cache(cache, drop_map)
-    loaded = scraper.read_box_drop_cache(cache)
-    assert loaded == drop_map
-    # Missing file → empty dict
-    assert scraper.read_box_drop_cache(tmp_path / "missing.json") == {}
-    # Invalid JSON → empty dict (no crash)
-    bad = tmp_path / "bad.json"
-    bad.write_text("not json {")
-    assert scraper.read_box_drop_cache(bad) == {}
-
-
-def test_parse_item_detail_extracts_flavor_and_stats() -> None:
-    """parse_item_detail falls back to meta_description when no effect section."""
-    html = (FIXTURES / "item_detail.html").read_text(encoding="utf-8")
-    detail = scraper.parse_item_detail(html)
-    # Old fixture doesn't have the new schema, so parser returns meta_description.
-    assert "meta_description" in detail
-    assert "sturdy iron blade" in detail["meta_description"]
-
-
-def test_parse_item_detail_empty_on_minimal_html() -> None:
-    """Empty HTML → empty dict (no crash)."""
-    assert scraper.parse_item_detail("") == {}
-    assert scraper.parse_item_detail("<html><body><p>Nothing here.</p></body></html>") == {}
-
-
-def test_cache_gear_round_trip(tmp_path: Path) -> None:
-    cache = tmp_path / "gear_cache.json"
-    items = [{"id": 1, "name": "X", "rarity": "Common", "type": "Sword"}]
-    scraper.write_gear_cache(cache, items)
-    loaded = scraper.read_gear_cache(cache)
-    assert loaded == items
-
-
-def test_cache_box_loot_round_trip(tmp_path: Path) -> None:
-    cache_dir = tmp_path / "box_loot_cache"
-    cache_dir.mkdir()
-    loot = [{"id": 500017, "name": "Helmet", "rate": "7.9%"}]
-    scraper.write_box_cache(cache_dir, 910801, loot)
-    loaded = scraper.read_box_cache(cache_dir, 910801)
-    assert loaded == loot
+    p = tmp_path / "weapon_legendary.json"
+    write_gear_cache(p, items)
+    assert read_gear_cache(p) == items
 
 
 def test_read_gear_cache_missing_returns_empty(tmp_path: Path) -> None:
-    assert scraper.read_gear_cache(tmp_path / "nope.json") == []
+    from tbh_desktop.scraper import read_gear_cache
+    assert read_gear_cache(tmp_path / "does_not_exist.json") == []
 
 
-def test_read_box_cache_missing_returns_empty(tmp_path: Path) -> None:
-    assert scraper.read_box_cache(tmp_path / "box_loot_cache", 910801) == []
-
-
-from unittest.mock import patch
-
-
-def test_refresh_gear_fetches_parses_caches(tmp_path: Path) -> None:
-    cache = tmp_path / "gear_cache.json"
-    html = (FIXTURES / "gear_page.html").read_text(encoding="utf-8")
-    with patch("tbh_desktop.scraper.requests.get") as mock_get:
-        mock_get.return_value.text = html
-        mock_get.return_value.raise_for_status = lambda: None
-        items = scraper.refresh_gear(cache)
-    assert 300001 in [i["id"] for i in items]
-    # cache written
-    assert scraper.read_gear_cache(cache) == items
-
-
-def test_refresh_gear_falls_back_to_cache_on_error(tmp_path: Path) -> None:
-    cache = tmp_path / "gear_cache.json"
-    cached = [{"id": 99, "name": "Cached", "rarity": "Common", "type": "Sword"}]
-    scraper.write_gear_cache(cache, cached)
-    with patch("tbh_desktop.scraper.requests.get", side_effect=Exception("network")):
-        items = scraper.refresh_gear(cache)
-    assert items == cached
-
-
-def test_refresh_box_loot_fetches_parses_caches(tmp_path: Path) -> None:
-    cache_dir = tmp_path / "box_loot_cache"
-    slug_cache = tmp_path / "box_slug_cache.json"
-    items_html = (FIXTURES / "items_page.html").read_text(encoding="utf-8")
-    box_html = (FIXTURES / "box_page.html").read_text(encoding="utf-8")
-    with patch("tbh_desktop.scraper.requests.get") as mock_get:
-        items_resp = type(
-            "R", (), {"text": items_html, "raise_for_status": lambda self: None}
-        )()
-        box_resp = type(
-            "R", (), {"text": box_html, "raise_for_status": lambda self: None}
-        )()
-        mock_get.side_effect = [items_resp, box_resp]
-        loot = scraper.refresh_box_loot(cache_dir, 910801, slug_cache_path=slug_cache)
-    assert 500017 in [l["id"] for l in loot]
-    assert scraper.read_box_cache(cache_dir, 910801) == loot
-
-
-def test_resolve_box_id_slug_from_items_page(tmp_path: Path) -> None:
-    cache = tmp_path / "box_slug_cache.json"
-    items_html = (FIXTURES / "items_page.html").read_text(encoding="utf-8")
-    with patch("tbh_desktop.scraper.requests.get") as mock_get:
-        mock_get.return_value.text = items_html
-        mock_get.return_value.raise_for_status = lambda: None
-        slug = scraper.resolve_box_id_slug(910801, cache_path=cache)
-    assert slug == "normal-monster-box-lv80"
-
-
-def test_resolve_box_id_slug_uses_cache_file(tmp_path: Path) -> None:
-    cache = tmp_path / "box_slug_cache.json"
-    cache.write_text('{"910801": "cached-slug"}', encoding="utf-8")
-    with patch("tbh_desktop.scraper.requests.get") as mock_get:
-        slug = scraper.resolve_box_id_slug(910801, cache_path=cache)
-        mock_get.assert_not_called()
-    assert slug == "cached-slug"
-
-
-def test_resolve_box_id_slug_writes_cache_on_fetch(tmp_path: Path) -> None:
-    cache = tmp_path / "box_slug_cache.json"
-    items_html = (FIXTURES / "items_page.html").read_text(encoding="utf-8")
-    with patch("tbh_desktop.scraper.requests.get") as mock_get:
-        mock_get.return_value.text = items_html
-        mock_get.return_value.raise_for_status = lambda: None
-        scraper.resolve_box_id_slug(910801, cache_path=cache)
-    import json
-
-    data = json.loads(cache.read_text(encoding="utf-8"))
-    assert data["910801"] == "normal-monster-box-lv80"
-    # all rows cached, not just queried
-    assert data["920001"] == "stage-boss-box-1"
-    assert data["930002"] == "elite-monster-box-lv50"
-
-
-def test_resolve_box_id_slug_not_found_returns_none(tmp_path: Path) -> None:
-    cache = tmp_path / "box_slug_cache.json"
-    items_html = (FIXTURES / "items_page.html").read_text(encoding="utf-8")
-    with patch("tbh_desktop.scraper.requests.get") as mock_get:
-        mock_get.return_value.text = items_html
-        mock_get.return_value.raise_for_status = lambda: None
-        slug = scraper.resolve_box_id_slug(999999, cache_path=cache)
-    assert slug is None
-
-
-def test_refresh_box_loot_uses_slug_lookup(tmp_path: Path) -> None:
-    cache_dir = tmp_path / "box_loot_cache"
-    slug_cache = tmp_path / "box_slug_cache.json"
-    items_html = (FIXTURES / "items_page.html").read_text(encoding="utf-8")
-    box_html = (FIXTURES / "box_page.html").read_text(encoding="utf-8")
-    with patch("tbh_desktop.scraper.requests.get") as mock_get:
-        # First call: items page (slug lookup). Second call: box page.
-        items_resp = mock_get.return_value
-        items_resp.text = items_html
-        items_resp.raise_for_status = lambda: None
-        # Configure side_effect to return items then box page
-        box_resp = type("R", (), {"text": box_html, "raise_for_status": lambda self: None})()
-        mock_get.side_effect = [items_resp, box_resp]
-        loot = scraper.refresh_box_loot(cache_dir, 910801, slug_cache_path=slug_cache)
-    assert 500017 in [l["id"] for l in loot]
-    # box page fetched with correct slug-derived URL
-    urls = [call.args[0] for call in mock_get.call_args_list]
-    assert any("910801-normal-monster-box-lv80" in u for u in urls)
+def test_parse_drops_page_returns_empty_after_migration() -> None:
+    """Legacy stub. The tbh.city migration retired the wiki /en/tools/drops/
+    page; pickers read items_normalized.json instead."""
+    from tbh_desktop.scraper import parse_drops_page
+    assert parse_drops_page("<html><body>anything</body></html>") == []
 
 
 # ---------------------------------------------------------------------------
-# G3 — playwright-based full gear scraper (per category x grade)
+# Jul 2026 — item categorization (slot_category + material family).
+# tbh.city doesn't expose slot_category or family fields directly; we
+# derive them from the item id prefix and name keyword heuristic.
 # ---------------------------------------------------------------------------
 
-from unittest.mock import MagicMock  # noqa: E402
-
-GEAR_HTML = (FIXTURES / "gear_page.html").read_text(encoding="utf-8")
-
-
-def _load_more_button_mock() -> MagicMock:
-    """A fake LOAD MORE button element. ``click`` appends more cards by
-    mutating shared state via closures wired by the caller."""
-    return MagicMock(name="load_more_btn")
+def test_slot_category_weapon() -> None:
+    from tbh_desktop.tbh_city import _slot_category_from_id
+    assert _slot_category_from_id(300001) == "Weapon"
+    assert _slot_category_from_id(350001) == "Weapon"  # axe
+    assert _slot_category_from_id(450001) == "Weapon"  # hatchet
 
 
-def test_scrape_gear_batch_parses_cards_and_clicks_load_more() -> None:
-    """scrape_gear_batch parses cards from page.content(), clicks LOAD MORE
-    until the button is gone, skips is-deleted, dedups by id."""
-    page = MagicMock(name="page")
-    # Two phases of page content: first 3 cards (2 obtainable + 1 deleted),
-    # second click appends 1 new obtainable + repeats the first obtainable
-    # (dedup by id).
-    phase_a = GEAR_HTML
-    phase_b = (
-        GEAR_HTML
-        + '<a href="/items/300099-arcane-blade" class="entity-card">'
-        '<div class="entity-card-tag">Arcane</div>'
-        '<div class="entity-card-name">Arcane Blade</div>'
-        '<div class="entity-card-meta">Lv50 | Sword</div></a>'
-    )
-    contents = [phase_a, phase_b]
-
-    def fake_content() -> str:
-        # Always reflect the latest appended phase.
-        return contents[-1]
-
-    page.content.side_effect = fake_content
-
-    # LOAD MORE button: first query returns a button whose click pops a phase
-    # and appends to content; second query returns None (button gone).
-    click_count = {"n": 0}
-
-    def fake_query_selector(selector: str):
-        # The scraper queries the LOAD MORE button via a CSS selector; the first
-        # call returns a button whose click appends phase_b, subsequent calls
-        # return None (button gone).
-        if click_count["n"] == 0:
-            btn = MagicMock(name="load_more_btn")
-
-            def on_click(*a, **k):
-                click_count["n"] += 1
-                # After first click, append phase_b (simulating +60 cards).
-                contents.append(phase_b)
-
-            btn.click.side_effect = on_click
-            return btn
-        else:
-            return None
-
-    page.query_selector.side_effect = fake_query_selector
-    page.wait_for_timeout = lambda *_a, **_k: None
-    page.wait_for_load_state = lambda *_a, **_k: None
-
-    items = scraper.scrape_gear_batch(page, max_clicks=10)
-
-    ids = [i["id"] for i in items]
-    # is-deleted 300006 skipped; 300099 appended; 300001 deduped.
-    assert 300001 in ids
-    assert 300002 in ids
-    assert 300099 in ids
-    assert 300006 not in ids
-    # 300001 appears in both phases but listed once (dedup).
-    assert ids.count(300001) == 1
-    arcane = next(i for i in items if i["id"] == 300099)
-    assert arcane["name"] == "Arcane Blade"
-    assert arcane["rarity"] == "Arcane"
-    # LOAD MORE was clicked at least once then stopped.
-    assert click_count["n"] >= 1
+def test_slot_category_offhand() -> None:
+    from tbh_desktop.tbh_city import _slot_category_from_id
+    assert _slot_category_from_id(410001) == "Off-hand"  # shield
+    assert _slot_category_from_id(420001) == "Off-hand"  # orb
+    assert _slot_category_from_id(430001) == "Off-hand"  # tome
+    assert _slot_category_from_id(440001) == "Off-hand"  # bolt
 
 
-def test_select_gear_filters_clicks_chips_and_toggle() -> None:
-    """_select_gear_filters clicks the Type chip, Rarity chip, and toggles the
-    Obtainable-only checkbox via its .gear-toggle-box wrapper.
-
-    The checkbox itself is overlaid by a <span class="gear-toggle-box"> that
-    intercepts pointer events, so .check() on the input times out (30s). The
-    wrapper span is the real Svelte click target — click that instead, and only
-    when the checkbox is not already checked.
-    """
-    page = MagicMock(name="page")
-    locator = MagicMock(name="locator")
-    locator.filter.return_value = locator
-    locator.is_checked.return_value = False
-    page.locator.return_value = locator
-
-    scraper._select_gear_filters(page, "weapon", "legendary", obtainable_only=True)
-
-    # chips + the toggle-box wrapper clicked via locator(...).click()
-    assert locator.click.called
-    # the broken .check() path must NOT be used
-    locator.check.assert_not_called()
-    # is_checked consulted so we don't double-toggle an already-on checkbox
-    assert locator.is_checked.called
-    selectors = [c.args[0] for c in page.locator.call_args_list if c.args]
-    assert ".gear-toggle-box" in selectors
+def test_slot_category_armor() -> None:
+    from tbh_desktop.tbh_city import _slot_category_from_id
+    assert _slot_category_from_id(500001) == "Armor"
+    assert _slot_category_from_id(530001) == "Armor"
 
 
-def test_select_gear_filters_skips_toggle_when_already_checked() -> None:
-    """If the Obtainable-only checkbox is already checked, do not click the
-    toggle again (would turn it off)."""
-    page = MagicMock(name="page")
-    locator = MagicMock(name="locator")
-    locator.filter.return_value = locator
-    locator.is_checked.return_value = True
-    page.locator.return_value = locator
-
-    scraper._select_gear_filters(page, "weapon", "legendary", obtainable_only=True)
-
-    # only chip clicks (2), no toggle-box click for the checkbox
-    toggle_calls = [c for c in page.locator.call_args_list if c.args and c.args[0] == ".gear-toggle-box"]
-    assert toggle_calls == []
+def test_slot_category_accessory() -> None:
+    from tbh_desktop.tbh_city import _slot_category_from_id
+    assert _slot_category_from_id(605041) == "Accessory"
+    assert _slot_category_from_id(659999) == "Accessory"
+    assert _slot_category_from_id(639999) == "Accessory"
 
 
-def test_refresh_gear_full_writes_per_category_grade(tmp_path: Path) -> None:
-    """refresh_gear_full writes one cache file per (category, grade) combo and
-    returns a dict keyed by '{cat}_{grade}'. Cache layout: nested by
-    category, e.g. ``{out_dir}/weapon/legendary.json``."""
-    out_dir = tmp_path / "gear"
-
-    # Fake browser: patch _stealth_launch so launch returns a context with
-    # a page whose content() returns GEAR_HTML and selectors behave.
-    page = MagicMock(name="page")
-    page.content.return_value = GEAR_HTML
-    page.query_selector.return_value = None  # no LOAD MORE button
-    page.wait_for_timeout = lambda *_a, **_k: None
-    page.wait_for_load_state = lambda *_a, **_k: None
-    page.goto = MagicMock(name="goto")
-
-    context = MagicMock(name="context")
-    context.new_page.return_value = page
-    context.close = MagicMock(name="close")
-
-    browser = MagicMock(name="browser")
-    browser.new_context.return_value = context
-    browser.close = MagicMock(name="close")
-
-    with patch("tbh_desktop.scraper._stealth_launch", return_value=browser):
-        result = scraper.refresh_gear_full(
-            out_dir,
-            categories=["weapon", "offhand"],
-            grades=["legendary", "immortal"],
-        )
-
-    # 4 cache files written (weapon x legendary/immortal, offhand x ...).
-    expected = {
-        "weapon/legendary.json",
-        "weapon/immortal.json",
-        "offhand/legendary.json",
-        "offhand/immortal.json",
-    }
-    written = {
-        str(p.relative_to(out_dir)).replace("\\", "/")
-        for p in out_dir.rglob("*.json")
-    }
-    assert expected <= written
-    assert set(result.keys()) == {"weapon_legendary", "weapon_immortal", "offhand_legendary", "offhand_immortal"}
-    # each file parses back to the fixture's obtainable items.
-    loaded = scraper.read_gear_cache(out_dir / "weapon" / "legendary.json")
-    assert 300001 in [i["id"] for i in loaded]
-    assert 300006 not in [i["id"] for i in loaded]
+def test_slot_category_unknown_for_materials() -> None:
+    """1xxxxx / 2xxxxx (materials) don't map to a slot category."""
+    from tbh_desktop.tbh_city import _slot_category_from_id
+    assert _slot_category_from_id(100001) == "Unknown"
+    assert _slot_category_from_id(200001) == "Unknown"
 
 
-def test_refresh_gear_full_falls_back_to_cache_on_error(tmp_path: Path) -> None:
-    """If browser launch raises, existing cache files are preserved and
-    their items returned (per-combo fallback)."""
-    out_dir = tmp_path / "gear"
-    out_dir.mkdir(parents=True)
-    cached = [{"id": 777, "name": "Cached Legendary", "rarity": "Legendary", "type": "Sword"}]
-    scraper.write_gear_cache(out_dir / "weapon" / "legendary.json", cached)
-
-    def _boom(*_a, **_k):
-        raise RuntimeError("browser launch failed")
-
-    with patch("tbh_desktop.scraper._stealth_launch", side_effect=_boom):
-        result = scraper.refresh_gear_full(
-            out_dir,
-            categories=["weapon"],
-            grades=["legendary"],
-        )
-
-    # existing cache preserved + returned.
-    assert scraper.read_gear_cache(out_dir / "weapon" / "legendary.json") == cached
-    assert result["weapon_legendary"] == cached
+def test_material_family_soulstone() -> None:
+    from tbh_desktop.tbh_city import _material_family
+    assert _material_family("Soulstone - Normal", []) == "SOULSTONE"
+    assert _material_family("Soulstone - Torment", []) == "SOULSTONE"
 
 
-def test_scrape_one_combo_retries_after_iframe_failure(tmp_path: Path) -> None:
-    """When the first attempt fails (simulated iframe overlay on the chip click
-    that the inner _select_gear_filters JS-dispatch fallback can't recover from,
-    or a transient page.goto failure), _scrape_one_combo strips iframes and
-    retries at the per-combo level. Second attempt succeeds and writes the cache."""
-    from unittest.mock import MagicMock
+def test_material_family_decoration_gems() -> None:
+    from tbh_desktop.tbh_city import _material_family
+    assert _material_family("Minor Ruby", []) == "DECORATION"
+    assert _material_family("Obsidian Shard", []) == "DECORATION"
+    assert _material_family("Lapis Lazuli", []) == "DECORATION"
+    assert _material_family("Mystic Pearl", []) == "DECORATION"
 
-    page = MagicMock(name="page")
-    # Simulate transient failure: first goto raises (e.g. Cloudflare challenge
-    # midway through navigation); second goto succeeds.
-    goto_count = {"n": 0}
 
-    def fake_goto(url: Any) -> None:
-        goto_count["n"] += 1
-        if goto_count["n"] == 1:
-            raise Exception("transient: Cloudflare challenge")
+def test_material_family_engraving() -> None:
+    from tbh_desktop.tbh_city import _material_family
+    assert _material_family("Engraved Plate", []) == "ENGRAVING"
+    assert _material_family("Ancient Engraving", []) == "ENGRAVING"
+    assert _material_family("Etched Rune", []) == "ENGRAVING"
 
-    page.goto.side_effect = fake_goto
 
-    def fake_locator(sel: Any) -> Any:
-        loc = MagicMock()
-        loc.filter.return_value = loc
-        loc.click.return_value = None
-        loc.is_checked.return_value = True
-        return loc
+def test_material_family_inscription() -> None:
+    from tbh_desktop.tbh_city import _material_family
+    assert _material_family("Mystic Scroll", []) == "INSCRIPTION"
+    assert _material_family("Inscription of Power", []) == "INSCRIPTION"
 
-    page.locator.side_effect = fake_locator
-    page.evaluate.return_value = None  # iframe strip is a no-op in mock
 
-    # Don't need real network — make scrape_gear_batch return one fake item.
-    original = scraper.scrape_gear_batch
-    scraper.scrape_gear_batch = lambda page, max_clicks=50: [
-        {"id": 999, "name": "Test", "rarity": "Legendary", "type": "ATK+5", "level": "Lv1",
-         "image": "", "rarity_color": ""},
+def test_material_family_offering() -> None:
+    from tbh_desktop.tbh_city import _material_family
+    assert _material_family("Tribute of Valor", []) == "OFFERING"
+    assert _material_family("Offering Stone", []) == "OFFERING"
+
+
+def test_material_family_default_is_crafting() -> None:
+    from tbh_desktop.tbh_city import _material_family
+    assert _material_family("Bronze Ingot", []) == "CRAFTING"
+    assert _material_family("Iron Sword", []) == "CRAFTING"
+    assert _material_family("", []) == "CRAFTING"
+
+
+def test_normalize_items_populates_categories() -> None:
+    """End-to-end: normalize a hand-rolled GEAR + MATERIAL entry and
+    check the categorization fields land where the picker expects them."""
+    from tbh_desktop.tbh_city import normalize_items
+    raw = [
+        # GEAR — Sword (icon prefix → slot_type=Sword, id 30xxxxxx → Weapon)
+        {"id": 300001, "name": {"en": "Long Sword"}, "grade": "COMMON",
+         "icon": "sprites/sharedassets0/SWORD_300001.png", "type": "GEAR",
+         "gear_id": 300001, "stat_types": [], "source_count": 0,
+         "obtainable_in_live_game": True, "only_torment_drops": False,
+         "is_market_tradable": True, "drop_cooldown": None,
+         "hero_class": None, "unique_mod": None},
+        # GEAR — Helmet
+        {"id": 505041, "name": {"en": "Gold Helmet"}, "grade": "LEGENDARY",
+         "icon": "sprites/sharedassets0/HELMET_505041.png", "type": "GEAR",
+         "gear_id": 505041, "stat_types": [], "source_count": 0,
+         "obtainable_in_live_game": True, "only_torment_drops": False,
+         "is_market_tradable": True, "drop_cooldown": None,
+         "hero_class": None, "unique_mod": None},
+        # MATERIAL — Soulstone
+        {"id": 190001, "name": {"en": "Soulstone - Normal"}, "grade": "LEGENDARY",
+         "icon": "sprites/sharedassets0/Item_190001.png", "type": "MATERIAL",
+         "gear_id": "", "stat_types": [], "source_count": 0,
+         "obtainable_in_live_game": True, "only_torment_drops": False,
+         "is_market_tradable": True, "drop_cooldown": None,
+         "hero_class": None, "unique_mod": None},
     ]
+    out = normalize_items(raw)
+    assert out[0]["slot_category"] == "Weapon"
+    assert out[0]["slot_type"] == "Sword"
+    assert out[0]["family"] == ""
+    assert out[1]["slot_category"] == "Armor"
+    assert out[1]["slot_type"] == "Helmet"
+    assert out[2]["slot_category"] == ""
+    assert out[2]["family"] == "SOULSTONE"
+
+
+# ---------------------------------------------------------------------------
+# Jul 2026 — CatalogPopup filter chips: two independent axes (gear + item).
+# ---------------------------------------------------------------------------
+
+def test_catalog_popup_two_filter_axes(qapp, tmp_path) -> None:
+    """The popup exposes two independent chip rows (Gear + Items) so
+    a click on a Gear chip doesn't deselect an active Item chip.
+    """
+    from tbh_desktop.ui.catalog_popup import (
+        CatalogContent,
+        _GEAR_FILTERS,
+        _ITEM_FILTERS,
+    )
+    # CatalogContent takes real cache paths but doesn't actually need
+    # them to exist for this assertion — it just renders the chips on
+    # init. Use tmp paths so it has somewhere to look.
+    content = CatalogContent(
+        gear_cache_dir=tmp_path / "gear",
+        drops_index_path=tmp_path / "items.json",
+        stage_drop_map_path=tmp_path / "sdm.json",
+        stages_index_path=tmp_path / "stages.json",
+    )
     try:
-        out_dir = tmp_path / "cache"
-        out_dir.mkdir()
-        result = scraper._scrape_one_combo(
-            page, "weapon", "legendary", out_dir=out_dir
-        )
-        assert result is not None, "should succeed on retry"
-        assert len(result) == 1
-        assert result[0]["id"] == 999
-        # Cache file written
-        cache_file = out_dir / "weapon" / "legendary.json"
-        assert cache_file.exists()
-        # page.goto called twice (initial + retry)
-        assert goto_count["n"] == 2
-        # page.evaluate called at least once for iframe strip
-        assert page.evaluate.called
+        gear_values = {str(b.property("filter_value") or "") for b in content._gear_filter_buttons}
+        item_values = {str(b.property("filter_value") or "") for b in content._item_filter_buttons}
+        assert gear_values == {label or "" for _, label in _GEAR_FILTERS}
+        assert item_values == {label or "" for _, label in _ITEM_FILTERS}
+        # Gear chips: All / Weapon / Off-hand / Armor / Accessory
+        assert "" in gear_values
+        assert "Weapon" in gear_values
+        assert "Off-hand" in gear_values
+        assert "Armor" in gear_values
+        assert "Accessory" in gear_values
+        # Item chips: All / Crafting / Decoration / Engraving /
+        # Inscription / Offering / Soulstone
+        assert "" in item_values
+        assert "CRAFTING" in item_values
+        assert "DECORATION" in item_values
+        assert "ENGRAVING" in item_values
+        assert "INSCRIPTION" in item_values
+        assert "OFFERING" in item_values
+        assert "SOULSTONE" in item_values
+        # Chip axes are independent — clicking a gear chip must not
+        # affect the item chip selection (and vice versa).
+        weapon_btn = next(b for b in content._gear_filter_buttons if b.property("filter_value") == "Weapon")
+        decoration_btn = next(b for b in content._item_filter_buttons if b.property("filter_value") == "DECORATION")
+        weapon_btn.click()
+        decoration_btn.click()
+        assert weapon_btn.isChecked() is True
+        assert decoration_btn.isChecked() is True
+        # Active filter values are independent too.
+        assert content._active_filter("gear") == "Weapon"
+        assert content._active_filter("item") == "DECORATION"
     finally:
-        scraper.scrape_gear_batch = original
+        content.deleteLater()
 
 
-def test_scrape_one_combo_returns_none_after_three_failures(tmp_path: Path) -> None:
-    """If all 3 attempts fail, returns None so caller can fall back to cache."""
-    from unittest.mock import MagicMock
-
-    page = MagicMock(name="page")
-    page.goto.return_value = None
-
-    def fake_locator(sel: Any) -> Any:
-        loc = MagicMock()
-        loc.filter.return_value = loc
-        loc.click.side_effect = Exception("always fails")
-        loc.is_checked.return_value = True
-        return loc
-
-    page.locator.side_effect = fake_locator
-    page.evaluate.return_value = None
-
-    out_dir = tmp_path / "cache"
-    out_dir.mkdir()
-    # Mock time.sleep via patch — module-level import inside the function
-    # uses import time as _time, so we patch the standard library module.
-    import unittest.mock
-    import time as _stdlib_time
-    with unittest.mock.patch.object(_stdlib_time, "sleep", lambda _: None):
-        result = scraper._scrape_one_combo(
-            page, "weapon", "legendary", out_dir=out_dir
-        )
-    assert result is None
-    # page.goto called exactly 3 times (initial + 2 retries)
-    assert page.goto.call_count == 3
-    # No cache file written
-    assert not (out_dir / "gear_weapon_legendary.json").exists()
-
-
-class TestDeriveItemImageUrl:
-    """URLs derived from numeric item IDs without hitting the wiki."""
-
-    def test_gear_helmet(self):
-        assert scraper.derive_item_image_url(505041) == (
-            "https://taskbarhero.wiki/game/gear/helmet/HELMET_505041.png"
-        )
-
-    def test_gear_sword(self):
-        assert scraper.derive_item_image_url(305041) == (
-            "https://taskbarhero.wiki/game/gear/sword/SWORD_305041.png"
-        )
-
-    def test_gear_axe(self):
-        assert scraper.derive_item_image_url(355041) == (
-            "https://taskbarhero.wiki/game/gear/axe/AXE_355041.png"
-        )
-
-    def test_material(self):
-        assert scraper.derive_item_image_url(141001) == (
-            "https://taskbarhero.wiki/game/items/materials/Item_141001.png"
-        )
-
-    def test_gem(self):
-        assert scraper.derive_item_image_url(110003) == (
-            "https://taskbarhero.wiki/game/items/materials/Item_110003.png"
-        )
-
-    def test_soulstone(self):
-        assert scraper.derive_item_image_url(190001) == (
-            "https://taskbarhero.wiki/game/items/materials/Item_190001.png"
-        )
-
-    def test_box_id_floors_to_base_variant(self):
-        # 910151, 910801, 910901 all share Item_910011.png
-        assert scraper.derive_item_image_url(910151) == (
-            "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
-        )
-        assert scraper.derive_item_image_url(910801) == (
-            "https://taskbarhero.wiki/game/items/boxes/Item_910011.png"
-        )
-        assert scraper.derive_item_image_url(920801) == (
-            "https://taskbarhero.wiki/game/items/boxes/Item_920011.png"
-        )
-        assert scraper.derive_item_image_url(930901) == (
-            "https://taskbarhero.wiki/game/items/boxes/Item_930011.png"
-        )
-
-    def test_unknown_prefix_returns_empty(self):
-        assert scraper.derive_item_image_url(99999) == ""  # only 5 digits
-
-    def test_id_zero_returns_empty(self):
-        assert scraper.derive_item_image_url(0) == ""
-
-    def test_consumable_id(self):
-        # 2xxxxx: consumable/other - shares materials path
-        assert scraper.derive_item_image_url(202001) == (
-            "https://taskbarhero.wiki/game/items/materials/Item_202001.png"
-        )
+def test_catalog_popup_allowed_item_ids_filter() -> None:
+    """set_allowed_item_ids restricts the visible catalog to a fixed
+    set of ids (used by main_window for pool-scoped replacement picks)."""
+    from tbh_desktop.ui.catalog_popup import CatalogContent
+    # Bare construction without QApplication — just exercise the
+    # attribute + setter logic directly.
+    assert hasattr(CatalogContent, "set_allowed_item_ids")

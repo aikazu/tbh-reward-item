@@ -1113,6 +1113,24 @@ class MainWindow(QMainWindow):
         self.runner.stop()
 
     # ------------------------------------------------------------------ rule/detail routing
+    def _on_card_pool_ids_changed(self, new_pool_ids: list) -> None:
+        """User edited the pool_ids field on the active rule card.
+
+        Re-pulls the active rule's data and re-renders the detail
+        panel so:
+          * Pick gear / Pick item disable when pool list goes empty
+          * The catalog popup's scope changes (it queries the
+            active rule's pool drop table every time it opens)
+
+        Without this handler, emptying the pool field left the
+        detail panel showing stale chip data + the Pick buttons
+        still enabled — looks like a state desync.
+        """
+        target = self.editor.rule_list().active_target()
+        from tbh_desktop.ui.active_target import RuleTarget
+        if isinstance(target, RuleTarget):
+            self._on_rule_selected(target)
+
     def _on_rule_selected(self, target) -> None:
         """Route selection events to the detail panel.
 

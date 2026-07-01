@@ -187,6 +187,7 @@ class _RangeCard(QFrame):
 class RuleListView(QListView):
     rule_selected = Signal(object)  # emits RuleTarget
     range_toggled = Signal(bool)  # emits new enabled state for range rule
+    card_pool_ids_changed = Signal(list)  # user edited pool_ids in a card
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -375,6 +376,10 @@ class RuleListView(QListView):
             self.setIndexWidget(idx, card)
             self._cards.append(card)
             self._row_map.append((kind, i))
+            # Forward pool_ids edits to main_window so the detail
+            # panel re-pulls the active rule's data (and disables
+            # Pick gear/item if the user just emptied the pool list).
+            card.pool_ids_changed.connect(self._on_card_pool_ids_changed)
 
         # Render the range card at row N.
         self._range_row = len(flat)
@@ -387,6 +392,17 @@ class RuleListView(QListView):
         self.setIndexWidget(range_idx, self._range_card)
 
         self.set_active_target(self._active_target)
+
+    def _on_card_pool_ids_changed(self, new_pool_ids: list) -> None:
+        """Forward a pool_ids edit from a rule card to main_window.
+
+        Triggered when the user types in the pool_id field on a
+        rule card. main_window listens on this signal (via the
+        card_pool_ids_changed combiner) and re-pulls the active
+        rule's data so the detail panel disables Pick gear/item
+        when the pool list goes empty.
+        """
+        self.card_pool_ids_changed.emit(new_pool_ids)
 
     def _on_row_changed(self, current, _previous) -> None:  # noqa: ANN001
         if not current.isValid():

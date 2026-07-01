@@ -106,6 +106,7 @@ class RuleCard(QFrame):
     pick_replacement = Signal()  # opens CatalogPopup to pick replacement item ids
     remove = Signal()
     edited = Signal()
+    pool_ids_changed = Signal(list)  # pool_ids edited; main_window re-pulls data
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -413,6 +414,9 @@ class RuleCard(QFrame):
         self._pool_ids = tuple(ids)
         self._refresh_pool_id_display()
         self.edited.emit()
+        # Notify main_window so the detail panel can re-pull +
+        # disable Pick gear/item when the pool list goes empty.
+        self.pool_ids_changed.emit(list(self._pool_ids))
 
     def _refresh_pool_id_display(self) -> None:
         if not self._pool_ids:

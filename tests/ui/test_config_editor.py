@@ -1,15 +1,16 @@
-"""Tests for ConfigEditor: keeps load/dump API, delegates to RuleListView.
+"""Tests for ConfigEditor: load/dump round-trip + range state.
 
-Jul 2026 — tbh.city migration: ConfigEditor now writes three rule buckets
-(normal_rules / boss_rules / act_rules) keyed by pool_id, plus the
-pool-range form. The range form's pick buttons collapsed from
-(pick_gear + pick_item) to a single pick_replacement.
+Jul 2026: the range form is gone — it lives as a card in the rule
+list (RangeCard) and is edited via the right-hand RuleDetailPanel.
+RangeState is the headless data layer that backs both.
 """
 from __future__ import annotations
 
+from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtWidgets import QApplication
 
-from tbh_desktop.ui.config_editor import ConfigEditor
+from tbh_desktop.ui.active_target import RangeTarget
+from tbh_desktop.ui.config_editor import ConfigEditor, RangeState
 
 
 SAMPLE = {
@@ -37,7 +38,6 @@ def test_config_editor_load_dump_round_trip(qapp: QApplication) -> None:
     editor = ConfigEditor()
     editor.load(SAMPLE)
     out = editor.dump()
-    # Each kind bucket present in dump.
     assert "normal_rules" in out
     assert "boss_rules" in out
     assert "act_rules" in out
@@ -47,78 +47,137 @@ def test_config_editor_load_dump_round_trip(qapp: QApplication) -> None:
 def test_config_editor_exposes_rule_list(qapp: QApplication) -> None:
     editor = ConfigEditor()
     editor.load(SAMPLE)
-    # 3 default cards (Normal / Boss / Act).
     assert editor.rule_list().row_count() == 3
 
 
-def test_range_form_has_section_heading(qapp: QApplication) -> None:
-    """Arsenal directive: the range form shows a Cinzel section heading."""
+def test_range_state_load_dump_round_trip() -> None:
+    """Headless RangeState reads config schema and round-trips it."""
+    rs = RangeState()
+    rs.load({
+        "enabled": True,
+        "name": "Pool range",
+        "match_min_item_id": 100,
+        "match_max_item_id": 200,
+        "replacement_reward_item_ids": [605041],
+    })
+    assert rs.enabled is True
+    assert rs.match_min_item_id == 100
+    assert rs.match_max_item_id == 200
+    assert rs.replacement_reward_item_ids == [605041]
+    out = rs.dump()
+    assert out == {
+        "enabled": True,
+        "name": "Pool range",
+        "match_min_item_id": 100,
+        "match_max_item_id": 200,
+        "replacement_reward_item_ids": [605041],
+    }
+
+
+def test_range_state_add_ids_dedups(qapp: QApplication) -> None:
     editor = ConfigEditor()
-    heading = editor.range_form().findChild(type(editor.range_form().section_heading))
-    assert heading is not None
-    assert heading.objectName() == "section_heading"
-    assert "POOL" in heading.text().upper() or "RANGE" in heading.text().upper()
+    rs = editor.range_state()
+    rs.add_ids([100, 200, 100])  # 100 dup'd
+    assert rs.replacement_reward_item_ids == [100, 200]
+    rs.remove_id(100)
+    assert rs.replacement_reward_item_ids == [200]
 
 
-def test_range_form_mono_inputs_have_from_to_labels(qapp: QApplication) -> None:
-    """match_min / match_max use mono font + have explicit 'from'/'to' sublabels."""
+def test_config_editor_no_separate_range_form_widget(qapp: QApplication) -> None:
+    """The range form widget is gone from the splitter; range is
+    edited in the right-hand RuleDetailPanel via set_range_data."""
     editor = ConfigEditor()
-    rf = editor.range_form()
-    families = " ".join(rf.edit_min.font().families()).lower()
-    assert "mono" in families or "jetbrains" in families
-    assert rf.lbl_min.text().lower() == "from"
-    assert rf.lbl_max.text().lower() == "to"
+    assert not hasattr(editor, "_range_form")
+    assert hasattr(editor, "_range_state")
+    assert hasattr(editor, "range_state")
 
 
-def test_range_form_pick_button_is_ghost_zone(qapp: QApplication) -> None:
-    """The range form has a single 'Pick replacement' button declared as
-    toolbar_zone='ghost' so it picks up the outline-only QSS from
-    arsenal_stylesheet()."""
+def test_rule_list_has_range_card(qapp: QApplication) -> None:
+    """The rule list renders a RangeCard as the last row (after Act
+    rules) so the user can click it to switch the detail panel to
+    range form."""
     editor = ConfigEditor()
-    rf = editor.range_form()
-    assert rf.btn_pick_item.property("toolbar_zone") == "ghost"
+    editor.load(SAMPLE)
+    view = editor.rule_list()
+    # 3 default rule cards + 1 range card = 4 rows total
+    assert view.model().rowCount() == 4
+    range_idx = view.model().index(3, 0)
+    assert view.indexWidget(range_idx) is view._range_card
 
 
-def test_range_form_chips_show_added_ids(qapp: QApplication, tmp_path, monkeypatch) -> None:
-    """add_ids_to_range rebuilds the range form chip row from the live list."""
-    import json
-    drops = tmp_path / "drops_index.json"
-    drops.write_text(json.dumps([
-        {"id": 605041, "name": "Gold Amulet", "rarity": "LEGENDARY"}
-    ]))
-    monkeypatch.setattr("tbh_desktop.ui.config_editor._DROPS_INDEX_PATH", drops)
+def test_range_rule_selected_emits_range_target(qapp: QApplication) -> None:
+    """Selecting the range row emits a RangeTarget."""
+    editor = ConfigEditor()
+    editor.load(SAMPLE)
+    view = editor.rule_list()
+    captured: list[RangeTarget] = []
+    view.rule_selected.connect(lambda t: captured.append(t))
+    idx = view.model().index(3, 0)
+    view.selectionModel().setCurrentIndex(
+        idx, QItemSelectionModel.SelectionFlag.SelectCurrent
+    )
+    assert len(captured) == 1
+    assert isinstance(captured[0], RangeTarget)
+
+
+def test_range_card_enabled_checkbox_toggles(qapp: QApplication) -> None:
+    """The range card has a real QCheckBox (not a status badge).
+    Toggling it emits range_toggled so main_window can persist."""
+    editor = ConfigEditor()
+    editor.load(SAMPLE)
+    view = editor.rule_list()
+    captured: list[bool] = []
+    view.range_toggled.connect(lambda v: captured.append(v))
+    # SAMPLE has enabled=False for range rule.
+    assert view._range_card.is_enabled() is False
+    view._range_card.chk_enabled.setChecked(True)
+    assert captured == [True]
+    view._range_card.chk_enabled.setChecked(False)
+    assert captured == [True, False]
+
+
+def test_range_card_block_signals_during_set_data(qapp: QApplication) -> None:
+    """set_data must not fire toggled — only user clicks should."""
+    editor = ConfigEditor()
+    editor.load({**SAMPLE,
+                 "range_replacement": {
+                     "enabled": True, "name": "Pool range",
+                     "match_min_item_id": 100, "match_max_item_id": 200,
+                     "replacement_reward_item_ids": [],
+                 }})
+    view = editor.rule_list()
+    captured: list[bool] = []
+    view.range_toggled.connect(lambda v: captured.append(v))
+    # Reload — set_data fires on each rule including the range card,
+    # so the captured list should stay empty if blockSignals works.
+    editor.load({**SAMPLE,
+                 "range_replacement": {
+                     "enabled": False, "name": "Pool range",
+                     "match_min_item_id": 0, "match_max_item_id": 0,
+                     "replacement_reward_item_ids": [],
+                 }})
+    assert captured == []
+    assert view._range_card.is_enabled() is False
+
+
+def test_config_editor_add_ids_to_range(qapp: QApplication) -> None:
+    """add_ids_to_range writes to RangeState + mirror in rule_list."""
     editor = ConfigEditor()
     editor.load(SAMPLE)
     editor.add_ids_to_range([605041])
     out = editor.dump()
     assert 605041 in out["range_replacement"]["replacement_reward_item_ids"]
-    # SAMPLE pre-loads id 7, so we expect 2 chips (7 + 605041).
-    assert len(editor.range_form()._chips) == 2
-
-
-def test_range_form_pick_button_emits_signal(qapp: QApplication) -> None:
-    """Clicking Pick replacement on the range form must emit its signal
-    so MainWindow can open the picker dialog."""
-    editor = ConfigEditor()
-    rf = editor.range_form()
-    captured = []
-    rf.pick_replacement.connect(lambda: captured.append("pick"))
-    rf.btn_pick_item.click()
-    assert captured == ["pick"]
+    # SAMPLE pre-loads id 7, so expect 2 total.
+    assert len(out["range_replacement"]["replacement_reward_item_ids"]) == 2
 
 
 def test_config_editor_loads_three_default_rules(qapp: QApplication) -> None:
     """Default rules (Normal / Boss / Act Reward) are loaded from
     config — they're not added via a button. The X on each card
-    removes one if the user doesn't need it. The picker can add a
-    custom rule via the rule_list.add_rule() API (used by tests
-    and the desktop's "+ Add rule" flow if a future iteration wants
-    it back)."""
+    removes one if the user doesn't need it."""
     editor = ConfigEditor()
     editor.load(SAMPLE)
-    # 3 default cards (Normal + Boss + Act).
     assert editor.rule_list().row_count() == 3
-    # _rule_list.add_rule is still the API for adding custom rules.
     out_before = editor.dump()
     editor.rule_list().add_rule("act", {
         "enabled": True, "name": "Custom Act", "reward_kind": "act",
@@ -130,9 +189,7 @@ def test_config_editor_loads_three_default_rules(qapp: QApplication) -> None:
 
 def test_proxy_form_strategy_b_default_on_windows(qapp: QApplication, monkeypatch) -> None:
     """Strategy B checkbox defaults to checked on Windows when the
-    config doesn't specify ``rewrite_pending_tx``. Mirrors the addon
-    side (tbh_proxy_config._default_rewrite_pending_tx) so the UI
-    shows what will actually run."""
+    config doesn't specify ``rewrite_pending_tx``."""
     import tbh_desktop.ui.config_editor as ce_mod
     monkeypatch.setattr(ce_mod.sys, "platform", "win32")
     editor = ConfigEditor()
@@ -149,8 +206,7 @@ def test_proxy_form_strategy_b_default_off_on_linux(qapp: QApplication, monkeypa
 
 
 def test_proxy_form_strategy_b_explicit_value_respected(qapp: QApplication, monkeypatch) -> None:
-    """Explicit ``False`` in config overrides the Windows default.
-    No surprise upgrade for users who deliberately disabled it."""
+    """Explicit ``False`` in config overrides the Windows default."""
     import tbh_desktop.ui.config_editor as ce_mod
     monkeypatch.setattr(ce_mod.sys, "platform", "win32")
     editor = ConfigEditor()

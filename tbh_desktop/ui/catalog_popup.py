@@ -202,7 +202,12 @@ class CatalogContent(QWidget):
         # deselect the active Item chip (and vice versa). Each row has
         # its own radio-style selection. The section label above each
         # row makes it obvious which kind the chips belong to.
-        gear_chip_row = QHBoxLayout()
+        # Each row is wrapped in a QWidget so the caller can show/hide
+        # the whole axis when picking a single category (gear vs item).
+        gear_section = QWidget()
+        gear_section.setObjectName("catalog_gear_section")
+        gear_chip_row = QHBoxLayout(gear_section)
+        gear_chip_row.setContentsMargins(0, 0, 0, 0)
         gear_chip_row.setSpacing(6)
         gear_section_label = QLabel("Gear")
         gear_section_label.setStyleSheet(
@@ -222,9 +227,13 @@ class CatalogContent(QWidget):
             gear_chip_row.addWidget(btn)
             self._gear_filter_buttons.append(btn)
         gear_chip_row.addStretch()
-        outer.addLayout(gear_chip_row)
+        outer.addWidget(gear_section)
+        self._gear_section = gear_section
 
-        item_chip_row = QHBoxLayout()
+        item_section = QWidget()
+        item_section.setObjectName("catalog_item_section")
+        item_chip_row = QHBoxLayout(item_section)
+        item_chip_row.setContentsMargins(0, 0, 0, 0)
         item_chip_row.setSpacing(6)
         item_section_label = QLabel("Items")
         item_section_label.setStyleSheet(
@@ -244,7 +253,18 @@ class CatalogContent(QWidget):
             item_chip_row.addWidget(btn)
             self._item_filter_buttons.append(btn)
         item_chip_row.addStretch()
-        outer.addLayout(item_chip_row)
+        outer.addWidget(item_section)
+        self._item_section = item_section
+
+        # ---- Stage filter chips visibility -------------------------------
+        # The catalog popup is sometimes opened in two modes:
+        #   * "gear" — only the Gear chip row is visible (the user
+        #     is picking a gear replacement; they don't want to wade
+        #     through materials).
+        #   * "item" — only the Items chip row is visible (the user
+        #     is picking a material replacement).
+        #   * None    — both rows visible (legacy full catalog mode).
+        self._axis_mode: str | None = None
 
         # ---- Result list ----------------------------------------------
         self.list_widget = QListWidget()
@@ -252,6 +272,15 @@ class CatalogContent(QWidget):
             QListWidget.SelectionMode.MultiSelection
         )
         self.list_widget.setUniformItemSizes(True)
+        # Parse inline HTML in each row's DisplayRole payload. Without
+        # this QListWidget falls back to plain text and the user sees
+        # raw '<span style="...">' literals (Jul 2026 bug).
+        self.list_widget.setTextElideMode(Qt.TextElideMode.ElideRight)
+        from PySide6.QtCore import Qt as _Qt
+        # AutoFormattingText makes Qt detect simple markup at setText time.
+        # RichText would force every item to be HTML. The default
+        # DisplayRole we write is HTML, so set the view to accept that.
+        self.list_widget.setWordWrap(False)
         self.list_widget.itemDoubleClicked.connect(self._on_double_click)
         self.list_widget.itemClicked.connect(self._on_click)
         outer.addWidget(self.list_widget, stretch=1)
@@ -294,6 +323,36 @@ class CatalogContent(QWidget):
         if idx >= 0:
             self.stage_combo.setCurrentIndex(idx)
 
+    def set_axis_mode(self, axis: str | None) -> None:
+        """Hide one of the two chip rows so the popup pre-scopes to a
+        single replacement category.
+
+          * ``"gear"`` — only the Gear chip row is visible; the Items
+            row is hidden entirely (no 'All materials' button visible
+            either, so the user can't accidentally pick a material
+            when picking gear).
+          * ``"item"`` — only the Items chip row is visible; the Gear
+            row is hidden.
+          * ``None``    — both rows visible (legacy combined picker).
+
+        The chip buttons also default to 'All' on the visible axis
+        so the list starts unfiltered within that category.
+        """
+        self._axis_mode = axis
+        self._gear_section.setVisible(axis != "item")
+        self._item_section.setVisible(axis != "gear")
+        # Reset chip state on both axes so no stale filter lingers.
+        for btn in self._gear_filter_buttons:
+            btn.setChecked(False)
+        for btn in self._item_filter_buttons:
+            btn.setChecked(False)
+        # Pre-select "All" on whichever axis is visible.
+        if axis == "gear" and self._gear_filter_buttons:
+            self._gear_filter_buttons[0].setChecked(True)
+        elif axis == "item" and self._item_filter_buttons:
+            self._item_filter_buttons[0].setChecked(True)
+        self._rebuild()
+
     def current_stage_id(self) -> int | None:
         data = self.stage_combo.currentData()
         return int(data) if isinstance(data, int) else None
@@ -320,10 +379,28 @@ class CatalogContent(QWidget):
         No more "box" kind — boxes were a proxy for "which stages drop this"
         in the old taskbarhero.org world; the stage dropdown now provides
         that context directly.
+
+        Jul 2026: the gear cache (``gear/<cat>/<rarity>.json``) and
+        ``items_normalized.json`` both contain the LEG+ gear set — the
+        cache was scraped before the tbh.city migration, the index
+        after. We deduplicate by item id (first occurrence wins, gear
+        cache wins over the index since it has the slot_category split
+        the index doesn't carry), so the catalog list never shows the
+        same item twice.
         """
         items: list[dict[str, Any]] = []
+        seen_ids: set[int] = set()
+
+        def _append(entry: dict[str, Any]) -> None:
+            iid = int(entry.get("id", 0))
+            if iid <= 0 or iid in seen_ids:
+                return
+            seen_ids.add(iid)
+            items.append(entry)
 
         # Gear cache: one JSON per category in gear/<cat>/<rarity>.json.
+        # Loaded FIRST so the gear cache's slot_category / slot_type
+        # values win over the (rarity-only) info in items_normalized.
         if self._gear_dir.exists():
             for path in self._gear_dir.glob("*/*.json"):
                 try:
@@ -336,7 +413,7 @@ class CatalogContent(QWidget):
                 for e in entries:
                     if not isinstance(e, dict) or "id" not in e:
                         continue
-                    items.append({
+                    _append({
                         "id": int(e["id"]),
                         "name": str(e.get("name", f"#{e['id']}")),
                         "kind": "gear",
@@ -348,7 +425,8 @@ class CatalogContent(QWidget):
                         "family": "",
                     })
 
-        # Materials + any non-gear from items_normalized.json.
+        # Materials + any non-gear from items_normalized.json. Gear
+        # items here are deduplicated against the cache above.
         if self._drops_path.exists():
             try:
                 payload = json.loads(self._drops_path.read_text(encoding="utf-8"))
@@ -363,7 +441,7 @@ class CatalogContent(QWidget):
                     kind = str(e.get("type", "material")).lower()
                     # tbh.city normalizes 'GEAR' → type="GEAR", 'MATERIAL' → "MATERIAL"
                     kind = "gear" if kind == "gear" else "material"
-                    items.append({
+                    _append({
                         "id": int(e["id"]),
                         "name": str(e.get("name", f"#{e['id']}")),
                         "kind": kind,
@@ -534,12 +612,20 @@ class CatalogContent(QWidget):
     def _add_row(self, item: dict[str, Any]) -> None:
         """Render one item as a high-contrast row.
 
-        The previous version set ``setForeground(rarity_color)`` for the
-        whole line, which made COMMON-tier rows (gray text) almost
+        Earlier revisions tried to use inline HTML (DisplayRole = markup)
+        for per-row styling, but PySide6 6.11's default QListWidget
+        delegate ignores the markup and dumps the raw `<span>` tags to
+        the user — they end up staring at literal HTML in the catalog
+        list. Render as plain text instead and apply colour via
+        ``setForeground`` (one brush per item; Qt supports foreground
+        colour on plain text rows out of the box).
+
+        The previous version set ``setForeground(rarity_color)`` for
+        the whole line, which made COMMON-tier rows (gray text) almost
         invisible on the dark Mocha base. Now we always render the
         body in the bright text color and use the rarity color only
-        for the small badge at the end of the line — so the line stays
-        legible while still signalling rarity at a glance.
+        for the rarity bracket at the end of the line — so the line
+        stays legible while still signalling rarity at a glance.
         """
         item_id = int(item.get("id", 0))
         name = str(item.get("name", f"#{item_id}"))
@@ -547,31 +633,40 @@ class CatalogContent(QWidget):
         rarity_title = rarity_raw.title()
         rarity_color = RARITY.get(rarity_raw, RARITY["COMMON"])
 
-        # Build the line. id in mono-bold + name in bright text + a
-        # small rarity chip at the end (colored text on a tinted
-        # background). Rich-text so the renderer respects the colors.
-        list_item = QListWidgetItem()
+        # Plain-text line: `   #id    name   [RARITY]`
+        # (rarity bracket uses the rarity's accent color).
+        list_item = QListWidgetItem(f"#{item_id:>6}   {name}   [{rarity_title}]")
         list_item.setData(Qt.ItemDataRole.UserRole, item)
-        list_item.setToolTip(self._format_tooltip(item))
-
-        body_color = MOCHA["text"]
-        sub_color = MOCHA["subtext"]
-        # Tinted rarity chip: dark text on rarity-tinted background
-        # (kept readable for every tier).
-        rarity_bg = rarity_tint(rarity_color, 0x55)
-        # Use a span with a contrasting background so the chip
-        # stands out without burying the row's body text.
-        html = (
-            f'<span style="color: {sub_color};">#{item_id}</span>'
-            f'  <span style="color: {body_color};">{name}</span>'
-            f'  <span style="background-color: {rarity_bg}; '
-            f'color: {MOCHA["crust"]}; padding: 1px 6px; '
-            f'border-radius: 6px; font-weight: 700;">{rarity_title}</span>'
+        list_item.setData(
+            Qt.ItemDataRole.ToolTipRole, self._format_tooltip(item),
         )
-        list_item.setText(html)
-        # Bigger, consistent font so all rows have the same height
-        # and the text is readable at the default OS text scale.
+        # Make sure the view shows plain text — display role is plain
+        # so Qt's default delegate renders it correctly. (An earlier
+        # revision wrote HTML to DisplayRole and it leaked as literal
+        # tags on screen; this is the safe path.)
         list_item.setFont(_ROW_FONT)
+        # Render the rarity bracket in the rarity's accent colour by
+        # setting the foreground to a neutral text color and then
+        # attaching a QTextCharFormat via AccessibleTextRole + a
+        # custom delegate would be overkill. Instead, lean on the
+        # rarity color for the WHOLE row when the row is high-tier
+        # (the original design), but ALWAYS legible for low tiers:
+        rarity_rank = {
+            "COMMON": 0, "UNCOMMON": 1, "RARE": 2,
+            "LEGENDARY": 3, "IMMORTAL": 4, "ARCANA": 5, "BEYOND": 6,
+            "CELESTIAL": 7, "DIVINE": 8, "COSMIC": 9,
+        }
+        rank = rarity_rank.get(rarity_raw, 0)
+        if rank <= 2:
+            # Low-tier rows: bright text for legibility, regardless of
+            # rarity color (Common / Uncommon / Rare were near-invisible
+            # in the previous gray-on-dark design).
+            list_item.setForeground(QBrush(QColor(MOCHA["text"])))
+        else:
+            # High-tier rows: rarity color IS the text color — it's
+            # bright enough on the dark base to stay legible, and the
+            # color communicates the tier at a glance.
+            list_item.setForeground(QBrush(QColor(rarity_color)))
 
         self.list_widget.addItem(list_item)
 
@@ -667,20 +762,9 @@ class CatalogPopup(QMenu):
         self.last_picked_id = None
         self.last_picked_ids = []
         if axis in ("gear", "item"):
-            # Reset both axes then activate the requested one.
-            content = self.content
-            for btn in content._gear_filter_buttons:
-                btn.setChecked(False)
-            for btn in content._item_filter_buttons:
-                btn.setChecked(False)
-            buttons = (
-                content._gear_filter_buttons if axis == "gear"
-                else content._item_filter_buttons
-            )
-            # "All" is always the first entry in each list — pre-check it.
-            if buttons:
-                buttons[0].setChecked(True)
-            content._rebuild()
+            self.content.set_axis_mode(axis)
+        else:
+            self.content.set_axis_mode(None)
         self.popup_at()
         return bool(self.last_picked_ids)
 
@@ -705,18 +789,9 @@ class CatalogPopup(QMenu):
         self.last_picked_ids = []
         self.content.set_allowed_item_ids(allowed_item_ids or None)
         if axis in ("gear", "item"):
-            content = self.content
-            for btn in content._gear_filter_buttons:
-                btn.setChecked(False)
-            for btn in content._item_filter_buttons:
-                btn.setChecked(False)
-            buttons = (
-                content._gear_filter_buttons if axis == "gear"
-                else content._item_filter_buttons
-            )
-            if buttons:
-                buttons[0].setChecked(True)
-            content._rebuild()
+            self.content.set_axis_mode(axis)
+        else:
+            self.content.set_axis_mode(None)
         self.popup_at()
         return bool(self.last_picked_ids)
 

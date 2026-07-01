@@ -184,16 +184,11 @@ class MainWindow(QMainWindow):
         # setVisible) so Qt's toggleViewAction state stays consistent
         # with the menu action's checkable state. setVisible() on a
         # freshly-added dock sometimes leaves the dock in a half-shown
-        # state where subsequent toggle actions don't fire the
-        # visibilityChanged signal reliably. Guard against teardown
-        # race where the dock C++ object is already destroyed.
-        from PySide6.QtCore import QTimer
-        def _safe_hide():
-            try:
-                self.log_dock.hide()
-            except RuntimeError:
-                pass
-        QTimer.singleShot(0, _safe_hide)
+        # Log dock stays visible by default so the user can see scrape
+        # progress, proxy events, and any pool-not-found warnings
+        # without having to dig through a View menu. Jul 2026: the
+        # 80px max height keeps it compact enough not to steal screen
+        # real-estate from the rule editor.
 
         # ---- Catalog popup (triggered from toolbar Catalog button) ------
         # Catalog is no longer a docked panel — it's a QMenu popup that
@@ -223,13 +218,22 @@ class MainWindow(QMainWindow):
             lambda: self._pick_replacement_for_detail("item")
         )
         self.detail_panel.remove_id_requested.connect(self._on_detail_chip_removed)
+        self.detail_panel.pool_id_changed.connect(self._on_detail_pool_ids_changed)
+        self.detail_panel.range_edited.connect(self._on_detail_range_edited)
+        # Range card enabled checkbox (in the rule list) toggles
+        # RangeState directly — same effect as flipping the switch
+        # in the detail panel's range form.
+        self.editor.rule_list().range_toggled.connect(self._on_range_toggled)
         # Catalog dock picks still route to the active target.
         self.item_browser.item_picked.connect(self._on_item_browser_pick)
         self.item_browser.items_picked.connect(self._on_item_browser_picks)
         # ConfigEditor focus event also routes to detail panel.
-        self.editor.range_form().installEventFilter(self)
-        # Range-form pick button → CatalogPopup for replacement IDs.
-        self.editor.range_form().pick_replacement.connect(self._pick_replacement_for_range)
+        self.editor.installEventFilter(self)
+        # When the user selects a range target on the rule list, the
+        # detail panel's "Pick item" button picks for the range form.
+        self.detail_panel.pick_item.connect(
+            lambda: self._pick_replacement_for_detail("item")
+        )
 
         self._reload_config()
 
@@ -430,7 +434,8 @@ class MainWindow(QMainWindow):
         view_menu = menubar.addMenu("View")
         self.action_toggle_log = view_menu.addAction("Log panel")
         self.action_toggle_log.setCheckable(True)
-        # Log dock starts hidden (see __init__) — menu reflects that.
+        # Log dock is visible by default (Jul 2026) so the user sees
+        # scrape progress + pool warnings without opening the View menu.
         self.action_toggle_log.setChecked(self.log_dock.isVisible())
         self.action_toggle_log.triggered.connect(self._toggle_log_dock)
         # Catalog dock starts VISIBLE — force menu checked to match
@@ -476,6 +481,51 @@ class MainWindow(QMainWindow):
         )
         reply = QMessageBox.question(self, title, message, buttons, default)
         return reply == QMessageBox.StandardButton.Yes
+
+    def _config_has_unsaved_changes(self) -> bool:
+        """Compare the editor's in-memory state to the on-disk config.
+
+        Returning True here triggers the Save / Discard / Cancel
+        dialog when the user clicks START, so they don't accidentally
+        launch mitmproxy with rules they've only been viewing in the
+        editor (not yet written to disk).
+        """
+        try:
+            on_disk = config_io.load_config(CONFIG_PATH)
+        except (OSError, ValueError):
+            return True  # can't read disk → assume user must save
+        in_memory = self.editor.dump()
+        # Strip the comment fields the editor injects (they're the same
+        # in both dicts; checking equality on them is noise).
+        def _strip(d: dict) -> dict:
+            return {k: v for k, v in d.items() if not k.startswith("_")}
+        return _strip(on_disk) != _strip(in_memory)
+
+    def _confirm_unsaved_changes(self) -> str:
+        """Three-button dialog: Save / Discard / Cancel.
+
+        Defaults to Cancel so an accidental Enter doesn't nuke edits.
+        Returns one of ``"save"``, ``"discard"``, ``"cancel"``.
+        """
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Icon.Warning)
+        msg.setWindowTitle("Unsaved changes")
+        msg.setText(
+            "The rule editor has changes that aren't saved to disk yet.\n\n"
+            "Starting mitmproxy now will run with the OLD config on disk. "
+            "Save first?"
+        )
+        btn_save = msg.addButton("Save first", QMessageBox.ButtonRole.AcceptRole)
+        btn_discard = msg.addButton("Discard & start", QMessageBox.ButtonRole.DestructiveRole)
+        btn_cancel = msg.addButton("Cancel", QMessageBox.ButtonRole.RejectRole)
+        msg.setDefaultButton(btn_cancel)
+        msg.exec()
+        clicked = msg.clickedButton()
+        if clicked is btn_save:
+            return "save"
+        if clicked is btn_discard:
+            return "discard"
+        return "cancel"
 
     def _reload_config(self) -> None:
         data = config_io.load_config(CONFIG_PATH)
@@ -650,6 +700,20 @@ class MainWindow(QMainWindow):
             if not self._confirm("Unsaved port", "Port changed. Save config first?"):
                 return
             self._save()
+        # Detect any unsaved rule / mode / range changes and prompt the
+        # user before starting. Starting mitmproxy with a stale config
+        # would silently ignore the user's edits — they'd be confused
+        # when their rules don't fire. Three-button dialog: Save / Discard
+        # / Cancel (default = Cancel, focused on Escape so an accidental
+        # Enter doesn't nuke in-flight edits).
+        if self._config_has_unsaved_changes():
+            choice = self._confirm_unsaved_changes()
+            if choice == "cancel":
+                self._on_log("Start cancelled — unsaved changes preserved.")
+                return
+            if choice == "save":
+                self._save()
+            # 'discard' falls through — start with the on-disk config.
         # Pull current mode/name from the editor and persist to disk so
         # the config reflects what we're about to start. This matters
         # because run_proxy.py also re-reads config.json for any keys we
@@ -992,18 +1056,16 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ rule/detail routing
     def _on_rule_selected(self, target) -> None:
-        """Route selection events to the detail panel + the catalog dock.
+        """Route selection events to the detail panel.
 
-        RuleTarget → populate the detail panel + swap the catalog to a
-        scope that matches the box.
-        RangeTarget → show the range-summary state in the detail panel.
-        None → show empty state.
+        RuleTarget → populate the rule form (name / kind / pool chips
+        / replacement chips).
+        RangeTarget → populate the range form (enabled / min / max /
+        replacement chips) in the same detail panel.
+        None → empty state.
         """
         from tbh_desktop.ui.active_target import RangeTarget, RuleTarget
 
-        if isinstance(target, RangeTarget):
-            self.detail_panel.show_range_summary()
-            return
         if target is None:
             self.detail_panel.show_empty()
             return
@@ -1018,13 +1080,24 @@ class MainWindow(QMainWindow):
             self.detail_panel.set_rule_data(
                 name=card.name(),
                 reward_kind=card.reward_kind(),
-                pool_id=card.pool_id(),
+                pool_ids=list(card.pool_ids()),
                 replacement_ids=card.replacement_ids(),
             )
-            # No catalog auto-swap — the catalog popup is a single
-            # search-first surface; user opens it via the toolbar
-            # button when they want to browse, no need to mirror the
-            # selected rule's scope there.
+            return
+
+        # RangeTarget — same detail panel, just the min/max form.
+        if isinstance(target, RangeTarget):
+            range_rule = self.editor.dump().get("range_replacement") or {}
+            self.detail_panel.set_range_data(
+                enabled=bool(range_rule.get("enabled", False)),
+                match_min=int(range_rule.get("match_min_item_id", 0)),
+                match_max=int(range_rule.get("match_max_item_id", 0)),
+                replacement_ids=list(range_rule.get("replacement_reward_item_ids") or []),
+            )
+            return
+
+        # Unknown target type.
+        self.detail_panel.show_empty()
 
     def _on_detail_chip_removed(self, item_id: int) -> None:
         """Forward a chip-remove request from the detail panel to the
@@ -1038,6 +1111,68 @@ class MainWindow(QMainWindow):
         if 0 <= row < len(rule_list._cards):
             rule_list._cards[row].remove_id(int(item_id))
             self._on_rule_selected(target)
+
+    def _on_detail_pool_ids_changed(self, new_pool_ids: list) -> None:
+        """Persist a multi-pool edit from the detail panel back into
+        the source rule_card."""
+        target = self.editor.rule_list().active_target()
+        from tbh_desktop.ui.active_target import RuleTarget
+        if not isinstance(target, RuleTarget):
+            return
+        rule_list = self.editor.rule_list()
+        row = target.row
+        if 0 <= row < len(rule_list._cards):
+            card = rule_list._cards[row]
+            new_text = ", ".join(str(p) for p in new_pool_ids)
+            card.edit_pool_id.blockSignals(True)
+            card.edit_pool_id.setText(new_text)
+            card.edit_pool_id.blockSignals(False)
+            card._on_pool_id_changed(new_text)
+            self._on_log(
+                f"Rule {card.name()} now binds {len(new_pool_ids)} "
+                "pool(s)."
+            )
+
+    def _on_detail_range_edited(self) -> None:
+        """Persist a range-form edit (enabled / min / max) from the
+        detail panel back into ConfigEditor's RangeState."""
+        rs = self.editor.range_state()
+        rs.enabled = self.detail_panel.range_enabled_checkbox.isChecked()
+        rs.match_min_item_id = int(self.detail_panel.range_min_value.value())
+        rs.match_max_item_id = int(self.detail_panel.range_max_value.value())
+        # Mirror into the rule_list's own range cache so dump()
+        # picks up the change.
+        self.editor.rule_list()._range["enabled"] = rs.enabled
+        self.editor.rule_list()._range["match_min_item_id"] = rs.match_min_item_id
+        self.editor.rule_list()._range["match_max_item_id"] = rs.match_max_item_id
+        # Keep the on-card checkbox in sync (in case the edit was
+        # made in the detail panel's range form).
+        if self.editor.rule_list()._range_card is not None:
+            self.editor.rule_list()._range_card.chk_enabled.blockSignals(True)
+            self.editor.rule_list()._range_card.chk_enabled.setChecked(rs.enabled)
+            self.editor.rule_list()._range_card.chk_enabled.blockSignals(False)
+        self._on_log(
+            f"Range rule: enabled={rs.enabled}, "
+            f"itemId {rs.match_min_item_id:,} → {rs.match_max_item_id:,}"
+        )
+
+    def _on_range_toggled(self, enabled: bool) -> None:
+        """User toggled the enabled checkbox on the range card in the
+        rule list. Update RangeState (and the mirror in rule_list)
+        so the next save reflects the change. If the detail panel
+        is currently showing the range form, sync its checkbox too."""
+        rs = self.editor.range_state()
+        rs.enabled = bool(enabled)
+        self.editor.rule_list()._range["enabled"] = rs.enabled
+        # If the user is on the range form in the detail panel,
+        # sync the checkbox there so both views agree.
+        target = self.editor.rule_list().active_target()
+        from tbh_desktop.ui.active_target import RangeTarget
+        if isinstance(target, RangeTarget):
+            self.detail_panel.range_enabled_checkbox.blockSignals(True)
+            self.detail_panel.range_enabled_checkbox.setChecked(rs.enabled)
+            self.detail_panel.range_enabled_checkbox.blockSignals(False)
+        self._on_log(f"Range rule: enabled={rs.enabled}")
 
     def _on_item_browser_pick(self, item_id: int) -> None:
         """Route a single-item pick from the catalog dock to the active target."""
@@ -1056,12 +1191,16 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ eventFilter
     def eventFilter(self, obj, event) -> bool:  # noqa: ANN001
-        """Switch the detail panel to range-summary when the range form takes focus."""
+        """Switch the detail panel to the range form when the rule
+        list emits a range selection (or focus moves into the editor).
+        The right pane shows the same chip row / pick-item / min-max
+        UI whether a per-kind rule or the range rule is active.
+        """
         from PySide6.QtCore import QEvent
         from tbh_desktop.ui.active_target import RangeTarget
 
-        if event.type() == QEvent.Type.FocusIn and obj is self.editor.range_form():
-            self.editor.rule_list().set_active_target(RangeTarget())
-            self.detail_panel.show_range_summary()
-            return False
+        if event.type() != QEvent.Type.FocusIn:
+            return super().eventFilter(obj, event)
+        if obj is self.editor:
+            return super().eventFilter(obj, event)
         return super().eventFilter(obj, event)

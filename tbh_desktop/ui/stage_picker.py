@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -90,12 +91,30 @@ def _load_stages_index() -> list[dict[str, Any]]:
 
 
 class StagePickerDialog(QDialog):
-    """Modal list of stages grouped by act. The user picks one; we
-    look up the matching drop_key from the cached stage detail and
-    emit ``pool_key_selected(int)`` on accept.
+    """Modal list of stages grouped by act + difficulty-filterable.
+
+    Jul 2026 layout:
+      * Top: difficulty filter chips (All / Normal / Nightmare /
+        Hell / Torment) so the user can scope to a single
+        difficulty band.
+      * List: grouped by act (header row per act), then by stage_no,
+        then by difficulty in N → NM → H → T order. ACTBOSS rows
+        tagged so they're easy to spot.
+
+    Picking a stage reads the matching drop_key from the cached
+    stage detail and emits ``pool_key_selected(int)`` on accept.
     """
 
     pool_key_selected = Signal(int)
+
+    # Difficulty display order.
+    _DIFFICULTIES = ("NORMAL", "NIGHTMARE", "HELL", "TORMENT")
+    _DIFF_LABEL = {
+        "NORMAL": "Normal",
+        "NIGHTMARE": "Nightmare",
+        "HELL": "Hell",
+        "TORMENT": "Torment",
+    }
 
     def __init__(
         self,
@@ -105,8 +124,11 @@ class StagePickerDialog(QDialog):
         super().__init__(parent)
         self.setObjectName("stage_picker_dialog")
         self.setWindowTitle(f"Pick {reward_kind.title()} pool")
-        self.setMinimumSize(480, 520)
+        self.setMinimumSize(560, 560)
         self._reward_kind = reward_kind
+        self._active_difficulty: str | None = None  # None = "All"
+        # Cache so we don't re-read on every filter click.
+        self._all_stages: list[dict[str, Any]] = []
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(12, 12, 12, 12)
@@ -117,49 +139,56 @@ class StagePickerDialog(QDialog):
         heading.setStyleSheet(section_heading_style())
         outer.addWidget(heading)
 
-        # Build a list per act so the user can scan quickly.
-        stages = _load_stages_index()
+        # ---- Difficulty filter chips -------------------------------
+        # Radio-style within this row: click one chip to scope the
+        # list to a single difficulty (or "All" for everything).
+        diff_row = QHBoxLayout()
+        diff_row.setSpacing(6)
+        diff_label = QLabel("Difficulty")
+        diff_label.setStyleSheet(
+            f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
+            f" letter-spacing: 2px; padding-right: 6px;"
+        )
+        diff_row.addWidget(diff_label)
+        self._diff_buttons: list[QPushButton] = []
+        # "All" chip — pre-checked.
+        all_btn = QPushButton("All")
+        all_btn.setCheckable(True)
+        all_btn.setProperty("toolbar_zone", "secondary")
+        all_btn.setProperty("diff_value", "")
+        all_btn.setChecked(True)
+        all_btn.clicked.connect(self._on_diff_clicked)
+        diff_row.addWidget(all_btn)
+        self._diff_buttons.append(all_btn)
+        for d in self._DIFFICULTIES:
+            btn = QPushButton(self._DIFF_LABEL[d])
+            btn.setCheckable(True)
+            btn.setProperty("toolbar_zone", "secondary")
+            btn.setProperty("diff_value", d)
+            btn.clicked.connect(self._on_diff_clicked)
+            diff_row.addWidget(btn)
+            self._diff_buttons.append(btn)
+        diff_row.addStretch()
+        outer.addLayout(diff_row)
+
+        # ---- Stage list (grouped by act) ----------------------------
         self.list_widget = QListWidget()
         self.list_widget.setUniformItemSizes(True)
-        if not stages:
-            placeholder = QListWidgetItem("(stages_index.json missing — click Scrape data)")
+        outer.addWidget(self.list_widget, stretch=1)
+
+        # Load the stages index once, then render via _refresh_list so
+        # difficulty clicks don't need to re-read the cache.
+        self._all_stages = _load_stages_index()
+        if not self._all_stages:
+            placeholder = QListWidgetItem(
+                "(stages_index.json missing — click Scrape data)"
+            )
             placeholder.setFlags(Qt.ItemFlag.NoItemFlags)
             self.list_widget.addItem(placeholder)
         else:
-            # Stable order: by act, then stage_no, then difficulty variant.
-            diff_order = {"NORMAL": 0, "NIGHTMARE": 1, "HELL": 2, "TORMENT": 3}
-            stages.sort(key=lambda s: (
-                int(s.get("act", 0) or 0),
-                int(s.get("stage_no", 0) or 0),
-                diff_order.get(str(s.get("difficulty", "")).upper(), 9),
-            ))
-            for s in stages:
-                sid = s.get("id")
-                if not isinstance(sid, int):
-                    continue
-                name = s.get("name") or {}
-                if isinstance(name, dict):
-                    name = name.get("en", f"stage {sid}")
-                act = s.get("act")
-                stage_no = s.get("stage_no")
-                diff = s.get("difficulty", "")
-                stype = s.get("type", "")
-                # For normal/boss rules, skip ACTBOSS stages. For the
-                # act rule, skip NORMAL stages. That way each dialog
-                # only shows stages that have the matching pool.
-                if self._reward_kind in ("normal", "boss") and stype == "ACTBOSS":
-                    continue
-                if self._reward_kind == "act" and stype != "ACTBOSS":
-                    continue
-                line = f"Act {act} · Stage {stage_no} · {diff.title()}"
-                if stype == "ACTBOSS":
-                    line += "  (Act Boss)"
-                item = QListWidgetItem(f"{sid:>5}   {line}")
-                item.setData(Qt.ItemDataRole.UserRole, sid)
-                self.list_widget.addItem(item)
-        self.list_widget.itemDoubleClicked.connect(self._on_accept_clicked)
-        outer.addWidget(self.list_widget, stretch=1)
+            self._refresh_list()
 
+        self.list_widget.itemDoubleClicked.connect(self._on_accept_clicked)
         # Buttons
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
@@ -176,13 +205,163 @@ class StagePickerDialog(QDialog):
         btn_row.addWidget(self.btn_ok)
         outer.addLayout(btn_row)
 
+    def _on_diff_clicked(self) -> None:
+        clicked = self.sender()
+        wanted = str(clicked.property("diff_value") or "")
+        for btn in self._diff_buttons:
+            btn.setChecked(str(btn.property("diff_value") or "") == wanted)
+        self._active_difficulty = wanted or None
+        self._refresh_list()
+
+    def _refresh_list(self) -> None:
+        """Rebuild the visible list honoring the active difficulty + reward_kind filters.
+
+        Jul 2026 layout — grouped by **difficulty first**, then by act
+        and stage within each difficulty (per user feedback — the user
+        thinks 'Normal first, all stages, then the other difficulties'
+        not 'Act 1 first, all difficulties, then the other acts'):
+
+            [N] Normal
+              Act 1
+                  Stage 1  Pasture
+                  Stage 2  Eerie Canyon
+                  ...
+                  Stage 10 Act 1 Boss (Act Boss)
+              Act 2
+              Act 3
+            [NM] Nightmare
+            [H] Hell
+            [T] Torment
+
+        When the user has activated a single-difficulty chip, only that
+        one group is shown.
+        """
+        self.list_widget.clear()
+        if not self._all_stages:
+            return
+
+        # Bucket by (act, stage_no, difficulty).
+        by_key: dict[tuple[int, int, str], dict[str, Any]] = {}
+        for s in self._all_stages:
+            act = int(s.get("act", 0) or 0)
+            stage_no = int(s.get("stage_no", 0) or 0)
+            diff = str(s.get("difficulty", "")).upper()
+            if act <= 0 or stage_no <= 0 or diff not in self._DIFFICULTIES:
+                continue
+            by_key[(act, stage_no, diff)] = s
+
+        # Render: difficulty → act → stage.
+        active_diffs = (
+            [self._active_difficulty] if self._active_difficulty
+            else list(self._DIFFICULTIES)
+        )
+        for diff in active_diffs:
+            self._add_diff_header(diff, by_key)
+            acts = sorted({k[0] for k in by_key if k[2] == diff})
+            for act in acts:
+                # Skip the act entirely if it has no rows after the
+                # reward-kind filter (otherwise the user sees an empty
+                # 'Act 2' header with nothing under it).
+                if not any(
+                    self._passes_kind_filter(by_key[(act, sno, diff)])
+                    for sno in {k[1] for k in by_key if k[0] == act and k[2] == diff}
+                ):
+                    continue
+                self._add_act_header(act, diff, by_key)
+                stage_nos = sorted(
+                    {k[1] for k in by_key if k[0] == act and k[2] == diff}
+                )
+                for stage_no in stage_nos:
+                    stage = by_key.get((act, stage_no, diff))
+                    if stage is None:
+                        continue
+                    if not self._passes_kind_filter(stage):
+                        continue
+                    self._add_stage_subheader(act, stage_no, diff, by_key)
+                    self._add_stage_row(stage)
+
+    def _add_diff_header(self, diff: str, by_key: dict) -> None:
+        count = sum(
+            1 for k in by_key
+            if k[2] == diff and self._passes_kind_filter(by_key[k])
+        )
+        label = (
+            f"━━━ {self._DIFF_LABEL[diff]} ━━━ {count} stage"
+            f"{'s' if count != 1 else ''}"
+        )
+        item = QListWidgetItem(label)
+        item.setFlags(Qt.ItemFlag.NoItemFlags)
+        item.setForeground(QBrush(QColor(MOCHA["lavender"])))
+        font = item.font()
+        font.setBold(True)
+        font.setPointSize(12)
+        item.setFont(font)
+        self.list_widget.addItem(item)
+
+    def _add_act_header(
+        self, act: int, diff: str, by_key: dict,
+    ) -> None:
+        count = sum(
+            1 for k in by_key
+            if k[0] == act and k[2] == diff and self._passes_kind_filter(by_key[k])
+        )
+        label = f"  Act {act}  ({count})"
+        item = QListWidgetItem(label)
+        item.setFlags(Qt.ItemFlag.NoItemFlags)
+        item.setForeground(QBrush(QColor(MOCHA["blue"])))
+        font = item.font()
+        font.setBold(True)
+        font.setPointSize(11)
+        item.setFont(font)
+        self.list_widget.addItem(item)
+
+    def _add_stage_subheader(
+        self, act: int, stage_no: int, diff: str, by_key: dict,
+    ) -> None:
+        """Lightweight stage subheader so the user can scan quickly."""
+        stage = by_key.get((act, stage_no, diff))
+        if stage is None or not self._passes_kind_filter(stage):
+            return
+        stype = str(stage.get("type", ""))
+        label = f"      Stage {stage_no}"
+        if stype == "ACTBOSS":
+            label += "  (Act Boss)"
+        item = QListWidgetItem(label)
+        item.setFlags(Qt.ItemFlag.NoItemFlags)
+        item.setForeground(QBrush(QColor(MOCHA["subtext"])))
+        font = item.font()
+        font.setBold(True)
+        font.setPointSize(10)
+        item.setFont(font)
+        self.list_widget.addItem(item)
+
+    def _passes_kind_filter(self, stage: dict) -> bool:
+        stype = str(stage.get("type", ""))
+        if self._reward_kind in ("normal", "boss") and stype == "ACTBOSS":
+            return False
+        if self._reward_kind == "act" and stype != "ACTBOSS":
+            return False
+        return True
+
+    def _add_stage_row(self, stage: dict) -> None:
+        sid = stage.get("id")
+        if not isinstance(sid, int):
+            return
+        name = stage.get("name") or {}
+        if isinstance(name, dict):
+            name = name.get("en", f"stage {sid}")
+        item = QListWidgetItem(f"          {name}")
+        item.setData(Qt.ItemDataRole.UserRole, sid)
+        item.setForeground(QBrush(QColor(MOCHA["text"])))
+        self.list_widget.addItem(item)
+
     def _on_accept_clicked(self) -> None:
         item = self.list_widget.currentItem()
         if item is None:
             return
         sid = item.data(Qt.ItemDataRole.UserRole)
         if not isinstance(sid, int):
-            return
+            return  # header row was double-clicked
         drop_key = _load_stage_pool_drop_key(sid, self._reward_kind)
         if drop_key is None:
             # Stage detail cache missing this stage — show in title and bail.

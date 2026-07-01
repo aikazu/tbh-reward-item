@@ -20,13 +20,14 @@ __all__ = [
     "RUN_PROXY_PATH",
     "DESKTOP_DIR",
     "GEAR_DIR",
-    "GEAR_INDEX",
     "ITEM_DIR",
-    "ITEM_INDEX",
     "GEAR_CACHE_DIR",
-    "BOX_LOOT_CACHE_DIR",
-    "ITEM_DETAIL_CACHE",
-    "BOX_DROP_MAP_CACHE",
+    # tbh.city-native caches (Jul 2026 migration; replaces box_*).
+    "STAGES_DIR",
+    "STAGES_INDEX_CACHE",
+    "ITEMS_INDEX_CACHE",
+    "STAGE_DROP_MAP_CACHE",
+    "POOL_DROPS_CACHE",
     "DROPS_INDEX_CACHE",
     "IMAGES_DIR",
     "MANIFEST_PATH",
@@ -37,15 +38,30 @@ __all__ = [
 RUN_PROXY_PATH = SRC_DIR / "run_proxy.py"
 DESKTOP_DIR = Path(__file__).resolve().parent
 GEAR_DIR = DESKTOP_DIR / "gear"
-GEAR_INDEX = GEAR_DIR / "index.json"
 ITEM_DIR = DESKTOP_DIR / "item"
-ITEM_INDEX = ITEM_DIR / "index.json"
 # Backwards-compat alias — older call sites still use this name.
 GEAR_CACHE_DIR = GEAR_DIR
-BOX_LOOT_CACHE_DIR = DESKTOP_DIR / "box_loot_cache"
-ITEM_DETAIL_CACHE = DESKTOP_DIR / "item_detail_cache.json"
-BOX_DROP_MAP_CACHE = DESKTOP_DIR / "box_drop_map.json"
-DROPS_INDEX_CACHE = DESKTOP_DIR / "drops_index.json"
+
+# tbh.city-native caches (Jul 2026). Stages replace the old box_loot
+# cache: each stage has its own JSON under STAGES_DIR, plus an index.
+# The reverse drop_key → items map (POOL_DROPS_CACHE) is what the
+# desktop picker actually reads for pool-scoped replacement
+# candidate filtering.
+STAGES_DIR = DESKTOP_DIR / "stages"
+STAGES_INDEX_CACHE = DESKTOP_DIR / "stages_index.json"
+ITEMS_INDEX_CACHE = DESKTOP_DIR / "items_index.json"
+# Reverse item_id -> stage sources (used by the gear picker's
+# "Drops from" column). Smaller than per-stage detail cache.
+STAGE_DROP_MAP_CACHE = DESKTOP_DIR / "stage_drop_map.json"
+# Pool drop-key index: drop_key (e.g. 9100111) → list of item_ids
+# that pool can yield. Built from per-stage detail cache by
+# scrape_stage; read by the desktop picker for pool-scoped
+# replacement candidate filtering.
+POOL_DROPS_CACHE = DESKTOP_DIR / "pool_drops.json"
+
+# Jul 2026: items_normalized.json is the canonical drops index that
+# pickers consume (replaces the legacy /en/tools/drops/ scraper output).
+DROPS_INDEX_CACHE = DESKTOP_DIR / "items_normalized.json"
 IMAGES_DIR = DESKTOP_DIR / "images"
 MANIFEST_PATH = DESKTOP_DIR / "manifest.json"
 

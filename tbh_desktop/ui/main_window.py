@@ -60,11 +60,10 @@ from PySide6.QtWidgets import (
 )
 
 from tbh_desktop import config_io, linux_elevation, scraper
-from tbh_desktop.gear_scraper_runner import GearScraperRunner
-from tbh_desktop.paths import BOX_LOOT_CACHE_DIR, CONFIG_PATH, DROPS_INDEX_CACHE, GEAR_CACHE_DIR
+from tbh_desktop.paths import CONFIG_PATH, DROPS_INDEX_CACHE, GEAR_CACHE_DIR, STAGE_DROP_MAP_CACHE, STAGES_INDEX_CACHE
 from tbh_desktop.proxy_runner import ProxyRunner
-from tbh_desktop.scraper import BOX_SLUG_CACHE, read_box_cache
-from tbh_desktop.ui.box_picker import BoxPicker
+from tbh_desktop.scrape_runner import ScrapeRunner
+from tbh_desktop.ui.catalog_popup import CatalogPopup
 from tbh_desktop.ui.config_editor import ConfigEditor
 from tbh_desktop.ui.gear_picker import GearPicker
 from tbh_desktop.ui.log_panel import LogPanel
@@ -103,7 +102,7 @@ class MainWindow(QMainWindow):
         self.runner.running.connect(self._on_running)
         self.runner.startup_failed.connect(self._on_runner_startup_failed)
 
-        self.gear_scraper = GearScraperRunner()
+        self.gear_scraper = ScrapeRunner()
         self.gear_scraper.log_line.connect(self._on_log)
         self.gear_scraper.finished.connect(self._on_gear_scraped)
         self.gear_scraper.error.connect(self._on_gear_error)
@@ -116,12 +115,15 @@ class MainWindow(QMainWindow):
         # popup (so it has a parent for paint events); MainWindow keeps
         # a reference and forwards item_picked / items_picked to the
         # active-target router identically to the old dock version.
-        from tbh_desktop.scraper import BOX_SLUG_CACHE
+        # Jul 2026: stage-first catalog — passes stage_drop_map.json and
+        # stages_index.json instead of box_slug_cache (boxes no longer
+        # drive the picker flow).
         from tbh_desktop.ui.catalog_popup import CatalogPopup
         self.catalog_popup = CatalogPopup(
             gear_cache_dir=GEAR_CACHE_DIR,
             drops_index_path=DROPS_INDEX_CACHE,
-            box_slug_cache_path=BOX_SLUG_CACHE,
+            stage_drop_map_path=STAGE_DROP_MAP_CACHE,
+            stages_index_path=STAGES_INDEX_CACHE,
             parent=self,
         )
         self.item_browser = self.catalog_popup.content
@@ -213,21 +215,21 @@ class MainWindow(QMainWindow):
         # RuleListView selection → populate the detail panel + the catalog dock.
         self.editor.rule_list().rule_selected.connect(self._on_rule_selected)
         # RuleDetailPanel pick buttons → existing picker dialogs.
-        self.detail_panel.pick_box_id.connect(self._pick_box_id_for_detail)
-        self.detail_panel.pick_box_loot.connect(self._pick_box_loot_for_detail)
-        self.detail_panel.pick_gear.connect(self._pick_gear_for_detail)
+        self.detail_panel.pick_pool_id.connect(self._pick_pool_id_for_detail)
+        self.detail_panel.pick_gear.connect(
+            lambda: self._pick_replacement_for_detail("gear")
+        )
+        self.detail_panel.pick_item.connect(
+            lambda: self._pick_replacement_for_detail("item")
+        )
         self.detail_panel.remove_id_requested.connect(self._on_detail_chip_removed)
         # Catalog dock picks still route to the active target.
         self.item_browser.item_picked.connect(self._on_item_browser_pick)
         self.item_browser.items_picked.connect(self._on_item_browser_picks)
         # ConfigEditor focus event also routes to detail panel.
         self.editor.range_form().installEventFilter(self)
-        # Range-form pick buttons → existing range picker dialogs.
-        # The form's signals mirror RuleDetailPanel's pattern so the
-        # wiring is symmetric with how rule picks route through the
-        # detail panel.
-        self.editor.range_form().pick_gear.connect(self._pick_gear_for_range)
-        self.editor.range_form().pick_item.connect(self._pick_box_loot_for_range)
+        # Range-form pick button → CatalogPopup for replacement IDs.
+        self.editor.range_form().pick_replacement.connect(self._pick_replacement_for_range)
 
         self._reload_config()
 
@@ -345,24 +347,17 @@ class MainWindow(QMainWindow):
         self.btn_stop.setToolTip("Terminate the running proxy subprocess")
         bar.addWidget(self.btn_stop)
 
-        # ---- DATA zone: Scrape / Check ----------------------------------
+        # ---- DATA zone: Scrape ------------------------------------------
         bar.addSeparator()
         self.btn_refresh_gear = QPushButton("Scrape data")
         self.btn_refresh_gear.setObjectName("btn_refresh_gear")
         self.btn_refresh_gear.setProperty("toolbar_zone", "secondary")
         self.btn_refresh_gear.setToolTip(
-            "Refresh gear cache + drops index via headless browser. "
-            "Slow on first launch, fast after that."
+            "Refresh item + stage caches from tbh.city (items / stages / "
+            "drop tables). Picks up new pool data so the rule editor's "
+            "Pick replacement sees fresh drop candidates."
         )
         bar.addWidget(self.btn_refresh_gear)
-
-        self.btn_check_data = QPushButton("Check data")
-        self.btn_check_data.setObjectName("btn_check_data")
-        self.btn_check_data.setProperty("toolbar_zone", "secondary")
-        self.btn_check_data.setToolTip(
-            "Show counts and freshness for gear cache + drops index."
-        )
-        bar.addWidget(self.btn_check_data)
 
         # ---- CONFIG zone: Save / Reset ----------------------------------
         bar.addSeparator()
@@ -393,19 +388,10 @@ class MainWindow(QMainWindow):
         )
         bar.addWidget(self.btn_copy_steam)
 
-        # Catalog popup trigger — clicking opens a CatalogPopup below
-        # the button (anchored at the button's bottom-left). Catalog
-        # is no longer a docked panel; it's opt-in via this button.
-        self.btn_catalog = QPushButton("Catalog")
-        self.btn_catalog.setObjectName("btn_catalog")
-        self.btn_catalog.setProperty("toolbar_zone", "secondary")
-        self.btn_catalog.setToolTip(
-            "Browse the in-game item catalog (search + filter chips + "
-            "flat result list). Click outside to dismiss."
-        )
-        self.btn_catalog.setCheckable(False)
-        self.btn_catalog.clicked.connect(self._show_catalog_popup)
-        bar.addWidget(self.btn_catalog)
+        # Catalog popup is now triggered from the View menu
+        # (action_toggle_items) — no toolbar button. The user opens the
+        # catalog via the menu OR via "Pick replacement" in the rule
+        # detail panel (the detail-panel flow is the primary one).
 
         # ---- Right-side: Port field + status badge (in main toolbar) ---
         # The status indicator belongs at the far right where users expect
@@ -420,7 +406,6 @@ class MainWindow(QMainWindow):
         self.btn_start.clicked.connect(self._start)
         self.btn_stop.clicked.connect(self.runner.stop)
         self.btn_refresh_gear.clicked.connect(self._refresh_gear)
-        self.btn_check_data.clicked.connect(self._check_data)
         self.btn_save.clicked.connect(self._save)
         self.btn_reset.clicked.connect(self._reset_config)
         self.btn_copy_steam.clicked.connect(self._copy_steam_launch_option)
@@ -471,16 +456,12 @@ class MainWindow(QMainWindow):
         self.action_toggle_log.setChecked(new_vis)
 
     def _show_catalog_popup(self) -> None:
-        # Anchor the catalog popup just below the toolbar Catalog
-        # button. Reuse the same popup instance across clicks — Qt
-        # re-shows it cleanly via QMenu.popup() without rebuilding
-        # the ItemBrowser contents.
-        btn = self.btn_catalog
-        global_pos = btn.mapToGlobal(btn.rect().bottomLeft())
-        self.catalog_popup.popup_at(global_pos)
-        # The popup is independent (no checked state), but if the user
-        # closed it via Esc / outside-click, the toolbar button still
-        # reads as not-pressed — no sync needed.
+        # Anchor the catalog popup at the current cursor position.
+        # The View menu action invokes this — no specific toolbar
+        # button to anchor against anymore (the toolbar Catalog button
+        # was removed in Jul 2026 — the rule detail panel's "Pick
+        # replacement" button is the primary path).
+        self.catalog_popup.popup_at()
 
     def _about(self) -> None:
         from tbh_desktop.ui.about_dialog import AboutDialog
@@ -554,46 +535,31 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ scraper
     def _refresh_gear(self) -> None:
-        """Single 'Scrape Data' button — runs gear scrape, then drops index."""
+        """Single 'Scrape data' button — refresh tbh.city items + stages
+        + reverse drop map. ``run_scrape`` already writes the items
+        index, gear cache split, materials split, stages index, stage
+        details, and stage_drop_map.json — no parallel fetch needed.
+        """
         if self.gear_scraper.is_running():
             self._on_log("Scrape already running…")
             return
         self._on_gear_scraping(True)
-        self.gear_scraper.start()
-        # Drops index fetch in parallel via thread-safe bridge.
-        import threading
-        bridge = _ThreadLogBridge()
-        bridge.log_line.connect(self._on_log)
-        self._drops_log_bridge = bridge
-        def _fetch_drops_async() -> None:
-            try:
-                from tbh_desktop.paths import DROPS_INDEX_CACHE, ITEM_DIR
-                from tbh_desktop.scraper import fetch_drops_index, refresh_material_details
-                items = fetch_drops_index(DROPS_INDEX_CACHE)
-                bridge.log_line.emit(
-                    f"Drops index: {len(items)} items cached (materials + stage boxes)"
-                )
-                try:
-                    enriched = refresh_material_details(ITEM_DIR, items)
-                    bridge.log_line.emit(
-                        f"Material details: enriched {enriched} items (effect + stats)"
-                    )
-                except Exception as exc:
-                    bridge.log_line.emit(f"Material details enrichment failed: {exc}")
-            except Exception as exc:
-                bridge.log_line.emit(f"Drops index fetch failed: {exc}")
-        threading.Thread(target=_fetch_drops_async, daemon=True).start()
+        # resume=True with 7-day window: subsequent clicks are near-instant
+        # because per-stage detail cache stays fresh.
+        self.gear_scraper.start(resume=True, max_cache_age_days=7)
 
     def _on_gear_scraping(self, scraping: bool) -> None:
         self.btn_refresh_gear.setEnabled(not scraping)
         if scraping:
-            self._on_log("Scraping gear… (this may take a minute)")
+            self._on_log("Scraping… (items + stages, may take a minute)")
             self.btn_refresh_gear.setText("Scraping…")
         else:
             self.btn_refresh_gear.setText("Scrape data")
 
     def _on_gear_scraped(self, total: int, num_files: int) -> None:
-        self._on_log(f"Gear scraped: {total} items across {num_files} category-grade files.")
+        self._on_log(
+            f"Scrape done: {total} items, {num_files} stages cached."
+        )
 
     def _on_gear_error(self, msg: str) -> None:
         self._on_log(f"Gear scrape FAILED: {msg}")
@@ -824,129 +790,180 @@ class MainWindow(QMainWindow):
         )
 
     # ------------------------------------------------------------------ pickers
-    def _pick_box_id_for_detail(self) -> None:
-        """Open BoxPicker, set the selected rule's Item ID + store its level."""
-        dlg = BoxPicker(BOX_SLUG_CACHE, self)
-        if not dlg.exec():
-            return
-        box_id = dlg.selected_box_id()
-        if box_id is None:
-            return
-        level = dlg.selected_box_level()
-        self.editor.set_selected_rule_item_id(box_id, level)
-        if level is not None:
-            self._on_log(f"Box {box_id} (Lv{level}) set as item_id.")
-        else:
-            self._on_log(f"Box {box_id} set as item_id.")
-        # Refresh the detail panel so the new ID shows up.
+    def _pick_pool_id_for_detail(self) -> None:
+        """Open StagePickerDialog, set the selected rule's pool_ids.
+
+        The user picks a stage (act / stage_no / difficulty); the
+        dialog fetches the matching drop_key from the cached stage
+        detail for the active rule's kind (Normal / Boss / Act) and
+        sets it on the rule.
+        """
+        from tbh_desktop.ui.active_target import RuleTarget
+        from tbh_desktop.ui.stage_picker import StagePickerDialog
         target = self.editor.rule_list().active_target()
-        if target is not None:
-            self._on_rule_selected(target)
-
-    def _get_box_loot(self, box_id: int) -> list[dict]:
-        """Fetch box loot (network or cache) and log if empty."""
-        loot = scraper.refresh_box_loot(BOX_LOOT_CACHE_DIR, box_id)
-        if not loot:
-            self._on_log(f"No loot for box {box_id}. Check box_id / wiki items page.")
-        return loot
-
-    def _pick_box_loot_for_detail(self) -> None:
-        """Pick reward IDs from THIS BOX's loot (not the full wiki drops index)."""
-        from tbh_desktop.paths import DROPS_INDEX_CACHE
-        from tbh_desktop.scraper import (
-            fetch_drops_index,
-            read_box_cache,
+        if not isinstance(target, RuleTarget):
+            QMessageBox.information(self, "No rule", "Select a rule row first.")
+            return
+        dlg = StagePickerDialog(target.reward_kind, self)
+        dlg.pool_key_selected.connect(
+            lambda drop_key: self._on_pool_key_picked(target, drop_key)
         )
-        from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+        dlg.exec()
 
-        box_id = self.editor.selected_rule_item_id()
-        box_loot: list[dict] = []
-        box_name: str | None = None
-        if box_id is not None:
-            box_loot = self._get_box_loot(box_id)
-            if box_loot:
-                box_name = box_loot[0].get("box_name") or None
-        if not box_loot:
-            QMessageBox.warning(
-                self,
-                "Box loot empty",
-                f"No loot data for box {box_id}. Pick a box first (Pick box "
-                f"ID) and make sure the box page was scraped.",
-            )
+    def _on_pool_key_picked(self, target, drop_key: int) -> None:
+        """Callback: user picked a stage, append its drop_key to the
+        rule's pool_ids list (multi-pool support — user can pick
+        several stages to cover multiple acts / difficulties in one rule).
+        """
+        rule_list = self.editor.rule_list()
+        row = target.row
+        if not (0 <= row < len(rule_list._cards)):
             return
-        idx_items = fetch_drops_index(DROPS_INDEX_CACHE)
-        idx_by_id = {
-            it["id"]: it
-            for it in idx_items
-            if isinstance(it.get("id"), int)
-        }
-        for entry in box_loot:
-            iid = entry.get("id")
-            meta = idx_by_id.get(iid) if isinstance(iid, int) else None
-            if meta is not None:
-                entry.setdefault("family", meta.get("family", ""))
-                entry.setdefault("rarity", meta.get("rarity", "COMMON"))
-            else:
-                entry.setdefault("family", "")
-                entry.setdefault("rarity", "COMMON")
-        dlg = BoxLootPicker(
-            self,
-            items=box_loot,
-            scope_box_name=box_name,
-            mode="box_loot",
+        card = rule_list._cards[row]
+        existing = list(card.pool_ids())
+        if drop_key not in existing:
+            existing.append(int(drop_key))
+        new_text = ", ".join(str(p) for p in existing)
+        card.edit_pool_id.blockSignals(True)
+        card.edit_pool_id.setText(new_text)
+        card.edit_pool_id.blockSignals(False)
+        card._on_pool_id_changed(new_text)
+        self._on_log(
+            f"Pool {drop_key} added to {target.reward_kind} rule "
+            f"(now {len(existing)} pool(s))."
         )
-        if dlg.exec():
-            self.editor.add_ids_to_selected_rule(dlg.selected_ids())
+        refreshed = rule_list.active_target()
+        if refreshed is not None:
+            self._on_rule_selected(refreshed)
 
-    def _pick_gear_for_detail(self) -> None:
-        """Pick gear scoped to the selected rule's box (name + level filter)."""
-        if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("*/*.json")):
-            self._on_log("No gear cache. Click 'Scrape data' first.")
+    def _pick_replacement_for_detail(self, axis: str = "gear") -> None:
+        """Open CatalogPopup to pick replacement item ids for the active rule.
+
+        ``axis`` is either ``"gear"`` (slot categories: Weapon /
+        Off-hand / Armor / Accessory) or ``"item"`` (family categories:
+        Crafting / Decoration / Engraving / Inscription / Offering /
+        Soulstone). The picker is pre-scoped to that chip row.
+
+        Pool-scoped rule: replacement candidates are restricted to the
+        union of the rule's pool drop tables (per user feedback —
+        replacement must be drawn from one of the pools the rule
+        targets). Multi-pool rule = union across all pool_ids. Range /
+        fallback rules: full catalog.
+        """
+        from tbh_desktop.ui.active_target import RangeTarget, RuleTarget
+        target = self.editor.rule_list().active_target()
+        # Use the card's actual pool_ids (not the legacy single
+        # target.pool_id, which only carries the first pool for
+        # multi-pool rules). If the card has any pool set, the rule
+        # is pool-scoped and we restrict the picker.
+        card_pool_ids: list[int] = []
+        if isinstance(target, RuleTarget):
+            card_pool_ids = self._card_pool_ids(target)
+        if isinstance(target, RuleTarget) and card_pool_ids:
+            allowed = self._pool_drop_item_ids(card_pool_ids)
+            if not allowed:
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.warning(
+                    self,
+                    "No drop data for these pools",
+                    f"This rule's {len(card_pool_ids)} pool(s) "
+                    f"({', '.join(str(p) for p in card_pool_ids[:5])}{'…' if len(card_pool_ids) > 5 else ''}) "
+                    f"have no cached drop entries.\n\n"
+                    f"Coba Pick pool lagi dan pilih stage yang sudah di-scrape "
+                    f"(klik Scrape data dulu kalau stages_index.json masih kosong).",
+                )
+                return
+            self.catalog_popup.exec_for_replacement_scoped(allowed, axis=axis)
+            ids = self.catalog_popup.last_picked_ids
+            if ids:
+                # Defensive: re-filter against the allowed set in case
+                # the user somehow picked an id the dialog didn't block.
+                safe = [i for i in ids if int(i) in allowed]
+                dropped = len(ids) - len(safe)
+                if dropped:
+                    self._on_log(
+                        f"Warning: {dropped} picked id(s) were outside "
+                        f"the pool drop table and were discarded."
+                    )
+                if safe:
+                    self.editor.add_ids_to_selected_rule(safe)
+                    self._on_log(
+                        f"Added {len(safe)} replacement id(s) from "
+                        f"{len(card_pool_ids)} pool(s) "
+                        f"(union has {len(allowed)} item(s))."
+                    )
             return
-        box_id = self.editor.selected_rule_item_id()
-        level_hint = self.editor.selected_rule_level()
-        box_loot: list[dict] = []
-        if box_id is not None:
-            box_loot = read_box_cache(BOX_LOOT_CACHE_DIR, box_id)
-            if not box_loot:
-                box_loot = self._get_box_loot(box_id)
-        dlg = GearPicker(
-            GEAR_CACHE_DIR,
-            self,
-            box_loot=box_loot or None,
-            level_hint=level_hint,
-        )
-        if dlg.exec():
-            self.editor.add_ids_to_selected_rule(dlg.selected_ids())
+        # No pool_ids on the rule: full catalog (range replacement flow).
+        self.catalog_popup.exec_for_replacement()
+        ids = self.catalog_popup.last_picked_ids
+        if ids:
+            self.editor.add_ids_to_selected_rule(ids)
+            self._on_log(f"Added {len(ids)} replacement id(s) to selected rule.")
 
-    def _pick_gear_for_range(self) -> None:
-        """Pick gear for range replacement (no box scope — shows all gear)."""
-        if not GEAR_CACHE_DIR.exists() or not any(GEAR_CACHE_DIR.glob("*/*.json")):
-            self._on_log("No gear cache. Click 'Scrape data' first.")
-            return
-        dlg = GearPicker(GEAR_CACHE_DIR, self)
-        if dlg.exec():
-            self.editor.add_ids_to_range(dlg.selected_ids())
+    def _card_pool_ids(self, target) -> list[int]:
+        """Return the pool_ids tuple stored on the active rule's card.
 
-    def _pick_box_loot_for_range(self) -> None:
-        """Pick reward IDs from the wiki drops index (materials + boxes)."""
-        from tbh_desktop.paths import DROPS_INDEX_CACHE
-        from tbh_desktop.scraper import fetch_drops_index
-        from tbh_desktop.ui.box_loot_picker import BoxLootPicker
+        Falls back to [target.pool_id] (the RuleTarget single id) when
+        the rule has only one pool — keeps the legacy single-pool code
+        path working.
+        """
+        rule_list = self.editor.rule_list()
+        row = target.row
+        if not (0 <= row < len(rule_list._cards)):
+            return [target.pool_id] if target.pool_id else []
+        card = rule_list._cards[row]
+        pids = card.pool_ids()
+        return list(pids) if pids else ([target.pool_id] if target.pool_id else [])
 
-        items = fetch_drops_index(DROPS_INDEX_CACHE)
-        if not items:
-            QMessageBox.warning(
-                self,
-                "Drops index empty",
-                "Could not load the drops index. Connect to the internet and "
-                "run the proxy once, or run the script: "
-                "`python -m tbh_desktop.scraper fetch_drops_index`.",
-            )
-            return
-        dlg = BoxLootPicker(self, items=items)
-        if dlg.exec():
-            self.editor.add_ids_to_range(dlg.selected_ids())
+    def _pool_drop_item_ids(self, pool_ids: list[int]) -> list[int]:
+        """Resolve a list of tbh.city pool_ids to the union of their
+        drop table item_ids.
+
+        Reads from ``pool_drops.json`` (the v2 drop_key → [item_id]
+        index generated by scrape_stage). Each pool_id (drop_key) maps
+        directly to the items that pool can yield across the entire
+        game (e.g. 9100111 = Act 1 stages 1-9 Normal monster pool →
+        union of all items in that pool). Returns the deduplicated
+        union across all requested pool_ids.
+        """
+        if not pool_ids:
+            return []
+        import json
+        from tbh_desktop.paths import POOL_DROPS_CACHE
+        if not POOL_DROPS_CACHE.exists():
+            return []
+        try:
+            payload = json.loads(POOL_DROPS_CACHE.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return []
+        if not isinstance(payload, dict):
+            return []
+        raw = payload.get("pool_drops") or {}
+        if not isinstance(raw, dict):
+            return []
+        out: list[int] = []
+        seen: set[int] = set()
+        for pool_id in pool_ids:
+            entries = raw.get(str(pool_id)) or raw.get(pool_id) or []
+            if not isinstance(entries, list):
+                continue
+            for iid in entries:
+                try:
+                    iid_int = int(iid)
+                except (TypeError, ValueError):
+                    continue
+                if iid_int not in seen:
+                    seen.add(iid_int)
+                    out.append(iid_int)
+        return out
+
+    def _pick_replacement_for_range(self) -> None:
+        """Open CatalogPopup to pick replacement item ids for the pool-range form."""
+        self.catalog_popup.exec_for_replacement()
+        ids = self.catalog_popup.last_picked_ids
+        if ids:
+            self.editor.add_ids_to_range(ids)
+            self._on_log(f"Added {len(ids)} replacement id(s) to pool range.")
 
     # ------------------------------------------------------------------ events
     def closeEvent(self, event) -> None:  # type: ignore[override]
@@ -998,11 +1015,10 @@ class MainWindow(QMainWindow):
             if card is None:
                 self.detail_panel.show_empty()
                 return
-            level = rule_list._level_for_row.get(row)
             self.detail_panel.set_rule_data(
                 name=card.name(),
-                item_id=card.item_id(),
-                level=level,
+                reward_kind=card.reward_kind(),
+                pool_id=card.pool_id(),
                 replacement_ids=card.replacement_ids(),
             )
             # No catalog auto-swap — the catalog popup is a single

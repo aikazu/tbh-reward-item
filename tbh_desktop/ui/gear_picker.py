@@ -40,12 +40,12 @@ from PySide6.QtWidgets import (
 )
 
 from tbh_desktop.gear_filters import CATEGORY_DISPLAY, GRADE_DISPLAY
-from tbh_desktop.paths import BOX_DROP_MAP_CACHE
+from tbh_desktop.paths import STAGE_DROP_MAP_CACHE
 from tbh_desktop.scraper import (
     derive_item_image_url,
-    read_box_drop_cache,
     read_gear_cache,
 )
+from tbh_desktop.tbh_city import read_stage_drop_map
 from tbh_desktop.ui.image_cache import ImageCache
 
 # Inject the "All" pseudo-option (None slug means no filter).
@@ -728,7 +728,7 @@ class GearView(QWidget):
 
     def _get_box_drop_map(self) -> dict[int, list[dict[str, Any]]]:
         """Lazy-load the box drop map (cached to disk). Empty dict if absent."""
-        return read_box_drop_cache(BOX_DROP_MAP_CACHE)
+        return read_stage_drop_map(STAGE_DROP_MAP_CACHE)
 
     def _apply_icon(self, item_id: int, icon) -> None:
         """Apply an icon to the matching list item when the async fetch lands.

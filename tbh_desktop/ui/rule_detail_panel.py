@@ -138,6 +138,7 @@ class RuleDetailPanel(QWidget):
     pick_gear = Signal()  # open CatalogPopup pre-scoped to the Gear chip
     pick_item = Signal()  # open CatalogPopup pre-scoped to the Items chip
     remove_id_requested = Signal(int)  # item_id
+    add_id_requested = Signal(list)  # ids picked from CatalogPopup
     selection_cleared = Signal()  # user cleared the active target
     pool_id_changed = Signal(list)  # multi-pool edit -> main_window
     range_edited = Signal()  # user changed min/max/enabled → persist
@@ -456,6 +457,14 @@ class RuleDetailPanel(QWidget):
         self._pool_ids = pool_ids
         self._replacement_ids = list(replacement_ids)
         self._show_rule_form()
+        # Per-rule form: pickers are gated on having at least one
+        # pool bound. Without a pool the picker would be unscoped
+        # (full catalog) and any picked id would have no effect
+        # at proxy time — better to disable the buttons so the
+        # user gets a clear signal "pick a pool first".
+        has_pool = bool(pool_ids)
+        self.btn_pick_gear.setEnabled(has_pool)
+        self.btn_pick_item.setEnabled(has_pool)
 
     def set_range_data(
         self,
@@ -479,6 +488,11 @@ class RuleDetailPanel(QWidget):
         self._range_max = match_max
         self._range_replacement_ids = list(replacement_ids)
         self._show_range_form()
+        # Range rule always has the pool ids implicitly defined
+        # by [min_pool_id, max_pool_id], so the gear / item pickers
+        # are always available — no precondition to check.
+        self.btn_pick_gear.setEnabled(True)
+        self.btn_pick_item.setEnabled(True)
 
     def active_target(self) -> RuleTarget | RangeTarget | None:
         return self._target

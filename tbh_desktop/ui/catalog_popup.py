@@ -587,10 +587,18 @@ class CatalogContent(QWidget):
         self.list_widget.clear()
         shown = 0
         for it in self._all_items:
-            # Apply the right axis based on the item's own kind. GEAR
-            # items respect the gear_axis filter; MATERIAL items respect
-            # the item_axis filter. Either axis empty = "show all".
+            # Two-step filter:
+            #   1. By kind — only show items whose kind matches the
+            #      visible section (Pick gear hides materials; Pick
+            #      item hides gear). Without this, picking gear while
+            #      materials have no axis set leaks them into the list.
+            #   2. By axis — within the visible section, narrow to the
+            #      active chip (Weapon, Crafting, etc.).
             item_kind = str(it.get("kind", "")).lower()
+            if item_kind == "gear" and self._axis_mode == "item":
+                continue
+            if item_kind == "material" and self._axis_mode == "gear":
+                continue
             if item_kind == "gear" and gear_axis:
                 if str(it.get("slot_category", "")) != gear_axis:
                     continue

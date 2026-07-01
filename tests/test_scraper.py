@@ -245,7 +245,43 @@ def test_catalog_popup_two_filter_axes(qapp, tmp_path) -> None:
         content.deleteLater()
 
 
-def test_catalog_popup_allowed_item_ids_filter() -> None:
+def test_catalog_popup_axis_mode_filters_by_kind() -> None:
+    """set_axis_mode('gear') must hide material items from the list
+    (and vice versa). Without the kind-filter, picking gear would
+    leak materials (Wood/Stone/Leather) into the result list — Jul
+    2026 bug."""
+    from pathlib import Path
+    import os
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication([])
+    from tbh_desktop.ui.catalog_popup import CatalogPopup
+    popup = CatalogPopup(
+        gear_cache_dir=Path("tbh_desktop/gear"),
+        drops_index_path=Path("tbh_desktop/items_normalized.json"),
+        stage_drop_map_path=Path("tbh_desktop/stage_drop_map.json"),
+        stages_index_path=Path("tbh_desktop/stages_index.json"),
+    )
+    popup.show()
+    app.processEvents()
+    popup.exec_for_replacement_scoped([], axis="gear")
+    app.processEvents()
+    from collections import Counter
+    # Click 'Weapon' to scope gear axis to weapons
+    for btn in popup.content._gear_filter_buttons:
+        if btn.property("filter_value") == "Weapon":
+            btn.click()
+            break
+    app.processEvents()
+    kinds = []
+    for i in range(popup.content.list_widget.count()):
+        data = popup.content.list_widget.item(i).data(0x0100)
+        if data:
+            kinds.append(data.get("kind"))
+    # All items in Pick-gear + Weapon scope must be gear, never
+    # materials (Wood/Stone/Leather leak was the bug).
+    assert "material" not in kinds, f"materials leaked: {Counter(kinds)}"
+    assert kinds, "Weapon filter shouldn't be empty"
     """set_allowed_item_ids restricts the visible catalog to a fixed
     set of ids (used by main_window for pool-scoped replacement picks)."""
     from tbh_desktop.ui.catalog_popup import CatalogContent

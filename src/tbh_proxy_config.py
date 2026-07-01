@@ -147,11 +147,25 @@ RULE_KIND_LABELS: dict[str, str] = {
 
 
 class RangeRule:
+    """Range-replacement rule: matches any payload ``itemId`` whose
+    drop_key (pool_id) falls within ``[min_pool_id, max_pool_id]``.
+
+    Per Jul 2026 user feedback: this range matches by **pool_id**
+    (drop_key, the value the game's backend carries in the
+    ``itemId`` field of the POST payload) — NOT by item_id. The UI
+    shows two spinboxes for drop_key bounds; changing them rewrites
+    every pool key in the range.
+
+    The replacement picker therefore exposes the FULL catalog when
+    active target = RangeRule (the range catches multiple pools, so
+    replacement can be drawn from any of those pools' drop tables).
+    """
+
     __slots__ = (
         "enabled",
         "name",
-        "match_min_item_id",
-        "match_max_item_id",
+        "min_pool_id",
+        "max_pool_id",
         "replacement_reward_item_ids",
     )
 
@@ -159,14 +173,14 @@ class RangeRule:
         self,
         enabled: bool,
         name: str,
-        match_min_item_id: int,
-        match_max_item_id: int,
+        min_pool_id: int,
+        max_pool_id: int,
         replacement_reward_item_ids: tuple[int, ...],
     ) -> None:
         self.enabled = enabled
         self.name = name
-        self.match_min_item_id = match_min_item_id
-        self.match_max_item_id = match_max_item_id
+        self.min_pool_id = min_pool_id
+        self.max_pool_id = max_pool_id
         self.replacement_reward_item_ids = replacement_reward_item_ids
 
 
@@ -266,8 +280,24 @@ class ProxyConfig:
         range_rule = RangeRule(
             enabled=bool(_pick(raw_range, ("enabled", "Enabled"), False)),
             name=str(_pick(raw_range, ("name", "Name"), "Range replacement")),
-            match_min_item_id=int(_pick(raw_range, ("match_min_item_id", "MatchMinItemId"), 500000)),
-            match_max_item_id=int(_pick(raw_range, ("match_max_item_id", "MatchMaxItemId"), 950000)),
+            min_pool_id=int(
+                _pick(
+                    raw_range,
+                    ("min_pool_id", "MinPoolId",
+                     # legacy aliases — the field used to be item-id
+                     # range before the Jul 2026 rename.
+                     "match_min_item_id", "MatchMinItemId"),
+                    500000,
+                )
+            ),
+            max_pool_id=int(
+                _pick(
+                    raw_range,
+                    ("max_pool_id", "MaxPoolId",
+                     "match_max_item_id", "MatchMaxItemId"),
+                    950000,
+                )
+            ),
             replacement_reward_item_ids=tuple(
                 _as_int_list(
                     _pick(

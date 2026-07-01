@@ -47,8 +47,8 @@ def _make_config(
         range_rule = RangeRule(
             enabled=False,
             name="Pool range",
-            match_min_item_id=500000,
-            match_max_item_id=950000,
+            min_pool_id=500000,
+            max_pool_id=950000,
             replacement_reward_item_ids=(),
         )
     return ProxyConfig(
@@ -147,8 +147,8 @@ class TestRangeRule:
             range_rule=RangeRule(
                 enabled=True,
                 name="Range",
-                match_min_item_id=500000,
-                match_max_item_id=950000,
+                min_pool_id=500000,
+                max_pool_id=950000,
                 replacement_reward_item_ids=(419171, 440017),
             )
         )
@@ -164,8 +164,8 @@ class TestRangeRule:
             range_rule=RangeRule(
                 enabled=True,
                 name="Range",
-                match_min_item_id=500000,
-                match_max_item_id=950000,
+                min_pool_id=500000,
+                max_pool_id=950000,
                 replacement_reward_item_ids=(419171,),
             )
         )
@@ -181,8 +181,8 @@ class TestRangeRule:
             range_rule=RangeRule(
                 enabled=True,
                 name="Range",
-                match_min_item_id=500000,
-                match_max_item_id=950000,
+                min_pool_id=500000,
+                max_pool_id=950000,
                 replacement_reward_item_ids=(419171,),
             )
         )
@@ -198,8 +198,8 @@ class TestRangeRule:
             range_rule=RangeRule(
                 enabled=False,
                 name="Range",
-                match_min_item_id=500000,
-                match_max_item_id=950000,
+                min_pool_id=500000,
+                max_pool_id=950000,
                 replacement_reward_item_ids=(419171,),
             )
         )
@@ -218,8 +218,8 @@ class TestSpecificOverRange:
             range_rule=RangeRule(
                 enabled=True,
                 name="Pool range",
-                match_min_item_id=500000,
-                match_max_item_id=950000,
+                min_pool_id=500000,
+                max_pool_id=950000,
                 replacement_reward_item_ids=(999999,),
             ),
         )

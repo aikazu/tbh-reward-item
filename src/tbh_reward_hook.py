@@ -161,8 +161,8 @@ def _empty_config():
         range_replacement=RangeRule(
             enabled=False,
             name="Range replacement",
-            match_min_item_id=500000,
-            match_max_item_id=950000,
+            min_pool_id=500000,
+            max_pool_id=950000,
             replacement_reward_item_ids=(),
         ),
         rewrite_pending_tx=False,
@@ -403,7 +403,7 @@ class RewardRewriter:
         # Fallback: range match.
         range_rule = self.config.range_replacement
         if range_rule.enabled and range_rule.replacement_reward_item_ids:
-            if range_rule.match_min_item_id <= item_id <= range_rule.match_max_item_id:
+            if range_rule.min_pool_id <= item_id <= range_rule.max_pool_id:
                 pool = range_rule.replacement_reward_item_ids
                 replacement_id = pool[self._range_index % len(pool)]
                 self._range_index += 1
@@ -554,8 +554,8 @@ def run_self_test():
         range_replacement=RangeRule(
             enabled=False,
             name="Range replacement",
-            match_min_item_id=500000,
-            match_max_item_id=950000,
+            min_pool_id=500000,
+            max_pool_id=950000,
             replacement_reward_item_ids=(),
         ),
     )
@@ -586,8 +586,8 @@ def run_self_test():
         range_replacement=RangeRule(
             enabled=True,
             name="Range replacement",
-            match_min_item_id=500000,
-            match_max_item_id=950000,
+            min_pool_id=500000,
+            max_pool_id=950000,
             replacement_reward_item_ids=(419171,),
         ),
     )
@@ -610,8 +610,8 @@ def run_self_test():
         range_replacement=RangeRule(
             enabled=False,
             name="Range replacement",
-            match_min_item_id=500000,
-            match_max_item_id=950000,
+            min_pool_id=500000,
+            max_pool_id=950000,
             replacement_reward_item_ids=(),
         ),
     )
@@ -648,8 +648,8 @@ def run_self_test():
         range_replacement=RangeRule(
             enabled=False,
             name="Range replacement",
-            match_min_item_id=500000,
-            match_max_item_id=950000,
+            min_pool_id=500000,
+            max_pool_id=950000,
             replacement_reward_item_ids=(),
         ),
     )

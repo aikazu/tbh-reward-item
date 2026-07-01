@@ -1,24 +1,39 @@
-"""Catalog popup — unified single-page catalog with filter chips.
+"""Catalog popup — unified single-page catalog with stage-aware filtering.
 
-Replaces the previous 6-tab ItemBrowser with a flat search-first
-catalog. UX rationale:
+Jul 2026: replaced box-based filtering with stage-based filtering.
 
-- 6 tabs (Browse all / Box loot / Gear scoped / Gear all / Drops
-  index / Boxes) forced the user to know which tab contained
-  what they wanted. Most picks happen via search-by-name, so a
-  tabbed nav is friction.
-- A single search box + 4 filter chips (All / Gear / Materials /
-  Boxes) covers every category without per-mode switching.
-- Result list shows item name + ID + rarity + family inline so the
-  user can identify each row at a glance.
+Flow (the new "stage-first" UX)
+-------------------------------
 
-Composition
------------
+1. CatalogPopup is triggered from a rule card / range form.
+2. A stage dropdown sits above the search box. Optional — defaults
+   to "All stages" so users can still browse the full catalog.
+3. Selecting a stage restricts the result list to items that drop
+   from that stage (using ``stage_drop_map.json``).
+4. Range replacement is unconstrained: pickers show ALL obtainable
+   items regardless of stage (user can freely choose any item with
+   ``obtainable_in_live_game=true`` as a replacement target).
+
+Data sources
+------------
+
+* ``gear_cache_dir`` (``tbh_desktop/gear/<cat>/<grade>.json``) — LEG+
+  obtainable gear split by slot + rarity (user-requested: Legendary
+  ke atas only, obtainable-only checkbox applied).
+* ``drops_index_path`` (``items_normalized.json``) — full tbh.city
+  item index, normalized (115 MATERIAL + 5760 GEAR).
+* ``stage_drop_map_path`` (``stage_drop_map.json``) — reverse map
+  item_id -> [stage entries]. Drives the stage dropdown contents
+  and the "filter by stage drops" behavior.
+
+Layout
+------
 
     CatalogPopup (QMenu)
       └── CatalogContent (QWidget)
+            ├── Stage dropdown (All / Act 1 / Act 2 / Act 3 / Each stage)
             ├── QLineEdit   [search by name/id]
-            ├── Filter row: [All] [Gear] [Materials] [Boxes]
+            ├── Filter row: [All] [Gear] [Materials]
             └── QListWidget  [rarity-tinted rows]
 """
 from __future__ import annotations
@@ -37,9 +52,9 @@ from PySide6.QtGui import (
     QBrush,
     QColor,
     QCursor,
-    QFont,
 )
 from PySide6.QtWidgets import (
+    QComboBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -52,21 +67,65 @@ from PySide6.QtWidgets import (
     QWidgetAction,
 )
 
-from tbh_desktop.ui.theme import MOCHA, RARITY, chip_style, section_heading_style
+from tbh_desktop.ui.theme import MOCHA, RARITY, rarity_tint
+from PySide6.QtGui import QFont
 
 
-# Filter categories — a single filter chip constrains the result
-# list to items matching that kind. ``ALL`` shows everything.
-_KIND_FILTERS: list[tuple[str, str | None]] = [
-    ("All",       None),
-    ("Gear",      "gear"),
-    ("Materials", "material"),
-    ("Boxes",     "box"),
+# Catalog row font: 12pt for readability (was 10pt before — small
+# text + gray-on-dark foreground made COMMON-tier rows nearly
+# invisible). All rows share this font so the list has a uniform
+# height regardless of which chip the user selects.
+_ROW_FONT = QFont()
+_ROW_FONT.setPointSize(12)
+
+
+# Filter chips — two sections so gear and materials stay separated.
+#   * Gear chips:   All / Weapon / Off-hand / Armor / Accessory
+#     (slot_category from _SLOT_PREFIX_TO_CATEGORY in tbh_city.py).
+#   * Item chips:   All / Crafting / Decoration / Engraving / Inscription /
+#     Offering / Soulstone (material family from name + stat_types
+#     heuristic — see _MATERIAL_FAMILY_KEYWORDS in tbh_city.py).
+# The "kind" axis (gear vs material) is implicit in which section's
+# chip row the user is interacting with; it isn't a separate chip.
+_GEAR_FILTERS: list[tuple[str, str | None]] = [
+    ("All",        None),
+    ("Weapon",     "Weapon"),
+    ("Off-hand",   "Off-hand"),
+    ("Armor",      "Armor"),
+    ("Accessory",  "Accessory"),
+]
+_ITEM_FILTERS: list[tuple[str, str | None]] = [
+    ("All",          None),
+    ("Crafting",     "CRAFTING"),
+    ("Decoration",   "DECORATION"),
+    ("Engraving",    "ENGRAVING"),
+    ("Inscription",  "INSCRIPTION"),
+    ("Offering",     "OFFERING"),
+    ("Soulstone",    "SOULSTONE"),
 ]
 
 
+# Stage dropdown grouping — act-level groups keep the dropdown short.
+# "All stages" = no filter (range replacement flow). Picking a specific
+# stage restricts the result list to items that drop there. Stage types
+# (Normal / Boss / Act) match the rule_card's STAGE_TYPES enum.
+_STAGE_GROUP_LABELS: dict[int, str] = {1: "Act 1", 2: "Act 2", 3: "Act 3"}
+
+# Used in dropdown labels to distinguish stage kinds: regular stages get
+# "#1", "#2", ... and act-boss stages get "Boss #10".
+_STAGE_TYPE_LABEL: dict[str, str] = {
+    "NORMAL": "stage",
+    "BOSS": "boss stage",  # rare — single monster stage
+    "ACTBOSS": "Boss",
+}
+
+
 class CatalogContent(QWidget):
-    """Single-page catalog: search + 4 filter chips + flat result list."""
+    """Single-page catalog: stage dropdown + search + 3 filter chips + result list.
+
+    Emits ``item_picked(int)`` when the user clicks a row. The picker
+    carries no knowledge of the active rule — that's MainWindow's job.
+    """
 
     item_picked = Signal(int)
     items_picked = Signal(list)
@@ -75,17 +134,27 @@ class CatalogContent(QWidget):
         self,
         gear_cache_dir: Any,
         drops_index_path: Any,
-        box_slug_cache_path: Any,
+        stage_drop_map_path: Any,
+        stages_index_path: Any,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self.setObjectName("catalog_content")
         self._gear_dir = Path(gear_cache_dir)
         self._drops_path = Path(drops_index_path)
-        self._box_slug_path = Path(box_slug_cache_path)
+        self._drop_map_path = Path(stage_drop_map_path)
+        self._stages_index_path = Path(stages_index_path)
 
         self._all_items: list[dict[str, Any]] = []
+        self._stage_drop_map: dict[int, list[dict[str, Any]]] = {}
+        self._stages_index: list[dict[str, Any]] = []
+        # When non-None, restrict the visible catalog to this id set.
+        # main_window sets this for PoolRule replacement picks (so users
+        # can't pick items that don't drop in the chosen pool). Pool
+        # picker passes None so the full catalog stays browseable.
+        self._allowed_item_ids: set[int] | None = None
         self._load_items()
+        self._load_stage_data()
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(8, 8, 8, 8)
@@ -101,46 +170,100 @@ class CatalogContent(QWidget):
         )
         outer.addWidget(title)
 
-        # ---- Search -----------------------------------------------------
+        # ---- Stage dropdown -------------------------------------------
+        # Drives the "filter to items dropped by this stage" behavior.
+        # Default is "All stages" (== no filter), which is the range
+        # replacement flow.
+        stage_row = QHBoxLayout()
+        stage_row.setSpacing(6)
+        stage_label = QLabel("Stage:")
+        stage_label.setStyleSheet(f"color: {MOCHA['overlay1']}; font-size: 10px;")
+        stage_row.addWidget(stage_label)
+        self.stage_combo = QComboBox()
+        self.stage_combo.setMinimumWidth(220)
+        self.stage_combo.setToolTip(
+            "Filter items to those that drop from this stage.\n"
+            "Use 'All stages' for range replacement (any obtainable item)."
+        )
+        self._populate_stage_combo()
+        self.stage_combo.currentIndexChanged.connect(self._rebuild)
+        stage_row.addWidget(self.stage_combo, stretch=1)
+        outer.addLayout(stage_row)
+
+        # ---- Search ----------------------------------------------------
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search by name or id…")
         self.search.setClearButtonEnabled(True)
         self.search.textChanged.connect(self._rebuild)
         outer.addWidget(self.search)
 
-        # ---- Filter chips ----------------------------------------------
-        chip_row = QHBoxLayout()
-        chip_row.setSpacing(6)
-        self._filter_buttons: list[QPushButton] = []
-        for label, kind in _KIND_FILTERS:
+        # ---- Filter chips: two sections (Gear + Items) -----------------
+        # Two independent rows so a click on a Gear chip doesn't
+        # deselect the active Item chip (and vice versa). Each row has
+        # its own radio-style selection. The section label above each
+        # row makes it obvious which kind the chips belong to.
+        gear_chip_row = QHBoxLayout()
+        gear_chip_row.setSpacing(6)
+        gear_section_label = QLabel("Gear")
+        gear_section_label.setStyleSheet(
+            f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
+            f" letter-spacing: 2px; padding-right: 6px;"
+        )
+        gear_chip_row.addWidget(gear_section_label)
+        self._gear_filter_buttons: list[QPushButton] = []
+        for label, slot_cat in _GEAR_FILTERS:
             btn = QPushButton(label)
             btn.setCheckable(True)
             btn.setProperty("toolbar_zone", "secondary")
-            btn.setProperty("kind_filter", kind or "all")
-            btn.setChecked(kind is None)  # "All" starts selected
+            btn.setProperty("filter_axis", "gear")
+            btn.setProperty("filter_value", slot_cat or "")
+            btn.setChecked(slot_cat is None)
             btn.clicked.connect(self._on_filter_clicked)
-            chip_row.addWidget(btn)
-            self._filter_buttons.append(btn)
-        chip_row.addStretch()
-        outer.addLayout(chip_row)
+            gear_chip_row.addWidget(btn)
+            self._gear_filter_buttons.append(btn)
+        gear_chip_row.addStretch()
+        outer.addLayout(gear_chip_row)
 
-        # ---- Result list ------------------------------------------------
+        item_chip_row = QHBoxLayout()
+        item_chip_row.setSpacing(6)
+        item_section_label = QLabel("Items")
+        item_section_label.setStyleSheet(
+            f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
+            f" letter-spacing: 2px; padding-right: 6px;"
+        )
+        item_chip_row.addWidget(item_section_label)
+        self._item_filter_buttons: list[QPushButton] = []
+        for label, family in _ITEM_FILTERS:
+            btn = QPushButton(label)
+            btn.setCheckable(True)
+            btn.setProperty("toolbar_zone", "secondary")
+            btn.setProperty("filter_axis", "item")
+            btn.setProperty("filter_value", family or "")
+            btn.setChecked(family is None)
+            btn.clicked.connect(self._on_filter_clicked)
+            item_chip_row.addWidget(btn)
+            self._item_filter_buttons.append(btn)
+        item_chip_row.addStretch()
+        outer.addLayout(item_chip_row)
+
+        # ---- Result list ----------------------------------------------
         self.list_widget = QListWidget()
         self.list_widget.setSelectionMode(
             QListWidget.SelectionMode.MultiSelection
         )
         self.list_widget.setUniformItemSizes(True)
         self.list_widget.itemDoubleClicked.connect(self._on_double_click)
-        # Single-click on a row emits a pick signal too — useful for
-        # the user just selecting an item they want to add.
         self.list_widget.itemClicked.connect(self._on_click)
         outer.addWidget(self.list_widget, stretch=1)
 
-        # ---- Status footer ---------------------------------------------
+        # ---- Status footer --------------------------------------------
         self.count_label = QLabel("0 items")
         self.count_label.setObjectName("catalog_count_label")
+        # Higher contrast than MOCHA['overlay1'] (which sits at ~50%
+        # luminance) — subtext is more readable against the dark base
+        # and matches the row body text.
         self.count_label.setStyleSheet(
-            f"color: {MOCHA['overlay1']}; font-size: 10px; padding-top: 2px;"
+            f"color: {MOCHA['subtext']}; font-size: 11px; padding-top: 2px;"
         )
         outer.addWidget(self.count_label)
 
@@ -162,13 +285,45 @@ class CatalogContent(QWidget):
             if isinstance(it.data(Qt.ItemDataRole.UserRole), dict)
         ]
 
-    # ---- data loading ------------------------------------------------
+    def set_stage_filter(self, stage_id: int | None) -> None:
+        """Pre-select a stage from outside (e.g. when triggered from a rule)."""
+        if stage_id is None:
+            self.stage_combo.setCurrentIndex(0)
+            return
+        idx = self.stage_combo.findData(stage_id)
+        if idx >= 0:
+            self.stage_combo.setCurrentIndex(idx)
+
+    def current_stage_id(self) -> int | None:
+        data = self.stage_combo.currentData()
+        return int(data) if isinstance(data, int) else None
+
+    def set_allowed_item_ids(self, ids: list[int] | None) -> None:
+        """Restrict the visible catalog to a fixed set of item ids.
+
+        Used by ``main_window`` when the active target is a PoolRule:
+        replacement IDs must be drawn from that pool's drop table
+        (per user feedback), so the picker is scoped to the matching
+        item_ids instead of the full catalog. ``None`` clears the
+        restriction (range replacement flow + the pool picker itself).
+        """
+        self._allowed_item_ids: set[int] | None = (
+            {int(i) for i in ids} if ids is not None else None
+        )
+        self._rebuild()
+
+    # ---- data loading -----------------------------------------------
     def _load_items(self) -> None:
-        """Merge gear cache + drops index into one flat catalog."""
+        """Merge gear cache + items_normalized.json into one flat catalog.
+
+        Gear entries get kind="gear". Material entries get kind="material".
+        No more "box" kind — boxes were a proxy for "which stages drop this"
+        in the old taskbarhero.org world; the stage dropdown now provides
+        that context directly.
+        """
         items: list[dict[str, Any]] = []
 
-        # Gear cache: one JSON per category in {cat}/{rarity}.json files.
-        # Each entry has id / name / kind="gear" / rarity.
+        # Gear cache: one JSON per category in gear/<cat>/<rarity>.json.
         if self._gear_dir.exists():
             for path in self._gear_dir.glob("*/*.json"):
                 try:
@@ -177,7 +332,6 @@ class CatalogContent(QWidget):
                     continue
                 if not isinstance(entries, list):
                     continue
-                # Path like ``gear/weapon/legendary.json`` → category=weapon.
                 category = path.parent.name
                 for e in entries:
                     if not isinstance(e, dict) or "id" not in e:
@@ -187,55 +341,44 @@ class CatalogContent(QWidget):
                         "name": str(e.get("name", f"#{e['id']}")),
                         "kind": "gear",
                         "category": category,
-                        "rarity": str(e.get("rarity", "COMMON")).upper(),
+                        "rarity": str(e.get("rarity", e.get("grade", "COMMON"))).upper(),
+                        "obtainable": bool(e.get("obtainable", True)),
+                        "slot_category": category.title(),  # gear/<cat>/<grade>.json — cat == weapon/offhand/...
+                        "slot_type": str(e.get("type", "")),
+                        "family": "",
                     })
 
-        # Drops index: flat list of materials + boxes. Each entry has
-        # id / name / kind / rarity / family.
+        # Materials + any non-gear from items_normalized.json.
         if self._drops_path.exists():
             try:
-                drops = json.loads(self._drops_path.read_text(encoding="utf-8"))
+                payload = json.loads(self._drops_path.read_text(encoding="utf-8"))
             except (OSError, json.JSONDecodeError):
-                drops = []
-            if isinstance(drops, dict):
-                drops = drops.get("items", [])
-            if isinstance(drops, list):
-                for e in drops:
+                payload = []
+            if isinstance(payload, dict):
+                payload = payload.get("items", [])
+            if isinstance(payload, list):
+                for e in payload:
                     if not isinstance(e, dict) or "id" not in e:
                         continue
+                    kind = str(e.get("type", "material")).lower()
+                    # tbh.city normalizes 'GEAR' → type="GEAR", 'MATERIAL' → "MATERIAL"
+                    kind = "gear" if kind == "gear" else "material"
                     items.append({
                         "id": int(e["id"]),
                         "name": str(e.get("name", f"#{e['id']}")),
-                        "kind": str(e.get("kind", "material")).lower(),
-                        "rarity": str(e.get("rarity", "COMMON")).upper(),
-                        "family": str(e.get("family", "")),
-                    })
-
-        # Box slugs: each entry is id/slug/name; classify as "box".
-        if self._box_slug_path.exists():
-            try:
-                boxes = json.loads(self._box_slug_path.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError):
-                boxes = []
-            if isinstance(boxes, dict):
-                boxes = list(boxes.values())
-            if isinstance(boxes, list):
-                for e in boxes:
-                    if not isinstance(e, dict) or "id" not in e:
-                        continue
-                    items.append({
-                        "id": int(e["id"]),
-                        "name": str(e.get("name", e.get("slug", f"#{e['id']}"))),
-                        "kind": "box",
-                        "rarity": "COMMON",
-                        "family": "",
+                        "kind": kind,
+                        "rarity": str(e.get("grade", e.get("rarity", "COMMON"))).upper(),
+                        "obtainable": bool(e.get("obtainable", True)),
+                        "slot_category": "",  # materials don't have slots
+                        "slot_type": "",
+                        "family": str(e.get("family", "CRAFTING")).upper(),
                     })
 
         # Sort: rarity desc (COSMIC→COMMON), then by name.
         rarity_order = {
             "COSMIC": 0, "DIVINE": 1, "CELESTIAL": 2, "BEYOND": 3,
-            "ARCANA": 4, "IMMORTAL": 5, "LEGENDARY": 6, "EPIC": 7,
-            "RARE": 8, "UNCOMMON": 9, "MYTHIC": 10, "COMMON": 11,
+            "ARCANA": 4, "IMMORTAL": 5, "LEGENDARY": 6,
+            "RARE": 7, "UNCOMMON": 8, "COMMON": 9,
         }
         items.sort(key=lambda it: (
             rarity_order.get(it.get("rarity", "COMMON"), 99),
@@ -243,32 +386,140 @@ class CatalogContent(QWidget):
         ))
         self._all_items = items
 
+    def _load_stage_data(self) -> None:
+        """Load stage_drop_map.json + stages_index.json for the dropdown."""
+        if self._drop_map_path.exists():
+            try:
+                payload = json.loads(self._drop_map_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                payload = {}
+            if isinstance(payload, dict):
+                drops = payload.get("drops") or {}
+                if isinstance(drops, dict):
+                    for k, v in drops.items():
+                        try:
+                            self._stage_drop_map[int(k)] = v if isinstance(v, list) else []
+                        except (ValueError, TypeError):
+                            continue
+        if self._stages_index_path.exists():
+            try:
+                payload = json.loads(self._stages_index_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                payload = {}
+            if isinstance(payload, dict):
+                stages = payload.get("stages") or []
+                if isinstance(stages, list):
+                    self._stages_index = [s for s in stages if isinstance(s, dict)]
+
+    def _populate_stage_combo(self) -> None:
+        """Build the stage dropdown grouped by Act.
+
+        Layout: [All stages] [Act 1 separator] [stage rows] ... [Act 3] ...
+        Each entry stores the stage id in user data (or -act for separator).
+        Empty stages (zero drops) are still listed so users can preview
+        them; the rebuild filter handles the "only with drops" check
+        separately.
+        """
+        self.stage_combo.clear()
+        self.stage_combo.addItem("All stages", userData=None)
+        by_act: dict[int, list[dict[str, Any]]] = {1: [], 2: [], 3: []}
+        for s in self._stages_index:
+            act = s.get("act")
+            if act in by_act:
+                by_act[act].append(s)
+        from PySide6.QtGui import QStandardItem
+        combo_model = self.stage_combo.model()
+        for act in (1, 2, 3):
+            if not by_act[act]:
+                continue
+            # Section header (non-selectable).
+            self.stage_combo.addItem(f"── {_STAGE_GROUP_LABELS[act]} ──", userData=-act)
+            sep_idx = self.stage_combo.count() - 1
+            sep_item = combo_model.item(sep_idx)
+            if isinstance(sep_item, QStandardItem):
+                sep_item.setEnabled(False)
+            by_act[act].sort(key=lambda s: (
+                s.get("stage_no", 99),
+                {"NORMAL": 0, "NIGHTMARE": 1, "HELL": 2, "TORMENT": 3}.get(s.get("difficulty", ""), 9),
+            ))
+            for s in by_act[act]:
+                sid = s.get("id")
+                if not isinstance(sid, int):
+                    continue
+                name = s.get("name") or {}
+                if isinstance(name, dict):
+                    name = name.get("en") or next(iter(name.values()), str(sid))
+                diff = (s.get("difficulty") or "").title()
+                type_lbl = "Boss" if s.get("type") == "ACTBOSS" else f"#{s.get('stage_no')}"
+                label = f"{_STAGE_GROUP_LABELS[act]} {type_lbl} {name} ({diff})"
+                self.stage_combo.addItem(label, userData=sid)
+
     # ---- rebuild + interactions --------------------------------------
-    def _active_kind_filter(self) -> str | None:
-        for btn in self._filter_buttons:
+    def _active_filter(self, axis: str) -> str:
+        """Return the currently-selected value for one filter axis
+        ("gear" or "item"). Empty string = "All".
+        """
+        buttons = (
+            self._gear_filter_buttons if axis == "gear"
+            else self._item_filter_buttons
+        )
+        for btn in buttons:
             if btn.isChecked():
-                kind = btn.property("kind_filter")
-                return None if kind == "all" else kind
-        return None
+                return str(btn.property("filter_value") or "")
+        return ""
 
     def _on_filter_clicked(self) -> None:
-        # Make the clicked button exclusive — only one filter at a time.
         clicked = self.sender()
-        for btn in self._filter_buttons:
-            if btn is clicked:
-                btn.setChecked(True)
-            else:
-                btn.setChecked(False)
+        # Radio-style within the clicked axis only — the other axis's
+        # selection is preserved so users can scope both at once.
+        for btn in self._gear_filter_buttons + self._item_filter_buttons:
+            if btn.property("filter_axis") == clicked.property("filter_axis"):
+                btn.setChecked(btn is clicked)
         self._rebuild()
 
     def _rebuild(self) -> None:
-        kind = self._active_kind_filter()
+        # Two independent filter axes:
+        #   * gear_axis ("Weapon" / "Off-hand" / "Armor" / "Accessory" / "")
+        #   * item_axis ("CRAFTING" / "DECORATION" / ... / "")
+        # Items with type=GEAR only respect the gear axis; items with
+        # type=MATERIAL only respect the item axis. An item is visible
+        # iff its own axis matches its filter (or the filter is empty).
+        gear_axis = self._active_filter("gear")
+        item_axis = self._active_filter("item")
         text = self.search.text().strip().lower()
+        stage_id = self.current_stage_id()
+
+        # Resolve the set of item_ids to include. ``_allowed_item_ids``
+        # (set by main_window for pool-scoped replacement picks) wins
+        # over the stage-derived filter.
+        allowed_ids: set[int] | None
+        if self._allowed_item_ids is not None:
+            allowed_ids = set(self._allowed_item_ids)
+        else:
+            allowed_ids = None
+            if isinstance(stage_id, int):
+                entries = self._stage_drop_map.get(stage_id, [])
+                allowed_ids = {
+                    int(e["item_id"]) for e in entries
+                    if isinstance(e, dict) and isinstance(e.get("item_id"), int)
+                }
+                if not allowed_ids:
+                    allowed_ids = set()  # explicit empty so the filter rejects all
 
         self.list_widget.clear()
         shown = 0
         for it in self._all_items:
-            if kind is not None and it.get("kind") != kind:
+            # Apply the right axis based on the item's own kind. GEAR
+            # items respect the gear_axis filter; MATERIAL items respect
+            # the item_axis filter. Either axis empty = "show all".
+            item_kind = str(it.get("kind", "")).lower()
+            if item_kind == "gear" and gear_axis:
+                if str(it.get("slot_category", "")) != gear_axis:
+                    continue
+            elif item_kind == "material" and item_axis:
+                if str(it.get("family", "")).upper() != item_axis:
+                    continue
+            if allowed_ids is not None and int(it.get("id", -1)) not in allowed_ids:
                 continue
             if text:
                 hay_name = it.get("name", "").lower()
@@ -277,38 +528,51 @@ class CatalogContent(QWidget):
                     continue
             self._add_row(it)
             shown += 1
-        self.count_label.setText(f"{shown} item{'s' if shown != 1 else ''}")
+        suffix = "" if allowed_ids is None else f" · stage #{stage_id}"
+        self.count_label.setText(f"{shown} item{'s' if shown != 1 else ''}{suffix}")
 
     def _add_row(self, item: dict[str, Any]) -> None:
-        rarity = item.get("rarity", "COMMON").title()
-        kind = item.get("kind", "other").title()
-        family = item.get("family", "").title()
-        # Single-line entry: rarity · kind · family · id · name.
-        # Rarity-colored text so users can scan rarity at a glance.
-        # Background tint matches rarity for high-rarity items only
-        # (>=Legendary) so the eye lands on the good drops first.
-        tags = [rarity, kind]
-        if family:
-            tags.append(family)
-        tags_part = "  ·  ".join(t for t in tags if t)
-        line = f"#{item['id']}  ·  {item['name']}  [{tags_part}]"
+        """Render one item as a high-contrast row.
 
-        list_item = QListWidgetItem(line)
+        The previous version set ``setForeground(rarity_color)`` for the
+        whole line, which made COMMON-tier rows (gray text) almost
+        invisible on the dark Mocha base. Now we always render the
+        body in the bright text color and use the rarity color only
+        for the small badge at the end of the line — so the line stays
+        legible while still signalling rarity at a glance.
+        """
+        item_id = int(item.get("id", 0))
+        name = str(item.get("name", f"#{item_id}"))
+        rarity_raw = str(item.get("rarity", "COMMON")).upper()
+        rarity_title = rarity_raw.title()
+        rarity_color = RARITY.get(rarity_raw, RARITY["COMMON"])
+
+        # Build the line. id in mono-bold + name in bright text + a
+        # small rarity chip at the end (colored text on a tinted
+        # background). Rich-text so the renderer respects the colors.
+        list_item = QListWidgetItem()
         list_item.setData(Qt.ItemDataRole.UserRole, item)
         list_item.setToolTip(self._format_tooltip(item))
 
-        rarity_color = RARITY.get(item.get("rarity", "COMMON"), RARITY["COMMON"])
-        list_item.setForeground(QBrush(QColor(rarity_color)))
-        # Background tint only for high-rarity rows — keeps the list
-        # calm for the common case.
-        rarity_rank = {
-            "COMMON": 0, "UNCOMMON": 1, "RARE": 2, "EPIC": 3, "MYTHIC": 4,
-            "LEGENDARY": 5, "IMMORTAL": 6, "ARCANA": 7, "BEYOND": 8,
-            "CELESTIAL": 9, "DIVINE": 10, "COSMIC": 11,
-        }
-        if rarity_rank.get(item.get("rarity", "COMMON"), 0) >= 5:
-            list_item.setBackground(QBrush(QColor(rarity_color)))
-            list_item.setForeground(QBrush(QColor(MOCHA["crust"])))
+        body_color = MOCHA["text"]
+        sub_color = MOCHA["subtext"]
+        # Tinted rarity chip: dark text on rarity-tinted background
+        # (kept readable for every tier).
+        rarity_bg = rarity_tint(rarity_color, 0x55)
+        # Use a span with a contrasting background so the chip
+        # stands out without burying the row's body text.
+        html = (
+            f'<span style="color: {sub_color};">#{item_id}</span>'
+            f'  <span style="color: {body_color};">{name}</span>'
+            f'  <span style="background-color: {rarity_bg}; '
+            f'color: {MOCHA["crust"]}; padding: 1px 6px; '
+            f'border-radius: 6px; font-weight: 700;">{rarity_title}</span>'
+        )
+        list_item.setText(html)
+        # Bigger, consistent font so all rows have the same height
+        # and the text is readable at the default OS text scale.
+        list_item.setFont(_ROW_FONT)
+
         self.list_widget.addItem(list_item)
 
     def _format_tooltip(self, item: dict[str, Any]) -> str:
@@ -317,8 +581,6 @@ class CatalogContent(QWidget):
             lines.append(f"Rarity: <b>{item['rarity'].title()}</b>")
         if item.get("kind"):
             lines.append(f"Kind: {item['kind'].title()}")
-        if item.get("family"):
-            lines.append(f"Family: {item['family']}")
         return "<br>".join(lines)
 
     def _on_click(self, item: QListWidgetItem) -> None:
@@ -335,15 +597,10 @@ class CatalogContent(QWidget):
 class CatalogPopup(QMenu):
     """Toolbar-triggered catalog popup with single-page CatalogContent.
 
-    Replaces the previous 6-tab ItemBrowser + QDockWidget design.
-    The popup hosts a CatalogContent widget (search + 4 filter chips
-    + flat result list) inside a QWidgetAction — the proper Qt way
-    to embed a widget in a menu.
-
-    Picking a row emits ``item_picked`` (single click) or
-    ``items_picked`` (for multi-selection if added later). MainWindow
-    routes those into the active-target store the same way the
-    previous dock version did.
+    The popup hosts a CatalogContent widget (stage dropdown + search +
+    3 filter chips + flat result list) inside a QWidgetAction. Picking
+    a row emits ``item_picked``. MainWindow routes that into the
+    active-target store (specific rule or range replacement).
     """
 
     item_picked = Signal(int)
@@ -353,34 +610,118 @@ class CatalogPopup(QMenu):
         self,
         gear_cache_dir: Any,
         drops_index_path: Any,
-        box_slug_cache_path: Any,
+        stage_drop_map_path: Any,
+        stages_index_path: Any,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self.setObjectName("catalog_popup")
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
-        # Single-page catalog — single screen worth of content. Big
-        # enough to read item names + filter chips without scrolling
-        # the popup; small enough not to cover the editor.
-        self.setMinimumSize(540, 420)
-        self.setMaximumSize(780, 580)
+        self.setMinimumSize(560, 460)
+        self.setMaximumSize(800, 620)
 
         self.content = CatalogContent(
             gear_cache_dir=gear_cache_dir,
             drops_index_path=drops_index_path,
-            box_slug_cache_path=box_slug_cache_path,
+            stage_drop_map_path=stage_drop_map_path,
+            stages_index_path=stages_index_path,
             parent=self,
         )
         self._action = QWidgetAction(self)
         self._action.setDefaultWidget(self.content)
         self.addAction(self._action)
 
-        # Re-emit so MainWindow wires exactly as before.
-        self.content.item_picked.connect(self.item_picked)
-        self.content.items_picked.connect(self.items_picked)
+        self.content.item_picked.connect(self._capture_single)
+        self.content.items_picked.connect(self._capture_multi)
+
+        # After-exec results — set by _capture_* and read by the caller.
+        self.last_picked_id: int | None = None
+        self.last_picked_ids: list[int] = []
+
+    def _capture_single(self, item_id: int) -> None:
+        self.last_picked_id = int(item_id)
+        self.close()
+
+    def _capture_multi(self, item_ids: list) -> None:
+        self.last_picked_ids = [int(i) for i in item_ids]
+        self.close()
+
+    # ---- mode-aware exec helpers -----------------------------------
+    def exec_for_replacement(self, axis: str | None = None) -> bool:
+        """Show the popup, let the user multi-select replacement ids.
+        Returns True if any pick was made; check ``last_picked_ids``.
+
+        ``axis`` (Jul 2026) pre-selects a filter chip row so the user
+        opens the picker pre-scoped to a single category:
+          * ``"gear"`` — only the Gear chip row is active (slot
+            categories: Weapon / Off-hand / Armor / Accessory).
+          * ``"item"`` — only the Items chip row is active (family
+            categories: Crafting / Decoration / Engraving / Inscription /
+            Offering / Soulstone).
+          * ``None``    — both rows active (legacy combined picker).
+
+        The rule detail panel uses the two pre-scoped modes so the
+        user never has to wade through a mixed catalog when they only
+        want gear, or only materials.
+        """
+        self.last_picked_id = None
+        self.last_picked_ids = []
+        if axis in ("gear", "item"):
+            # Reset both axes then activate the requested one.
+            content = self.content
+            for btn in content._gear_filter_buttons:
+                btn.setChecked(False)
+            for btn in content._item_filter_buttons:
+                btn.setChecked(False)
+            buttons = (
+                content._gear_filter_buttons if axis == "gear"
+                else content._item_filter_buttons
+            )
+            # "All" is always the first entry in each list — pre-check it.
+            if buttons:
+                buttons[0].setChecked(True)
+            content._rebuild()
+        self.popup_at()
+        return bool(self.last_picked_ids)
+
+    def exec_for_replacement_scoped(
+        self,
+        allowed_item_ids: list[int],
+        axis: str | None = None,
+    ) -> bool:
+        """Show the popup, let the user pick replacements from a fixed
+        id set (e.g. items that drop in the active rule's pool).
+
+        Per user feedback (Jul 2026): pool rules must draw their
+        replacement IDs from that pool's drop table — replacement
+        candidates are restricted to ``allowed_item_ids``. Pass an
+        empty list to disable the picker (no items eligible).
+
+        ``axis`` mirrors ``exec_for_replacement`` — pre-selects a
+        single filter chip row (gear / item) so the user doesn't
+        wade through a mixed catalog.
+        """
+        self.last_picked_id = None
+        self.last_picked_ids = []
+        self.content.set_allowed_item_ids(allowed_item_ids or None)
+        if axis in ("gear", "item"):
+            content = self.content
+            for btn in content._gear_filter_buttons:
+                btn.setChecked(False)
+            for btn in content._item_filter_buttons:
+                btn.setChecked(False)
+            buttons = (
+                content._gear_filter_buttons if axis == "gear"
+                else content._item_filter_buttons
+            )
+            if buttons:
+                buttons[0].setChecked(True)
+            content._rebuild()
+        self.popup_at()
+        return bool(self.last_picked_ids)
 
     def sizeHint(self) -> QSize:  # noqa: ANN001
-        return QSize(560, 460)
+        return QSize(580, 500)
 
     def popup_at(self, global_pos: QPoint | None = None) -> None:
         if global_pos is None:

@@ -8,17 +8,36 @@ from tbh_desktop.ui.theme import (
     RARITY,
     arsenal_stylesheet,
     chip_style,
+    rarity_color,
     rarity_tint,
     register_fonts,
     section_heading_style,
 )
 
 
-def test_rarity_has_six_tiers(qapp: QApplication) -> None:
-    assert set(RARITY.keys()) == {"COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY", "MYTHIC"}
+def test_rarity_has_all_tbh_city_legendary_tiers(qapp: QApplication) -> None:
+    """RARITY covers every gear tier tbh.city exposes in
+    items_normalized.json. Anything missing falls back to COMMON
+    gray, which would be invisible on the dark base — so the
+    dict must be exhaustive and exactly match the scraper's
+    output (no invented tier names)."""
+    expected = {
+        "COMMON", "UNCOMMON", "RARE",
+        "LEGENDARY", "IMMORTAL", "ARCANA", "BEYOND",
+        "CELESTIAL", "DIVINE", "COSMIC",
+    }
+    assert set(RARITY.keys()) == expected
     for hex_color in RARITY.values():
         assert hex_color.startswith("#")
         assert len(hex_color) == 7
+
+
+def test_rarity_color_helper_falls_back_to_common(qapp: QApplication) -> None:
+    """rarity_color() is the single point of lookup — unknown
+    tiers fall back to COMMON gray rather than KeyError."""
+    assert rarity_color("UNKNOWN_TIER") == RARITY["COMMON"]
+    assert rarity_color("") == RARITY["COMMON"]
+    assert rarity_color("legendary") == RARITY["LEGENDARY"]  # case-insensitive
 
 
 def test_rarity_tint_blends_with_mantle(qapp: QApplication) -> None:

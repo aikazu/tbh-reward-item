@@ -35,14 +35,52 @@ MOCHA = {
     "teal":      "#94e2d5",
 }
 
+# Rarity → accent color. Covers the 10 tier names that
+# actually appear in tbh.city's items_normalized.json (Jul 2026
+# scrape): Common / Uncommon / Rare / Legendary / Immortal /
+# Arcana / Beyond / Celestial / Divine / Cosmic. Anything
+# missing falls back to COMMON gray, so we MUST keep the
+# dict aligned with what the scraper produces.
+#
+# Palette rule: each tier gets a distinct, bright-enough-on-dark
+# color. Legendary is the "warm gold" baseline; surrounding tiers
+# diverge in hue (warm → cool as you climb the ladder) so the
+# user can sort by visual rarity at a glance.
 RARITY: dict[str, str] = {
-    "COMMON":    "#6c7086",
-    "UNCOMMON":  "#a6e3a1",
-    "RARE":      "#89b4fa",
-    "EPIC":      "#cba6f7",
-    "LEGENDARY": "#f9e2af",
-    "MYTHIC":    "#f38ba8",
+    # Lower tiers — muted, low contrast.
+    "COMMON":    "#7f849c",  # neutral gray
+    "UNCOMMON":  "#a6e3a1",  # green
+    "RARE":      "#89b4fa",  # blue
+    # tbh.city LEG+ gear tiers (in scrape order, low → high).
+    "LEGENDARY": "#f9e2af",  # warm gold
+    "IMMORTAL":  "#fab387",  # orange
+    "ARCANA":    "#b4befe",  # periwinkle
+    "BEYOND":    "#94e2d5",  # teal
+    "CELESTIAL": "#89dceb",  # sky blue
+    "DIVINE":    "#f5c2e7",  # pink
+    "COSMIC":    "#ffffff",  # pure white (final-tier signature)
 }
+
+# Display order: lowest to highest. Used for sorting the catalog
+# list (cosmic-first) and any rarity-rank comparisons. Matches
+# tbh.city's 10 tier names in items_normalized.json.
+RARITY_ORDER: tuple[str, ...] = (
+    "COMMON", "UNCOMMON", "RARE",
+    "LEGENDARY", "IMMORTAL", "ARCANA", "BEYOND",
+    "CELESTIAL", "DIVINE", "COSMIC",
+)
+
+# Numeric rank — used to decide when a row's foreground should
+# use the rarity color (high tiers) vs. plain text (low tiers,
+# which would be near-invisible on the dark base).
+RARITY_RANK: dict[str, int] = {name: i for i, name in enumerate(RARITY_ORDER)}
+
+
+def rarity_color(rarity: str) -> str:
+    """Return the accent color for a rarity, falling back to COMMON
+    gray for unknown tiers. Single helper so the table above is
+    the only place that needs updating when tbh.city adds tiers."""
+    return RARITY.get(str(rarity or "").upper(), RARITY["COMMON"])
 
 
 def rarity_tint(hex_color: str, alpha: int = 0x33) -> str:

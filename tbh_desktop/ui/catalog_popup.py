@@ -67,7 +67,14 @@ from PySide6.QtWidgets import (
     QWidgetAction,
 )
 
-from tbh_desktop.ui.theme import MOCHA, RARITY, rarity_tint
+from tbh_desktop.ui.theme import (
+    MOCHA,
+    RARITY,
+    RARITY_ORDER,
+    RARITY_RANK,
+    rarity_color,
+    rarity_tint,
+)
 from PySide6.QtGui import QFont
 
 
@@ -452,14 +459,11 @@ class CatalogContent(QWidget):
                         "family": str(e.get("family", "CRAFTING")).upper(),
                     })
 
-        # Sort: rarity desc (COSMIC→COMMON), then by name.
-        rarity_order = {
-            "COSMIC": 0, "DIVINE": 1, "CELESTIAL": 2, "BEYOND": 3,
-            "ARCANA": 4, "IMMORTAL": 5, "LEGENDARY": 6,
-            "RARE": 7, "UNCOMMON": 8, "COMMON": 9,
-        }
+        # Sort: rarity desc (cosmic-first), then by name. RARITY_RANK is
+        # the single source of truth (theme.py) so we don't drift
+        # when new tiers are added.
         items.sort(key=lambda it: (
-            rarity_order.get(it.get("rarity", "COMMON"), 99),
+            RARITY_RANK.get(it.get("rarity", "COMMON"), 99),
             it.get("name", "").lower(),
         ))
         self._all_items = items
@@ -653,27 +657,17 @@ class CatalogContent(QWidget):
         # revision wrote HTML to DisplayRole and it leaked as literal
         # tags on screen; this is the safe path.)
         list_item.setFont(_ROW_FONT)
-        # Render the rarity bracket in the rarity's accent colour by
-        # setting the foreground to a neutral text color and then
-        # attaching a QTextCharFormat via AccessibleTextRole + a
-        # custom delegate would be overkill. Instead, lean on the
-        # rarity color for the WHOLE row when the row is high-tier
-        # (the original design), but ALWAYS legible for low tiers:
-        rarity_rank = {
-            "COMMON": 0, "UNCOMMON": 1, "RARE": 2,
-            "LEGENDARY": 3, "IMMORTAL": 4, "ARCANA": 5, "BEYOND": 6,
-            "CELESTIAL": 7, "DIVINE": 8, "COSMIC": 9,
-        }
-        rank = rarity_rank.get(rarity_raw, 0)
-        if rank <= 2:
-            # Low-tier rows: bright text for legibility, regardless of
-            # rarity color (Common / Uncommon / Rare were near-invisible
-            # in the previous gray-on-dark design).
+        # Decide row foreground: low tiers (Common/Uncommon/Rare) use
+        # plain text so they stay legible on the dark base; high
+        # tiers (LEG+) use the rarity's accent color directly. The
+        # rank threshold is "any tier with rank >= LEGENDARY" — the
+        # RARITY_RANK from theme.py is the single source of truth.
+        if RARITY_RANK.get(rarity_raw, 0) < RARITY_RANK["LEGENDARY"]:
             list_item.setForeground(QBrush(QColor(MOCHA["text"])))
         else:
             # High-tier rows: rarity color IS the text color — it's
-            # bright enough on the dark base to stay legible, and the
-            # color communicates the tier at a glance.
+            # bright enough on the dark base to stay legible, and
+            # the color communicates the tier at a glance.
             list_item.setForeground(QBrush(QColor(rarity_color)))
 
         self.list_widget.addItem(list_item)

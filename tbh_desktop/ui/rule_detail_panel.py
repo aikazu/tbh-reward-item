@@ -38,11 +38,13 @@ from __future__ import annotations
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
+    QCheckBox,
     QFrame,
     QHBoxLayout,
     QLabel,
     QPushButton,
     QSizePolicy,
+    QSpinBox,
     QVBoxLayout,
     QWidget,
 )
@@ -137,6 +139,8 @@ class RuleDetailPanel(QWidget):
     pick_item = Signal()  # open CatalogPopup pre-scoped to the Items chip
     remove_id_requested = Signal(int)  # item_id
     selection_cleared = Signal()  # user cleared the active target
+    pool_id_changed = Signal(list)  # multi-pool edit -> main_window
+    range_edited = Signal()  # user changed min/max/enabled → persist
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -233,48 +237,89 @@ class RuleDetailPanel(QWidget):
         form_layout.setContentsMargins(0, 0, 0, 0)
         form_layout.setSpacing(10)
 
-        # Item ID + Level row.
-        id_row = QHBoxLayout()
-        id_row.setSpacing(10)
-        id_col = QVBoxLayout()
-        id_label = QLabel("ITEM ID")
-        id_label.setStyleSheet(
+        # ---- Form fields (pool chips row + range min/max row) --------
+        # The detail panel shows ONE of two field rows depending on
+        # which target is active:
+        #   * RuleTarget   → _pool_field_row (multi-pool chip strip)
+        #   * RangeTarget  → _range_field_row (min / max QSpinBox)
+        # Both are kept in the same form layout and toggled via
+        # setVisible in _show_rule_form / _show_range_form.
+        self._pool_field_row = QWidget()
+        pool_field_layout = QVBoxLayout(self._pool_field_row)
+        pool_field_layout.setContentsMargins(0, 0, 0, 0)
+        pool_field_layout.setSpacing(6)
+        pool_field_label = QLabel("POOL IDS")
+        pool_field_label.setStyleSheet(
             f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
             f" letter-spacing: 1px;"
         )
-        self.item_id_value = QLabel("—")
-        self.item_id_value.setObjectName("item_id_value")
-        self.item_id_value.setFont(_mono_font(14))
-        self.item_id_value.setStyleSheet(
-            f"color: {MOCHA['text']}; background: {MOCHA['crust']};"
-            f" border: 1px solid {MOCHA['surface1']}; border-radius: 3px;"
-            f" padding: 6px 10px;"
-        )
-        self.item_id_value.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        id_col.addWidget(id_label)
-        id_col.addWidget(self.item_id_value)
-        id_row.addLayout(id_col, stretch=2)
+        pool_field_layout.addWidget(pool_field_label)
+        # Chip strip — one chip per pool id, X to remove.
+        self.pool_chip_row = _ChipRow()
+        self.pool_chip_row.setObjectName("pool_chip_row_detail")
+        self.pool_chip_row.remove_requested.connect(self._on_pool_chip_removed)
+        pool_field_layout.addWidget(self.pool_chip_row)
+        form_layout.addWidget(self._pool_field_row)
 
-        level_col = QVBoxLayout()
-        self.level_label = QLabel("LEVEL")
-        self.level_label.setStyleSheet(
+        # Legacy item_id_value / level_value stay around so any stale
+        # QSS / tests that look them up by name keep working. They're
+        # hidden; the panel no longer renders them.
+        self.item_id_value = QLabel("(unused)")
+        self.item_id_value.setObjectName("item_id_value")
+        self.item_id_value.setVisible(False)
+        self.level_value = QLabel("(unused)")
+        self.level_value.setObjectName("level_value")
+        self.level_value.setVisible(False)
+        self.level_label = QLabel("")
+        self.level_label.setVisible(False)
+
+        # Range field row: enabled checkbox + min/max spinboxes.
+        self._range_field_row = QWidget()
+        range_layout = QHBoxLayout(self._range_field_row)
+        range_layout.setContentsMargins(0, 0, 0, 0)
+        range_layout.setSpacing(8)
+        range_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.range_enabled_checkbox = QCheckBox("Enabled")
+        self.range_enabled_checkbox.setObjectName("range_enabled_checkbox")
+        range_layout.addWidget(self.range_enabled_checkbox)
+        range_min_label = QLabel("min")
+        range_min_label.setStyleSheet(
             f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
             f" letter-spacing: 1px;"
         )
-        self.level_value = QLabel("—")
-        self.level_value.setObjectName("level_value")
-        self.level_value.setFont(_mono_font(14))
-        self.level_value.setStyleSheet(
-            f"color: {MOCHA['text']}; background: {MOCHA['crust']};"
-            f" border: 1px solid {MOCHA['surface1']}; border-radius: 3px;"
-            f" padding: 6px 10px;"
+        range_layout.addWidget(range_min_label)
+        self.range_min_value = QSpinBox()
+        self.range_min_value.setObjectName("range_min_value")
+        self.range_min_value.setRange(0, 999_999)
+        self.range_min_value.setFixedWidth(110)
+        self.range_min_value.setGroupSeparatorShown(True)
+        range_layout.addWidget(self.range_min_value)
+        range_max_label = QLabel("max")
+        range_max_label.setStyleSheet(
+            f"color: {MOCHA['overlay1']}; font-size: 10px; font-weight: 700;"
+            f" letter-spacing: 1px;"
         )
-        self.level_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.level_value.setFixedWidth(80)
-        level_col.addWidget(self.level_label)
-        level_col.addWidget(self.level_value)
-        id_row.addLayout(level_col)
-        form_layout.addLayout(id_row)
+        range_layout.addWidget(range_max_label)
+        self.range_max_value = QSpinBox()
+        self.range_max_value.setObjectName("range_max_value")
+        self.range_max_value.setRange(0, 999_999)
+        self.range_max_value.setFixedWidth(110)
+        self.range_max_value.setGroupSeparatorShown(True)
+        range_layout.addWidget(self.range_max_value)
+        range_layout.addStretch()
+        form_layout.addWidget(self._range_field_row)
+        self._range_field_row.setVisible(False)
+        # Wire range field edits back to main_window via a single signal.
+        # main_window handles persisting to ConfigEditor's RangeState.
+        self.range_enabled_checkbox.toggled.connect(
+            lambda _v: self.range_edited.emit()
+        )
+        self.range_min_value.valueChanged.connect(
+            lambda _v: self.range_edited.emit()
+        )
+        self.range_max_value.valueChanged.connect(
+            lambda _v: self.range_edited.emit()
+        )
 
         # Pick buttons row.
         btn_row = QHBoxLayout()
@@ -376,32 +421,87 @@ class RuleDetailPanel(QWidget):
         self._target = None
         self._show_empty_state()
 
-    def show_range_summary(self) -> None:
-        """Show the range-form summary (range target active)."""
-        self._target = RangeTarget()
-        self._show_range_summary()
-
     def set_rule_data(
         self,
         *,
         name: str,
         reward_kind: str,
-        pool_id: int | None,
+        pool_ids: list[int] | tuple[int, ...] | None,
         replacement_ids: list[int],
     ) -> None:
         """Populate the detail panel from a single rule's data.
 
-        MainWindow looks up the active rule card on selection change and
-        calls this. Keeping the data source outside the panel avoids a
-        circular import (the panel needs MainWindow to know what the
-        rule list has — but MainWindow imports the panel).
+        ``pool_ids`` is the v2 multi-pool field: a single rule can
+        target several stage drop pools (e.g. Act 1 stages 1-9 Torment
+        monster pool = 1 rule covering many drop_keys). The panel
+        shows each as a removable chip; the underlying rule_card keeps
+        the canonical tuple.
+
+        MainWindow looks up the active rule card on selection change
+        and calls this. Keeping the data source outside the panel
+        avoids a circular import (the panel needs MainWindow to know
+        what the rule list has — but MainWindow imports the panel).
         """
-        self._target = RuleTarget(row=-1, rule_index=-1, reward_kind=reward_kind, pool_id=pool_id)
+        pool_ids = tuple(int(p) for p in (pool_ids or []) if p is not None)
+        self._target = RuleTarget(
+            row=-1,
+            rule_index=-1,
+            reward_kind=reward_kind,
+            pool_id=pool_ids[0] if pool_ids else None,
+        )
         self._rule_name = name
         self._reward_kind = reward_kind
-        self._pool_id = pool_id
+        self._pool_ids = pool_ids
         self._replacement_ids = list(replacement_ids)
         self._show_rule_form()
+
+    def set_range_data(
+        self,
+        *,
+        enabled: bool,
+        match_min: int,
+        match_max: int,
+        replacement_ids: list[int],
+    ) -> None:
+        """Populate the detail panel from the range-replacement rule.
+
+        The range rule lives at the bottom of the config (after the
+        3 per-kind rule buckets) and matches by itemId range rather
+        than pool. The same Pick replacement / chip row / X remove
+        flow is shared with the per-kind rule form so the user has
+        only one mental model.
+        """
+        self._target = RangeTarget()
+        self._range_enabled = enabled
+        self._range_min = match_min
+        self._range_max = match_max
+        self._range_replacement_ids = list(replacement_ids)
+        self._show_range_form()
+
+    def active_target(self) -> RuleTarget | RangeTarget | None:
+        return self._target
+
+    # ---- pool chip helpers -------------------------------------------
+    def _refresh_pool_chips(self) -> None:
+        """Populate the pool chip strip from ``self._pool_ids``."""
+        self.pool_chip_row.set_ids(list(self._pool_ids))
+
+    def _on_pool_chip_removed(self, pool_id: int) -> None:
+        """Forward a chip-remove request from the detail panel to the
+        underlying rule card, then re-render the detail panel.
+        """
+        target = self._target
+        if not isinstance(target, RuleTarget):
+            return
+        # Drop the pool id from our local cache so the chip strip
+        # updates immediately, then ask main_window to persist the
+        # change back to the rule_card.
+        new_pool_ids = [p for p in self._pool_ids if p != pool_id]
+        self._pool_ids = tuple(new_pool_ids)
+        self._refresh_pool_chips()
+        # Re-emit so main_window can call back into the rule_list to
+        # write the new pool_ids into the source rule_card.
+        self.pool_id_changed.emit(list(self._pool_ids))
 
     # ---- state helpers -----------------------------------------------
     def _show_empty_state(self) -> None:
@@ -414,39 +514,66 @@ class RuleDetailPanel(QWidget):
             "Select a rule on the left to edit its item ID, level, and reward picks."
         )
 
-    def _show_range_summary(self) -> None:
+    def _show_range_form(self) -> None:
+        """Show the range-replacement form (uses the same widget layout
+        as the per-kind rule form, just with min/max inputs instead
+        of the pool button). The user edits the range rule in the
+        same panel they edit pool rules — no separate 'range summary'
+        half-state that pretends to be editable but isn't."""
         self.empty_label.setVisible(False)
-        self.form.setVisible(False)
-        self.banner_name.setText("Range replacement")
-        self.banner_dot.setStyleSheet(f"color: {MOCHA['blue']}; font-size: 14px;")
+        self.form.setVisible(True)
+        self.banner_name.setText("Pool range")
+        self.banner_dot.setStyleSheet(
+            f"color: {MOCHA['blue']}; font-size: 14px;"
+        )
         self.banner_id.setVisible(False)
         self.subtitle_label.setText(
-            "Edit range replacement settings in the RANGE REPLACEMENT form "
-            "at the bottom of the rules panel on the left."
+            "Range replacement — every itemId between min and max gets "
+            "the replacements below (cycled in order). Use this as a "
+            "fallback for items not covered by any pool rule."
+        )
+        # Range replaces the 'pool id' row with min / max side-by-side.
+        self._pool_field_row.setVisible(False)
+        self._range_field_row.setVisible(True)
+        self.range_min_value.setValue(int(self._range_min))
+        self.range_max_value.setValue(int(self._range_max))
+        self.range_enabled_checkbox.setChecked(bool(self._range_enabled))
+        self.chip_row.set_ids(self._range_replacement_ids)
+        n = len(self._range_replacement_ids)
+        self.chip_count_label.setText(
+            f"{n} ID{'s' if n != 1 else ''} (cycled in order · click to remove)"
         )
 
     def _show_rule_form(self) -> None:
         self.empty_label.setVisible(False)
         self.form.setVisible(True)
-        # Banner: rule name + dot + pool id (replaces v1's item_id + level).
+        # Banner: rule name + dot + pool count summary. Multi-pool rules
+        # show "N pools" instead of one ID; single-pool rules still
+        # surface the drop_key for quick scanning.
         self.banner_name.setText(self._rule_name or "(unnamed rule)")
-        self.banner_dot.setStyleSheet(f"color: {MOCHA['green']}; font-size: 14px;")
-        if self._pool_id is not None:
-            self.banner_id.setVisible(True)
-            self.banner_id.setText(str(self._pool_id))
-        else:
+        self.banner_dot.setStyleSheet(
+            f"color: {MOCHA['green']}; font-size: 14px;"
+        )
+        n_pools = len(self._pool_ids)
+        if n_pools == 0:
             self.banner_id.setVisible(False)
+        elif n_pools == 1:
+            self.banner_id.setVisible(True)
+            self.banner_id.setText(str(self._pool_ids[0]))
+        else:
+            self.banner_id.setVisible(True)
+            self.banner_id.setText(f"{n_pools} pools")
         kind = self._reward_kind or "rule"
         self.subtitle_label.setText(
-            f"Edit this {kind} rule's pool id and the rewards it cycles through."
+            f"Edit this {kind} rule's pool ids and the rewards it "
+            "cycles through. Use Pick pool to add stages; Pick gear or "
+            "Pick item to add replacements from each pool's drop table."
         )
-        # Form fields. Show "—" when pool id isn't set yet; the level
-        # cell is gone (v2 has no per-rule level — pool_id is the only
-        # numeric selector).
-        self.item_id_value.setText(
-            str(self._pool_id) if self._pool_id is not None else "—"
-        )
-        # Chip row.
+        # Pool-id row visible; range row hidden.
+        self._pool_field_row.setVisible(True)
+        self._range_field_row.setVisible(False)
+        # Render one chip per pool id so the user can see + remove each.
+        self._refresh_pool_chips()
         self.chip_row.set_ids(self._replacement_ids)
         n = len(self._replacement_ids)
         self.chip_count_label.setText(

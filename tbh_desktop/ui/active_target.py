@@ -12,11 +12,12 @@ from typing import Union
 
 @dataclass(frozen=True)
 class RuleTarget:
-    """A specific rule row in `config.specific_queue_rules`."""
+    """A specific rule row in one of the three pool-rule lists
+    (``config.normal_rules`` / ``boss_rules`` / ``act_rules``)."""
     row: int           # visual row in RuleListView
-    rule_index: int    # index into config.specific_queue_rules
-    box_id: int | None
-    level: int | None
+    rule_index: int    # index into the chosen list (per reward_kind)
+    reward_kind: str   # "normal" | "boss" | "act"
+    pool_id: int | None
 
 
 @dataclass(frozen=True)
